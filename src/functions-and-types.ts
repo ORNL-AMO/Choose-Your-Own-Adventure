@@ -1,3 +1,4 @@
+import React from "react";
 import type { App, AppState } from "./App";
 import type { DialogStateProps } from "./controls";
 
@@ -52,6 +53,7 @@ export function resolveToValue(item: unknown, whenUndefined?: unknown, params?: 
  */
 export function comparePropsAndStateIgnoreFuncs(this: React.Component, nextProps, nextState?) {
 	let propCompare = shallowCompareIgnoreFuncs(this.props, nextProps);
+	console.log(propCompare);
 	if (propCompare === true) return true;
 	
 	if (!nextState) return false;
@@ -60,7 +62,6 @@ export function comparePropsAndStateIgnoreFuncs(this: React.Component, nextProps
 
 export function shallowCompareIgnoreFuncs(obj1, obj2) {
 	let keys = Object.keys(obj1);
-	
 	return keys.some(key => 
 		(obj1[key] !== obj2[key] && typeof obj1[key] !== 'function'));
 }
@@ -75,6 +76,17 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		imgAlt: obj.imgAlt || '',
 		buttons: obj.buttons || undefined,
 	};
+}
+
+/**
+ * Custom implementation of PureComponent which ignores functions in the shouldComponentUpdate comperison.
+ * This is because passing arrow/bind functions as props will cause the shallow comparison to always fail.
+ * For example, (() => foo()) == (() => foo()) returns false
+ */
+ export class PureComponentIgnoreFuncs <P> extends React.Component <P> {
+	shouldComponentUpdate(nextProps, nextState) {
+		return comparePropsAndStateIgnoreFuncs.apply(this, [nextProps, nextState]);
+	}
 }
 
 // Helpful types

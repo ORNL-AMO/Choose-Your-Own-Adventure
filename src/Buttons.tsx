@@ -75,7 +75,6 @@ export function ButtonGroup(props: ButtonGroupProps) {
 				startIcon={button.startIcon} 
 				size={button.size}
 				onClick={() => {
-					console.log(button);
 					// Button's provided onclick handler
 					if (button.onClick) {
 						props.doPageCallback(button.onClick);

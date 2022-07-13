@@ -6,10 +6,9 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { InfoDialogProps, InfoDialog, StartPage, SelectScope, SelectScopeProps, GroupedChoices, DialogStateProps } from './controls';
+import { InfoDialogProps, InfoDialog, StartPage, GroupedChoices, DialogStateProps } from './controls';
 import { Component, pageControls, PageError, Pages } from './pages';
 import { resolveToValue, fillDialogProps } from './functions-and-types';
-import { ButtonGroupButton } from './Buttons';
 
 interface HomeProps {
 	dialog: AnyDict;
@@ -31,7 +30,6 @@ export interface AppState {
 function Dashboard(props: HomeProps) {
 	switch (props.controlClass) {
 		case StartPage:
-		case SelectScope:
 		case GroupedChoices:
 			if (!props.currentPageProps) throw new Error('currentPageProps not defined'); 
 			return (<props.controlClass
@@ -39,28 +37,6 @@ function Dashboard(props: HomeProps) {
 				doPageCallback={props.doPageCallback}
 				summonInfoDialog={props.summonInfoDialog}
 			/>);
-		// case StartPage:
-		// 	return (<StartPage
-		// 		buttons={props.buttons}
-		// 		doPageCallback={props.doPageCallback}
-		// 		summonInfoDialog={props.summonInfoDialog}
-		// 	/>);
-		// case SelectScope:
-		// 	if (!props.selectProps) throw new Error('selectScope not defined');
-		// 	return (<SelectScope
-		// 		title={props.selectProps.title}
-		// 		choices={props.selectProps.choices}
-		// 		doPageCallback={props.doPageCallback}
-		// 		summonInfoDialog={props.summonInfoDialog}
-		// 	/>);
-		// case GroupedChoices:
-		// 	if (!props.groupedProps) throw new Error('groupedChoices not defined'); 
-		// 	return (<GroupedChoices
-		// 		title={props.groupedProps.title}
-		// 		groups={props.groupedProps.groups}
-		// 		doPageCallback={props.doPageCallback}
-		// 		summonInfoDialog={props.summonInfoDialog}
-		// 	/>);
 		default:
 			return <></>;
 	}
@@ -90,11 +66,16 @@ function HomePage(props: HomeProps) {
 }
 
 /**
- * Just a helper function to clone an object, modify certain keys, and return the cloned object. 
+ * Just a helper function to SHALLOWLY clone an object, modify certain keys, and return the cloned object. 
  * This is because React prefers to keep objects within a state immutable.
  */
-function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
-	let newObj = JSON.parse(JSON.stringify(obj));
+function cloneAndModify<T>(obj: T, newValues: AnyDict) {
+	let newObj = {};
+	// First populate values from the old object
+	for (let key of Object.keys(obj)) {
+		newObj[key] = obj[key];
+	}
+	// Then populate values from the new object
 	for (let key of Object.keys(newValues)) {
 		newObj[key] = newValues[key];
 	}
@@ -166,7 +147,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let dialog, currentPageProps;
 		
 		if (controlClass === InfoDialog) {
-			dialog = cloneAndModify(this.state.dialog, controlProps);
+			dialog = fillDialogProps(controlProps);
 			dialog.open = true;
 		}
 		else {
@@ -181,30 +162,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 			currentPageProps: currentPageProps,
 		});
 	}
-	
-	// handleDialogClickBack() {
-	// 	let thisPageControl = this.getThisPageControl();
-	// 	let nextPage = resolveToValue(thisPageControl.onBack);
-		
-	// 	this.setPage(nextPage);
-	// }
-	
-	// /**
-	//  * @param data Any data to be passed into pageControl.onContinue - Depends on the control
-	//  */
-	// handleDialogClickContinue(data?: unknown) {
-	// 	let thisPageControl = this.getThisPageControl();
-		
-	// 	let nextPage = resolveToValue(thisPageControl.onContinue, undefined, [data], this);
-		
-	// 	this.setPage(nextPage);
-		
-	// 	return;
-	// 	// Symbols can't be cloned
-	// 	let symbolKey = Symbol.keyFor(nextPage);
-	// 	// Add to window history for back button
-	// 	history.pushState({page: symbolKey}, '', symbolKey); 
-	// }
 	
 	handlePageCallback(callbackOrPage?: PageCallback) {
 		let nextPage;

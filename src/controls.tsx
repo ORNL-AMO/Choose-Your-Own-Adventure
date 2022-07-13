@@ -1,5 +1,5 @@
 import { Box, Button, Container, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid, Stack, SvgIconTypeMap } from "@mui/material";
-import { comparePropsAndStateIgnoreFuncs, parseSpecialText } from "./functions-and-types";
+import { comparePropsAndStateIgnoreFuncs, parseSpecialText, PureComponentIgnoreFuncs } from "./functions-and-types";
 import { theme } from './theme';
 import PropTypes from 'prop-types';
 import Image from 'mui-image';
@@ -66,46 +66,54 @@ function optionalInfoPopup(buttonText: string, buttonVariant: buttonVariant, pop
 }
 
 /**
- * Function for selecting general scope.
- */
-export function SelectScope(props: SelectScopeProps) {
-	
-	let numChoices = props.choices.length;
-	let gridWidth = 12 / numChoices;
-	
-	const gridItems = props.choices.map((choice, idx) => {
-		
-		
-		return (
-			<Grid item xs={12} sm={gridWidth} key={idx}>
-				<PaperGridItem>
-					<Typography variant='h4'>{choice.title}</Typography>
-						<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(choice.text)}/>
-						<ButtonGroup buttons={choice.buttons} doPageCallback={props.doPageCallback} summonInfoDialog={props.summonInfoDialog}/>
-						{/* <Stack direction="row" justifyContent="center" spacing={2}>
-							{optionalInfoPopup('Info', 'outlined', choice.infoPopup)}
-							<Button onClick={() => props.doPageCallback(choice.onSelect)} variant='contained'>Select</Button>
-						</Stack> */}
-				</PaperGridItem>
-			</Grid>
-		);
-	});
-	
-	return (
-		<Box m={2}>
-			<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.title)}/>
-			<br/>
-			<Grid container spacing={2}>
-				{gridItems}
-			</Grid>
-		</Box>
-	);
-}
-
-/**
  * Generic control for picking between multiple choices across multiple groups.
  */
-export function GroupedChoices(props: GroupedChoicesProps) {
+export class GroupedChoices extends React.PureComponent <GroupedChoicesProps> {
+	render() {
+		// console.log('groupedchoice render');
+		
+		const props = this.props;
+		let numGroups = props.groups.length;
+		let gridWidth = 12 / numGroups;
+		
+		const gridItems = props.groups.map((group, idx) => {
+			
+			const choices = group.choices.map((choice, idx) => {
+				
+				return (<Grid item xs={12} key={idx}>
+					<PaperGridItem>
+						<Typography variant='h4'>{choice.title}</Typography>
+							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(choice.text)}/>
+							<ButtonGroup 
+								buttons={choice.buttons} 
+								doPageCallback={props.doPageCallback} 
+								summonInfoDialog={props.summonInfoDialog}
+							/>
+					</PaperGridItem>
+				</Grid>);
+			});
+			
+			return (<Grid item xs={12} sm={gridWidth} key={idx}>
+				<Typography variant='h6' dangerouslySetInnerHTML={parseSpecialText(group.title)}/>
+				<Grid container spacing={2}>
+					{choices}
+				</Grid>
+			</Grid>);
+		});
+		
+		return (
+			<Box m={2}>
+				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.title)}/>
+				<br/>
+				<Grid container spacing={2}>
+					{gridItems}
+				</Grid>
+			</Box>
+		);
+	}
+}
+export function GroupedChoices2(props: GroupedChoicesProps) {
+	console.log('groupedchoice render');
 		
 	let numGroups = props.groups.length;
 	let gridWidth = 12 / numGroups;
@@ -210,11 +218,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	);
 }
 
-export class InfoDialog extends React.Component <InfoDialogProps> {
-	shouldComponentUpdate(nextProps, nextState) {
-		return comparePropsAndStateIgnoreFuncs.apply(this, [nextProps, nextState]);
-	}
-	
+export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
 	render() {
 		return (
 			<InfoDialogFunc {...this.props}/>
@@ -241,14 +245,6 @@ export interface Choice {
 	text: string;
 	infoPopup?: React.ReactNode;
 	disabled?: Resolvable<boolean>;
-	buttons?: ButtonGroupButton[];
-}
-
-export interface SelectScopeProps {
-	title: string;
-	choices: Choice[];
-	doPageCallback: (callback?: PageCallback) => void;
-	summonInfoDialog: (props) => void;
 	buttons?: ButtonGroupButton[];
 }
 

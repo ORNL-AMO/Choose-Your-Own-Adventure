@@ -1,4 +1,4 @@
-import { Emphasis, GroupedChoices, InfoDialog, InfoDialogProps, SelectScope, Choice, StartPage, GroupedChoicesProps } from "./controls";
+import { Emphasis, GroupedChoices, InfoDialog, InfoDialogProps, Choice, StartPage, GroupedChoicesProps } from "./controls";
 import React from 'react';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -52,44 +52,6 @@ pageControls[Pages.introduction] = {
 		buttons: [
 			backButton(Pages.start),
 			continueButton(Pages.selectScope),
-		]
-	}
-};
-
-pageControls[Pages.selectScope] = {
-	controlClass: SelectScope,
-	controlProps: {
-		title: 'To begin, you will need to decide which types of projects to pursue. {Would you like to...}',
-		choices: [
-			{
-				title: 'A',
-				text: 'Tackle Scope 1 emissions – fossil fuel consumption',
-				buttons: [
-					infoButtonWithPopup(
-						infoPopupWithIcons(
-							'Scope 1: Direct Emissions',
-							'Company emissions that are owned or controlled by the organization directly.',
-							[LocalShippingIcon, FactoryIcon, LocationCityIcon],
-						)
-					),
-					selectButton(Pages.scope1Projects),
-				],
-			},
-			{
-				title: 'B',
-				text: 'Tackle Scope 1 emissions – fossil fuel consumption',
-				buttons: [
-					infoButtonWithPopup(
-						infoPopupWithIcons(
-							'Scope 2: Indirect Emissions',
-							'Company emissions that are caused indirectly when the energy it purchases and uses is produced.',
-							[FlashOnIcon, ElectricalServicesIcon]
-						)
-					),
-					selectButton(Pages.scope2Projects),
-				],
-			},
-			
 		]
 	}
 };
@@ -196,14 +158,6 @@ export declare interface PageControl {
 	}
 }
 
-export declare interface SelectScopeControl extends PageControl {
-	controlClass: typeof SelectScope;
-	controlProps: {
-		title: string;
-		choices: Choice[];
-	}
-}
-
 export declare interface GroupedChoicesControl extends PageControl {
 	controlClass: typeof GroupedChoices;
 	controlProps: {
@@ -216,7 +170,7 @@ export declare interface GroupedChoicesControl extends PageControl {
 }
 
 declare interface PageControls {
-	[key: symbol]: PageControl|SelectScopeControl;
+	[key: symbol]: PageControl|GroupedChoicesControl;
 }
 
 export class PageError extends Error {
