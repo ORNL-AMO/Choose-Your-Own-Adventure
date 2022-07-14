@@ -1,13 +1,9 @@
-import { Box, Button, Container, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid, Stack, SvgIconTypeMap } from "@mui/material";
-import { comparePropsAndStateIgnoreFuncs, parseSpecialText, PureComponentIgnoreFuncs } from "./functions-and-types";
-import { theme } from './theme';
-import PropTypes from 'prop-types';
+import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from "@mui/material";
+import { parseSpecialText, PureComponentIgnoreFuncs } from "./functions-and-types";
 import Image from 'mui-image';
 import { styled, useTheme } from '@mui/material/styles';
 import React from 'react';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import BasicPopover from "./BasicPopover";
-import { ButtonGroup, ButtonGroupButton, ButtonGroupProps } from "./Buttons";
+import { ButtonGroup, ButtonGroupButton } from "./Buttons";
 
 /* -======================================================- */
 //                         CONTROLS
@@ -16,6 +12,9 @@ import { ButtonGroup, ButtonGroupButton, ButtonGroupProps } from "./Buttons";
 export function Emphasis(props: React.PropsWithChildren) {
 	return <span className='emphasis'>{props.children}</span>;
 }
+
+
+// -=============- START PAGE -=============-
 
 /**
  * Start page
@@ -33,10 +32,28 @@ export function StartPage(props: StartPageProps) {
 				Can you decarbonize this industrial facility?
 			</Typography>
 			<br/>
-			<ButtonGroup buttons={props.buttons} doPageCallback={props.doPageCallback} summonInfoDialog={props.summonInfoDialog}/>
+			<ButtonGroup 
+				buttons={props.buttons} 
+				doPageCallback={props.doPageCallback} 
+				summonInfoDialog={props.summonInfoDialog}
+				resolveToValue={props.resolveToValue}
+			/>
 		</React.Fragment>
 	);
 }
+
+/**
+ * TS wrapper for a StartPage component control. 
+ * Use this when definining a PageControl for code autocompletion and props checking.
+ */
+export function newStartPageControl(props: StartPageControlProps): PageControl {
+	return {
+		controlClass: StartPage,
+		controlProps: props,
+	};
+}
+
+// -=============- GROUPED CHOICES -=============-
 
 /**
  * Stylized "Paper" item to go inside a grid
@@ -50,27 +67,12 @@ const PaperGridItem = styled(Paper)(({ theme }) => ({
 }));
 
 /**
- * Optional BasicPopover info 
- * @param popupContents Contents provided by the page control's infoPopup attribute
- * @returns {React.Component}
- */
-function optionalInfoPopup(buttonText: string, buttonVariant: buttonVariant, popupContents?: React.ReactNode) {
-	if (popupContents) {
-		return (
-			<BasicPopover text={buttonText} variant={buttonVariant} startIcon={<QuestionMarkIcon/>}>
-				{popupContents}
-			</BasicPopover>
-		);
-	}
-	else return <></>;
-}
-
-/**
  * Generic control for picking between multiple choices across multiple groups.
  */
-export class GroupedChoices extends React.PureComponent <GroupedChoicesProps> {
+export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 	render() {
-		// console.log('groupedchoice render');
+		console.log('groupedchoice render');
+		console.log(this.props.resolveToValue);
 		
 		const props = this.props;
 		let numGroups = props.groups.length;
@@ -88,14 +90,16 @@ export class GroupedChoices extends React.PureComponent <GroupedChoicesProps> {
 								buttons={choice.buttons} 
 								doPageCallback={props.doPageCallback} 
 								summonInfoDialog={props.summonInfoDialog}
+								resolveToValue={props.resolveToValue}
 							/>
 					</PaperGridItem>
 				</Grid>);
 			});
 			
-			return (<Grid item xs={12} sm={gridWidth} key={idx}>
+			return (<Grid item xs={12} sm={6} md={gridWidth} key={idx}>
 				<Typography variant='h6' dangerouslySetInnerHTML={parseSpecialText(group.title)}/>
 				<Grid container spacing={2}>
+					{/* consider putting Typography title in here inside a grid item? */}
 					{choices}
 				</Grid>
 			</Grid>);
@@ -112,133 +116,17 @@ export class GroupedChoices extends React.PureComponent <GroupedChoicesProps> {
 		);
 	}
 }
-export function GroupedChoices2(props: GroupedChoicesProps) {
-	console.log('groupedchoice render');
-		
-	let numGroups = props.groups.length;
-	let gridWidth = 12 / numGroups;
-	
-	const gridItems = props.groups.map((group, idx) => {
-		
-		const choices = group.choices.map((choice, idx) => {
-			
-			return (<Grid item xs={12} key={idx}>
-				<PaperGridItem>
-					<Typography variant='h4'>{choice.title}</Typography>
-						<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(choice.text)}/>
-						
-						<ButtonGroup 
-							buttons={choice.buttons} 
-							doPageCallback={props.doPageCallback} 
-							summonInfoDialog={props.summonInfoDialog}
-						/>
-						{/* <Stack direction="row" justifyContent="center" spacing={2}>
-							{optionalInfoPopup('Info', 'outlined', choice.infoPopup)}
-							<Button onClick={() => props.doPageCallback(choice.onSelect)} variant='contained'>Select</Button>
-						</Stack> */}
-				</PaperGridItem>
-			</Grid>);
-		});
-		
-		return (<Grid item xs={12} sm={gridWidth} key={idx}>
-			<Typography variant='h6' dangerouslySetInnerHTML={parseSpecialText(group.title)}/>
-			<Grid container spacing={2}>
-				{choices}
-			</Grid>
-		</Grid>);
-	});
-	
-	return (
-		<Box m={2}>
-			<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.title)}/>
-			<br/>
-			<Grid container spacing={2}>
-				{gridItems}
-			</Grid>
-		</Box>
-	);
-}
-
-export const InfoCard = styled(Paper)(({ theme }) => ({
-	...theme.typography.body2,
-	textAlign: 'center',
-	color: theme.palette.text.secondary,
-	height: 60,
-	lineHeight: '60px',
-	borderColor: theme.palette.primary.light,
-}));
-
-function InfoDialogFunc (props: InfoDialogProps) {
-	const theme = useTheme();
-	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-	
-	// Optional objectFit parameter
-	let objectFit = (props.objectFit) ? props.objectFit : 'cover';
-	
-	const cardImage = (props.img) ? 
-		<CardMedia
-			component="img"
-			height="260"
-			image={props.img}
-			alt={props.imgAlt}
-			sx={{objectFit: objectFit}}
-		/>
-		: <></>;
-	return (
-		<Dialog
-			fullScreen={fullScreen}
-			open={props.open}
-			keepMounted
-			// onClose={handleClose}
-			aria-describedby="alert-dialog-slide-description"
-		>
-			{cardImage}
-			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.title)}></DialogTitle>
-			<DialogContent>
-				<DialogContentText id="alert-dialog-slide-description" gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
-				</DialogContentText>
-				<br/>
-				{props.cardText ? 
-					<InfoCard variant='outlined' 
-						dangerouslySetInnerHTML={parseSpecialText(props.cardText)}
-					/>
-					:
-					<></>
-				}
-			</DialogContent>
-			<DialogActions>
-				<ButtonGroup 
-					buttons={props.buttons} 
-					doPageCallback={props.doPageCallback} 
-					summonInfoDialog={props.summonInfoDialog}
-					useMUIStack={false}
-				/>
-			</DialogActions>
-		</Dialog>
-	);
-}
-
-export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
-	render() {
-		return (
-			<InfoDialogFunc {...this.props}/>
-		);
-	}
-}
-
-/* -======================================================- */
-//                      PROPS INTERFACES
-/* -======================================================- */
 
 /**
- * Callbacks sent to every control. Component props extend this interface.
+ * TS wrapper for a GroupedChoices component control. 
+ * Use this when definining a PageControl for code autocompletion and props checking.
  */
-export interface ControlCallbacks {
-	doPageCallback: (callback?: PageCallback) => void;
-	summonInfoDialog: (props) => void;
+export function newGroupedChoicesControl(props: GroupedChoicesControlProps): PageControl {
+	return {
+		controlClass: GroupedChoices,
+		controlProps: props,
+	};
 }
-
-// -=============- CHOICE PAGES -=============-
 
 export interface Choice {
 	title?: string;
@@ -260,28 +148,199 @@ export interface GroupedChoicesControlProps {
 
 export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { }
 
-// -=============- START PAGE -=============-
 
-/**
- * Control properties specified by the scripter (in pages.tsx).
- */
-export declare interface StartPageControlProps {
-	buttons?: ButtonGroupButton[];
+/* -======================================================- */
+//                         DASHBOARD
+/* -======================================================- */
+
+
+export class Dashboard extends PureComponentIgnoreFuncs <DashboardProps> {
+	render() {
+		return (
+			<>
+				<Box m={2}>
+					<Grid container spacing={2}>
+						<Grid item xs={12}>
+							<Typography variant='h3'>Dashboard</Typography>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<PaperGridItem>
+								<Typography>Finances available: ${this.props.financesAvailable.toLocaleString('en-US')} / ${this.props.totalBudget.toLocaleString('en-US')}</Typography>
+							</PaperGridItem>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<PaperGridItem>
+								<Typography>Money spent: ${this.props.moneySpent.toLocaleString('en-US')}</Typography>
+							</PaperGridItem>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<PaperGridItem>
+								<Typography>Carbon reduction: {this.props.carbonReduced.toLocaleString('en-US')}%</Typography>
+							</PaperGridItem>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<PaperGridItem>
+								<Typography>Carbon emissions: {this.props.carbonEmissions.toLocaleString('en-US')} metric tons</Typography>
+							</PaperGridItem>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<PaperGridItem>
+								<Typography>Rebates: ${this.props.totalRebates.toLocaleString('en-US')}</Typography>
+							</PaperGridItem>
+						</Grid>
+					</Grid>
+				</Box>
+				{/* todo something prettier */}
+				<hr/> 
+			</>
+		);
+	}
 }
 
-export declare interface StartPageProps extends StartPageControlProps, ControlCallbacks { }
+export interface DashboardProps {
+	totalBudget: number;
+	financesAvailable: number;
+	carbonReduced: number;
+	carbonEmissions: number;
+	moneySpent: number;
+	totalRebates: number;
+	// todo brownie points
+}
 
-// -=============- DIALOGS -=============-
+/* -======================================================- */
+//                      INFO DIALOG
+/* -======================================================- */
+
+export const InfoCard = styled(Paper)(({ theme }) => ({
+	...theme.typography.body2,
+	textAlign: 'center',
+	color: theme.palette.text.secondary,
+	borderColor: theme.palette.primary.light,
+	lineHeight: 2,
+	marginTop: theme.spacing(2),
+	marginBottom: theme.spacing(2),
+	paddingTop: theme.spacing(2),
+	paddingBottom: theme.spacing(2),
+	paddingLeft: theme.spacing(0.5),
+	paddingRight: theme.spacing(0.5),
+}));
+
+// TODO: Support multiple images
+// 	and make vertical images look better
+function InfoDialogFunc (props: InfoDialogProps) {
+	const theme = useTheme();
+	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	
+	// Optional objectFit parameter
+	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
+	
+	function handleClose() {
+		// Run onClose handler ONLY if allowClose is set to true
+		if (props.allowClose === true) {
+			props.onClose();
+		}
+	}
+	
+	// Info cards with border
+	if (props.cardText && props.cards) throw new Error('InfoDialog: props.cardText and props.cards are mutually exclusive. Use one or the other.');
+	let cardContents: DialogCardContent[] = [];
+	if (props.cardText) {
+		cardContents = [{
+			text: props.cardText,
+			color: theme.palette.primary.light,
+		}];
+	}
+	else if (props.cards) {
+		cardContents = props.cards;
+	}
+	const infoCards = cardContents.map((cardContent, idx) => 
+		<InfoCard 
+			key={idx}
+			variant='outlined' 
+			sx={{borderColor: cardContent.color}}
+			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
+		/>
+	);
+	
+	const cardImage = (props.img) ? 
+		<CardMedia
+			component="img"
+			height="260"
+			image={props.img}
+			alt={props.imgAlt}
+			title={props.imgAlt}
+			sx={{objectFit: objectFit}}
+		/>
+		: <></>;
+	return (
+		<Dialog
+			fullScreen={fullScreen}
+			open={props.open}
+			keepMounted
+			onClose={handleClose}
+			aria-describedby="alert-dialog-slide-description"
+		>
+			{cardImage}
+			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.title)}></DialogTitle>
+			<DialogContent>
+				<DialogContentText id="alert-dialog-slide-description" gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
+				</DialogContentText>
+				{infoCards}
+			</DialogContent>
+			<DialogActions>
+				<ButtonGroup 
+					buttons={props.buttons}
+					doPageCallback={props.doPageCallback} 
+					summonInfoDialog={props.summonInfoDialog}
+					resolveToValue={props.resolveToValue}
+					useMUIStack={false}
+				/>
+			</DialogActions>
+		</Dialog>
+	);
+}
+
+export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
+	render() {
+		return (
+			<InfoDialogFunc {...this.props}/>
+		);
+	}
+}
+
+/**
+ * TS wrapper for an InfoDialog component control. 
+ * Use this when definining a PageControl for code autocompletion and props checking.
+ */
+export function newInfoDialogControl(props: DialogControlProps): PageControl {
+	return {
+		controlClass: InfoDialog,
+		controlProps: props,
+	};
+}
+
+declare interface DialogCardContent {
+	text: string;
+	color: string;
+}
 
 /**
  * Control properties specified by the scripter (in pages.tsx).
  */
 export declare interface DialogControlProps {
 	title: string;
-	text: string;
+	text: string|string[];
+	/**
+	 * Shorthand for cards: [{text: <text>, color: theme.palette.primary.light}] - mutually exclusive with cards
+	 */
 	cardText?: string;
+	/**
+	 * Mutually exclusive with cardText
+	 */
+	cards?: DialogCardContent[];
+	allowClose?: boolean;
 	img?: string;
-	objectFit?: 'cover'|'contain';
+	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
 }
@@ -296,4 +355,42 @@ export declare interface DialogStateProps extends DialogControlProps {
 /**
  * Properties sent to the InfoDialog control.
  */
-export declare interface InfoDialogProps extends DialogStateProps, ControlCallbacks { }
+export declare interface InfoDialogProps extends DialogStateProps, ControlCallbacks { 
+	onClose: () => void;
+}
+
+/* -======================================================- */
+//                      PROPS INTERFACES
+/* -======================================================- */
+
+/**
+ * Callbacks sent to every control. Component props extend this interface.
+ */
+export interface ControlCallbacks {
+	doPageCallback: (callback?: PageCallback) => void;
+	summonInfoDialog: (props) => void;
+	resolveToValue: <T> (value: Resolvable<T>) => T;
+}
+
+// -=============- START PAGE -=============-
+
+/**
+ * Control properties specified by the scripter (in pages.tsx).
+ */
+export declare interface StartPageControlProps {
+	buttons?: ButtonGroupButton[];
+}
+
+export declare interface StartPageProps extends StartPageControlProps, ControlCallbacks { }
+
+// -=============- PAGE CONTROL -=============-
+
+/**
+ * Generic type for a PageControl.
+ * @param controlClass Class for this component.
+ * @param controlProps Properties sent to the control, NOT INCLUDING extra properties/handlers sent from App.tsx such as doPageCallback()
+ */
+export declare interface PageControl {
+	controlClass: Component;
+	controlProps: AnyDict;
+}

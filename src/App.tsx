@@ -6,17 +6,18 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { InfoDialogProps, InfoDialog, StartPage, GroupedChoices, DialogStateProps } from './controls';
-import { Component, pageControls, PageError, Pages } from './pages';
-import { resolveToValue, fillDialogProps } from './functions-and-types';
+import { InfoDialogProps, InfoDialog, StartPage, GroupedChoices, DialogStateProps, PageControl, ControlCallbacks, DashboardProps, Dashboard } from './controls';
+import { pageControls, PageError, Pages } from './pages';
+import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs } from './functions-and-types';
 
-interface HomeProps {
-	dialog: AnyDict;
-	selectProps?: AnyDict;
+export interface HomeProps extends ControlCallbacks {
+	dialog: DialogStateProps;
 	currentPageProps?: AnyDict;
+	dashboardProps: DashboardProps;
 	controlClass?: Component;
-	doPageCallback: (callback?: PageCallback) => void;
-	summonInfoDialog: (props: any) => void;
+	showDashboard: boolean;
+	onDialogClose: () => void;
+	selectedProjects: symbol[];
 }
 
 export interface AppState {
@@ -25,41 +26,59 @@ export interface AppState {
 	dialog: DialogStateProps,
 	currentPageProps?: AnyDict; // todo
 	controlClass?: Component;
+	trackedStats: DashboardProps;
+	showDashboard: boolean;
+	selectedProjects: symbol[];
 }
 
-function Dashboard(props: HomeProps) {
-	switch (props.controlClass) {
-		case StartPage:
-		case GroupedChoices:
-			if (!props.currentPageProps) throw new Error('currentPageProps not defined'); 
-			return (<props.controlClass
-				{...props.currentPageProps} // Pass everything into the child
-				doPageCallback={props.doPageCallback}
-				summonInfoDialog={props.summonInfoDialog}
-			/>);
-		default:
-			return <></>;
+interface CurrentPageProps extends ControlCallbacks, PageControl { 
+	selectedProjects: symbol[];
+ }
+
+class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
+	render() {
+		switch (this.props.controlClass) {
+			case StartPage:
+			case GroupedChoices:
+				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
+				return (<this.props.controlClass
+					{...this.props.controlProps} // Pass everything into the child
+					doPageCallback={this.props.doPageCallback}
+					summonInfoDialog={this.props.summonInfoDialog}
+					resolveToValue={this.props.resolveToValue}
+				/>);
+			default:
+				return <></>;
+		}
 	}
 }
 
 function HomePage(props: HomeProps) {
-	const dlg = props.dialog;
+	const dialogProps: DialogStateProps = props.dialog;
 	
 	return (
 		<div className='homepage'>
-			<Box className='row' sx={{ bgcolor: '#ffffff80', height: '100vh' }}>
-				<Dashboard {...props}/>
+			<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
+				{props.showDashboard ? 
+					<Dashboard {...props.dashboardProps}/> 
+				: <></>}
+				{(props.currentPageProps && props.controlClass) ?
+					<CurrentPage
+						controlClass={props.controlClass}
+						doPageCallback={props.doPageCallback}
+						summonInfoDialog={props.summonInfoDialog}
+						controlProps={props.currentPageProps}
+						resolveToValue={props.resolveToValue}
+						selectedProjects={props.selectedProjects}
+					/>
+				: <></>}
 			</Box>
 			<InfoDialog
-				open={dlg.open}
-				title={dlg.title}
-				img={dlg.img}
-				imgAlt={dlg.imgAlt}
-				text={dlg.text}
-				cardText={dlg.cardText}
-				buttons={dlg.buttons}
+				{...dialogProps}
+				onClose={props.onDialogClose}
 				doPageCallback={props.doPageCallback}
 				summonInfoDialog={props.summonInfoDialog}
+				resolveToValue={props.resolveToValue}
 			/>
 		</div>
 	);
@@ -69,12 +88,11 @@ function HomePage(props: HomeProps) {
  * Just a helper function to SHALLOWLY clone an object, modify certain keys, and return the cloned object. 
  * This is because React prefers to keep objects within a state immutable.
  */
-function cloneAndModify<T>(obj: T, newValues: AnyDict) {
-	let newObj = {};
+function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
 	// First populate values from the old object
-	for (let key of Object.keys(obj)) {
-		newObj[key] = obj[key];
-	}
+	let newObj: T = {
+		...obj
+	};
 	// Then populate values from the new object
 	for (let key of Object.keys(newValues)) {
 		newObj[key] = newValues[key];
@@ -85,8 +103,13 @@ function cloneAndModify<T>(obj: T, newValues: AnyDict) {
 export class App extends React.PureComponent <unknown, AppState> {
 	constructor(props: unknown) { 
 		super(props);
+		
+		// const startPage = Pages.start;
+		const startPage = Pages.scope1Projects; // temporary
+		const showDashboardAtStart = true;
+		
 		this.state = {
-			currentPage: Pages.start,
+			currentPage: startPage,
 			companyName: 'Auto-Man, Inc.',
 			dialog: {
 				open: false,
@@ -94,12 +117,22 @@ export class App extends React.PureComponent <unknown, AppState> {
 				text: '',
 				cardText: undefined
 			},
-			currentPageProps: pageControls[Pages.start].controlProps,
-			controlClass: pageControls[Pages.start].controlClass,
+			currentPageProps: pageControls[startPage].controlProps,
+			controlClass: pageControls[startPage].controlClass,
+			trackedStats: {
+				financesAvailable: 1_000_000,
+				totalBudget: 1_000_000,
+				carbonReduced: 0,
+				carbonEmissions: 0,
+				moneySpent: 0,
+				totalRebates: 0,
+			},
+			showDashboard: showDashboardAtStart,
+			selectedProjects: [],
 		};
 		// @ts-ignore - for debugging
 		window.app = this;
-		// @ts-ignore
+		// @ts-ignore - for debugging
 		window.Pages = Pages; 
 		// window.onbeforeunload = () => 'Are you sure you want to exit?'; TODO enable later
 		
@@ -199,16 +232,39 @@ export class App extends React.PureComponent <unknown, AppState> {
 		this.setState({dialog});
 	}
 	
+	/**
+	 * Close the dialog.
+	 */
+	handleDialogClose() {
+		let dialog = cloneAndModify(this.state.dialog, {open: false});
+		this.setState({dialog});
+	}
+	
+	/**
+	 * Resolve an item of an unknown type to a value, binding the App object & providing the current state.
+	 * 	setState / nextState is not available in this function.
+	 * @param item Item to resolve.
+	 */
+	resolveToValue(item: unknown, whenUndefined?: unknown) {
+		return resolveToValue(item, whenUndefined, [this.state], this);
+	}
+	
 	render() {
+		console.log('Rendering');
 		return (
 			<div className='homepage'>
 				<Container maxWidth='xl'>
 					<HomePage 
 						dialog={this.state.dialog}
 						currentPageProps={this.state.currentPageProps}
+						dashboardProps={this.state.trackedStats}
 						controlClass={this.state.controlClass}
+						showDashboard={this.state.showDashboard}
 						doPageCallback={(callback) => this.handlePageCallback(callback)}
 						summonInfoDialog={(props) => this.summonInfoDialog(props)}
+						onDialogClose={() => this.handleDialogClose()}
+						resolveToValue={(item) => this.resolveToValue(item)}
+						selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into Homepage & CurrentPage so that it updates when selectedProjects changes
 					/>
 				</Container>
 			</div>

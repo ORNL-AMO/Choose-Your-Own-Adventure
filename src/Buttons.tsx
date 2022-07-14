@@ -3,7 +3,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import React from 'react';
 import BasicPopover from "./BasicPopover";
 import { fillDialogProps, resolveToValue } from './functions-and-types';
-import { DialogControlProps, DialogStateProps } from './controls';
+import { ControlCallbacks, DialogControlProps, DialogStateProps } from './controls';
 import type App from './App';
 
 export declare interface ButtonGroupButton {
@@ -32,9 +32,10 @@ export declare interface ButtonGroupButton {
 	 */
 	startIcon?: React.ReactNode;
 	size?: 'small' | 'medium' | 'large';
+	disabled?: Resolvable<boolean>;
 }
 
-export declare interface ButtonGroupProps {
+export declare interface ButtonGroupProps extends ControlCallbacks {
 	buttons?: ButtonGroupButton[];
 	summonInfoDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
@@ -74,6 +75,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 				variant={button.variant} 
 				startIcon={button.startIcon} 
 				size={button.size}
+				disabled={button.disabled ? props.resolveToValue(button.disabled) : false}
 				onClick={() => {
 					// Button's provided onclick handler
 					if (button.onClick) {
@@ -105,17 +107,19 @@ export function ButtonGroup(props: ButtonGroupProps) {
 //       COMMON BUTTON CONTROLS (for use in pages.tsx)
 /* -======================================================- */
 
-export function backButton(newPage: Resolvable<symbol>): ButtonGroupButton {
+export function backButton(newPage: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Back',
 		variant: 'text',
 		onClick: function (...params) {
 			return resolveToValue(newPage, undefined, params, this);
-		}
+		},
+		disabled: disabled
 	};
 }
 
-export function continueButton(newPage: Resolvable<symbol>): ButtonGroupButton {
+// todo rest of disableds
+export function continueButton(newPage: PageCallback): ButtonGroupButton {
 	return {
 		text: 'Continue',
 		variant: 'text',
@@ -125,13 +129,14 @@ export function continueButton(newPage: Resolvable<symbol>): ButtonGroupButton {
 	};
 }
 
-export function selectButton(newPage: Resolvable<symbol>): ButtonGroupButton {
+export function selectButton(newPage: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Select',
 		variant: 'contained',
 		onClick: function (...params) {
 			return resolveToValue(newPage, undefined, params, this);
-		}
+		},
+		disabled: disabled
 	};
 }
 
@@ -158,6 +163,7 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
 
 export function infoButtonWithDialog(dialogProps: DialogControlProps): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
+	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
 	
 	return {
 		text: 'Info',

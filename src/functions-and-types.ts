@@ -6,16 +6,19 @@ import type { DialogStateProps } from "./controls";
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
  *  \n -> newline 
  *  {text} -> emphasized text
+ * 	x_{text} -> subscript text
  *  [text](link) -> <a href="link" target="_blank">text</a>
  * @param text 
  * @returns Object for passing to "dangerouslySetInnerHTML" attribute (https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml)
  */
-export function parseSpecialText(text?: string): {__html: string} {
+export function parseSpecialText(text?: string|string[]): {__html: string} {
 	text = text || '';
+	if (text instanceof Array) text = text.join('\n\n'); // If text is an array, join it with two linebreaks into one string
 	let newText = text
-		.replace(/{([^{}]*?)}/g, '<span class="emphasis">$1</span>')
-		.replace(/(\n)|(\\n)/g, '<br/>')
-        .replace(/\[(.*?)\]\((\S*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+		.replace(/_{([^{}]*?)}/g, '<sub>$1</sub>')									// Subscript
+		.replace(/{([^{}]*?)}/g, '<span class="emphasis">$1</span>') 				// Emphasis
+		.replace(/(\n)|(\\n)/g, '<br/>')											// Line break
+        .replace(/\[(.*?)\]\((\S*?)\)/g, '<a href="$2" target="_blank">$1</a>');	// Links
     
 	return {
 		__html: newText
@@ -53,7 +56,6 @@ export function resolveToValue(item: unknown, whenUndefined?: unknown, params?: 
  */
 export function comparePropsAndStateIgnoreFuncs(this: React.Component, nextProps, nextState?) {
 	let propCompare = shallowCompareIgnoreFuncs(this.props, nextProps);
-	console.log(propCompare);
 	if (propCompare === true) return true;
 	
 	if (!nextState) return false;
@@ -71,9 +73,12 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		open: obj.open || false,
 		title: obj.title || '',
 		text: obj.text || '',
-		cardText: obj.cardText || '',
+		cardText: obj.cardText || undefined,
+		cards: obj.cards || undefined,
 		img: obj.img || '',
 		imgAlt: obj.imgAlt || '',
+		allowClose: obj.allowClose || false,
+		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
 	};
 }
@@ -121,7 +126,7 @@ declare global {
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
-	type Resolvable<T> = T|((state?: AnyDict, nextState?: AnyDict) => T);
+	type Resolvable<T> = T|((this: App, state: AppState) => T);
 	/**
 	 * Callback for a button click which 
 	 * @param state Read-only, immutable state of the main app
@@ -135,4 +140,7 @@ declare global {
 	type integer = number;
 	
 	type buttonVariant = 'text'|'outlined'|'contained';
+	
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	type Component = React.Component|Function;
 }
