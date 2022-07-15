@@ -2,9 +2,10 @@ import { Button, Stack } from '@mui/material';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import React from 'react';
 import BasicPopover from "./BasicPopover";
-import { fillDialogProps, resolveToValue } from './functions-and-types';
-import { ControlCallbacks, DialogControlProps, DialogStateProps } from './controls';
-import type App from './App';
+import { fillDialogProps, resolveToValue } from '../functions-and-types';
+import { ControlCallbacks } from './controls';
+import { DialogControlProps, DialogStateProps } from './InfoDialog';
+import type App from '../App';
 
 export declare interface ButtonGroupButton {
 	/**

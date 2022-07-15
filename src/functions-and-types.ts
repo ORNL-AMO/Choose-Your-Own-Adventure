@@ -1,6 +1,6 @@
 import React from "react";
 import type { App, AppState } from "./App";
-import type { DialogStateProps } from "./controls";
+import type { DialogStateProps } from "./components/InfoDialog";
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
@@ -92,6 +92,22 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 	shouldComponentUpdate(nextProps, nextState) {
 		return comparePropsAndStateIgnoreFuncs.apply(this, [nextProps, nextState]);
 	}
+}
+
+/**
+ * Just a helper function to SHALLOWLY clone an object, modify certain keys, and return the cloned object. 
+ * This is because React prefers to keep objects within a state immutable.
+ */
+export function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
+	// First populate values from the old object
+	let newObj: T = {
+		...obj
+	};
+	// Then populate values from the new object
+	for (let key of Object.keys(newValues)) {
+		newObj[key] = newValues[key];
+	}
+	return newObj;
 }
 
 // Helpful types

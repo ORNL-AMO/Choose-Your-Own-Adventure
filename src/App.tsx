@@ -1,14 +1,18 @@
 import React from 'react';
-import { Container, Button, Box, } from '@mui/material';
+import { Container, Box, ThemeProvider, } from '@mui/material';
 
 import './App.scss';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { InfoDialogProps, InfoDialog, StartPage, GroupedChoices, DialogStateProps, PageControl, ControlCallbacks, DashboardProps, Dashboard } from './controls';
+import { StartPage, PageControl, ControlCallbacks } from './components/controls';
+import { DashboardProps, Dashboard } from './components/Dashboard';
 import { pageControls, PageError, Pages } from './pages';
-import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs } from './functions-and-types';
+import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs, cloneAndModify } from './functions-and-types';
+import { theme } from './components/theme';
+import { GroupedChoices } from './components/GroupedChoices';
+import { DialogStateProps, InfoDialog } from './components/InfoDialog';
 
 export interface HomeProps extends ControlCallbacks {
 	dialog: DialogStateProps;
@@ -84,29 +88,12 @@ function HomePage(props: HomeProps) {
 	);
 }
 
-/**
- * Just a helper function to SHALLOWLY clone an object, modify certain keys, and return the cloned object. 
- * This is because React prefers to keep objects within a state immutable.
- */
-function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
-	// First populate values from the old object
-	let newObj: T = {
-		...obj
-	};
-	// Then populate values from the new object
-	for (let key of Object.keys(newValues)) {
-		newObj[key] = newValues[key];
-	}
-	return newObj;
-}
-
 export class App extends React.PureComponent <unknown, AppState> {
 	constructor(props: unknown) { 
 		super(props);
 		
-		// const startPage = Pages.start;
-		const startPage = Pages.scope1Projects; // temporary
-		const showDashboardAtStart = true;
+		// const startPage = Pages.start; const showDashboardAtStart = false;
+		const startPage = Pages.scope1Projects; const showDashboardAtStart = true; // temporary
 		
 		this.state = {
 			currentPage: startPage,
@@ -123,7 +110,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 				financesAvailable: 1_000_000,
 				totalBudget: 1_000_000,
 				carbonReduced: 0,
-				carbonEmissions: 0,
+				carbonEmissions: 69_420,
 				moneySpent: 0,
 				totalRebates: 0,
 			},
@@ -253,20 +240,22 @@ export class App extends React.PureComponent <unknown, AppState> {
 		console.log('Rendering');
 		return (
 			<div className='homepage'>
-				<Container maxWidth='xl'>
-					<HomePage 
-						dialog={this.state.dialog}
-						currentPageProps={this.state.currentPageProps}
-						dashboardProps={this.state.trackedStats}
-						controlClass={this.state.controlClass}
-						showDashboard={this.state.showDashboard}
-						doPageCallback={(callback) => this.handlePageCallback(callback)}
-						summonInfoDialog={(props) => this.summonInfoDialog(props)}
-						onDialogClose={() => this.handleDialogClose()}
-						resolveToValue={(item) => this.resolveToValue(item)}
-						selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into Homepage & CurrentPage so that it updates when selectedProjects changes
-					/>
-				</Container>
+				<ThemeProvider theme={theme}>
+					<Container maxWidth='xl'>
+						<HomePage 
+							dialog={this.state.dialog}
+							currentPageProps={this.state.currentPageProps}
+							dashboardProps={this.state.trackedStats}
+							controlClass={this.state.controlClass}
+							showDashboard={this.state.showDashboard}
+							doPageCallback={(callback) => this.handlePageCallback(callback)}
+							summonInfoDialog={(props) => this.summonInfoDialog(props)}
+							onDialogClose={() => this.handleDialogClose()}
+							resolveToValue={(item) => this.resolveToValue(item)}
+							selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into Homepage & CurrentPage so that it updates when selectedProjects changes
+						/>
+					</Container>
+				</ThemeProvider>
 			</div>
 		);
 	}

@@ -1,4 +1,4 @@
-import { GroupedChoicesProps, PageControl, newGroupedChoicesControl, newInfoDialogControl, newStartPageControl } from "./controls";
+import { PageControl, newStartPageControl } from "./components/controls";
 import React from 'react';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -9,9 +9,12 @@ import Co2Icon from '@mui/icons-material/Co2';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { Grid, SvgIconTypeMap, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, ButtonGroupButton } from "./Buttons";
+import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, ButtonGroupButton } from "./components/Buttons";
 import type { OverridableComponent } from "@mui/material/OverridableComponent";
-import { theme } from "./theme";
+import { theme } from "./components/theme";
+import { cloneAndModify } from "./functions-and-types";
+import { newGroupedChoicesControl } from "./components/GroupedChoices";
+import { newInfoDialogControl } from "./components/InfoDialog";
 
 let st = performance.now();
 /**
@@ -127,10 +130,18 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 						}),
 						co2SavingsButton(3.5),
 						selectButton(function (state, nextState) {
+							// Update selectedProjects to disable the select button
 							let selectedProjects = state.selectedProjects.slice();
 							selectedProjects.push(Pages.wasteHeatRecovery);
 							nextState.selectedProjects = selectedProjects;
-							return Pages.wasteHeatRecovery; // todo
+							// Update trackedStats for the dashboard
+							nextState.trackedStats = cloneAndModify(state.trackedStats, {
+								carbonReduced: state.trackedStats.carbonReduced + 3.5,
+								carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.035),
+								financesAvailable: state.trackedStats.financesAvailable - 65_000,
+								moneySpent: state.trackedStats.moneySpent + 65_000,
+							});
+							return Pages.wasteHeatRecovery; // Next page
 						}, 
 						(state) => 
 							state.selectedProjects.includes(Pages.wasteHeatRecovery)
@@ -152,9 +163,23 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 							cards: projectCostAndCO2ReductionCards(90_000, 2),
 						}),
 						co2SavingsButton(2.0),
-						selectButton(function () {
-							return Pages.scope1Projects; // todo
-						})
+						selectButton(function (state, nextState) {
+							// Update selectedProjects to disable the select button
+							let selectedProjects = state.selectedProjects.slice();
+							selectedProjects.push(Pages.digitalTwinAnalysis);
+							nextState.selectedProjects = selectedProjects;
+							// Update trackedStats for the dashboard
+							nextState.trackedStats = cloneAndModify(state.trackedStats, {
+								carbonReduced: state.trackedStats.carbonReduced + 2,
+								carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
+								financesAvailable: state.trackedStats.financesAvailable - 90_000,
+								moneySpent: state.trackedStats.moneySpent + 90_000,
+							});
+							return Pages.digitalTwinAnalysis;
+						},
+						(state) => 
+							state.selectedProjects.includes(Pages.digitalTwinAnalysis),
+						)
 					],
 				},
 				{
@@ -229,17 +254,36 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 	]
 });
 
+pageControls[Pages.scope2Projects] = newInfoDialogControl({
+	title: 'Sorry, this page has not been implemented yet',
+	text: '',
+	buttons: [
+		backButton(Pages.selectScope),
+	]
+});
+
 // TODO tomorrow: New control class for waste heat recovery, slides 7 and 8
 
-// pageControls[Pages.wasteHeatRecovery] = {
-// 	// controlClass: 
-// };
+pageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
+	title: '{SELECTED}: WASTE HEAT RECOVERY',
+	cardText: 'You have achieved {3.5%} carbon emissions reduction and spent {$60,000} dollars.',
+	text: [
+		'[Waupaca Foundry: Cupola Waste Heat Recovery Upgrade Drives Deeper Energy Savings](https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings)',
+		'Nice choice! In 2010, {Waupaca Foundry} implemented heat recovery system upgrades in their Plant 23, which lead to upgrades in other plants as well. Combined savings have led to a reduction in natural gas usage by {1,200,000 therms} per year and {72,000 tons} of annual CO2 reduction.',
+	],
+	buttons: [
+		continueButton(Pages.scope1Projects),
+	]
+});
 
 pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	title: '{SELECTED}: DIGITAL TWIN ANALYSIS',
 	cardText: 'You have achieved {2%} carbon emissions reduction and spent {$90,000} dollars.',
 	text: '[Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management](https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant)\n\nGood choice! Ford Motor Company used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a 50% reduction in campus office space energy and water use compared to their older system.',
 	img: 'images/ford.png',
+	buttons: [
+		continueButton(Pages.scope1Projects),
+	]
 });
 
 declare interface PageControls {
@@ -289,11 +333,11 @@ function projectCostAndCO2ReductionCards(projectCost: number, co2Reduction: numb
 	return [
 		{
 			text: `Total project cost: {$${projectCost.toLocaleString('en-US')}}`,
-			color: theme.palette.primary.light, //todo change
+			color: theme.palette.secondary.dark, // todo change
 		},
 		{
 			text: `CO_{2} reduction: {${co2Reduction.toFixed(1)}%}`,
-			color: theme.palette.secondary.light, // todo change
+			color: theme.palette.primary.light, //todo change
 		}
 	];
 }

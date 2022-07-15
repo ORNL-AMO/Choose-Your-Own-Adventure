@@ -16,7 +16,7 @@ $blur-radius: 5px;
 .background-image {
   position: fixed;
   z-index: -1;
-  background: url('images/home-background.png');
+  background: url('images/home-background.jpg');
   filter: blur($blur-radius);
   top: -1 * $blur-radius;
   left: -1 * $blur-radius;

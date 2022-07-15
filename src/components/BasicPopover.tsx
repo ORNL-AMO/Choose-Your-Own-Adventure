@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover, Button, Box } from '@mui/material';
-import { resolveToValue } from './functions-and-types';
+import { resolveToValue } from '../functions-and-types';
 
 export default function BasicPopover(props: PopoverProps) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
