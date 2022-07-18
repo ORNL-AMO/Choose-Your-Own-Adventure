@@ -19,6 +19,7 @@ rules:
   no-prototype-builtins: off
   '@typescript-eslint/no-empty-interface': warn
   '@typescript-eslint/ban-ts-comment': warn
+  'react/prop-types': warn
   semi:
     - error
     - always
