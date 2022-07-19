@@ -14,16 +14,6 @@ import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
 import { DialogStateProps, InfoDialog } from './components/InfoDialog';
 
-export interface HomeProps extends ControlCallbacks {
-	dialog: DialogStateProps;
-	currentPageProps?: AnyDict;
-	dashboardProps: DashboardProps;
-	controlClass?: Component;
-	showDashboard: boolean;
-	onDialogClose: () => void;
-	selectedProjects: symbol[];
-}
-
 export interface AppState {
 	currentPage: symbol;
 	companyName: string;
@@ -33,6 +23,11 @@ export interface AppState {
 	trackedStats: DashboardProps;
 	showDashboard: boolean;
 	selectedProjects: symbol[];
+	/**
+	 * current year, 1 through 10.
+	 */
+	year: number;
+	lastScrollY: number; 
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
@@ -57,43 +52,12 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 	}
 }
 
-function HomePage(props: HomeProps) {
-	const dialogProps: DialogStateProps = props.dialog;
-	
-	return (
-		<div className='homepage'>
-			<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
-				{props.showDashboard ? 
-					<Dashboard {...props.dashboardProps}/> 
-				: <></>}
-				{(props.currentPageProps && props.controlClass) ?
-					<CurrentPage
-						controlClass={props.controlClass}
-						doPageCallback={props.doPageCallback}
-						summonInfoDialog={props.summonInfoDialog}
-						controlProps={props.currentPageProps}
-						resolveToValue={props.resolveToValue}
-						selectedProjects={props.selectedProjects}
-					/>
-				: <></>}
-			</Box>
-			<InfoDialog
-				{...dialogProps}
-				onClose={props.onDialogClose}
-				doPageCallback={props.doPageCallback}
-				summonInfoDialog={props.summonInfoDialog}
-				resolveToValue={props.resolveToValue}
-			/>
-		</div>
-	);
-}
-
 export class App extends React.PureComponent <unknown, AppState> {
 	constructor(props: unknown) { 
 		super(props);
 		
-		// const startPage = Pages.start; const showDashboardAtStart = false;
-		const startPage = Pages.scope1Projects; const showDashboardAtStart = true; // temporary
+		const startPage = Pages.start; const showDashboardAtStart = false;
+		// const startPage = Pages.scope1Projects; const showDashboardAtStart = true; // temporary
 		
 		this.state = {
 			currentPage: startPage,
@@ -116,6 +80,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 			},
 			showDashboard: showDashboardAtStart,
 			selectedProjects: [],
+			year: 1,
+			lastScrollY: -1,
 		};
 		// @ts-ignore - for debugging
 		window.app = this;
@@ -181,6 +147,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 			controlClass,
 			currentPageProps: currentPageProps,
 		});
+		
+		// Only save window.scrollY before loading the new page IF it's nonzero
+		if (window.scrollY > 0) {
+			this.setState({
+				lastScrollY: window.scrollY,
+			});
+		}
 	}
 	
 	handlePageCallback(callbackOrPage?: PageCallback) {
@@ -236,27 +209,43 @@ export class App extends React.PureComponent <unknown, AppState> {
 		return resolveToValue(item, whenUndefined, [this.state], this);
 	}
 	
+	componentDidUpdate() {
+		// On a thin screen, user has to scroll down in the project selection page. It can be very annoying if 
+		// 	the window scroll resets every time a dialog pops up. This will scroll the page back down when the dialog closes.
+		scrollTo(0, this.state.lastScrollY);
+	}
+	
 	render() {
-		console.log('Rendering');
+		
 		return (
-			<div className='homepage'>
+			<>
 				<ThemeProvider theme={theme}>
 					<Container maxWidth='xl'>
-						<HomePage 
-							dialog={this.state.dialog}
-							currentPageProps={this.state.currentPageProps}
-							dashboardProps={this.state.trackedStats}
-							controlClass={this.state.controlClass}
-							showDashboard={this.state.showDashboard}
+						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
+							{this.state.showDashboard ? 
+								<Dashboard {...this.state.trackedStats}/> 
+							: <></>}
+							{(this.state.currentPageProps && this.state.controlClass) ?
+								<CurrentPage
+									controlClass={this.state.controlClass}
+									doPageCallback={(callback) => this.handlePageCallback(callback)}
+									summonInfoDialog={(props) => this.summonInfoDialog(props)}
+									controlProps={this.state.currentPageProps}
+									resolveToValue={(item) => this.resolveToValue(item)}
+									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes
+								/>
+							: <></>}
+						</Box>
+						<InfoDialog
+							{...this.state.dialog}
+							onClose={() => this.handleDialogClose()}
 							doPageCallback={(callback) => this.handlePageCallback(callback)}
 							summonInfoDialog={(props) => this.summonInfoDialog(props)}
-							onDialogClose={() => this.handleDialogClose()}
 							resolveToValue={(item) => this.resolveToValue(item)}
-							selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into Homepage & CurrentPage so that it updates when selectedProjects changes
 						/>
 					</Container>
 				</ThemeProvider>
-			</div>
+			</>
 		);
 	}
 }
