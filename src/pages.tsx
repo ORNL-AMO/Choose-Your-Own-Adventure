@@ -9,12 +9,13 @@ import Co2Icon from '@mui/icons-material/Co2';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { Grid, SvgIconTypeMap, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, ButtonGroupButton } from "./components/Buttons";
+import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, ButtonGroupButton, selectButtonCheckbox } from "./components/Buttons";
 import type { OverridableComponent } from "@mui/material/OverridableComponent";
 import { theme } from "./components/theme";
 import { cloneAndModify } from "./functions-and-types";
 import { newGroupedChoicesControl } from "./components/GroupedChoices";
 import { newInfoDialogControl } from "./components/InfoDialog";
+import { AppState } from "./App";
 
 let st = performance.now();
 /**
@@ -26,13 +27,28 @@ export const Pages = {
 	selectScope: Symbol.for('selectScope'),
 	scope1Projects: Symbol.for('scope1Projects'),
 	scope2Projects: Symbol.for('scope2Projects'),
+	yearRecap: Symbol.for('year-recap'),
+	// scope 1 pages
 	wasteHeatRecovery: Symbol.for('waste-heat-recovery'),
 	wasteHeatRecoveryRebate: Symbol.for('waste-heat-recovery-rebate'),
 	digitalTwinAnalysis: Symbol.for('digital-twin-analysis'),
 	processHeatingUpgrades: Symbol.for('process-heating-upgrades'),
 	hydrogenPoweredForklifts: Symbol.for('hydrogen-powered-forklifts'),
 	electricBoiler: Symbol.for('electric-boiler'),
+	// scope 2 pages
+	lightingUpgrades: Symbol.for('explore-lighting-upgrades'),
+	greenPowerTariff: Symbol.for('green-power-tariff'),
+	windVPPA: Symbol.for('wind-vppa'),
 };
+
+// IMPORTANT: Keep Pages.scope1Projects and Pages.scope2Projects updated, so that the Proceed button click handler in App.tsx doesn't get confused
+export const Scope1Projects = [
+	Pages.wasteHeatRecovery, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
+];
+export const Scope2Projects = [
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
+];
+
 
 export const pageControls: PageControls = { };
 
@@ -105,11 +121,14 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 				},
 			]
 		}
-	]
+	],
+}, (state, nextState) => {
+	nextState.showDashboard = false;
+	return Pages.introduction;
 });
 
 pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-	title: '{Scope 1 Emissions Projects} - Good choice! You have {15 minutes} to explore this menu. Spend it wisely!',
+	title: 'These are the possible {Scope 1} projects {$companyName} can do this year. Select what projects you want your company to work on in {Year $trackedStats.year}, and then click {Proceed} on the top right when you are ready.',
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
@@ -129,20 +148,19 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 							imgObjectFit: 'contain',
 						}),
 						co2SavingsButton(3.5),
-						selectButton(function (state, nextState) {
-							// Update selectedProjects to disable the select button
-							let selectedProjects = state.selectedProjects.slice();
-							selectedProjects.push(Pages.wasteHeatRecovery);
-							nextState.selectedProjects = selectedProjects;
+						selectButtonCheckbox(function (state, nextState) {
+							toggleSelectedPage(Pages.wasteHeatRecovery, state, nextState);
 							// Update trackedStats for the dashboard
-							nextState.trackedStats = cloneAndModify(state.trackedStats, {
-								carbonReduced: state.trackedStats.carbonReduced + 3.5,
-								carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.035),
-								financesAvailable: state.trackedStats.financesAvailable - 65_000,
-								moneySpent: state.trackedStats.moneySpent + 65_000,
-							});
-							return Pages.wasteHeatRecovery; // Next page
-						}, 
+							// nextState.trackedStats = cloneAndModify(state.trackedStats, {
+							// 	carbonReduced: state.trackedStats.carbonReduced + 3.5,
+							// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.035),
+							// 	financesAvailable: state.trackedStats.financesAvailable - 65_000,
+							// 	moneySpent: state.trackedStats.moneySpent + 65_000,
+							// });
+							// return Pages.wasteHeatRecovery; // Next page
+							return Pages.scope1Projects;
+						},
+						undefined,
 						(state) => 
 							state.selectedProjects.includes(Pages.wasteHeatRecovery)
 						)
@@ -163,20 +181,23 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 							cards: projectCostAndCO2ReductionCards(90_000, 2),
 						}),
 						co2SavingsButton(2.0),
-						selectButton(function (state, nextState) {
-							// Update selectedProjects to disable the select button
-							let selectedProjects = state.selectedProjects.slice();
-							selectedProjects.push(Pages.digitalTwinAnalysis);
-							nextState.selectedProjects = selectedProjects;
-							// Update trackedStats for the dashboard
-							nextState.trackedStats = cloneAndModify(state.trackedStats, {
-								carbonReduced: state.trackedStats.carbonReduced + 2,
-								carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
-								financesAvailable: state.trackedStats.financesAvailable - 90_000,
-								moneySpent: state.trackedStats.moneySpent + 90_000,
-							});
-							return Pages.digitalTwinAnalysis;
+						selectButtonCheckbox(function (state, nextState) {
+							toggleSelectedPage(Pages.digitalTwinAnalysis, state, nextState);
+							return Pages.scope1Projects;
+							// // Update selectedProjects to disable the select button
+							// let selectedProjects = state.selectedProjects.slice();
+							// selectedProjects.push(Pages.digitalTwinAnalysis);
+							// nextState.selectedProjects = selectedProjects;
+							// // Update trackedStats for the dashboard
+							// nextState.trackedStats = cloneAndModify(state.trackedStats, {
+							// 	carbonReduced: state.trackedStats.carbonReduced + 2,
+							// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
+							// 	financesAvailable: state.trackedStats.financesAvailable - 90_000,
+							// 	moneySpent: state.trackedStats.moneySpent + 90_000,
+							// });
+							// return Pages.digitalTwinAnalysis;
 						},
+						undefined,
 						(state) => 
 							state.selectedProjects.includes(Pages.digitalTwinAnalysis),
 						)
@@ -252,15 +273,71 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 			]
 		}
 	]
-});
+}, Pages.selectScope);
 
-pageControls[Pages.scope2Projects] = newInfoDialogControl({
-	title: 'Sorry, this page has not been implemented yet',
-	text: '',
-	buttons: [
-		backButton(Pages.selectScope),
+pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
+	title: 	'These are the possible {Scope 2} projects {$companyName} can do this year. Select what projects you want your company to work on in {Year $trackedStats.year}, and then click {Proceed} on the top right when you are ready.',
+	groups: [
+		{
+			title: 'Invest in energy efficiency',
+			choices: [
+				{
+					text: '1. Explore lighting upgrades',
+					buttons: [
+						// todo info
+						co2SavingsButton(1.5),
+						selectButtonCheckbox(function (state, nextState) {
+							toggleSelectedPage(Pages.lightingUpgrades, state, nextState);
+							return Pages.scope2Projects;
+						}, 
+						undefined,
+						(state) => state.selectedProjects.includes(Pages.lightingUpgrades)
+						),
+					]
+				}
+			]
+		}, {
+			title: 'Bundled RECs (todo what is this acronym)',
+			choices: [
+				{
+					text: '4. Purchase green power tariff from local utility',
+					buttons: [
+						// todo info
+						co2SavingsButton(8.0),
+						selectButtonCheckbox(function (state, nextState) {
+							toggleSelectedPage(Pages.greenPowerTariff, state, nextState);
+							return Pages.scope2Projects;
+						},
+						undefined,
+						(state) => state.selectedProjects.includes(Pages.greenPowerTariff)
+						),
+					]
+				}
+			]
+		}, {
+			title: 'Un-bundled RECs',
+			choices: [
+				{
+					text: '8. Invest in wind VPPA',
+					buttons: [
+						// todo info
+						co2SavingsButton(10.0),
+						selectButtonCheckbox(function (state, nextState) {
+							toggleSelectedPage(Pages.windVPPA, state, nextState);
+							return Pages.scope2Projects;
+						},
+						undefined,
+						(state) => state.selectedProjects.includes(Pages.windVPPA)
+						),
+					]
+				}
+			]
+		}
 	]
-});
+}, Pages.selectScope);
+
+pageControls[Pages.yearRecap] = notImplemented();
+
 
 // TODO tomorrow: New control class for waste heat recovery, slides 7 and 8
 
@@ -294,6 +371,29 @@ export class PageError extends Error {
 	constructor(message) {
 		super(message);
 	}
+}
+
+function notImplemented() {
+	return newInfoDialogControl({
+		title: 'Not implemented',
+		text: 'Sorry, this page has not been implemented yet.',
+	});
+}
+
+/**
+ * Toggle whether a certain symbol is included in app.state.selectedProjects.
+ */
+function toggleSelectedPage(page: symbol, state: AppState, nextState: AnyDict) {
+	let selectedProjects = state.selectedProjects.slice();
+	// IF ALREADY SELECTED
+	if (selectedProjects.includes(page)) {
+		selectedProjects.splice(selectedProjects.indexOf(page), 1);
+	}
+	// IF NOT ALREADY SELECTED
+	else {
+		selectedProjects.push(page);
+	}
+	nextState.selectedProjects = selectedProjects;
 }
 
 function co2SavingsButton(percent: number): ButtonGroupButton {

@@ -1,5 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import React from 'react';
 import BasicPopover from "./BasicPopover";
 import { fillDialogProps, resolveToValue } from '../functions-and-types';
@@ -29,9 +31,13 @@ export declare interface ButtonGroupButton {
 	 */
 	onClick?: PageCallback;
 	/**
-	 * Optional icon
+	 * Optional icon at start of button text
 	 */
-	startIcon?: React.ReactNode;
+	startIcon?: Resolvable<React.ReactNode>;
+	/**
+	 * Optional icon at end of button text
+	 */
+	endIcon?: Resolvable<React.ReactNode>;
 	size?: 'small' | 'medium' | 'large';
 	disabled?: Resolvable<boolean>;
 }
@@ -48,7 +54,7 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 }
 
 /**
- * Group of configurable buttons.
+ * Group of configurable buttons. todo: turn into a class for render efficiency
  */
 export function ButtonGroup(props: ButtonGroupProps) {
 	if (!props.buttons) return <></>;
@@ -65,7 +71,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 		
 		// Info popup
 		if (button.infoPopup) return (
-			<BasicPopover key={idx} text={button.text} variant={button.variant} startIcon={button.startIcon}>
+			<BasicPopover key={idx} text={button.text} variant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
 				{button.infoPopup}
 			</BasicPopover>
 		);
@@ -74,7 +80,8 @@ export function ButtonGroup(props: ButtonGroupProps) {
 			<Button 
 				key={idx}
 				variant={button.variant} 
-				startIcon={button.startIcon} 
+				startIcon={props.resolveToValue(button.startIcon)}
+				endIcon={props.resolveToValue(button.endIcon)}
 				size={button.size}
 				disabled={button.disabled ? props.resolveToValue(button.disabled) : false}
 				onClick={() => {
@@ -141,6 +148,25 @@ export function selectButton(newPage: PageCallback, disabled?: Resolvable<boolea
 	};
 }
 
+export function selectButtonCheckbox(newPage: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+	return {
+		text: 'Select',
+		variant: 'contained',
+		onClick: function (...params) {
+			return resolveToValue(newPage, undefined, params, this);
+		},
+		disabled: disabled,
+		startIcon: function (...params) {
+			if (resolveToValue(selected, false, params, this)) {
+				return <CheckBoxIcon/>;
+			}
+			else {
+				return <CheckBoxOutlineBlankIcon/>;
+			}
+		}
+	};
+}
+
 export function infoButtonWithPopup(popupContents: React.ReactNode): ButtonGroupButton {
 	return {
 		text: 'Info',
@@ -174,9 +200,10 @@ export function infoButtonWithDialog(dialogProps: DialogControlProps): ButtonGro
 	};
 }
 
-export function closeDialogButton(): ButtonGroupButton {
+export function closeDialogButton(text?: string): ButtonGroupButton {
+	if (!text) text = 'Back';
 	return {
-		text: 'Back',
+		text: text,
 		variant: 'text',
 		onClick: function (this: App, state) {
 			return state.currentPage;

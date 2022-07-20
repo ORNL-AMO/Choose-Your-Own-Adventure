@@ -107,6 +107,7 @@ export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
 /**
  * TS wrapper for an InfoDialog component control. 
  * Use this when definining a PageControl for code autocompletion and props checking.
+ * 	**Back handling is done by buttons, not onBack**
  */
 export function newInfoDialogControl(props: DialogControlProps): PageControl {
 	return {

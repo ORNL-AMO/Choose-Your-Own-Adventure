@@ -7,27 +7,25 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import { StartPage, PageControl, ControlCallbacks } from './components/controls';
-import { DashboardProps, Dashboard } from './components/Dashboard';
-import { pageControls, PageError, Pages } from './pages';
-import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs, cloneAndModify } from './functions-and-types';
+import { DashboardProps, Dashboard, DashboardTrackedStats } from './components/Dashboard';
+import { pageControls, PageError, Pages, Scope1Projects, Scope2Projects } from './pages';
+import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
-import { DialogStateProps, InfoDialog } from './components/InfoDialog';
+import { DialogControlProps, DialogStateProps, InfoDialog } from './components/InfoDialog';
+import { closeDialogButton } from './components/Buttons';
 
 export interface AppState {
 	currentPage: symbol;
+	currentOnBack?: PageCallback; // onBack handler of current page
 	companyName: string;
 	dialog: DialogStateProps,
 	currentPageProps?: AnyDict; // todo
 	controlClass?: Component;
-	trackedStats: DashboardProps;
+	trackedStats: DashboardTrackedStats;
 	showDashboard: boolean;
 	selectedProjects: symbol[];
-	/**
-	 * current year, 1 through 10.
-	 */
-	year: number;
-	lastScrollY: number; 
+	lastScrollY: number;
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
@@ -56,8 +54,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 	constructor(props: unknown) { 
 		super(props);
 		
-		const startPage = Pages.start; const showDashboardAtStart = false;
-		// const startPage = Pages.scope1Projects; const showDashboardAtStart = true; // temporary
+		let startPage = Pages.start; let showDashboardAtStart = false;
+		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
 		
 		this.state = {
 			currentPage: startPage,
@@ -77,12 +75,16 @@ export class App extends React.PureComponent <unknown, AppState> {
 				carbonEmissions: 69_420,
 				moneySpent: 0,
 				totalRebates: 0,
+				year: 1,
 			},
 			showDashboard: showDashboardAtStart,
 			selectedProjects: [],
-			year: 1,
 			lastScrollY: -1,
 		};
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore --- writing to state is fine in constructor
+		this.state.currentPageProps = this.fillTemplateText(this.state.currentPageProps);
+		
 		// @ts-ignore - for debugging
 		window.app = this;
 		// @ts-ignore - for debugging
@@ -94,16 +96,23 @@ export class App extends React.PureComponent <unknown, AppState> {
 	}
 	
 	/**
-	 * Replaces variables from the app state, such as "$companyName" -> this.state.companyName
+	 * Replaces variables from the app state, such as "$companyName" -> this.state.companyName, $trackedStats.year -> this.state.trackedStats.year
 	 */
 	fillTemplateText<T=AnyDict>(obj: T): T{
-		const regex = /\$([a-zA-Z]\w*?)(\W)/g;
+		const regex = /\$([a-zA-Z]\w*?)(\.([a-zA-Z]\w*?))?(\W)/g;
 		
 		for (let key of Object.keys(obj)) {
 			if (typeof obj[key] === 'string') {
-				obj[key] = obj[key].replace(regex, (match, variableKey, nextCharacter) => {
+				obj[key] = obj[key].replace(regex, (match: string, variableKey: string, secondaryKeyPlusDot?: string, secondaryKey?: string, nextCharacter?: string) => {
 					if (this.state.hasOwnProperty(variableKey)) {
-						return String(this.state[variableKey]) + nextCharacter;
+						let thisVariable = this.state[variableKey];
+						// example: $trackedStats.year
+						if (typeof thisVariable === 'object' && secondaryKey && thisVariable.hasOwnProperty(secondaryKey)) {
+							return String(thisVariable[secondaryKey]) + nextCharacter;
+						}
+						// example: $companyName
+						else 
+							return String(this.state[variableKey]) + nextCharacter;
 					}
 					else {
 						throw new SyntaxError(`Invalid variable name ${match}`);
@@ -129,6 +138,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		let controlClass = thisPageControl.controlClass;
 		let controlProps = this.fillTemplateText(thisPageControl.controlProps);
+		let controlOnBack = thisPageControl.onBack;
 		
 		let dialog, currentPageProps;
 		
@@ -146,8 +156,12 @@ export class App extends React.PureComponent <unknown, AppState> {
 			dialog,
 			controlClass,
 			currentPageProps: currentPageProps,
+			currentOnBack: controlOnBack,
 		});
-		
+		this.saveScrollY();
+	}
+	
+	saveScrollY() {
 		// Only save window.scrollY before loading the new page IF it's nonzero
 		if (window.scrollY > 0) {
 			this.setState({
@@ -185,11 +199,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 		// this.setPage(resolveToValue(lastPageControl.onBack));
 	}
 	
-	// todo comment
-	summonInfoDialog(props) {
+	/**
+	 * Summon an info dialog with the specified dialog props. Does not change the current page.
+	 */
+	summonInfoDialog(props: DialogControlProps) {
 		let dialog = fillDialogProps(props);
 		dialog.open = true;
 		this.setState({dialog});
+		this.saveScrollY();
 	}
 	
 	/**
@@ -215,7 +232,58 @@ export class App extends React.PureComponent <unknown, AppState> {
 		scrollTo(0, this.state.lastScrollY);
 	}
 	
+	handleDashboardOnProceed() {
+		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
+		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
+		
+		// todo remove copy paste
+		if (!someScope1) {
+			this.summonInfoDialog({
+				title: 'todo idk what to title this',
+				text: 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
+				buttons: [
+					closeDialogButton(),
+					{
+						text: 'Proceed anyways',
+						variant: 'text',
+						endIcon: rightArrow(),
+						onClick: () => {
+							return Pages.yearRecap;
+						}
+					}
+				]
+			});
+		}
+		else if (!someScope2) {
+			this.summonInfoDialog({
+				title: 'todo idk what to title this',
+				text: 'Hey, you haven\'t selected any Scope 2 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
+				buttons: [
+					closeDialogButton(),
+					{
+						text: 'Proceed anyways',
+						variant: 'text',
+						endIcon: rightArrow(),
+						onClick: () => {
+							return Pages.yearRecap;
+						}
+					}
+				]
+			});
+		}
+		else {
+			this.setPage(Pages.yearRecap);
+		}
+	}
+	
 	render() {
+		
+		// Standard callbacks to spread to each control.
+		const controlCallbacks = {
+			doPageCallback: (callback) => this.handlePageCallback(callback),
+			summonInfoDialog: (props) => this.summonInfoDialog(props),
+			resolveToValue: (item) => this.resolveToValue(item),
+		};
 		
 		return (
 			<>
@@ -223,25 +291,21 @@ export class App extends React.PureComponent <unknown, AppState> {
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
 							{this.state.showDashboard ? 
-								<Dashboard {...this.state.trackedStats}/> 
+								<Dashboard {...this.state.trackedStats} {...controlCallbacks} onBack={this.state.currentOnBack} onProceed={() => this.handleDashboardOnProceed()}/> 
 							: <></>}
 							{(this.state.currentPageProps && this.state.controlClass) ?
 								<CurrentPage
+									{...controlCallbacks}
 									controlClass={this.state.controlClass}
-									doPageCallback={(callback) => this.handlePageCallback(callback)}
-									summonInfoDialog={(props) => this.summonInfoDialog(props)}
 									controlProps={this.state.currentPageProps}
-									resolveToValue={(item) => this.resolveToValue(item)}
 									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes
 								/>
 							: <></>}
 						</Box>
 						<InfoDialog
 							{...this.state.dialog}
+							{...controlCallbacks}
 							onClose={() => this.handleDialogClose()}
-							doPageCallback={(callback) => this.handlePageCallback(callback)}
-							summonInfoDialog={(props) => this.summonInfoDialog(props)}
-							resolveToValue={(item) => this.resolveToValue(item)}
 						/>
 					</Container>
 				</ThemeProvider>

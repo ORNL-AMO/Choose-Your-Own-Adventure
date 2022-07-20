@@ -12,8 +12,6 @@ import { ControlCallbacks, PageControl } from "./controls";
  */
  export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 	render() {
-		console.log('groupedchoice render');
-		console.log(this.props.resolveToValue);
 		
 		const props = this.props;
 		let numGroups = props.groups.length;
@@ -62,10 +60,11 @@ import { ControlCallbacks, PageControl } from "./controls";
  * TS wrapper for a GroupedChoices component control. 
  * Use this when definining a PageControl for code autocompletion and props checking.
  */
-export function newGroupedChoicesControl(props: GroupedChoicesControlProps): PageControl {
+export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBack: PageCallback): PageControl {
 	return {
 		controlClass: GroupedChoices,
 		controlProps: props,
+		onBack
 	};
 }
 

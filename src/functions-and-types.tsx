@@ -1,6 +1,9 @@
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import React from "react";
 import type { App, AppState } from "./App";
 import type { DialogStateProps } from "./components/InfoDialog";
+import { theme } from "./components/theme";
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
@@ -108,6 +111,24 @@ export function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
 		newObj[key] = newValues[key];
 	}
 	return newObj;
+}
+
+export function leftArrow() {
+	if (theme.direction === 'rtl') {
+		return (<KeyboardArrowRight/>);
+	}
+	else {
+		return (<KeyboardArrowLeft />);
+	}
+}
+
+export function rightArrow() {
+	if (theme.direction === 'rtl') {
+		return (<KeyboardArrowLeft />);
+	}
+	else {
+		return (<KeyboardArrowRight/>);
+	}
 }
 
 // Helpful types

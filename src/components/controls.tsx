@@ -102,4 +102,5 @@ export declare interface StartPageProps extends StartPageControlProps, ControlCa
 export declare interface PageControl {
 	controlClass: Component;
 	controlProps: AnyDict;
+	onBack?: PageCallback
 }
