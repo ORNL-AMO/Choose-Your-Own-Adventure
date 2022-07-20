@@ -1,7 +1,7 @@
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import React from "react";
-import type { App, AppState } from "./App";
+import type { App, AppState, NextAppState } from "./App";
 import type { DialogStateProps } from "./components/InfoDialog";
 import { theme } from "./components/theme";
 
@@ -145,7 +145,7 @@ declare global {
 	 * Key-value object holding anything.
 	 */
 	interface AnyDict {
-		[key: string]: any;
+		[key: string]: any; // eslint-disable-line 
 	}
 	
 	/**
@@ -159,17 +159,23 @@ declare global {
 	
 
 	/**
-	 * Either the desired return type, or a function which returns the desired type.
+	 * Either the desired return type, or a function which returns the desired type, which will be called by binding "this" to the main App object & passed its state.
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
-	type Resolvable<T> = T|((this: App, state: AppState) => T);
+	type Resolvable<T> = T|((this: App, state: AppState, nextState: NextAppState) => T);
+	
+	/**
+	 * Either the desired return type, or a function which returns the desired type, WITHOUT necessarily being bound to any object.
+	 */
+	type ResolvableGeneric<T> = T|((this: unknown, ...params: unknown[]) => T);
+	
 	/**
 	 * Callback for a button click which 
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
-	type PageCallback = ((this: App, state: AppState, nextState: AnyDict) => symbol)|symbol;
+	type PageCallback = ((this: App, state: AppState, nextState: NextAppState) => symbol)|symbol;
 	
 	/**
 	 * JS does not discern between integers and floats, but we can still identify as necessary which numbers should be integers only.

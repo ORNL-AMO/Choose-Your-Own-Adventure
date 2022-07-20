@@ -1,7 +1,5 @@
-import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from "@mui/material";
-import { parseSpecialText, PureComponentIgnoreFuncs } from "../functions-and-types";
-import Image from 'mui-image';
-import { styled, useTheme } from '@mui/material/styles';
+import { Box, Typography, Grid } from "@mui/material";
+import { parseSpecialText } from "../functions-and-types";
 import React from 'react';
 import { ButtonGroup, ButtonGroupButton } from "./Buttons";
 import { PaperGridItem } from "./theme";

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Group } from "@visx/group";
 import { Text } from '@visx/text';
 import { Arc } from "@visx/shape";
-import { animated, useSpring, to as interpolate, useTransition, config, } from '@react-spring/web';
+import { animated, to as interpolate, useTransition, } from '@react-spring/web';
 import { ArcProps } from "@visx/shape/lib/shapes/Arc";
 
 const defaultMargin = { top: 20, right: 20, bottom: 20, left: 20 };
@@ -29,8 +29,6 @@ export type GaugeProps = {
 	margin?: typeof defaultMargin;
 	animate?: boolean;
 };
-
-// TODO: fancy smooth animations/transitions
 
 export default function GaugeChart({
 	width,
@@ -82,18 +80,6 @@ export default function GaugeChart({
 					fill={color || 'blue'}
 					data={value}
 				/>
-					{/* {(path) => {
-						console.log(path);
-						return (
-							<animated.path
-								d={interpolate(.5, (angle) => 
-									path.path(angle)
-								)}
-								// d={path.path(0.5) || 'foo'}
-							/>
-						);
-					}} */}
-				{/* </AnimatedArc> */}
 				{/* Big text */}
 				<Text
 					verticalAnchor="end"
@@ -120,9 +106,9 @@ export default function GaugeChart({
 }
 
 type AnimatedArcProps = ArcProps<number> & {
-	startAngle: any,
-	endAngle: any,
-	innerRadius: any,
+	startAngle: ResolvableGeneric<number>,
+	endAngle: ResolvableGeneric<number>,
+	innerRadius: ResolvableGeneric<number>,
 	fill: string,
 	data: number;
 }

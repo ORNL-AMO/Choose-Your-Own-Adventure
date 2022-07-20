@@ -7,8 +7,10 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import { StartPage, PageControl, ControlCallbacks } from './components/controls';
-import { DashboardProps, Dashboard, DashboardTrackedStats } from './components/Dashboard';
-import { pageControls, PageError, Pages, Scope1Projects, Scope2Projects } from './pages';
+import { Dashboard, DashboardTrackedStats } from './components/Dashboard';
+import Pages from './pages';
+import { pageControls, PageError } from './pageControls';
+import { Scope1Projects, Scope2Projects } from './projects';
 import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -26,6 +28,20 @@ export interface AppState {
 	showDashboard: boolean;
 	selectedProjects: symbol[];
 	lastScrollY: number;
+}
+
+// JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
+// 	realized that this is a much easier solution. TODO document
+export interface NextAppState {
+	currentPage?: symbol;
+	currentOnBack?: PageCallback;
+	companyName?: string;
+	dialog?: DialogStateProps,
+	currentPageProps?: AnyDict;
+	controlClass?: Component;
+	trackedStats?: DashboardTrackedStats;
+	showDashboard?: boolean;
+	selectedProjects?: symbol[];
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
@@ -69,9 +85,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 			currentPageProps: pageControls[startPage].controlProps,
 			controlClass: pageControls[startPage].controlClass,
 			trackedStats: {
+				naturalGasMMBTU: 1_000_000, 
+				naturalGasCostPerMMBTU: 5, 
+				electricityUseKWh: 1_000_000, 
+				electricityCostKWh: 0.10,
 				financesAvailable: 1_000_000,
 				totalBudget: 1_000_000,
-				carbonReduced: 0,
+				carbonSavings: 0,
 				carbonEmissions: 69_420,
 				moneySpent: 0,
 				totalRebates: 0,
@@ -188,7 +208,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 	}
 	
 	// todo
-	handleHistoryPopState(event) {
+	handleHistoryPopState() {
 		// console.log(event);
 		// if (!event.state) return;
 		
@@ -236,11 +256,12 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
 		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
 		
-		// todo remove copy paste
-		if (!someScope1) {
-			this.summonInfoDialog({
+		// Show warning if user hasn't tried both scopes
+		if (!someScope1 || !someScope2) {
+			let warningDialogProps: DialogControlProps = {
 				title: 'todo idk what to title this',
-				text: 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
+				text: '',
+				// text: 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
 				buttons: [
 					closeDialogButton(),
 					{
@@ -251,29 +272,23 @@ export class App extends React.PureComponent <unknown, AppState> {
 							return Pages.yearRecap;
 						}
 					}
-				]
-			});
+				],
+				allowClose: true,
+			};
+			
+			if (!someScope1) {
+				warningDialogProps.text = 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				this.summonInfoDialog(warningDialogProps);
+			}
+			else if (!someScope2) {
+				warningDialogProps.text = 'Hey, you haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				this.summonInfoDialog(warningDialogProps);
+			}
+			return;
 		}
-		else if (!someScope2) {
-			this.summonInfoDialog({
-				title: 'todo idk what to title this',
-				text: 'Hey, you haven\'t selected any Scope 2 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
-				buttons: [
-					closeDialogButton(),
-					{
-						text: 'Proceed anyways',
-						variant: 'text',
-						endIcon: rightArrow(),
-						onClick: () => {
-							return Pages.yearRecap;
-						}
-					}
-				]
-			});
-		}
-		else {
-			this.setPage(Pages.yearRecap);
-		}
+		
+		// Proceed to recap
+		this.setPage(Pages.yearRecap);
 	}
 	
 	render() {

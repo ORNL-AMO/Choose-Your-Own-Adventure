@@ -116,7 +116,7 @@ export function newInfoDialogControl(props: DialogControlProps): PageControl {
 	};
 }
 
-declare interface DialogCardContent {
+export declare interface DialogCardContent {
 	text: string;
 	color: string;
 }

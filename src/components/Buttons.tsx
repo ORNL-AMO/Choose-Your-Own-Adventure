@@ -71,7 +71,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 		
 		// Info popup
 		if (button.infoPopup) return (
-			<BasicPopover key={idx} text={button.text} variant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
+			<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
 				{button.infoPopup}
 			</BasicPopover>
 		);
