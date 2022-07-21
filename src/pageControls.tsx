@@ -146,43 +146,44 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				// 		)
 				// 	]
 				// },
-				{
-					text: '2. Conduct digital twin analysis',
-					buttons: [
-						infoButtonWithDialog({
-							title: 'Energy Efficiency - Digital Twin Analysis',
-							text: [
-								'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
-								'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
-							],
-							img: 'images/chiller-systems-in-plant.png',
-							imgAlt: 'A 3D model of the chiller systems in a plant',
-							imgObjectFit: 'contain',
-							cards: projectCostAndCO2ReductionCards(90_000, 2),
-						}),
-						co2SavingsButton(2.0),
-						selectButtonCheckbox(function (state, nextState) {
-							toggleSelectedPage(Pages.digitalTwinAnalysis, state, nextState);
-							return Pages.scope1Projects;
-							// // Update selectedProjects to disable the select button
-							// let selectedProjects = state.selectedProjects.slice();
-							// selectedProjects.push(Pages.digitalTwinAnalysis);
-							// nextState.selectedProjects = selectedProjects;
-							// // Update trackedStats for the dashboard
-							// nextState.trackedStats = cloneAndModify(state.trackedStats, {
-							// 	carbonReduced: state.trackedStats.carbonReduced + 2,
-							// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
-							// 	financesAvailable: state.trackedStats.financesAvailable - 90_000,
-							// 	moneySpent: state.trackedStats.moneySpent + 90_000,
-							// });
-							// return Pages.digitalTwinAnalysis;
-						},
-						undefined,
-						(state) => 
-							state.selectedProjects.includes(Pages.digitalTwinAnalysis),
-						)
-					],
-				},
+				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
+				// {
+				// 	text: '2. Conduct digital twin analysis',
+				// 	buttons: [
+				// 		infoButtonWithDialog({
+				// 			title: 'Energy Efficiency - Digital Twin Analysis',
+				// 			text: [
+				// 				'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
+				// 				'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
+				// 			],
+				// 			img: 'images/chiller-systems-in-plant.png',
+				// 			imgAlt: 'A 3D model of the chiller systems in a plant',
+				// 			imgObjectFit: 'contain',
+				// 			cards: projectCostAndCO2ReductionCards(90_000, 2),
+				// 		}),
+				// 		co2SavingsButton(2.0),
+				// 		selectButtonCheckbox(function (state, nextState) {
+				// 			toggleSelectedPage(Pages.digitalTwinAnalysis, state, nextState);
+				// 			return Pages.scope1Projects;
+				// 			// // Update selectedProjects to disable the select button
+				// 			// let selectedProjects = state.selectedProjects.slice();
+				// 			// selectedProjects.push(Pages.digitalTwinAnalysis);
+				// 			// nextState.selectedProjects = selectedProjects;
+				// 			// // Update trackedStats for the dashboard
+				// 			// nextState.trackedStats = cloneAndModify(state.trackedStats, {
+				// 			// 	carbonReduced: state.trackedStats.carbonReduced + 2,
+				// 			// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
+				// 			// 	financesAvailable: state.trackedStats.financesAvailable - 90_000,
+				// 			// 	moneySpent: state.trackedStats.moneySpent + 90_000,
+				// 			// });
+				// 			// return Pages.digitalTwinAnalysis;
+				// 		},
+				// 		undefined,
+				// 		(state) => 
+				// 			state.selectedProjects.includes(Pages.digitalTwinAnalysis),
+				// 		)
+				// 	],
+				// },
 				{
 					text: '3. Explore efficient process heating upgrades',
 					buttons: [

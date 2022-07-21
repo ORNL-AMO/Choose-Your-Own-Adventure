@@ -2,11 +2,11 @@ import { Button, Stack } from '@mui/material';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BasicPopover from "./BasicPopover";
-import { fillDialogProps, resolveToValue } from '../functions-and-types';
+import { resolveToValue } from '../functions-and-types';
 import { ControlCallbacks } from './controls';
-import { DialogControlProps, DialogStateProps } from './InfoDialog';
+import { fillDialogProps, DialogControlProps, DialogStateProps } from './InfoDialog';
 import type App from '../App';
 
 export declare interface ButtonGroupButton {
@@ -44,6 +44,10 @@ export declare interface ButtonGroupButton {
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
 	buttons?: ButtonGroupButton[];
+	/**
+	 * Prevent button from being enabled for the provided number of milliseconds.
+	 */
+	delay?: number;
 	summonInfoDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
 	/**
@@ -57,9 +61,32 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
  * Group of configurable buttons. todo: turn into a class for render efficiency
  */
 export function ButtonGroup(props: ButtonGroupProps) {
+	
+	// // Decide whether the button group starts disabled
+	// let startsDisabled = false;
+	// if (props.delay) startsDisabled = true;
+	
+	// let [disabled, setDisabled] = useState(!!props.delay);
+	
+	
+	// // Un-disable the buttons after a delay IF it's provided
+	// useEffect(() => {
+	// 	if (props.delay) {
+	// 		setTimeout(() => {
+	// 			setDisabled(false);
+	// 		}, props.delay);
+	// 	}
+	// });
+	
 	if (!props.buttons) return <></>;
 	
 	const buttons = props.buttons.map((button, idx) => {
+		
+		// Decide whether the button starts disabled
+		// let thisDisabled = disabled;
+		let thisDisabled = false;
+		if (button.disabled) thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+	
 		// Check for mutually exclusive properties
 		if (
 			(button.infoPopup && (button.infoDialog || button.onClick)) ||
@@ -83,7 +110,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 				startIcon={props.resolveToValue(button.startIcon)}
 				endIcon={props.resolveToValue(button.endIcon)}
 				size={button.size}
-				disabled={button.disabled ? props.resolveToValue(button.disabled) : false}
+				disabled={thisDisabled}
 				onClick={() => {
 					// Button's provided onclick handler
 					if (button.onClick) {

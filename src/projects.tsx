@@ -1,8 +1,8 @@
-import { AppState, NextAppState } from "./App";
+import App, { AppState, NextAppState } from "./App";
 import { ButtonGroupButton, infoButtonWithDialog, selectButtonCheckbox } from "./components/Buttons";
 import { DashboardTrackedStats } from "./components/Dashboard";
 import { Choice } from "./components/GroupedChoices";
-import { DialogCardContent } from "./components/InfoDialog";
+import { DialogCardContent, DialogControlProps, newInfoDialogControl } from "./components/InfoDialog";
 import { theme } from "./components/theme";
 import { co2SavingsButton } from "./pageControls";
 import Pages from "./pages";
@@ -14,7 +14,7 @@ export default Projects;
 
 // IMPORTANT: Keep Pages.scope1Projects and Pages.scope2Projects updated, so that the Proceed button click handler in App.tsx doesn't get confused
 export const Scope1Projects = [
-	Pages.wasteHeatRecovery, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
+	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
 ];
 export const Scope2Projects = [
 	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
@@ -31,6 +31,7 @@ declare interface ProjectControlParams {
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: "cover" | "contain";
 	previewButton?: ButtonGroupButton;
+	surprises?: DialogControlProps[];
 }
 
 export class ProjectControl {
@@ -45,6 +46,11 @@ export class ProjectControl {
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: "cover" | "contain";
 	previewButton?: ButtonGroupButton;
+	surprises: DialogControlProps[];
+	/**
+	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
+	 */
+	hasDisplayedSurprises = false;
 	
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
@@ -57,6 +63,8 @@ export class ProjectControl {
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
 		this.choiceInfoImgObjectFit = params.choiceInfoImgObjectFit;
 		this.previewButton = params.previewButton;
+		if (params.surprises) this.surprises = params.surprises;
+		else this.surprises = [];
 	}
 	
 	applyPreview(state: AppState, nextState: NextAppState) {
@@ -78,6 +86,8 @@ export class ProjectControl {
 	}
 	
 	getChoiceControl(): Choice {
+		
+		const self = this; // for use in bound button handlers
 		
 		let cards: DialogCardContent[] = [];
 		
@@ -109,17 +119,22 @@ export class ProjectControl {
 		// Preview button (e.g. co2 savings button)
 		if (this.previewButton) buttons.push(this.previewButton);
 		// Select checkbox button, with live preview of stats
-		buttons.push(selectButtonCheckbox((state, nextState) => {
+		buttons.push(selectButtonCheckbox(function (state, nextState) {
 			let selectedProjects = state.selectedProjects.slice();
 			// IF PROJECT IS ALREADY SELECTED
-			if (selectedProjects.includes(this.pageId)) {
-				selectedProjects.splice(selectedProjects.indexOf(this.pageId), 1);
-				this.unApplyPreview(state, nextState);
+			if (selectedProjects.includes(self.pageId)) {
+				selectedProjects.splice(selectedProjects.indexOf(self.pageId), 1);
+				self.unApplyPreview(state, nextState);
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
-				selectedProjects.push(this.pageId);
-				this.applyPreview(state, nextState);
+				selectedProjects.push(self.pageId);
+				self.applyPreview(state, nextState);
+				
+				if (!self.hasDisplayedSurprises) {
+					displaySurprises.apply(this);
+					self.hasDisplayedSurprises = true;
+				}
 			}
 			nextState.selectedProjects = selectedProjects;
 			return state.currentPage; // no page change
@@ -129,6 +144,22 @@ export class ProjectControl {
 			text: this.choiceInfoTitle,
 			buttons: buttons,
 		};
+		
+		function displaySurprises(this: App) {
+			let firstSurprise = self.surprises[0];
+			if (!firstSurprise) return;
+			
+			firstSurprise.buttons = [{
+				text: 'Continue',
+				variant: 'text',
+				onClick: () => {
+					return this.state.currentPage;
+				}
+			}];
+			firstSurprise.buttonsDelay = 1000;
+			
+			this.summonInfoDialog(firstSurprise);
+		}
 	}
 }
 
@@ -152,7 +183,36 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImg: 'images/waste-heat-recovery.png',
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
+	surprises: [
+		{
+			title: 'CONGRATULATIONS!',
+			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
+			img: 'images/confetti.png'
+		},
+	]
 	// previewButton: co2SavingsButton(69420) // todo
+});
+
+Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
+	pageId: Pages.digitalTwinAnalysis,
+	preview: {
+		financesAvailable: absolute(-90_000),
+		naturalGasMMBTU: relative(-0.02),
+	},
+	actual: {
+		financesAvailable: absolute(-90_000),
+		naturalGasMMBTU: relative(-0.02),
+	},
+	title: 'Energy Efficiency - Digital Twin Analysis',
+	choiceInfoTitle: 'Conduct digital twin analysis',
+	choiceInfoText: [
+		'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
+		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
+		
+	],
+	choiceInfoImg: 'images/chiller-systems-in-plant.png',
+	choiceInfoImgAlt: 'A 3D model of the chiller systems in a plant',
+	choiceInfoImgObjectFit: 'contain',
 });
 
 /**
@@ -200,6 +260,8 @@ declare interface ProjectControls {
 	
 	return thisApplier;
 }
+
+// todo projects taking more than 1 year
 
 /**
  * Generates an object for applying/unaplying an ABSOLUTE modifier, such as reducing budget by $50,000.

@@ -12,6 +12,7 @@ import GaugeChart from "./GaugeChart";
 import { theme } from "./theme";
 import { ControlCallbacks } from "./controls";
 import BasicPopover from "./BasicPopover";
+import HorizontalBar from "./HorizontalBar";
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	render() {
@@ -23,6 +24,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
 		return (
 			<>
+				<HorizontalBar width={400} height={145}/>
 				<MobileStepper
 					variant="progress"
 					steps={10}
@@ -49,6 +51,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							text='Proceed'
 							variant='mouseover'
 							endIcon={rightArrow()}
+							buttonDisabled={this.props.btnProceedDisabled}
 						>
 							<div style={{maxWidth: '200px'}}>
 								Proceed to the next year. TODO MORE DESCRIPTION
@@ -57,6 +60,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 					}
 				/>
 				<Box m={2}>
+					{/* TODO: timer for each year */}
 					<Typography variant='h6'>
 						Year {this.props.year} of 10
 					</Typography>
@@ -190,4 +194,8 @@ export interface DashboardTrackedStats {
 export interface DashboardProps extends ControlCallbacks, DashboardTrackedStats {
 	onBack?: PageCallback;
 	onProceed: () => void;
+	/**
+	 * Whether the PROCEED Button is disabled.
+	 */
+	btnProceedDisabled: boolean;
 }

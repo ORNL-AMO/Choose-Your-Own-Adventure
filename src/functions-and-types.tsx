@@ -71,21 +71,6 @@ export function shallowCompareIgnoreFuncs(obj1, obj2) {
 		(obj1[key] !== obj2[key] && typeof obj1[key] !== 'function'));
 }
 
-export function fillDialogProps(obj: AnyDict): DialogStateProps {
-	return {
-		open: obj.open || false,
-		title: obj.title || '',
-		text: obj.text || '',
-		cardText: obj.cardText || undefined,
-		cards: obj.cards || undefined,
-		img: obj.img || '',
-		imgAlt: obj.imgAlt || '',
-		allowClose: obj.allowClose || false,
-		imgObjectFit: obj.imgObjectFit || undefined,
-		buttons: obj.buttons || undefined,
-	};
-}
-
 /**
  * Custom implementation of PureComponent which ignores functions in the shouldComponentUpdate comperison.
  * This is because passing arrow/bind functions as props will cause the shallow comparison to always fail.

@@ -90,6 +90,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					summonInfoDialog={props.summonInfoDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
+					delay={props.buttonsDelay}
 				/>
 			</DialogActions>
 		</Dialog>
@@ -140,6 +141,23 @@ export declare interface DialogControlProps {
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
+	buttonsDelay?: number;
+}
+
+export function fillDialogProps(obj: AnyDict): DialogStateProps {
+	return {
+		open: obj.open || false,
+		title: obj.title || '',
+		text: obj.text || '',
+		cardText: obj.cardText || undefined,
+		cards: obj.cards || undefined,
+		img: obj.img || '',
+		imgAlt: obj.imgAlt || '',
+		allowClose: obj.allowClose || false,
+		imgObjectFit: obj.imgObjectFit || undefined,
+		buttons: obj.buttons || undefined,
+		buttonsDelay: obj.buttonsDelay || undefined,
+	};
 }
 
 /**

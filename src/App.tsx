@@ -11,10 +11,10 @@ import { Dashboard, DashboardTrackedStats } from './components/Dashboard';
 import Pages from './pages';
 import { pageControls, PageError } from './pageControls';
 import { Scope1Projects, Scope2Projects } from './projects';
-import { resolveToValue, fillDialogProps, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
+import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
-import { DialogControlProps, DialogStateProps, InfoDialog } from './components/InfoDialog';
+import { DialogControlProps, fillDialogProps, DialogStateProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 
 export interface AppState {
@@ -225,8 +225,12 @@ export class App extends React.PureComponent <unknown, AppState> {
 	summonInfoDialog(props: DialogControlProps) {
 		let dialog = fillDialogProps(props);
 		dialog.open = true;
-		this.setState({dialog});
-		this.saveScrollY();
+		console.log('summoning', dialog);
+		console.log(this.state.dialog === dialog);
+		setTimeout(() => {
+			this.setState({dialog});
+			this.saveScrollY();
+		}, 50);
 	}
 	
 	/**
@@ -256,12 +260,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
 		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
 		
+		console.log(`someScope1=${someScope1}, someScope2=${someScope2}`);
+		
 		// Show warning if user hasn't tried both scopes
 		if (!someScope1 || !someScope2) {
 			let warningDialogProps: DialogControlProps = {
-				title: 'todo idk what to title this',
+				title: 'Hold up!',
 				text: '',
-				// text: 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {back} and look at some of the possible Scope 1 projects?',
 				buttons: [
 					closeDialogButton(),
 					{
@@ -277,11 +282,11 @@ export class App extends React.PureComponent <unknown, AppState> {
 			};
 			
 			if (!someScope1) {
-				warningDialogProps.text = 'Hey, you haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
 				this.summonInfoDialog(warningDialogProps);
 			}
 			else if (!someScope2) {
-				warningDialogProps.text = 'Hey, you haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
 				this.summonInfoDialog(warningDialogProps);
 			}
 			return;
@@ -306,7 +311,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
 							{this.state.showDashboard ? 
-								<Dashboard {...this.state.trackedStats} {...controlCallbacks} onBack={this.state.currentOnBack} onProceed={() => this.handleDashboardOnProceed()}/> 
+								<Dashboard 
+									{...this.state.trackedStats} 
+									{...controlCallbacks} 
+									onBack={this.state.currentOnBack} 
+									onProceed={() => this.handleDashboardOnProceed()}
+									btnProceedDisabled={this.state.selectedProjects.length === 0}
+								/> 
 							: <></>}
 							{(this.state.currentPageProps && this.state.controlClass) ?
 								<CurrentPage
