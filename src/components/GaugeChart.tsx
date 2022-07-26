@@ -3,7 +3,7 @@ import { Group } from "@visx/group";
 import { Text } from '@visx/text';
 import { Arc } from "@visx/shape";
 import { animated, to as interpolate, useTransition, } from '@react-spring/web';
-import { ArcProps } from "@visx/shape/lib/shapes/Arc";
+import type { ArcProps } from "@visx/shape/lib/shapes/Arc";
 
 const defaultMargin = { top: 20, right: 20, bottom: 20, left: 20 };
 

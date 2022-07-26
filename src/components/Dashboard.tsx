@@ -10,9 +10,9 @@ import { leftArrow, PureComponentIgnoreFuncs, rightArrow } from "../functions-an
 import React from "react";
 import GaugeChart from "./GaugeChart";
 import { theme } from "./theme";
-import { ControlCallbacks } from "./controls";
+import type { ControlCallbacks } from "./controls";
 import BasicPopover from "./BasicPopover";
-import HorizontalBar from "./HorizontalBar";
+import HorizontalBarWithTooltip from "./HorizontalBar";
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	render() {
@@ -20,11 +20,9 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		const MAX_NG_MMBTU = 1_500_000;
 		const MAX_ELECTRICITY = 1_500_000;
 		const CHART_SIZE = 250;
-		// const MAX_REBATES = 500_000;
 
 		return (
 			<>
-				<HorizontalBar width={400} height={145}/>
 				<MobileStepper
 					variant="progress"
 					steps={10}
@@ -104,6 +102,14 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								label="Electricity use (kWh)"
 								textFontSize={0.85}
 								color={theme.palette.warning.main}
+							/>
+							<HorizontalBarWithTooltip 
+								width={400} height={145}
+								data={[{
+									'Finances available': this.props.financesAvailable,
+									'Money spent': this.props.moneySpent,
+									'Rebates': this.props.totalRebates,
+								}]}
 							/>
 							{/* <GaugeChart
 								width={CHART_SIZE}

@@ -1,12 +1,16 @@
-import App, { AppState, NextAppState } from "./App";
-import { ButtonGroupButton, infoButtonWithDialog, selectButtonCheckbox } from "./components/Buttons";
-import { DashboardTrackedStats } from "./components/Dashboard";
-import { Choice } from "./components/GroupedChoices";
-import { DialogCardContent, DialogControlProps, newInfoDialogControl } from "./components/InfoDialog";
+import type { AppState, NextAppState } from "./App";
+import type App from "./App";
+import type { ButtonGroupButton} from "./components/Buttons";
+import { infoButtonWithDialog, selectButtonCheckbox } from "./components/Buttons";
+import type { DashboardTrackedStats } from "./components/Dashboard";
+import type { Choice } from "./components/GroupedChoices";
+import type { DialogCardContent, DialogControlProps} from "./components/InfoDialog";
+import { newInfoDialogControl } from "./components/InfoDialog";
 import { theme } from "./components/theme";
 import { co2SavingsButton } from "./pageControls";
 import Pages from "./pages";
 import React from 'react';
+import { Alert } from "@mui/material";
 
 const Projects: ProjectControls = {};
 
@@ -22,8 +26,22 @@ export const Scope2Projects = [
 
 declare interface ProjectControlParams {
 	pageId: symbol;
-	preview: TrackedStatsApplier;
-	actual: TrackedStatsApplier;
+	/**
+	 * Project cost, exclusing rebates.
+	 */
+	cost: number;
+	/**
+	 * Numbers that appear on the INFO CARD, before checking the checkbox.
+	 */
+	statsInfo: TrackedStatsApplier;
+	/**
+	 * Numbers that affect the dashboard charts AND that apply when "Proceed" is clicked.
+	 */
+	statsActual: TrackedStatsApplier;
+	/**
+	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
+	 */
+	statsHidden?: TrackedStatsApplier;
 	title: string;
 	choiceInfoTitle: string;
 	choiceInfoText: string | string[];
@@ -31,14 +49,23 @@ declare interface ProjectControlParams {
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: "cover" | "contain";
 	previewButton?: ButtonGroupButton;
+	/**
+	 * Surprises that appear once when SELECT is clicked.
+	 */
 	surprises?: DialogControlProps[];
+	/**
+	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
+	 */
+	hiddenSurprises?: DialogControlProps[];
 }
 
 export class ProjectControl {
 	
 	pageId: symbol;
-	previewAppliers: TrackedStatsApplier;
-	actualAppliers: TrackedStatsApplier;
+	cost: number;
+	statsInfoAppliers: TrackedStatsApplier;
+	statsActualAppliers: TrackedStatsApplier;
+	statsHiddenAppliers?: TrackedStatsApplier;
 	title: string;
 	choiceInfoTitle: string;
 	choiceInfoText: string | string[];
@@ -47,6 +74,7 @@ export class ProjectControl {
 	choiceInfoImgObjectFit?: "cover" | "contain";
 	previewButton?: ButtonGroupButton;
 	surprises: DialogControlProps[];
+	hiddenSurprises?: DialogControlProps[];
 	/**
 	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
 	 */
@@ -54,8 +82,9 @@ export class ProjectControl {
 	
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
-		this.previewAppliers = params.preview;
-		this.actualAppliers = params.actual;
+		this.statsInfoAppliers = params.statsInfo;
+		this.statsActualAppliers = params.statsActual;
+		this.statsHiddenAppliers = params.statsHidden;
 		this.title = params.title;
 		this.choiceInfoTitle = params.choiceInfoTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -65,23 +94,34 @@ export class ProjectControl {
 		this.previewButton = params.previewButton;
 		if (params.surprises) this.surprises = params.surprises;
 		else this.surprises = [];
+		this.hiddenSurprises = params.hiddenSurprises;
+		
+		this.cost = params.cost;
 	}
 	
-	applyPreview(state: AppState, nextState: NextAppState) {
+	applyStatChanges(state: AppState, nextState: NextAppState) {
 		let newTrackedStats = {...state.trackedStats};
-		for (let key in this.previewAppliers) {
-			let thisApplier: NumberApplier = this.previewAppliers[key];
+		for (let key in this.statsActualAppliers) {
+			let thisApplier: NumberApplier = this.statsActualAppliers[key];
 			newTrackedStats[key] = thisApplier.applyValue(state.trackedStats[key]);
 		}
+		// Now, apply the change to finances (DOES NOT SUPPORT RELATIVE VALUES ATM)
+		newTrackedStats.financesAvailable = state.trackedStats.financesAvailable - this.cost;
+		newTrackedStats.moneySpent = state.trackedStats.moneySpent + this.cost;
+		
 		nextState.trackedStats = newTrackedStats;
 	}
 	
-	unApplyPreview(state: AppState, nextState: NextAppState) {
+	unApplyStatChanges(state: AppState, nextState: NextAppState) {
 		let newTrackedStats = {...state.trackedStats};
-		for (let key in this.previewAppliers) {
-			let thisApplier: NumberApplier = this.previewAppliers[key];
+		for (let key in this.statsActualAppliers) {
+			let thisApplier: NumberApplier = this.statsActualAppliers[key];
 			newTrackedStats[key] = thisApplier.unApplyValue(state.trackedStats[key]);
 		}
+		// Now, apply the change to finances
+		newTrackedStats.financesAvailable = state.trackedStats.financesAvailable + this.cost;
+		newTrackedStats.moneySpent = state.trackedStats.moneySpent - this.cost;
+		
 		nextState.trackedStats = newTrackedStats;
 	}
 	
@@ -92,15 +132,15 @@ export class ProjectControl {
 		let cards: DialogCardContent[] = [];
 		
 		// todo maybe add a field just called "project cost", dunno
-		if (this.previewAppliers.financesAvailable) {
+		if (this.statsInfoAppliers.moneySpent) {
 			cards.push({
-				text: `Total project cost: {$${(-this.previewAppliers.financesAvailable.modifier).toLocaleString('en-US')}}`,
+				text: `Total project cost: {$${(this.statsInfoAppliers.moneySpent.modifier).toLocaleString('en-US')}}`,
 				color: theme.palette.secondary.dark, // todo change?
 			});
 		}
-		if (this.previewAppliers.naturalGasMMBTU) {
+		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			cards.push({
-				text: `Natural gas reduction: {${(-this.previewAppliers.naturalGasMMBTU.modifier).toLocaleString('en-US')}}`,
+				text: `Natural gas reduction: {${(-this.statsInfoAppliers.naturalGasMMBTU.modifier).toLocaleString('en-US')}}`,
 				color: theme.palette.primary.light, // todo change?
 			});
 		}
@@ -124,12 +164,18 @@ export class ProjectControl {
 			// IF PROJECT IS ALREADY SELECTED
 			if (selectedProjects.includes(self.pageId)) {
 				selectedProjects.splice(selectedProjects.indexOf(self.pageId), 1);
-				self.unApplyPreview(state, nextState);
+				self.unApplyStatChanges(state, nextState);
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
+				// Figure out if this project can be afforded
+				if (self.cost > state.trackedStats.financesAvailable + state.trackedStats.totalRebates) {
+					this.summonSnackbar(<Alert severity="error">You cannot afford this project with your current budget!</Alert>);
+					return state.currentPage;
+				}
+				
 				selectedProjects.push(self.pageId);
-				self.applyPreview(state, nextState);
+				self.applyStatChanges(state, nextState);
 				
 				if (!self.hasDisplayedSurprises) {
 					displaySurprises.apply(this);
@@ -165,13 +211,11 @@ export class ProjectControl {
 
 Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	pageId: Pages.wasteHeatRecovery,
-	preview: {
-		financesAvailable: absolute(-65_000), // project cost, in dollars
+	cost: 65_000, // project cost, in dollars
+	statsInfo: {
 		naturalGasMMBTU: absolute(-50_000), // reduces natural gas usage
 	},
-	actual: {
-		financesAvailable: absolute(-60_000),
-		totalBudget: absolute(5_000), // rebate (Should I make the rebates automatic?? or should I include it in financesAvailable?)
+	statsActual: {
 		totalRebates: absolute(5_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
@@ -184,23 +228,22 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
+		// {
+		// 	title: 'CONGRATULATIONS!',
+		// 	text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
+		// 	img: 'images/confetti.png'
+		// },
 	]
 	// previewButton: co2SavingsButton(69420) // todo
 });
 
 Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 	pageId: Pages.digitalTwinAnalysis,
-	preview: {
-		financesAvailable: absolute(-90_000),
+	cost: 90_000,
+	statsInfo: {
 		naturalGasMMBTU: relative(-0.02),
 	},
-	actual: {
-		financesAvailable: absolute(-90_000),
+	statsActual: {
 		naturalGasMMBTU: relative(-0.02),
 	},
 	title: 'Energy Efficiency - Digital Twin Analysis',

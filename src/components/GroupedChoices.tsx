@@ -1,9 +1,10 @@
 import { Box, Typography, Grid } from "@mui/material";
 import { parseSpecialText } from "../functions-and-types";
 import React from 'react';
-import { ButtonGroup, ButtonGroupButton } from "./Buttons";
+import type { ButtonGroupButton } from "./Buttons";
+import { ButtonGroup } from "./Buttons";
 import { PaperGridItem } from "./theme";
-import { ControlCallbacks, PageControl } from "./controls";
+import type { ControlCallbacks, PageControl } from "./controls";
 
 /**
  * Generic control for picking between multiple choices across multiple groups.

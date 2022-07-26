@@ -20,6 +20,7 @@ rules:
   no-prototype-builtins: off
   '@typescript-eslint/no-empty-interface': warn
   '@typescript-eslint/ban-ts-comment': warn
+  '@typescript-eslint/consistent-type-imports': error
   'react/prop-types': warn
   '@typescript-eslint/no-this-alias':
     - off # temp

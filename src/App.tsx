@@ -1,20 +1,23 @@
 import React from 'react';
-import { Container, Box, ThemeProvider, } from '@mui/material';
+import { Container, Box, ThemeProvider, Snackbar, } from '@mui/material';
 
 import './App.scss';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { StartPage, PageControl, ControlCallbacks } from './components/controls';
-import { Dashboard, DashboardTrackedStats } from './components/Dashboard';
+import type { PageControl, ControlCallbacks } from './components/controls';
+import { StartPage } from './components/controls';
+import type { DashboardTrackedStats } from './components/Dashboard';
+import { Dashboard } from './components/Dashboard';
 import Pages from './pages';
 import { pageControls, PageError } from './pageControls';
 import { Scope1Projects, Scope2Projects } from './projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
-import { DialogControlProps, fillDialogProps, DialogStateProps, InfoDialog } from './components/InfoDialog';
+import type { DialogControlProps, DialogStateProps} from './components/InfoDialog';
+import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 
 export interface AppState {
@@ -28,6 +31,8 @@ export interface AppState {
 	showDashboard: boolean;
 	selectedProjects: symbol[];
 	lastScrollY: number;
+	snackbarOpen: boolean;
+	snackbarContent?: JSX.Element;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -42,6 +47,8 @@ export interface NextAppState {
 	trackedStats?: DashboardTrackedStats;
 	showDashboard?: boolean;
 	selectedProjects?: symbol[];
+	snackbarOpen?: boolean;
+	snackbarContent?: JSX.Element;
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
@@ -89,7 +96,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 				naturalGasCostPerMMBTU: 5, 
 				electricityUseKWh: 1_000_000, 
 				electricityCostKWh: 0.10,
-				financesAvailable: 1_000_000,
+				financesAvailable: 100_000,
 				totalBudget: 1_000_000,
 				carbonSavings: 0,
 				carbonEmissions: 69_420,
@@ -100,6 +107,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			showDashboard: showDashboardAtStart,
 			selectedProjects: [],
 			lastScrollY: -1,
+			snackbarOpen: false,
 		};
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore --- writing to state is fine in constructor
@@ -233,6 +241,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 		}, 50);
 	}
 	
+	summonSnackbar(content: JSX.Element) {
+		this.setState({
+			snackbarOpen: true,
+			snackbarContent: content,
+		});
+	}
+	
 	/**
 	 * Close the dialog.
 	 */
@@ -333,6 +348,19 @@ export class App extends React.PureComponent <unknown, AppState> {
 							{...controlCallbacks}
 							onClose={() => this.handleDialogClose()}
 						/>
+						<Snackbar 
+							open={this.state.snackbarOpen}
+							autoHideDuration={6000}
+							onClose={() => {
+								this.setState({snackbarOpen: false});
+							}}
+							anchorOrigin={{
+								vertical: 'bottom',
+								horizontal: 'center',
+							}}
+						>
+							{this.state.snackbarContent || <></>}
+						</Snackbar>
 					</Container>
 				</ThemeProvider>
 			</>

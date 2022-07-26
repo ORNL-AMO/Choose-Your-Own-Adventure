@@ -5,8 +5,9 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import React, { useEffect, useState } from 'react';
 import BasicPopover from "./BasicPopover";
 import { resolveToValue } from '../functions-and-types';
-import { ControlCallbacks } from './controls';
-import { fillDialogProps, DialogControlProps, DialogStateProps } from './InfoDialog';
+import type { ControlCallbacks } from './controls';
+import type { DialogControlProps, DialogStateProps } from './InfoDialog';
+import { fillDialogProps } from './InfoDialog';
 import type App from '../App';
 
 export declare interface ButtonGroupButton {

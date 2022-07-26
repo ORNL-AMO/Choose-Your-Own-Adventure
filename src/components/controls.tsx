@@ -3,7 +3,8 @@ import { parseSpecialText, PureComponentIgnoreFuncs } from "../functions-and-typ
 import Image from 'mui-image';
 import { styled, useTheme } from '@mui/material/styles';
 import React from 'react';
-import { ButtonGroup, ButtonGroupButton } from "./Buttons";
+import type { ButtonGroupButton } from "./Buttons";
+import { ButtonGroup } from "./Buttons";
 import { PaperGridItem } from "./theme";
 
 /* -======================================================- */
