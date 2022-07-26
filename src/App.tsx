@@ -19,6 +19,7 @@ import { GroupedChoices } from './components/GroupedChoices';
 import type { DialogControlProps, DialogStateProps} from './components/InfoDialog';
 import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
+import { YearRecap } from './components/YearRecap';
 
 export interface AppState {
 	currentPage: symbol;
@@ -28,6 +29,7 @@ export interface AppState {
 	currentPageProps?: AnyDict; // todo
 	controlClass?: Component;
 	trackedStats: DashboardTrackedStats;
+	yearlyTrackedStats: DashboardTrackedStats[]; // to be pushed at the end of each year; does not change
 	showDashboard: boolean;
 	selectedProjects: symbol[];
 	lastScrollY: number;
@@ -53,20 +55,32 @@ export interface NextAppState {
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
 	selectedProjects: symbol[];
- }
+	trackedStats: DashboardTrackedStats;
+}
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 	render() {
+		
+		const controlCallbacks = {
+			doPageCallback: this.props.doPageCallback,
+			summonInfoDialog: this.props.summonInfoDialog,
+			resolveToValue: this.props.resolveToValue,
+		};
+		
 		switch (this.props.controlClass) {
 			case StartPage:
 			case GroupedChoices:
 				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
 				return (<this.props.controlClass
 					{...this.props.controlProps} // Pass everything into the child
-					doPageCallback={this.props.doPageCallback}
-					summonInfoDialog={this.props.summonInfoDialog}
-					resolveToValue={this.props.resolveToValue}
+					{...controlCallbacks}
 				/>);
+			case YearRecap:
+				return <YearRecap
+					{...this.props.trackedStats}
+					{...controlCallbacks}
+					selectedProjects={this.props.selectedProjects}
+				/>;
 			default:
 				return <></>;
 		}
@@ -78,7 +92,21 @@ export class App extends React.PureComponent <unknown, AppState> {
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
-		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
+		startPage = Pages.yearRecap; showDashboardAtStart = true; // temporary, for debugging
+		
+		const firstYearStats = {
+			naturalGasMMBTU: 1_000_000, 
+			naturalGasCostPerMMBTU: 5, 
+			electricityUseKWh: 1_000_000, 
+			electricityCostKWh: 0.10,
+			financesAvailable: 100_000,
+			totalBudget: 1_000_000,
+			carbonSavings: 0,
+			carbonEmissions: 69_420,
+			moneySpent: 0,
+			totalRebates: 0,
+			year: 1,
+		};
 		
 		this.state = {
 			currentPage: startPage,
@@ -91,21 +119,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 			},
 			currentPageProps: pageControls[startPage].controlProps,
 			controlClass: pageControls[startPage].controlClass,
-			trackedStats: {
-				naturalGasMMBTU: 1_000_000, 
-				naturalGasCostPerMMBTU: 5, 
-				electricityUseKWh: 1_000_000, 
-				electricityCostKWh: 0.10,
-				financesAvailable: 100_000,
-				totalBudget: 1_000_000,
-				carbonSavings: 0,
-				carbonEmissions: 69_420,
-				moneySpent: 0,
-				totalRebates: 0,
-				year: 1,
-			},
+			trackedStats: {...firstYearStats},
+			yearlyTrackedStats: [
+				{...firstYearStats} // This one stays constant
+			],
 			showDashboard: showDashboardAtStart,
-			selectedProjects: [],
+			// selectedProjects: [],
+			selectedProjects: [Pages.processHeatingUpgrades, Pages.digitalTwinAnalysis, Pages.wasteHeatRecovery], // temporary, for debugging
 			lastScrollY: -1,
 			snackbarOpen: false,
 		};
@@ -233,8 +253,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 	summonInfoDialog(props: DialogControlProps) {
 		let dialog = fillDialogProps(props);
 		dialog.open = true;
-		console.log('summoning', dialog);
-		console.log(this.state.dialog === dialog);
 		setTimeout(() => {
 			this.setState({dialog});
 			this.saveScrollY();
@@ -275,8 +293,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
 		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
 		
-		console.log(`someScope1=${someScope1}, someScope2=${someScope2}`);
-		
 		// Show warning if user hasn't tried both scopes
 		if (!someScope1 || !someScope2) {
 			let warningDialogProps: DialogControlProps = {
@@ -285,7 +301,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 				buttons: [
 					closeDialogButton(),
 					{
-						text: 'Proceed anyways',
+						text: 'Proceed anyway',
 						variant: 'text',
 						endIcon: rightArrow(),
 						onClick: () => {
@@ -337,6 +353,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 							{(this.state.currentPageProps && this.state.controlClass) ?
 								<CurrentPage
 									{...controlCallbacks}
+									trackedStats={this.state.trackedStats}
 									controlClass={this.state.controlClass}
 									controlProps={this.state.currentPageProps}
 									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes

@@ -1,3 +1,4 @@
+import React from 'react';
 import type { AppState, NextAppState } from "./App";
 import type App from "./App";
 import type { ButtonGroupButton} from "./components/Buttons";
@@ -5,11 +6,9 @@ import { infoButtonWithDialog, selectButtonCheckbox } from "./components/Buttons
 import type { DashboardTrackedStats } from "./components/Dashboard";
 import type { Choice } from "./components/GroupedChoices";
 import type { DialogCardContent, DialogControlProps} from "./components/InfoDialog";
-import { newInfoDialogControl } from "./components/InfoDialog";
 import { theme } from "./components/theme";
 import { co2SavingsButton } from "./pageControls";
 import Pages from "./pages";
-import React from 'react';
 import { Alert } from "@mui/material";
 
 const Projects: ProjectControls = {};
@@ -23,6 +22,12 @@ export const Scope1Projects = [
 export const Scope2Projects = [
 	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
 ];
+
+export declare interface CaseStudy {
+	title: string;
+	text: string|string[];
+	url: string;
+}
 
 declare interface ProjectControlParams {
 	pageId: symbol;
@@ -48,6 +53,7 @@ declare interface ProjectControlParams {
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: "cover" | "contain";
+	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
 	/**
 	 * Surprises that appear once when SELECT is clicked.
@@ -57,6 +63,7 @@ declare interface ProjectControlParams {
 	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
 	hiddenSurprises?: DialogControlProps[];
+	caseStudy?: CaseStudy;
 }
 
 export class ProjectControl {
@@ -72,9 +79,11 @@ export class ProjectControl {
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: "cover" | "contain";
+	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
 	surprises: DialogControlProps[];
 	hiddenSurprises?: DialogControlProps[];
+	caseStudy?: CaseStudy;
 	/**
 	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
 	 */
@@ -91,7 +100,9 @@ export class ProjectControl {
 		this.choiceInfoImg = params.choiceInfoImg;
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
 		this.choiceInfoImgObjectFit = params.choiceInfoImgObjectFit;
+		this.recapDescription = params.recapDescription;
 		this.previewButton = params.previewButton;
+		this.caseStudy = params.caseStudy;
 		if (params.surprises) this.surprises = params.surprises;
 		else this.surprises = [];
 		this.hiddenSurprises = params.hiddenSurprises;
@@ -131,17 +142,21 @@ export class ProjectControl {
 		
 		let cards: DialogCardContent[] = [];
 		
-		// todo maybe add a field just called "project cost", dunno
-		if (this.statsInfoAppliers.moneySpent) {
-			cards.push({
-				text: `Total project cost: {$${(this.statsInfoAppliers.moneySpent.modifier).toLocaleString('en-US')}}`,
-				color: theme.palette.secondary.dark, // todo change?
-			});
-		}
+		cards.push({
+			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
+			color: theme.palette.secondary.dark, // todo change?
+		});
+		
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			cards.push({
 				text: `Natural gas reduction: {${(-this.statsInfoAppliers.naturalGasMMBTU.modifier).toLocaleString('en-US')}}`,
 				color: theme.palette.primary.light, // todo change?
+			});
+		}
+		if (this.statsInfoAppliers.electricityCostKWh) {
+			cards.push({
+				text: `Electricity reduction: {${(-this.statsInfoAppliers.electricityCostKWh.modifier).toLocaleString('en-US')}}`,
+				color: theme.palette.warning.light, // todo change?
 			});
 		}
 		// todo more stats
@@ -224,6 +239,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
 		'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
 	],
+	recapDescription: 'placeholder',
 	choiceInfoImg: 'images/waste-heat-recovery.png',
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
@@ -233,7 +249,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		// 	text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
 		// 	img: 'images/confetti.png'
 		// },
-	]
+	],
+	caseStudy: {
+		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
+		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
+	}
 	// previewButton: co2SavingsButton(69420) // todo
 });
 
@@ -251,11 +272,41 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 	choiceInfoText: [
 		'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
 		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
-		
 	],
+	recapDescription: 'placeholder',
 	choiceInfoImg: 'images/chiller-systems-in-plant.png',
 	choiceInfoImgAlt: 'A 3D model of the chiller systems in a plant',
 	choiceInfoImgObjectFit: 'contain',
+	caseStudy: {
+		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
+		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
+	}
+});
+
+Projects[Pages.processHeatingUpgrades] = new ProjectControl({
+	pageId: Pages.processHeatingUpgrades,
+	cost: 80_000,
+	statsInfo: {
+		electricityUseKWh: relative(-0.025),
+	},
+	statsActual: {
+		electricityUseKWh: relative(-0.025),
+	},
+	title: 'Energy Efficiency – Process Heating Upgrades',
+	choiceInfoTitle: 'Explore efficient process heating upgrades',
+	choiceInfoText: [
+		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
+		'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
+	],
+	choiceInfoImg: 'images/car-manufacturing.png',
+	choiceInfoImgAlt: 'The frame of a car inside a manufacturing facility.',
+	recapDescription: 'You have achieved 2.5% energy reduction',
+	caseStudy: {
+		title: 'Nissan North America: New Paint Plant',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
+		text: 'In 2010, {Nissan’s Vehicle Assembly Plant} in Smyrna, Tennessee is {40%} more energy efficient than its predecessor, using an innovative “3-Wet” paint process that allows for the removal of a costly high temperature over bake step.'
+	}
 });
 
 /**

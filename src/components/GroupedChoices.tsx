@@ -9,7 +9,7 @@ import type { ControlCallbacks, PageControl } from "./controls";
 /**
  * Generic control for picking between multiple choices across multiple groups.
  */
- export class GroupedChoices extends React.Component <GroupedChoicesProps> {
+export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 	render() {
 		
 		const props = this.props;

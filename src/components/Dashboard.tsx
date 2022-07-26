@@ -132,25 +132,24 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								color={theme.palette.secondary.dark}
 							/> */}
 						</Grid>
-						<Grid item xs={12} sm={6} md={4}>
+						{/* <Grid item xs={12} sm={6} md={4}>
 							<Typography>
 								Finances available: $
 								{this.props.financesAvailable.toLocaleString("en-US")} / $
 								{this.props.totalBudget.toLocaleString("en-US")}
-								{/* budget */}
 							</Typography>
-						</Grid>
-						<Grid item xs={12} sm={6} md={2}>
+						</Grid> */}
+						{/* <Grid item xs={12} sm={6} md={4}>
 							<Typography>
 								Rebates: ${this.props.totalRebates.toLocaleString("en-US")}
 							</Typography>
-						</Grid>
-						<Grid item xs={12} sm={6} md={3}>
+						</Grid> */}
+						<Grid item xs={12} sm={6}>
 							<Typography>
 								Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
 							</Typography>
 						</Grid>
-						<Grid item xs={12} sm={6} md={3}>
+						<Grid item xs={12} sm={6}>
 							<Typography>
 								Electricity: ${this.props.electricityCostKWh.toFixed(2)}/kWh
 							</Typography>

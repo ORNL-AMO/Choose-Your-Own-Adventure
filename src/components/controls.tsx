@@ -1,11 +1,8 @@
-import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from "@mui/material";
-import { parseSpecialText, PureComponentIgnoreFuncs } from "../functions-and-types";
-import Image from 'mui-image';
-import { styled, useTheme } from '@mui/material/styles';
 import React from 'react';
+import { Typography } from "@mui/material";
+import Image from 'mui-image';
 import type { ButtonGroupButton } from "./Buttons";
 import { ButtonGroup } from "./Buttons";
-import { PaperGridItem } from "./theme";
 
 /* -======================================================- */
 //                         CONTROLS
@@ -54,24 +51,6 @@ export function newStartPageControl(props: StartPageControlProps): PageControl {
 		controlProps: props,
 	};
 }
-
-// -=============- GROUPED CHOICES -=============-
-
-
-/* -======================================================- */
-//                         DASHBOARD
-/* -======================================================- */
-
-
-
-/* -======================================================- */
-//                      INFO DIALOG
-/* -======================================================- */
-
-
-/* -======================================================- */
-//                      PROPS INTERFACES
-/* -======================================================- */
 
 /**
  * Callbacks sent to every control. Component props extend this interface.

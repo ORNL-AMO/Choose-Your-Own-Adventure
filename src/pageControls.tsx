@@ -20,6 +20,7 @@ import { newInfoDialogControl } from "./components/InfoDialog";
 import type { AppState } from "./App";
 import Pages from './pages';
 import Projects from './projects';
+import { newYearRecapControl } from "./components/YearRecap";
 
 let st = performance.now();
 
@@ -116,6 +117,8 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 			title: 'Invest in energy efficiency',
 			choices: [
 				Projects[Pages.wasteHeatRecovery].getChoiceControl(),
+				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
+				Projects[Pages.processHeatingUpgrades].getChoiceControl(),
 				// {
 				// 	text: '1. Upgrade heat recovery on boiler/furnace system',
 				// 	buttons: [
@@ -149,7 +152,6 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				// 		)
 				// 	]
 				// },
-				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
 				// {
 				// 	text: '2. Conduct digital twin analysis',
 				// 	buttons: [
@@ -187,25 +189,25 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				// 		)
 				// 	],
 				// },
-				{
-					text: '3. Explore efficient process heating upgrades',
-					buttons: [
-						infoButtonWithDialog({
-							title: 'Energy Efficiency – Process Heating Upgrades',
-							text: [
-								'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
-								'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
-							],
-							img: 'images/car-manufacturing.png',
-							imgAlt: 'The frame of a car inside a manufacturing facility.',
-							cards: projectCostAndCO2ReductionCards(80_000, 2.5),
-						}),
-						co2SavingsButton(2.5),
-						selectButton(function () {
-							return Pages.scope1Projects; // todo
-						})
-					]
-				}
+				// {
+				// 	text: '3. Explore efficient process heating upgrades',
+				// 	buttons: [
+				// 		infoButtonWithDialog({
+				// 			title: 'Energy Efficiency – Process Heating Upgrades',
+				// 			text: [
+				// 				'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
+				// 				'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
+				// 			],
+				// 			img: 'images/car-manufacturing.png',
+				// 			imgAlt: 'The frame of a car inside a manufacturing facility.',
+				// 			cards: projectCostAndCO2ReductionCards(80_000, 2.5),
+				// 		}),
+				// 		co2SavingsButton(2.5),
+				// 		selectButton(function () {
+				// 			return Pages.scope1Projects; // todo
+				// 		})
+				// 	]
+				// }
 			]
 		}, {
 			title: 'Fuel switching',
@@ -281,7 +283,7 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 				}
 			]
 		}, {
-			title: 'Bundled RECs (todo what is this acronym)',
+			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
 				{
 					text: '4. Purchase green power tariff from local utility',
@@ -320,7 +322,7 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 	]
 }, Pages.selectScope);
 
-pageControls[Pages.yearRecap] = notImplemented();
+pageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
 
 
 // TODO tomorrow: New control class for waste heat recovery, slides 7 and 8

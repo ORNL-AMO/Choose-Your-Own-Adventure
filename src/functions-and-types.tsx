@@ -11,7 +11,7 @@ import { theme } from "./components/theme";
  *  {text} -> emphasized text
  * 	x_{text} -> subscript text
  *  [text](link) -> <a href="link" target="_blank">text</a>
- * @param text 
+ * @param text Text to parse. If an array of strings is provided, then they will be joined by two newlines.
  * @returns Object for passing to "dangerouslySetInnerHTML" attribute (https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml)
  */
 export function parseSpecialText(text?: string|string[]): {__html: string} {
@@ -98,6 +98,9 @@ export function cloneAndModify<T>(obj: T, newValues: AnyDict): T {
 	return newObj;
 }
 
+/**
+ * Returns a back-pointing arrow icon.
+ */
 export function leftArrow() {
 	if (theme.direction === 'rtl') {
 		return (<KeyboardArrowRight/>);
@@ -107,6 +110,9 @@ export function leftArrow() {
 	}
 }
 
+/**
+ * Returns a forward-pointing arrow icon.
+ */
 export function rightArrow() {
 	if (theme.direction === 'rtl') {
 		return (<KeyboardArrowLeft />);
