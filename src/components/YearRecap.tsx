@@ -17,28 +17,35 @@ export class YearRecap extends React.Component <YearRecapProps> {
 			return <>
 				<ListItem key={projectKey.description}>
 					<Card sx={{width: '100%'}}>
-						<CardHeader
-							avatar={
-								<Avatar>
-									<FactoryIcon/>
-								</Avatar>
-							}
-							title={thisProject.title}
-							subheader={thisProject.choiceInfoTitle}
-						/>
-						<CardContent>
-							{thisProject.recapDescription}
-							{thisProject.caseStudy && <>
-								<p className="emphasis">
-									Case Study - {thisProject.caseStudy.title}
-								</p>
-								<p 
-									dangerouslySetInnerHTML={parseSpecialText(thisProject.caseStudy.text)}
-									className='noMarginBottom'
+						<Grid container spacing={2}>
+							<Grid item xs={12} md={6}>
+								<CardHeader
+									avatar={
+										<Avatar>
+											<FactoryIcon/>
+										</Avatar>
+									}
+									title={thisProject.title}
+									subheader={thisProject.choiceInfoTitle}
 								/>
-							</>
-							}
-						</CardContent>
+								<CardContent>
+									{thisProject.recapDescription}
+									{thisProject.caseStudy && <>
+										<p className="emphasis">
+											Case Study - {thisProject.caseStudy.title}
+										</p>
+										<p 
+											dangerouslySetInnerHTML={parseSpecialText(thisProject.caseStudy.text)}
+											className='noMarginBottom'
+										/>
+									</>
+									}
+								</CardContent>
+							</Grid>
+							<Grid item xs={12} md={6}>
+								
+							</Grid>
+						</Grid>
 						{thisProject.caseStudy &&
 							<CardActions>
 								<Button 
