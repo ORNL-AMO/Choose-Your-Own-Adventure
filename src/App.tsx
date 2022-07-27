@@ -56,6 +56,7 @@ export interface NextAppState {
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
 	selectedProjects: symbol[];
 	trackedStats: DashboardTrackedStats;
+	yearlyTrackedStats: DashboardTrackedStats[];
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
@@ -80,6 +81,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 					{...this.props.trackedStats}
 					{...controlCallbacks}
 					selectedProjects={this.props.selectedProjects}
+					yearlyTrackedStats={this.props.yearlyTrackedStats}
 				/>;
 			default:
 				return <></>;
@@ -92,14 +94,15 @@ export class App extends React.PureComponent <unknown, AppState> {
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
-		startPage = Pages.yearRecap; showDashboardAtStart = true; // temporary, for debugging
+		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
+		startPage = Pages.yearRecap; // also temporary
 		
 		const firstYearStats = {
 			naturalGasMMBTU: 1_000_000, 
 			naturalGasCostPerMMBTU: 5, 
 			electricityUseKWh: 1_000_000, 
 			electricityCostKWh: 0.10,
-			financesAvailable: 100_000,
+			financesAvailable: 150_000,
 			totalBudget: 1_000_000,
 			carbonSavings: 0,
 			carbonEmissions: 69_420,
@@ -130,13 +133,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 			snackbarOpen: false,
 		};
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore --- writing to state is fine in constructor
+		// @ts-ignore --- writing to state is fine in constructor. this.fillTemplateText depends on variables already being in this.state
 		this.state.currentPageProps = this.fillTemplateText(this.state.currentPageProps);
 		
 		// @ts-ignore - for debugging
 		window.app = this;
 		// @ts-ignore - for debugging
-		window.Pages = Pages; 
+		window.Pages = Pages;
 		// window.onbeforeunload = () => 'Are you sure you want to exit?'; TODO enable later
 		
 		// todo
@@ -357,6 +360,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									controlClass={this.state.controlClass}
 									controlProps={this.state.currentPageProps}
 									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes
+									yearlyTrackedStats={this.state.yearlyTrackedStats}
 								/>
 							: <></>}
 						</Box>

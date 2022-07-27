@@ -1,15 +1,15 @@
 import React from 'react';
-import type { AppState, NextAppState } from "./App";
-import type App from "./App";
-import type { ButtonGroupButton} from "./components/Buttons";
-import { infoButtonWithDialog, selectButtonCheckbox } from "./components/Buttons";
-import type { DashboardTrackedStats } from "./components/Dashboard";
-import type { Choice } from "./components/GroupedChoices";
-import type { DialogCardContent, DialogControlProps} from "./components/InfoDialog";
-import { theme } from "./components/theme";
-import { co2SavingsButton } from "./pageControls";
-import Pages from "./pages";
-import { Alert } from "@mui/material";
+import type { AppState, NextAppState } from './App';
+import type App from './App';
+import type { ButtonGroupButton} from './components/Buttons';
+import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
+import type { DashboardTrackedStats } from './components/Dashboard';
+import type { Choice } from './components/GroupedChoices';
+import type { DialogCardContent, DialogControlProps} from './components/InfoDialog';
+import { theme } from './components/theme';
+import { co2SavingsButton } from './pageControls';
+import Pages from './pages';
+import { Alert } from '@mui/material';
 
 const Projects: ProjectControls = {};
 
@@ -52,7 +52,7 @@ declare interface ProjectControlParams {
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
-	choiceInfoImgObjectFit?: "cover" | "contain";
+	choiceInfoImgObjectFit?: 'cover' | 'contain';
 	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
 	/**
@@ -78,7 +78,7 @@ export class ProjectControl {
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
-	choiceInfoImgObjectFit?: "cover" | "contain";
+	choiceInfoImgObjectFit?: 'cover' | 'contain';
 	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
 	surprises: DialogControlProps[];
@@ -149,13 +149,13 @@ export class ProjectControl {
 		
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			cards.push({
-				text: `Natural gas reduction: {${(-this.statsInfoAppliers.naturalGasMMBTU.modifier).toLocaleString('en-US')}}`,
+				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
 				color: theme.palette.primary.light, // todo change?
 			});
 		}
 		if (this.statsInfoAppliers.electricityCostKWh) {
 			cards.push({
-				text: `Electricity reduction: {${(-this.statsInfoAppliers.electricityCostKWh.modifier).toLocaleString('en-US')}}`,
+				text: `Electricity reduction: {${this.statsInfoAppliers.electricityCostKWh.toString(true)}}`,
 				color: theme.palette.warning.light, // todo change?
 			});
 		}
@@ -185,7 +185,7 @@ export class ProjectControl {
 			else {
 				// Figure out if this project can be afforded
 				if (self.cost > state.trackedStats.financesAvailable + state.trackedStats.totalRebates) {
-					this.summonSnackbar(<Alert severity="error">You cannot afford this project with your current budget!</Alert>);
+					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
 				
@@ -232,6 +232,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	statsActual: {
 		totalRebates: absolute(5_000),
+		naturalGasMMBTU: absolute(-50_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
 	choiceInfoTitle: 'Upgrade heat recovery on boiler/furnace system',
@@ -319,6 +320,10 @@ declare interface NumberApplier {
 	 * Returns the original modifier.
 	 */
 	modifier: number;
+	/**
+	 * Turns the NumberApplier into a string, optionally multiplying it by -1 first.
+	 */
+	toString: (negative: boolean) => string;
 }
 
 type trackedStats = keyof DashboardTrackedStats;
@@ -350,6 +355,12 @@ declare interface ProjectControls {
 			return round(previous / (1 + this.modifier));
 		},
 		modifier: modifier,
+		toString: function (negative: boolean) {
+			if (negative) 
+				return (100 * -this.modifier).toLocaleString('en-US') + '%';
+			else 
+				return (100 * this.modifier).toLocaleString('en-US') + '%';
+		}
 	};
 	
 	return thisApplier;
@@ -371,6 +382,12 @@ function absolute(modifier: number): NumberApplier {
 			return round(previous - this.modifier);
 		},
 		modifier: modifier,
+		toString: function (negative: boolean) {
+			if (negative) 
+				return (-1 * this.modifier).toLocaleString('en-US');
+			else 
+				return this.modifier.toLocaleString('en-US');
+		}
 	};
 	
 	return thisApplier;

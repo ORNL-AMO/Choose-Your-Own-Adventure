@@ -2,6 +2,7 @@ import React from "react";
 import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, Divider, Grid, List, ListItem, ListItemText, Typography } from "@mui/material";
 import type { ControlCallbacks, PageControl } from "./controls";
 import type { DashboardTrackedStats } from "./Dashboard";
+import { dashboardStatsGaugeProperties } from './Dashboard';
 import FactoryIcon from '@mui/icons-material/Factory';
 import Projects from "../projects";
 import { parseSpecialText } from "../functions-and-types";
@@ -9,10 +10,26 @@ import { parseSpecialText } from "../functions-and-types";
 export class YearRecap extends React.Component <YearRecapProps> {
 	render() {
 		
+		let thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
+		if (!thisYearStart) {
+			throw new Error(`Could not find stats for the start of year ${this.props.year} (index ${this.props.year - 1})`);
+		}
+		
+		// As we loop through the projects, we'll mutate this object and provide gauge charts for how the stats changed
+		let mutableStats = {...thisYearStart};
+		// todo: hidden surprises
+		
 		const projectRecaps = this.props.selectedProjects.map((projectKey, idx) => {
 			
 			const thisProject = Projects[projectKey];
 			if (!thisProject) throw new Error(`Project for page ${projectKey.description} not defined`);
+			
+			let gaugeCharts = [];
+			for (let key in thisProject.statsActualAppliers) {
+				let thisApplier = thisProject.statsActualAppliers[key];
+			}
+			// todo hidden, no idea how i'm gonna imp that
+			
 			
 			return <>
 				<ListItem key={projectKey.description}>
@@ -91,4 +108,5 @@ export interface YearRecapControlProps { }
 
 export interface YearRecapProps extends YearRecapControlProps, ControlCallbacks, DashboardTrackedStats { 
 	selectedProjects: symbol[];
+	yearlyTrackedStats: DashboardTrackedStats[];
 }

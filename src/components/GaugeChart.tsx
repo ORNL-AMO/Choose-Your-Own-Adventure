@@ -7,6 +7,11 @@ import type { ArcProps } from "@visx/shape/lib/shapes/Arc";
 
 const defaultMargin = { top: 20, right: 20, bottom: 20, left: 20 };
 
+export type Tick = {
+	value: number;
+	label: string;
+}
+
 export type GaugeProps = {
 	/**
 	 * Width of the gauge chart. Height is automatically calculated.
@@ -26,6 +31,10 @@ export type GaugeProps = {
 	 * Font size of the main text. If number, it'll be a multiplier of the default size. If string, it'll be passed straight through.
 	 */
 	textFontSize?: string | number;
+	/**
+	 * todo doc
+	 */
+	ticks?: Tick[];
 	margin?: typeof defaultMargin;
 	animate?: boolean;
 };
@@ -38,6 +47,7 @@ export default function GaugeChart({
 	textFontSize,
 	label,
 	color,
+	ticks,
 }: GaugeProps) {
 	if (width < 10) return null;
 
@@ -48,11 +58,48 @@ export default function GaugeChart({
 	const centerY = innerHeight;
 	const centerX = innerWidth / 2;
 	const donutThickness = radius * 0.25;
+	const tickThickness = 5;
+	const tickRadius = radius + tickThickness;
 
 	// Handle the different types of font size provided (undefined or string or number)
 	const defaultTextFontSize = Math.log(radius / 5) / Math.log(1.5) * 4.5;
 	if (typeof textFontSize === 'number') textFontSize *= defaultTextFontSize;
 	else if (!textFontSize) textFontSize = defaultTextFontSize;
+	
+	if (!ticks) ticks = [];
+	
+	const tickArcs = ticks.map((tick, idx) => {
+		const value = tick.value;
+		// using Math.min(value, 0.995) to prevent the stroke from appearing past the end of the arc
+		let tickAngle = ((Math.min(value, 0.995) * Math.PI) - Math.PI / 2);
+		
+		// let radiusMod = (tick.label.length > 2) ? tickThickness : tickThickness/2; // Move farther away if the string is longer
+		
+		return (
+			<g key={idx}>
+				<Arc
+					startAngle={tickAngle}
+					endAngle={tickAngle}
+					// innerRadius={radius - donutThickness - tickThickness}
+					// outerRadius={radius - donutThickness}
+					innerRadius={radius}
+					outerRadius={radius + tickThickness}
+					stroke='#00000080'
+					strokeWidth={1}
+				></Arc>
+				<Text
+					verticalAnchor="middle"
+					textAnchor="middle"
+					fontSize={12}
+					// x={Math.sin(tickAngle) * (tickRadius + tickThickness * 2)}
+					y={1 * -(tickRadius + tickThickness + 2)}
+					style={{transform: `rotate(${tickAngle}rad)`}}
+				>
+					{tick.label}
+				</Text>
+			</g>
+		);
+	});
 
 	return (
 		<svg width={width} height={height}>
@@ -89,6 +136,7 @@ export default function GaugeChart({
 				>
 					{text}
 				</Text>
+				{tickArcs}
 				{/* Label */}
 				<Text
 					verticalAnchor="start"

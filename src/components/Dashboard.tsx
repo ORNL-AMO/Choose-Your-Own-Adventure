@@ -17,8 +17,8 @@ import HorizontalBarWithTooltip from "./HorizontalBar";
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	render() {
 		const MAX_FINANCES = 1_500_000;
-		const MAX_NG_MMBTU = 1_500_000;
-		const MAX_ELECTRICITY = 1_500_000;
+		const MAX_NG_MMBTU = 1_000_000;
+		const MAX_ELECTRICITY = 1_000_000;
 		const CHART_SIZE = 250;
 
 		return (
@@ -71,6 +71,10 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								text={`${this.props.carbonSavings.toLocaleString("en-US")}%`}
 								label="Carbon savings"
 								color={theme.palette.primary.dark}
+								ticks={[{
+									value: .5,
+									label: '50%'
+								}]}
 							/>
 							<GaugeChart
 								width={CHART_SIZE}
@@ -82,6 +86,10 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								label='Natural gas use (MMBTU)'
 								textFontSize={0.85}
 								color={theme.palette.primary.dark}
+								ticks={[{
+									value: .5,
+									label: '50%'
+								}]}
 							/>
 							{/* <GaugeChart
 								width={CHART_SIZE}
@@ -102,11 +110,22 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								label="Electricity use (kWh)"
 								textFontSize={0.85}
 								color={theme.palette.warning.main}
+								ticks={[{
+									value: .5,
+									label: '50%'
+								}, {
+									value: 1,
+									label: '100%'
+								}, {
+									value: .666,
+									label: '66%'
+								}]}
 							/>
 							<HorizontalBarWithTooltip 
 								width={400} height={145}
 								data={[{
-									'Finances available': this.props.financesAvailable,
+									// Finances available can be negative UP TO the amount of rebates.... may be changed later
+									'Finances available': Math.max(this.props.financesAvailable, 0),
 									'Money spent': this.props.moneySpent,
 									'Rebates': this.props.totalRebates,
 								}]}
@@ -195,6 +214,31 @@ export interface DashboardTrackedStats {
 	 */
 	year: number;
 }
+
+/**
+ * exclusively for dashboardStatsGaugeProperties
+ */
+declare interface StatsGaugeProperties {
+	label: string;
+	color: string;
+	textFontSize: number;
+}
+
+/**
+ * Labels and colors and stuff for some tracked stats.
+ */
+export const dashboardStatsGaugeProperties: {[key in keyof DashboardTrackedStats]?: StatsGaugeProperties} = {
+	naturalGasMMBTU: {
+		label: 'Natural gas use (MMBTU)',
+		color: theme.palette.primary.dark,
+		textFontSize: 0.85,
+	},
+	electricityUseKWh: {
+		label: 'Electricity use (kWh)',
+		color: theme.palette.warning.main,
+		textFontSize: 0.85,
+	}
+};
 
 export interface DashboardProps extends ControlCallbacks, DashboardTrackedStats {
 	onBack?: PageCallback;
