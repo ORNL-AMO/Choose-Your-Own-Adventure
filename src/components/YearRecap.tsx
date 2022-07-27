@@ -1,11 +1,11 @@
-import React from "react";
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, Divider, Grid, List, ListItem, ListItemText, Typography } from "@mui/material";
-import type { ControlCallbacks, PageControl } from "./controls";
-import type { DashboardTrackedStats } from "./Dashboard";
+import React from 'react';
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, Divider, Grid, List, ListItem, ListItemText, Typography } from '@mui/material';
+import type { ControlCallbacks, PageControl } from './controls';
+import type { DashboardTrackedStats } from './Dashboard';
 import { dashboardStatsGaugeProperties } from './Dashboard';
 import FactoryIcon from '@mui/icons-material/Factory';
-import Projects from "../projects";
-import { parseSpecialText } from "../functions-and-types";
+import Projects from '../projects';
+import { parseSpecialText } from '../functions-and-types';
 
 export class YearRecap extends React.Component <YearRecapProps> {
 	render() {
@@ -48,7 +48,7 @@ export class YearRecap extends React.Component <YearRecapProps> {
 								<CardContent>
 									{thisProject.recapDescription}
 									{thisProject.caseStudy && <>
-										<p className="emphasis">
+										<p className='emphasis'>
 											Case Study - {thisProject.caseStudy.title}
 										</p>
 										<p 
@@ -81,7 +81,7 @@ export class YearRecap extends React.Component <YearRecapProps> {
 		
 		return (<>
 			<Box m={2}>
-				<Typography variant="h3">Year {this.props.year} Recap</Typography>
+				<Typography variant='h3'>Year {this.props.year} Recap</Typography>
 				<List 
 					sx={{m: 2}}
 				>

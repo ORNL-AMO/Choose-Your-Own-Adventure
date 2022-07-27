@@ -1,8 +1,8 @@
 import React from 'react';
-import { Typography } from "@mui/material";
+import { Typography } from '@mui/material';
 import Image from 'mui-image';
-import type { ButtonGroupButton } from "./Buttons";
-import { ButtonGroup } from "./Buttons";
+import type { ButtonGroupButton } from './Buttons';
+import { ButtonGroup } from './Buttons';
 
 /* -======================================================- */
 //                         CONTROLS
@@ -24,10 +24,10 @@ export function StartPage(props: StartPageProps) {
 			<h1>
 				<Image style={{'maxWidth': '400px'}} src='./images/better-plants.png' duration={0}></Image>
 			</h1>
-			<Typography variant="h2" component="div" gutterBottom>
+			<Typography variant='h2' component='div' gutterBottom>
 				CHOOSE YOUR OWN SOLUTION!
 			</Typography>
-			<Typography variant="h4" component="div" gutterBottom>
+			<Typography variant='h4' component='div' gutterBottom>
 				Can you decarbonize this industrial facility?
 			</Typography>
 			<br/>

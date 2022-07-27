@@ -3,7 +3,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import React, { useEffect, useState } from 'react';
-import BasicPopover from "./BasicPopover";
+import BasicPopover from './BasicPopover';
 import { resolveToValue } from '../functions-and-types';
 import type { ControlCallbacks } from './controls';
 import type { DialogControlProps, DialogStateProps } from './InfoDialog';
@@ -94,7 +94,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 			(button.infoDialog && (button.infoPopup || button.onClick)) ||
 			(button.onClick && (button.infoPopup || button.infoDialog))
 		) {
-			throw new Error(`Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick`);
+			throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
 		}
 		
 		// Info popup
@@ -133,7 +133,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 	else 
 		// By default, use a Stack element to space the buttons
 		return (
-			<Stack direction="row" justifyContent="center" spacing={2}>
+			<Stack direction='row' justifyContent='center' spacing={2}>
 				{buttons}
 			</Stack>
 		);

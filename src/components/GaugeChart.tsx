@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Group } from "@visx/group";
+import React, { useState } from 'react';
+import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { Arc } from "@visx/shape";
+import { Arc } from '@visx/shape';
 import { animated, to as interpolate, useTransition, } from '@react-spring/web';
-import type { ArcProps } from "@visx/shape/lib/shapes/Arc";
+import type { ArcProps } from '@visx/shape/lib/shapes/Arc';
 
 const defaultMargin = { top: 20, right: 20, bottom: 20, left: 20 };
 
@@ -88,8 +88,8 @@ export default function GaugeChart({
 					strokeWidth={1}
 				></Arc>
 				<Text
-					verticalAnchor="middle"
-					textAnchor="middle"
+					verticalAnchor='middle'
+					textAnchor='middle'
 					fontSize={12}
 					// x={Math.sin(tickAngle) * (tickRadius + tickThickness * 2)}
 					y={1 * -(tickRadius + tickThickness + 2)}
@@ -129,8 +129,8 @@ export default function GaugeChart({
 				/>
 				{/* Big text */}
 				<Text
-					verticalAnchor="end"
-					textAnchor="middle"
+					verticalAnchor='end'
+					textAnchor='middle'
 					fontSize={textFontSize}
 					y={-4}
 				>
@@ -139,8 +139,8 @@ export default function GaugeChart({
 				{tickArcs}
 				{/* Label */}
 				<Text
-					verticalAnchor="start"
-					textAnchor="middle"
+					verticalAnchor='start'
+					textAnchor='middle'
 					y={8}
 					fontSize='0.9rem'
 					fontWeight={200}

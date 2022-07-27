@@ -18,6 +18,12 @@ plugins:
 rules: 
   prefer-const: off
   no-prototype-builtins: off
+  jsx-quotes:
+    - error
+    - prefer-single
+  quotes: 
+    - error
+    - single
   '@typescript-eslint/no-empty-interface': warn
   '@typescript-eslint/ban-ts-comment': warn
   '@typescript-eslint/consistent-type-imports': error

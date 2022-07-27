@@ -1,5 +1,5 @@
-import type { PageControl} from "./components/controls";
-import { newStartPageControl } from "./components/controls";
+import type { PageControl} from './components/controls';
+import { newStartPageControl } from './components/controls';
 import React from 'react';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -8,19 +8,19 @@ import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import Co2Icon from '@mui/icons-material/Co2';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import type { SvgIconTypeMap} from "@mui/material";
-import { Grid, Typography } from "@mui/material";
-import { Box } from "@mui/system";
-import type { ButtonGroupButton} from "./components/Buttons";
-import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, selectButtonCheckbox, closeDialogButton } from "./components/Buttons";
-import type { OverridableComponent } from "@mui/material/OverridableComponent";
-import { theme } from "./components/theme";
-import { newGroupedChoicesControl } from "./components/GroupedChoices";
-import { newInfoDialogControl } from "./components/InfoDialog";
-import type { AppState } from "./App";
+import type { SvgIconTypeMap} from '@mui/material';
+import { Grid, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import type { ButtonGroupButton} from './components/Buttons';
+import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, selectButtonCheckbox, closeDialogButton } from './components/Buttons';
+import type { OverridableComponent } from '@mui/material/OverridableComponent';
+import { theme } from './components/theme';
+import { newGroupedChoicesControl } from './components/GroupedChoices';
+import { newInfoDialogControl } from './components/InfoDialog';
+import type { AppState } from './App';
 import Pages from './pages';
 import Projects from './projects';
-import { newYearRecapControl } from "./components/YearRecap";
+import { newYearRecapControl } from './components/YearRecap';
 
 let st = performance.now();
 

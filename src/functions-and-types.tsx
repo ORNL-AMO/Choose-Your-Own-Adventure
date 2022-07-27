@@ -1,9 +1,9 @@
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
-import React from "react";
-import type { App, AppState, NextAppState } from "./App";
-import type { DialogStateProps } from "./components/InfoDialog";
-import { theme } from "./components/theme";
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import React from 'react';
+import type { App, AppState, NextAppState } from './App';
+import type { DialogStateProps } from './components/InfoDialog';
+import { theme } from './components/theme';
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 

@@ -1,12 +1,12 @@
-import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from "@mui/material";
-import { parseSpecialText, PureComponentIgnoreFuncs } from "../functions-and-types";
+import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from '@mui/material';
+import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
 import Image from 'mui-image';
 import { styled, useTheme } from '@mui/material/styles';
 import React from 'react';
-import type { ButtonGroupButton } from "./Buttons";
-import { ButtonGroup } from "./Buttons";
-import { PaperGridItem } from "./theme";
-import type { ControlCallbacks, PageControl } from "./controls";
+import type { ButtonGroupButton } from './Buttons';
+import { ButtonGroup } from './Buttons';
+import { PaperGridItem } from './theme';
+import type { ControlCallbacks, PageControl } from './controls';
 
 export const InfoCard = styled(Paper)(({ theme }) => ({
 	...theme.typography.body2,
@@ -61,8 +61,8 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	
 	const cardImage = (props.img) ? 
 		<CardMedia
-			component="img"
-			height="260"
+			component='img'
+			height='260'
 			image={props.img}
 			alt={props.imgAlt}
 			title={props.imgAlt}
@@ -75,12 +75,12 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			open={props.open}
 			keepMounted
 			onClose={handleClose}
-			aria-describedby="alert-dialog-slide-description"
+			aria-describedby='alert-dialog-slide-description'
 		>
 			{cardImage}
 			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.title)}></DialogTitle>
 			<DialogContent>
-				<DialogContentText id="alert-dialog-slide-description" gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
+				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
 				</DialogContentText>
 				{infoCards}
 			</DialogContent>

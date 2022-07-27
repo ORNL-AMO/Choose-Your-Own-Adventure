@@ -5,14 +5,14 @@ import {
 	Grid,
 	MobileStepper,
 	Typography,
-} from "@mui/material";
-import { leftArrow, PureComponentIgnoreFuncs, rightArrow } from "../functions-and-types";
-import React from "react";
-import GaugeChart from "./GaugeChart";
-import { theme } from "./theme";
-import type { ControlCallbacks } from "./controls";
-import BasicPopover from "./BasicPopover";
-import HorizontalBarWithTooltip from "./HorizontalBar";
+} from '@mui/material';
+import { leftArrow, PureComponentIgnoreFuncs, rightArrow } from '../functions-and-types';
+import React from 'react';
+import GaugeChart from './GaugeChart';
+import { theme } from './theme';
+import type { ControlCallbacks } from './controls';
+import BasicPopover from './BasicPopover';
+import HorizontalBarWithTooltip from './HorizontalBar';
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	render() {
@@ -24,12 +24,12 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		return (
 			<>
 				<MobileStepper
-					variant="progress"
+					variant='progress'
 					steps={10}
-					position="static"
+					position='static'
 					activeStep={this.props.year}
 					backButton={
-						<Button size="small" 
+						<Button size='small' 
 							onClick={() => {
 								if (this.props.onBack) {
 									this.props.doPageCallback(this.props.onBack);
@@ -68,8 +68,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							<GaugeChart
 								width={CHART_SIZE}
 								value={clampRatio(this.props.carbonSavings, 100)}
-								text={`${this.props.carbonSavings.toLocaleString("en-US")}%`}
-								label="Carbon savings"
+								text={`${this.props.carbonSavings.toLocaleString('en-US')}%`}
+								label='Carbon savings'
 								color={theme.palette.primary.dark}
 								ticks={[{
 									value: .5,
@@ -82,7 +82,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									this.props.naturalGasMMBTU,
 									MAX_NG_MMBTU
 								)}
-								text={(this.props.naturalGasMMBTU).toLocaleString("en-US")}
+								text={(this.props.naturalGasMMBTU).toLocaleString('en-US')}
 								label='Natural gas use (MMBTU)'
 								textFontSize={0.85}
 								color={theme.palette.primary.dark}
@@ -106,8 +106,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							<GaugeChart
 								width={CHART_SIZE}
 								value={clampRatio(this.props.electricityUseKWh, MAX_ELECTRICITY)}
-								text={this.props.electricityUseKWh.toLocaleString("en-US")}
-								label="Electricity use (kWh)"
+								text={this.props.electricityUseKWh.toLocaleString('en-US')}
+								label='Electricity use (kWh)'
 								textFontSize={0.85}
 								color={theme.palette.warning.main}
 								ticks={[{
@@ -175,7 +175,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						</Grid>
 					</Grid>
 				</Box>
-				<Divider variant="middle" />
+				<Divider variant='middle' />
 			</>
 		);
 	}

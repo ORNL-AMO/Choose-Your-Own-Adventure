@@ -200,7 +200,7 @@ function HorizontalBarWithTooltip (props: BarStackHorizontalProps) {
 					fontSize: '14px',
 				}}
 			>
-				<LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
+				<LegendOrdinal scale={colorScale} direction='row' labelMargin='0 15px 0 0' />
 			</div>
 			{tooltipOpen && tooltipData && (
 			<TooltipInPortal
