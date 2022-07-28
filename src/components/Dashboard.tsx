@@ -6,7 +6,7 @@ import {
 	MobileStepper,
 	Typography,
 } from '@mui/material';
-import { leftArrow, PureComponentIgnoreFuncs, rightArrow } from '../functions-and-types';
+import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio } from '../functions-and-types';
 import React from 'react';
 import GaugeChart from './GaugeChart';
 import { theme } from './theme';
@@ -14,11 +14,39 @@ import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 
+/**
+ * exclusively for dashboardStatsGaugeProperties
+ */
+declare interface StatsGaugeProperties {
+	label: string;
+	color: string;
+	textFontSize: number;
+	maxValue: number;
+}
+
+/**
+ * Labels and colors and stuff for some tracked stats.
+ */
+export const dashboardStatsGaugeProperties: 
+	// {[key in keyof DashboardTrackedStats]?: StatsGaugeProperties}  //for later
+	{[key: string]: StatsGaugeProperties}
+= {
+	naturalGasMMBTU: {
+		label: 'Natural gas use (MMBTU)',
+		color: theme.palette.primary.dark,
+		textFontSize: 0.85,
+		maxValue: 1_000_000,
+	},
+	electricityUseKWh: {
+		label: 'Electricity use (kWh)',
+		color: theme.palette.warning.main,
+		textFontSize: 0.85,
+		maxValue: 1_000_000,
+	}
+};
+
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	render() {
-		const MAX_FINANCES = 1_500_000;
-		const MAX_NG_MMBTU = 1_000_000;
-		const MAX_ELECTRICITY = 1_000_000;
 		const CHART_SIZE = 250;
 
 		return (
@@ -80,7 +108,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								width={CHART_SIZE}
 								value={clampRatio(
 									this.props.naturalGasMMBTU,
-									MAX_NG_MMBTU
+									dashboardStatsGaugeProperties.naturalGasMMBTU.maxValue,
 								)}
 								text={(this.props.naturalGasMMBTU).toLocaleString('en-US')}
 								label='Natural gas use (MMBTU)'
@@ -105,7 +133,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							/> */}
 							<GaugeChart
 								width={CHART_SIZE}
-								value={clampRatio(this.props.electricityUseKWh, MAX_ELECTRICITY)}
+								value={clampRatio(this.props.electricityUseKWh, dashboardStatsGaugeProperties.electricityUseKWh.maxValue)}
 								text={this.props.electricityUseKWh.toLocaleString('en-US')}
 								label='Electricity use (kWh)'
 								textFontSize={0.85}
@@ -181,10 +209,6 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	}
 }
 
-function clampRatio(value: number, max: number) {
-	return Math.min(value / max, 1);
-}
-
 export interface DashboardTrackedStats {
 	/**
 	 * Natural gas, in millions of British Thermal Units (MMBTU, for reasons)
@@ -214,31 +238,6 @@ export interface DashboardTrackedStats {
 	 */
 	year: number;
 }
-
-/**
- * exclusively for dashboardStatsGaugeProperties
- */
-declare interface StatsGaugeProperties {
-	label: string;
-	color: string;
-	textFontSize: number;
-}
-
-/**
- * Labels and colors and stuff for some tracked stats.
- */
-export const dashboardStatsGaugeProperties: {[key in keyof DashboardTrackedStats]?: StatsGaugeProperties} = {
-	naturalGasMMBTU: {
-		label: 'Natural gas use (MMBTU)',
-		color: theme.palette.primary.dark,
-		textFontSize: 0.85,
-	},
-	electricityUseKWh: {
-		label: 'Electricity use (kWh)',
-		color: theme.palette.warning.main,
-		textFontSize: 0.85,
-	}
-};
 
 export interface DashboardProps extends ControlCallbacks, DashboardTrackedStats {
 	onBack?: PageCallback;

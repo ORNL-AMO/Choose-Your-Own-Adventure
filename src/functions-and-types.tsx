@@ -29,6 +29,13 @@ export function parseSpecialText(text?: string|string[]): {__html: string} {
 }
 
 /**
+ * Return the ratio of one number to another, with a maximum of 1.
+ */
+export function clampRatio(value: number, max: number) {
+	return Math.min(value / max, 1);
+}
+
+/**
  * Resolve an item of an unknown type to a value.
  * @param item Item to resolve.
  * @param whenUndefined Value when undefined
