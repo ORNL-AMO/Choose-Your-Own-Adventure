@@ -84,7 +84,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							</div>
 						</BasicPopover>
 					}
-				/>
+				/> 
 				<Box m={2}>
 					{/* TODO: timer for each year */}
 					<Typography variant='h6'>
