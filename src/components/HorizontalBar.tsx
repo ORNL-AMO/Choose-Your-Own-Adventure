@@ -9,7 +9,7 @@ import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 
-type BarChartKeys = 'Finances available' | 'Rebates' | 'Money spent';
+type BarChartKeys = 'Finances available' | 'Money spent';
 
 export type BarStackHorizontalProps = {
 	width: number;
@@ -43,16 +43,7 @@ type Margin = {
 
 const defaultMargin = { top: 40, left: 50, right: 40, bottom: 40 };
 
-const data = [
-	{
-		year: 1,
-		'Finances available': 100_000,
-		'Rebates': 5_000,
-		'Money spent': 65_000,
-	}
-];
-
-const keys = ['Finances available', 'Rebates', 'Money spent'] as BarChartKeys[];
+const keys = ['Finances available', 'Money spent'] as BarChartKeys[];
 
 
 // accessors

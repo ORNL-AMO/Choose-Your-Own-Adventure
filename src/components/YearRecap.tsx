@@ -1,11 +1,13 @@
 import React from 'react';
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, Divider, Grid, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, Grid, List, ListItem, Typography } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
-import type { DashboardTrackedStats } from './Dashboard';
-import { dashboardStatsGaugeProperties } from './Dashboard';
+import type { TrackedStats } from '../trackedStats';
+import {statsGaugeProperties} from '../trackedStats';
 import FactoryIcon from '@mui/icons-material/Factory';
+import type { NumberApplier } from '../projects';
 import Projects from '../projects';
-import { parseSpecialText } from '../functions-and-types';
+import { clampRatio, parseSpecialText } from '../functions-and-types';
+import GaugeChart from './GaugeChart';
 
 export class YearRecap extends React.Component <YearRecapProps> {
 	render() {
@@ -24,9 +26,31 @@ export class YearRecap extends React.Component <YearRecapProps> {
 			const thisProject = Projects[projectKey];
 			if (!thisProject) throw new Error(`Project for page ${projectKey.description} not defined`);
 			
-			let gaugeCharts = [];
+			let gaugeCharts: JSX.Element[] = [];
+			// Go through the project's "actual" stats appliers and create a gauge chart for each one
 			for (let key in thisProject.statsActualAppliers) {
-				let thisApplier = thisProject.statsActualAppliers[key];
+				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
+				let thisGaugeProps = statsGaugeProperties[key];
+				if (!thisGaugeProps) {
+					console.error(`No dashboardStatsGaugeProperties for ${key} (check Dashboard.tsx)`);
+					continue;
+				}
+				let oldValue = mutableStats[key];
+				let newValue = thisApplier.applyValue(oldValue);
+				let difference = newValue - oldValue;
+				mutableStats[key] = newValue;
+				
+				gaugeCharts.push(
+					<GaugeChart 
+						key={key}
+						width={250}
+						backgroundColor={'#88888820'}
+						value1={clampRatio(Math.abs(difference), thisGaugeProps.maxValue)}
+						text={(difference < 0 ? '-' : '+') + Math.abs(difference).toLocaleString('en-US')}
+						label={thisGaugeProps.label}
+						color1={thisGaugeProps.color}
+					/>
+				);
 			}
 			// todo hidden, no idea how i'm gonna imp that
 			
@@ -60,7 +84,7 @@ export class YearRecap extends React.Component <YearRecapProps> {
 								</CardContent>
 							</Grid>
 							<Grid item xs={12} md={6}>
-								
+								{gaugeCharts}
 							</Grid>
 						</Grid>
 						{thisProject.caseStudy &&
@@ -82,9 +106,7 @@ export class YearRecap extends React.Component <YearRecapProps> {
 		return (<>
 			<Box m={2}>
 				<Typography variant='h3'>Year {this.props.year} Recap</Typography>
-				<List 
-					sx={{m: 2}}
-				>
+				<List sx={{m: 2}}>
 					{projectRecaps}
 				</List>
 			</Box>
@@ -106,7 +128,7 @@ export function newYearRecapControl(props: YearRecapControlProps, onBack: PageCa
 
 export interface YearRecapControlProps { }
 
-export interface YearRecapProps extends YearRecapControlProps, ControlCallbacks, DashboardTrackedStats { 
+export interface YearRecapProps extends YearRecapControlProps, ControlCallbacks, TrackedStats { 
 	selectedProjects: symbol[];
-	yearlyTrackedStats: DashboardTrackedStats[];
+	yearlyTrackedStats: TrackedStats[];
 }

@@ -20,13 +20,22 @@ export type GaugeProps = {
 	/**
 	 * Value between 0 and 1. Not normalized.
 	 */
-	value: number;
+	value1: number;
+	value2?: number;
 	text: string;
 	/**
 	 * Label at the bottom.
 	 */
 	label?: string;
-	color?: string;
+	/**
+	 * Fill color of the background (default: white)
+	 */
+	backgroundColor?: string;
+	/**
+	 * Fill color of the chart
+	 */
+	color1?: string;
+	color2?: string;
 	/**
 	 * Font size of the main text. If number, it'll be a multiplier of the default size. If string, it'll be passed straight through.
 	 */
@@ -42,12 +51,15 @@ export type GaugeProps = {
 export default function GaugeChart({
 	width,
 	margin = defaultMargin,
-	value,
+	value1,
+	value2,
 	text,
 	textFontSize,
 	label,
-	color,
+	color1,
+	color2,
 	ticks,
+	backgroundColor,
 }: GaugeProps) {
 	if (width < 10) return null;
 
@@ -100,6 +112,43 @@ export default function GaugeChart({
 			</g>
 		);
 	});
+	
+	// we need to make sure the smaller value appears behind the larger value, so figure out the order programmatically
+	let arc1, arc2, smallerArc, largerArc;
+	
+	arc1 = <AnimatedArc
+		startAngle={-Math.PI / 2}
+		endAngle={(datum) => (datum * Math.PI) - Math.PI / 2}
+		innerRadius={radius - donutThickness}
+		outerRadius={radius}
+		fill={color1 || 'blue'}
+		data={value1}
+	/>;
+	
+	if (typeof value2 !== 'undefined') {
+		arc2 = <AnimatedArc
+			startAngle={-Math.PI / 2}
+			endAngle={(datum) => (datum * Math.PI) - Math.PI / 2}
+			innerRadius={radius - donutThickness}
+			outerRadius={radius}
+			fill={color2 || 'blue'}
+			data={value2}
+		/>;
+		
+		// Assign larger/smaller arc as necessary
+		if (value1 < value2) {
+			smallerArc = arc1;
+			largerArc = arc2;
+		}
+		else {
+			smallerArc = arc2;
+			largerArc = arc1;
+		}
+	}
+	// If we only have ONE arc
+	else {
+		smallerArc = arc1;
+	}
 
 	return (
 		<svg width={width} height={height}>
@@ -116,17 +165,12 @@ export default function GaugeChart({
 					endAngle={Math.PI / 2}
 					innerRadius={radius - donutThickness}
 					outerRadius={radius}
-					fill='#ffffff'
+					fill={backgroundColor || '#ffffff'}
 				/>
-				{/* Filled-in value */}
-				<AnimatedArc
-					startAngle={-Math.PI / 2}
-					endAngle={(datum) => (datum * Math.PI) - Math.PI / 2}
-					innerRadius={radius - donutThickness}
-					outerRadius={radius}
-					fill={color || 'blue'}
-					data={value}
-				/>
+				{/* Filled-in value 2 (BEHIND value 1) */}
+				{largerArc}
+				{/* Filled-in value 1 */}
+				{smallerArc}
 				{/* Big text */}
 				<Text
 					verticalAnchor='end'

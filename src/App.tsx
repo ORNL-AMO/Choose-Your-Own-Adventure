@@ -7,8 +7,10 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import type { PageControl, ControlCallbacks } from './components/controls';
-import { StartPage } from './components/controls';
-import type { DashboardTrackedStats } from './components/Dashboard';
+import { StartPage } from './components/StartPage';
+import type { TrackedStats } from './trackedStats';
+import { calculateAutoStats } from './trackedStats';
+import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages from './pages';
 import { pageControls, PageError } from './pageControls';
@@ -21,15 +23,15 @@ import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 
-export interface AppState {
+export type AppState = {
 	currentPage: symbol;
 	currentOnBack?: PageCallback; // onBack handler of current page
 	companyName: string;
 	dialog: DialogStateProps,
 	currentPageProps?: AnyDict; // todo
 	controlClass?: Component;
-	trackedStats: DashboardTrackedStats;
-	yearlyTrackedStats: DashboardTrackedStats[]; // to be pushed at the end of each year; does not change
+	trackedStats: TrackedStats;
+	yearlyTrackedStats: TrackedStats[]; // to be pushed at the end of each year; does not change
 	showDashboard: boolean;
 	selectedProjects: symbol[];
 	lastScrollY: number;
@@ -39,6 +41,7 @@ export interface AppState {
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
 // 	realized that this is a much easier solution. TODO document
+
 export interface NextAppState {
 	currentPage?: symbol;
 	currentOnBack?: PageCallback;
@@ -46,7 +49,7 @@ export interface NextAppState {
 	dialog?: DialogStateProps,
 	currentPageProps?: AnyDict;
 	controlClass?: Component;
-	trackedStats?: DashboardTrackedStats;
+	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
 	selectedProjects?: symbol[];
 	snackbarOpen?: boolean;
@@ -55,8 +58,8 @@ export interface NextAppState {
 
 interface CurrentPageProps extends ControlCallbacks, PageControl { 
 	selectedProjects: symbol[];
-	trackedStats: DashboardTrackedStats;
-	yearlyTrackedStats: DashboardTrackedStats[];
+	trackedStats: TrackedStats;
+	yearlyTrackedStats: TrackedStats[];
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
@@ -97,20 +100,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
 		startPage = Pages.yearRecap; // also temporary
 		
-		const firstYearStats = {
-			naturalGasMMBTU: 1_000_000, 
-			naturalGasCostPerMMBTU: 5, 
-			electricityUseKWh: 1_000_000, 
-			electricityCostKWh: 0.10,
-			financesAvailable: 150_000,
-			totalBudget: 1_000_000,
-			carbonSavings: 0,
-			carbonEmissions: 69_420,
-			moneySpent: 0,
-			totalRebates: 0,
-			year: 1,
-		};
-		
 		this.state = {
 			currentPage: startPage,
 			companyName: 'Auto-Man, Inc.',
@@ -122,13 +111,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 			},
 			currentPageProps: pageControls[startPage].controlProps,
 			controlClass: pageControls[startPage].controlClass,
-			trackedStats: {...firstYearStats},
+			trackedStats: {...initialTrackedStats},
 			yearlyTrackedStats: [
-				{...firstYearStats} // This one stays constant
+				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
 			// selectedProjects: [],
-			selectedProjects: [Pages.processHeatingUpgrades, Pages.digitalTwinAnalysis, Pages.wasteHeatRecovery], // temporary, for debugging
+			selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
 			lastScrollY: -1,
 			snackbarOpen: false,
 		};
@@ -231,6 +220,11 @@ export class App extends React.PureComponent <unknown, AppState> {
 			// Mutable params to update
 			let newStateParams: Pick<AppState, never> = {};
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
+			
+			if (newStateParams['trackedStats']) {
+				newStateParams['trackedStats'] = calculateAutoStats(this.state.trackedStats, newStateParams['trackedStats']);
+			}
+			
 			this.setState(newStateParams);
 		}
 		else return;

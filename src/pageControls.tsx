@@ -1,5 +1,5 @@
 import type { PageControl} from './components/controls';
-import { newStartPageControl } from './components/controls';
+import { newStartPageControl } from './components/StartPage';
 import React from 'react';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';

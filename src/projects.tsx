@@ -3,11 +3,13 @@ import type { AppState, NextAppState } from './App';
 import type App from './App';
 import type { ButtonGroupButton} from './components/Buttons';
 import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
-import type { DashboardTrackedStats } from './components/Dashboard';
+import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
 import type { DialogCardContent, DialogControlProps} from './components/InfoDialog';
 import { theme } from './components/theme';
 import { co2SavingsButton } from './pageControls';
+import FlameIcon from '@mui/icons-material/LocalFireDepartment';
+import BoltIcon from '@mui/icons-material/Bolt';
 import Pages from './pages';
 import { Alert } from '@mui/material';
 
@@ -110,30 +112,34 @@ export class ProjectControl {
 		this.cost = params.cost;
 	}
 	
-	applyStatChanges(state: AppState, nextState: NextAppState) {
-		let newTrackedStats = {...state.trackedStats};
+	/**
+	 * Applies this project's stat changes by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	applyStatChanges(mutableStats: TrackedStats) {
 		for (let key in this.statsActualAppliers) {
-			let thisApplier: NumberApplier = this.statsActualAppliers[key];
-			newTrackedStats[key] = thisApplier.applyValue(state.trackedStats[key]);
-		}
-		// Now, apply the change to finances (DOES NOT SUPPORT RELATIVE VALUES ATM)
-		newTrackedStats.financesAvailable = state.trackedStats.financesAvailable - this.cost;
-		newTrackedStats.moneySpent = state.trackedStats.moneySpent + this.cost;
-		
-		nextState.trackedStats = newTrackedStats;
-	}
-	
-	unApplyStatChanges(state: AppState, nextState: NextAppState) {
-		let newTrackedStats = {...state.trackedStats};
-		for (let key in this.statsActualAppliers) {
-			let thisApplier: NumberApplier = this.statsActualAppliers[key];
-			newTrackedStats[key] = thisApplier.unApplyValue(state.trackedStats[key]);
+			let thisApplier = this.statsActualAppliers[key];
+			if (!thisApplier) return;
+			mutableStats[key] = thisApplier.applyValue(mutableStats[key]);
 		}
 		// Now, apply the change to finances
-		newTrackedStats.financesAvailable = state.trackedStats.financesAvailable + this.cost;
-		newTrackedStats.moneySpent = state.trackedStats.moneySpent - this.cost;
-		
-		nextState.trackedStats = newTrackedStats;
+		mutableStats.financesAvailable -= this.cost;
+		mutableStats.moneySpent += this.cost;
+	}
+	
+	/**
+	 * Un-applies this project's stat changes by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	unApplyStatChanges(mutableStats: TrackedStats) {
+		for (let key in this.statsActualAppliers) {
+			let thisApplier = this.statsActualAppliers[key];
+			if (!thisApplier) return;
+			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key]);
+		}
+		// Now, apply the change to finances
+		mutableStats.financesAvailable += this.cost;
+		mutableStats.moneySpent -= this.cost;
 	}
 	
 	getChoiceControl(): Choice {
@@ -153,9 +159,9 @@ export class ProjectControl {
 				color: theme.palette.primary.light, // todo change?
 			});
 		}
-		if (this.statsInfoAppliers.electricityCostKWh) {
+		if (this.statsInfoAppliers.electricityUseKWh) {
 			cards.push({
-				text: `Electricity reduction: {${this.statsInfoAppliers.electricityCostKWh.toString(true)}}`,
+				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
 				color: theme.palette.warning.light, // todo change?
 			});
 		}
@@ -176,21 +182,34 @@ export class ProjectControl {
 		// Select checkbox button, with live preview of stats
 		buttons.push(selectButtonCheckbox(function (state, nextState) {
 			let selectedProjects = state.selectedProjects.slice();
+			let newTrackedStats = {...state.trackedStats};
 			// IF PROJECT IS ALREADY SELECTED
 			if (selectedProjects.includes(self.pageId)) {
+				// Since the order of projects matters, we can't simply unApplyChanges to ourself.
+				// 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
+				for (let i = selectedProjects.length-1; i >= 0; i--) {
+					let pageId = selectedProjects[i];
+					Projects[pageId].unApplyStatChanges(newTrackedStats);
+				}
+				
 				selectedProjects.splice(selectedProjects.indexOf(self.pageId), 1);
-				self.unApplyStatChanges(state, nextState);
+				
+				for (let i = 0; i < selectedProjects.length; i++) {
+					let pageId = selectedProjects[i];
+					Projects[pageId].applyStatChanges(newTrackedStats);
+				}
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
+				let rebates = (self.statsActualAppliers.totalRebates) ? self.statsActualAppliers.totalRebates.modifier : 0;
 				// Figure out if this project can be afforded
-				if (self.cost > state.trackedStats.financesAvailable + state.trackedStats.totalRebates) {
+				if ((self.cost - rebates) > state.trackedStats.financesAvailable + state.trackedStats.totalRebates) {
 					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
 				
 				selectedProjects.push(self.pageId);
-				self.applyStatChanges(state, nextState);
+				self.applyStatChanges(newTrackedStats);
 				
 				if (!self.hasDisplayedSurprises) {
 					displaySurprises.apply(this);
@@ -198,6 +217,8 @@ export class ProjectControl {
 				}
 			}
 			nextState.selectedProjects = selectedProjects;
+			nextState.trackedStats = newTrackedStats;
+			
 			return state.currentPage; // no page change
 		}, undefined, (state) => state.selectedProjects.includes(this.pageId)));
 		
@@ -255,8 +276,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
-	}
-	// previewButton: co2SavingsButton(69420) // todo
+	},
+	previewButton: {
+		text: '50k',
+		variant: 'text',
+		startIcon: <FlameIcon/>
+	},
 });
 
 Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
@@ -282,6 +307,11 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
+	},
+	previewButton: {
+		text: '2.0%',
+		variant: 'text',
+		startIcon: <FlameIcon/>,
 	}
 });
 
@@ -307,13 +337,18 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		title: 'Nissan North America: New Paint Plant',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
 		text: 'In 2010, {Nissan’s Vehicle Assembly Plant} in Smyrna, Tennessee is {40%} more energy efficient than its predecessor, using an innovative “3-Wet” paint process that allows for the removal of a costly high temperature over bake step.'
-	}
+	},
+	previewButton: {
+		text: '2.5%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
 });
 
 /**
  * todo better name
  */
-declare interface NumberApplier {
+export declare interface NumberApplier {
 	applyValue: (previous: number) => number;
 	unApplyValue: (previous: number) => number;
 	/**
@@ -326,7 +361,7 @@ declare interface NumberApplier {
 	toString: (negative: boolean) => string;
 }
 
-type trackedStats = keyof DashboardTrackedStats;
+type trackedStats = keyof TrackedStats;
 
 /**
  * Optional NumberApplier for any stat in DashboardTrackedStats
