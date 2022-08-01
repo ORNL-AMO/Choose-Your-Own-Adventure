@@ -177,9 +177,9 @@ export class ProjectControl implements ProjectControlParams{
 	 */
 	unApplyCost(mutableStats: TrackedStats) {
 		let rebates = this.getRebates();
-		mutableStats.financesAvailable -= this.cost - rebates;
-		mutableStats.moneySpent += this.cost;
-		mutableStats.totalBudget += rebates;
+		mutableStats.financesAvailable += this.cost - rebates;
+		mutableStats.moneySpent -= this.cost;
+		mutableStats.totalBudget -= rebates;
 	}
 	
 	/**
