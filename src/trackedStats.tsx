@@ -24,7 +24,7 @@ export interface TrackedStats {
 	/**
 	 * Cost of electricity, per kWh.
 	 */
-	electricityCostKWh: number;
+	electricityCostPerKWh: number;
 	/**
 	 * Emissions of electricity production, per MMBTU.
 	 */
@@ -40,6 +40,10 @@ export interface TrackedStats {
 	carbonEmissions: number;
 	moneySpent: number;
 	/**
+	 * Total money spent, across the whole run.
+	 */
+	totalMoneySpent: number;
+	/**
 	 * current year, 1 through 10.
 	 */
 	year: number;
@@ -51,14 +55,15 @@ export const initialTrackedStats: TrackedStats = {
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
 	electricityUseKWh: 1_000_000, 
-	electricityCostKWh: 0.10,
+	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	
 	financesAvailable: 150_000,
-	totalBudget: 1_000_000,
+	totalBudget: 150_000,
 	carbonSavings: 0,
 	carbonEmissions: -1, // auto calculated in the next line
 	moneySpent: 0,
+	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 1,
 };
@@ -76,11 +81,24 @@ function calculateEmissions(stats: TrackedStats): number {
  * 	- carbonSavings
  * 	- carbonEmissions
  */
-export function calculateAutoStats(oldStats: TrackedStats, newStats: TrackedStats) {
+export function calculateAutoStats(newStats: TrackedStats) {
 	newStats.carbonEmissions = calculateEmissions(newStats);
 	let newSavings = (initialTrackedStats.carbonEmissions - newStats.carbonEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
 	newStats.carbonSavings = newSavings;
 	return newStats;
+}
+
+export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedStats) {
+	let oldNgCost = oldStats.naturalGasCostPerMMBTU * oldStats.naturalGasMMBTU;
+	let newNgCost = newStats.naturalGasCostPerMMBTU * newStats.naturalGasMMBTU;
+	
+	let oldElecCost = oldStats.electricityCostPerKWh * oldStats.electricityUseKWh;
+	let newElecCost = newStats.electricityCostPerKWh * newStats.electricityUseKWh;
+	
+	return {
+		naturalGas: oldNgCost - newNgCost,
+		electricity: oldElecCost - newElecCost,
+	};
 }
 
 /**
@@ -105,7 +123,7 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 	},
 	electricityUseKWh: {
 		label: 'Electricity use (kWh)',
-		color: theme.palette.warning.main,
+		color: '#c0a020',
 		textFontSize: 0.85,
 		maxValue: 1_000_000,
 	}

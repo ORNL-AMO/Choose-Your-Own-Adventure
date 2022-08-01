@@ -6,9 +6,10 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import type { PageControl, ControlCallbacks } from './components/controls';
+import type { PageControlProps, ControlCallbacks } from './components/controls';
 import { StartPage } from './components/StartPage';
 import type { TrackedStats } from './trackedStats';
+import { calculateYearSavings } from './trackedStats';
 import { calculateAutoStats } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
@@ -34,6 +35,7 @@ export type AppState = {
 	yearlyTrackedStats: TrackedStats[]; // to be pushed at the end of each year; does not change
 	showDashboard: boolean;
 	selectedProjects: symbol[];
+	completedProjects: symbol[];
 	lastScrollY: number;
 	snackbarOpen: boolean;
 	snackbarContent?: JSX.Element;
@@ -52,14 +54,16 @@ export interface NextAppState {
 	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
 	selectedProjects?: symbol[];
+	completedProjects?: symbol[];
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
 }
 
-interface CurrentPageProps extends ControlCallbacks, PageControl { 
+interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
 	selectedProjects: symbol[];
 	trackedStats: TrackedStats;
 	yearlyTrackedStats: TrackedStats[];
+	handleYearRecapOnProceed: () => void;
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
@@ -85,6 +89,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 					{...controlCallbacks}
 					selectedProjects={this.props.selectedProjects}
 					yearlyTrackedStats={this.props.yearlyTrackedStats}
+					handleYearRecap={this.props.handleYearRecapOnProceed}
 				/>;
 			default:
 				return <></>;
@@ -98,7 +103,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
 		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
-		startPage = Pages.yearRecap; // also temporary
+		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
 		
 		this.state = {
 			currentPage: startPage,
@@ -116,8 +121,9 @@ export class App extends React.PureComponent <unknown, AppState> {
 				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
-			// selectedProjects: [],
-			selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
+			selectedProjects: [],
+			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
+			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
 		};
@@ -179,6 +185,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let controlClass = thisPageControl.controlClass;
 		let controlProps = this.fillTemplateText(thisPageControl.controlProps);
 		let controlOnBack = thisPageControl.onBack;
+		let hideDashboard = thisPageControl.hideDashboard;
 		
 		let dialog, currentPageProps;
 		
@@ -198,6 +205,12 @@ export class App extends React.PureComponent <unknown, AppState> {
 			currentPageProps: currentPageProps,
 			currentOnBack: controlOnBack,
 		});
+		
+		// Hide/show dashboard UNLESS it's set to "initial" meaning keep it at its previous state
+		if (hideDashboard !== 'initial') {
+			this.setState({showDashboard: !hideDashboard});
+		}
+		
 		this.saveScrollY();
 	}
 	
@@ -222,7 +235,12 @@ export class App extends React.PureComponent <unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 			
 			if (newStateParams['trackedStats']) {
-				newStateParams['trackedStats'] = calculateAutoStats(this.state.trackedStats, newStateParams['trackedStats']);
+				let newTrackedStats = calculateAutoStats(newStateParams['trackedStats']);
+				newStateParams['trackedStats'] = newTrackedStats;
+				// Sanity check!
+				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
+					console.error(`Error with finances sanity check! financesAvailable=${newTrackedStats.financesAvailable}, moneySpent=${newTrackedStats.moneySpent} totalBudget=${newTrackedStats.totalBudget}`);
+				}
 			}
 			
 			this.setState(newStateParams);
@@ -324,13 +342,40 @@ export class App extends React.PureComponent <unknown, AppState> {
 		this.setPage(Pages.yearRecap);
 	}
 	
+	handleYearRecapOnProceed() {
+		
+		let thisYearStart = this.state.yearlyTrackedStats[this.state.trackedStats.year - 1];
+		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${this.state.trackedStats.year}`);
+		
+		// Add this year's savings to the budget, INCLUDING unused budget from last year
+		let savings = calculateYearSavings(thisYearStart, this.state.trackedStats);
+		let newBudget = this.state.trackedStats.totalBudget + this.state.trackedStats.financesAvailable + savings.electricity + savings.naturalGas;
+		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
+		let newTrackedStats = {...this.state.trackedStats};
+		newTrackedStats.totalBudget = newBudget;
+		newTrackedStats.financesAvailable = newBudget;
+		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
+		newTrackedStats.moneySpent = 0;
+		newTrackedStats.year += 1;
+		
+		// Move selectedProjects into completedProjects
+		let newCompletedProjects = [...this.state.completedProjects, ...this.state.selectedProjects];
+		
+		this.setState({
+			completedProjects: newCompletedProjects,
+			selectedProjects: [],
+			trackedStats: newTrackedStats,
+		});
+		this.setPage(Pages.selectScope);
+	}
+	
 	render() {
 		
 		// Standard callbacks to spread to each control.
 		const controlCallbacks = {
 			doPageCallback: (callback) => this.handlePageCallback(callback),
 			summonInfoDialog: (props) => this.summonInfoDialog(props),
-			resolveToValue: (item) => this.resolveToValue(item),
+			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
 		};
 		
 		return (
@@ -344,7 +389,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									{...controlCallbacks} 
 									onBack={this.state.currentOnBack} 
 									onProceed={() => this.handleDashboardOnProceed()}
-									btnProceedDisabled={this.state.selectedProjects.length === 0}
+									btnProceedDisabled={this.state.selectedProjects.length === 0 || this.state.controlClass === YearRecap}
 								/> 
 							: <></>}
 							{(this.state.currentPageProps && this.state.controlClass) ?
@@ -355,6 +400,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									controlProps={this.state.currentPageProps}
 									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes
 									yearlyTrackedStats={this.state.yearlyTrackedStats}
+									handleYearRecapOnProceed={() => this.handleYearRecapOnProceed()}
 								/>
 							: <></>}
 						</Box>

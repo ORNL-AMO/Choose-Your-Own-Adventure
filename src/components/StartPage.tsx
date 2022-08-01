@@ -39,6 +39,7 @@ export function newStartPageControl(props: StartPageControlProps): PageControl {
 	return {
 		controlClass: StartPage,
 		controlProps: props,
+		hideDashboard: true,
 	};
 }
 

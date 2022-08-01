@@ -36,6 +36,23 @@ export function clampRatio(value: number, max: number) {
 }
 
 /**
+ * Returns the number with a + or - sign depending on its sign.
+ * @param value value
+ * @param decimals Number of decimal places (optional)
+ */
+export function withSign(value: number, decimals?: number): string {
+	let sign = (value < 0) ? '-' : '+';
+	if (typeof decimals === 'number')
+		return sign + Math.abs(value).toFixed(decimals);
+	else 
+		return sign + Math.abs(value).toLocaleString('en-US');
+}
+
+export function toPercent(value: number): string {
+	return (value * 100).toFixed(1) + '%';
+}
+
+/**
  * Resolve an item of an unknown type to a value.
  * @param item Item to resolve.
  * @param whenUndefined Value when undefined
@@ -83,7 +100,7 @@ export function shallowCompareIgnoreFuncs(obj1, obj2) {
  * This is because passing arrow/bind functions as props will cause the shallow comparison to always fail.
  * For example, (() => foo()) == (() => foo()) returns false
  */
- export class PureComponentIgnoreFuncs <P> extends React.Component <P> {
+export class PureComponentIgnoreFuncs <P> extends React.Component <P> {
 	shouldComponentUpdate(nextProps, nextState) {
 		return comparePropsAndStateIgnoreFuncs.apply(this, [nextProps, nextState]);
 	}
@@ -127,6 +144,49 @@ export function rightArrow() {
 	else {
 		return (<KeyboardArrowRight/>);
 	}
+}
+
+/**
+ * Modified code from Orteil's Cookie Clicker. https://orteil.dashnet.org/cookieclicker
+ */
+function formatEveryThirdPower(notations) {
+	return function (val) {
+		let base=0,notationValue='';
+		if (!isFinite(val)) return 'Infinity';
+		if (val>=1000)
+		{
+			val/=1000;
+			while(Math.round(val)>=1000)
+			{
+				val/=1000;
+				base++;
+			}
+			if (base>=notations.length) {return 'Infinity';} else {notationValue=notations[base];}
+		}
+		let multiplier = (val >= 100) ? 10 : (val >= 10) ? 100 : 1000;
+		return (Math.round(val * multiplier) / multiplier) + notationValue;
+	};
+}
+
+let formatter = formatEveryThirdPower(['k','M','B','T', 'Qa', 'Qi', 'Sx']);
+
+/**
+ * Shorten a number with the suffix 'k', 'M', 'B', etc. for thousand, million, billion respectively.
+ * Modified code from Orteil's Cookie Clicker. https://orteil.dashnet.org/cookieclicker
+ * @param val value
+ * @param {number} [floats] Number of decimals after the period for numbers < 1000.
+ */
+export function shortenNumber(val, floats?) {
+	let negative = (val < 0);
+	let decimal = '';
+	let fixed = val.toFixed(floats);
+	if (floats > 0 && Math.abs(val) < 1000 && Math.floor(fixed) != fixed) decimal='.'+(fixed.toString()).split('.')[1];
+	val = Math.floor(Math.abs(val));
+	if (floats > 0 && fixed == val+1) val++;
+	
+	let output = formatter(val);
+	if (output == '0') negative = false;
+	return (negative ? '-' : '') + output + decimal;
 }
 
 // Helpful types

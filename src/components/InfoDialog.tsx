@@ -115,6 +115,7 @@ export function newInfoDialogControl(props: DialogControlProps): PageControl {
 	return {
 		controlClass: InfoDialog,
 		controlProps: props,
+		hideDashboard: 'initial'
 	};
 }
 

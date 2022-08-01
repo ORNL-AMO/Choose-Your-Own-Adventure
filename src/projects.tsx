@@ -10,6 +10,7 @@ import { theme } from './components/theme';
 import { co2SavingsButton } from './pageControls';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
+import FactoryIcon from '@mui/icons-material/Factory';
 import Pages from './pages';
 import { Alert } from '@mui/material';
 
@@ -31,6 +32,11 @@ export declare interface CaseStudy {
 	url: string;
 }
 
+declare interface RecapAvatar {
+	icon: JSX.Element;
+	backgroundColor?: string;
+}
+
 declare interface ProjectControlParams {
 	pageId: symbol;
 	/**
@@ -40,11 +46,11 @@ declare interface ProjectControlParams {
 	/**
 	 * Numbers that appear on the INFO CARD, before checking the checkbox.
 	 */
-	statsInfo: TrackedStatsApplier;
+	statsInfoAppliers: TrackedStatsApplier;
 	/**
 	 * Numbers that affect the dashboard charts AND that apply when "Proceed" is clicked.
 	 */
-	statsActual: TrackedStatsApplier;
+	statsActualAppliers: TrackedStatsApplier;
 	/**
 	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
@@ -56,6 +62,10 @@ declare interface ProjectControlParams {
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: 'cover' | 'contain';
 	recapDescription: string | string[];
+	/**
+	 * Icon to be shown in the year recap page.
+	 */
+	recapAvatar?: RecapAvatar;
 	previewButton?: ButtonGroupButton;
 	/**
 	 * Surprises that appear once when SELECT is clicked.
@@ -66,9 +76,13 @@ declare interface ProjectControlParams {
 	 */
 	hiddenSurprises?: DialogControlProps[];
 	caseStudy?: CaseStudy;
+	/**
+	 * Whether the project will be visible. For example, only show if a PREVIOUS Project has been selected, or if the year is at least 3.
+	 */
+	visible?: Resolvable<boolean>;
 }
 
-export class ProjectControl {
+export class ProjectControl implements ProjectControlParams{
 	
 	pageId: symbol;
 	cost: number;
@@ -86,15 +100,17 @@ export class ProjectControl {
 	surprises: DialogControlProps[];
 	hiddenSurprises?: DialogControlProps[];
 	caseStudy?: CaseStudy;
+	recapAvatar: RecapAvatar;
 	/**
 	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
 	 */
 	hasDisplayedSurprises = false;
+	visible: Resolvable<boolean>;
 	
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
-		this.statsInfoAppliers = params.statsInfo;
-		this.statsActualAppliers = params.statsActual;
+		this.statsInfoAppliers = params.statsInfoAppliers;
+		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsHiddenAppliers = params.statsHidden;
 		this.title = params.title;
 		this.choiceInfoTitle = params.choiceInfoTitle;
@@ -103,12 +119,16 @@ export class ProjectControl {
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
 		this.choiceInfoImgObjectFit = params.choiceInfoImgObjectFit;
 		this.recapDescription = params.recapDescription;
+		this.recapAvatar = params.recapAvatar || {
+			backgroundColor: undefined,
+			icon: <FactoryIcon/>
+		};
 		this.previewButton = params.previewButton;
 		this.caseStudy = params.caseStudy;
 		if (params.surprises) this.surprises = params.surprises;
 		else this.surprises = [];
 		this.hiddenSurprises = params.hiddenSurprises;
-		
+		this.visible = params.visible || true; // Default to true
 		this.cost = params.cost;
 	}
 	
@@ -123,8 +143,18 @@ export class ProjectControl {
 			mutableStats[key] = thisApplier.applyValue(mutableStats[key]);
 		}
 		// Now, apply the change to finances
-		mutableStats.financesAvailable -= this.cost;
+		this.applyCost(mutableStats);
+	}
+	
+	/**
+	 * Applies this project's cost & rebates by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	applyCost(mutableStats: TrackedStats) {
+		let rebates = this.getRebates();
+		mutableStats.financesAvailable -= this.cost - rebates;
 		mutableStats.moneySpent += this.cost;
+		mutableStats.totalBudget += rebates;
 	}
 	
 	/**
@@ -138,8 +168,32 @@ export class ProjectControl {
 			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key]);
 		}
 		// Now, apply the change to finances
-		mutableStats.financesAvailable += this.cost;
-		mutableStats.moneySpent -= this.cost;
+		this.unApplyCost(mutableStats);
+	}
+	
+	/**
+	 * Un-applies this project's cost & rebates by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	unApplyCost(mutableStats: TrackedStats) {
+		let rebates = this.getRebates();
+		mutableStats.financesAvailable -= this.cost - rebates;
+		mutableStats.moneySpent += this.cost;
+		mutableStats.totalBudget += rebates;
+	}
+	
+	/**
+	 * Returns the total amount of rebates of this project.
+	 */
+	getRebates(): number {
+		return (this.statsActualAppliers.totalRebates) ? this.statsActualAppliers.totalRebates.modifier : 0;
+	}
+	
+	/**
+	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
+	 */
+	getNetCost(): number {
+		return this.cost - this.getRebates();
 	}
 	
 	getChoiceControl(): Choice {
@@ -201,9 +255,9 @@ export class ProjectControl {
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
-				let rebates = (self.statsActualAppliers.totalRebates) ? self.statsActualAppliers.totalRebates.modifier : 0;
+				let rebates = self.getRebates();
 				// Figure out if this project can be afforded
-				if ((self.cost - rebates) > state.trackedStats.financesAvailable + state.trackedStats.totalRebates) {
+				if ((self.cost - rebates) > state.trackedStats.financesAvailable) {
 					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
@@ -225,6 +279,8 @@ export class ProjectControl {
 		return {
 			text: this.choiceInfoTitle,
 			buttons: buttons,
+			visible: this.visible,
+			key: this.pageId.description,
 		};
 		
 		function displaySurprises(this: App) {
@@ -245,18 +301,22 @@ export class ProjectControl {
 	}
 }
 
+/* -======================================================- */
+//                   PROJECT CONTROLS
+/* -======================================================- */
+
 Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	pageId: Pages.wasteHeatRecovery,
 	cost: 65_000, // project cost, in dollars
-	statsInfo: {
+	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-50_000), // reduces natural gas usage
 	},
-	statsActual: {
+	statsActualAppliers: {
 		totalRebates: absolute(5_000),
 		naturalGasMMBTU: absolute(-50_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
-	choiceInfoTitle: 'Upgrade heat recovery on boiler/furnace system',
+	choiceInfoTitle: 'Upgrade heat recovery on boiler/furnace system\nThis should appear on year 2!',
 	choiceInfoText: [
 		'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
 		'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
@@ -266,11 +326,11 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	surprises: [
-		// {
-		// 	title: 'CONGRATULATIONS!',
-		// 	text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-		// 	img: 'images/confetti.png'
-		// },
+		{
+			title: 'CONGRATULATIONS!',
+			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
+			img: 'images/confetti.png'
+		},
 	],
 	caseStudy: {
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
@@ -282,15 +342,18 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon/>
 	},
+	visible: function (state: AppState) {
+		return state.trackedStats.year >= 2;
+	}
 });
 
 Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 	pageId: Pages.digitalTwinAnalysis,
 	cost: 90_000,
-	statsInfo: {
+	statsInfoAppliers: {
 		naturalGasMMBTU: relative(-0.02),
 	},
-	statsActual: {
+	statsActualAppliers: {
 		naturalGasMMBTU: relative(-0.02),
 	},
 	title: 'Energy Efficiency - Digital Twin Analysis',
@@ -318,10 +381,10 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
 	cost: 80_000,
-	statsInfo: {
+	statsInfoAppliers: {
 		electricityUseKWh: relative(-0.025),
 	},
-	statsActual: {
+	statsActualAppliers: {
 		electricityUseKWh: relative(-0.025),
 	},
 	title: 'Energy Efficiency – Process Heating Upgrades',
@@ -332,7 +395,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	],
 	choiceInfoImg: 'images/car-manufacturing.png',
 	choiceInfoImgAlt: 'The frame of a car inside a manufacturing facility.',
-	recapDescription: 'You have achieved 2.5% energy reduction',
+	recapDescription: 'Placeholder',
 	caseStudy: {
 		title: 'Nissan North America: New Paint Plant',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
@@ -340,6 +403,37 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	},
 	previewButton: {
 		text: '2.5%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
+	pageId: Pages.hydrogenPoweredForklifts,
+	cost: 100_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Fuel Switching – Hydrogen Powered Forklifts',
+	choiceInfoTitle: 'Switch to hydrogen powered forklifts',
+	choiceInfoText: [
+		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
+		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Placeholder',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
 		variant: 'text',
 		startIcon: <BoltIcon/>,
 	},

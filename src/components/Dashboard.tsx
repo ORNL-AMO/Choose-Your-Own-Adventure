@@ -124,7 +124,6 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									// Finances available can be negative UP TO the amount of rebates.... may be changed later
 									'Finances available': Math.max(this.props.financesAvailable, 0),
 									'Money spent': this.props.moneySpent,
-									// 'Rebates': this.props.totalRebates,
 								}]}
 							/>
 						</Grid>
@@ -147,7 +146,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						</Grid>
 						<Grid item xs={12} sm={6}>
 							<Typography>
-								Electricity: ${this.props.electricityCostKWh.toFixed(2)}/kWh
+								Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
 							</Typography>
 						</Grid>
 						<Grid item xs={12} sm={6}>

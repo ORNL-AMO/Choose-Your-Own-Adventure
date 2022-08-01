@@ -105,6 +105,7 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 			]
 		}
 	],
+	hideDashboard: false,
 }, (state, nextState) => {
 	nextState.showDashboard = false;
 	return Pages.introduction;
@@ -119,119 +120,31 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				Projects[Pages.wasteHeatRecovery].getChoiceControl(),
 				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
 				Projects[Pages.processHeatingUpgrades].getChoiceControl(),
-				// {
-				// 	text: '1. Upgrade heat recovery on boiler/furnace system',
-				// 	buttons: [
-				// 		infoButtonWithDialog({
-				// 			title: 'Energy Efficiency - Waste Heat Recovery',
-				// 			text: [
-				// 				'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
-				// 				'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
-				// 			],
-				// 			cards: projectCostAndCO2ReductionCards(65_000, 3.5),
-				// 			img: 'images/waste-heat-recovery.png',
-				// 			imgAlt: '', // What is this diagram from the PPT?
-				// 			imgObjectFit: 'contain',
-				// 		}),
-				// 		co2SavingsButton(3.5),
-				// 		selectButtonCheckbox(function (state, nextState) {
-				// 			toggleSelectedPage(Pages.wasteHeatRecovery, state, nextState);
-				// 			// Update trackedStats for the dashboard
-				// 			// nextState.trackedStats = cloneAndModify(state.trackedStats, {
-				// 			// 	carbonReduced: state.trackedStats.carbonReduced + 3.5,
-				// 			// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.035),
-				// 			// 	financesAvailable: state.trackedStats.financesAvailable - 65_000,
-				// 			// 	moneySpent: state.trackedStats.moneySpent + 65_000,
-				// 			// });
-				// 			// return Pages.wasteHeatRecovery; // Next page
-				// 			return Pages.scope1Projects;
-				// 		},
-				// 		undefined,
-				// 		(state) => 
-				// 			state.selectedProjects.includes(Pages.wasteHeatRecovery)
-				// 		)
-				// 	]
-				// },
-				// {
-				// 	text: '2. Conduct digital twin analysis',
-				// 	buttons: [
-				// 		infoButtonWithDialog({
-				// 			title: 'Energy Efficiency - Digital Twin Analysis',
-				// 			text: [
-				// 				'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
-				// 				'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
-				// 			],
-				// 			img: 'images/chiller-systems-in-plant.png',
-				// 			imgAlt: 'A 3D model of the chiller systems in a plant',
-				// 			imgObjectFit: 'contain',
-				// 			cards: projectCostAndCO2ReductionCards(90_000, 2),
-				// 		}),
-				// 		co2SavingsButton(2.0),
-				// 		selectButtonCheckbox(function (state, nextState) {
-				// 			toggleSelectedPage(Pages.digitalTwinAnalysis, state, nextState);
-				// 			return Pages.scope1Projects;
-				// 			// // Update selectedProjects to disable the select button
-				// 			// let selectedProjects = state.selectedProjects.slice();
-				// 			// selectedProjects.push(Pages.digitalTwinAnalysis);
-				// 			// nextState.selectedProjects = selectedProjects;
-				// 			// // Update trackedStats for the dashboard
-				// 			// nextState.trackedStats = cloneAndModify(state.trackedStats, {
-				// 			// 	carbonReduced: state.trackedStats.carbonReduced + 2,
-				// 			// 	carbonEmissions: state.trackedStats.carbonEmissions * (1 - 0.02),
-				// 			// 	financesAvailable: state.trackedStats.financesAvailable - 90_000,
-				// 			// 	moneySpent: state.trackedStats.moneySpent + 90_000,
-				// 			// });
-				// 			// return Pages.digitalTwinAnalysis;
-				// 		},
-				// 		undefined,
-				// 		(state) => 
-				// 			state.selectedProjects.includes(Pages.digitalTwinAnalysis),
-				// 		)
-				// 	],
-				// },
-				// {
-				// 	text: '3. Explore efficient process heating upgrades',
-				// 	buttons: [
-				// 		infoButtonWithDialog({
-				// 			title: 'Energy Efficiency – Process Heating Upgrades',
-				// 			text: [
-				// 				'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
-				// 				'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
-				// 			],
-				// 			img: 'images/car-manufacturing.png',
-				// 			imgAlt: 'The frame of a car inside a manufacturing facility.',
-				// 			cards: projectCostAndCO2ReductionCards(80_000, 2.5),
-				// 		}),
-				// 		co2SavingsButton(2.5),
-				// 		selectButton(function () {
-				// 			return Pages.scope1Projects; // todo
-				// 		})
-				// 	]
-				// }
 			]
 		}, {
 			title: 'Fuel switching',
 			choices: [
-				{
-					text: '4. Switch to hydrogen powered forklifts',
-					buttons: [
-						infoButtonWithDialog({
-							title: 'Fuel Switching – Hydrogen Powered Forklifts',
-							text: [
-								'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-								'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-							],
-							img: 'images/hydrogen-powered-forklift.jpg',
-							imgAlt: 'Hydrogen powered forklift.',
-							imgObjectFit: 'contain',
-							cards: projectCostAndCO2ReductionCards(100_000, 2.0),
-						}),
-						co2SavingsButton(2.0),
-						selectButton(function () {
-							return Pages.scope1Projects; // todo
-						}),
-					]
-				}
+				// {
+				// 	text: '4. Switch to hydrogen powered forklifts',
+				// 	buttons: [
+				// 		infoButtonWithDialog({
+				// 			title: 'Fuel Switching – Hydrogen Powered Forklifts',
+				// 			text: [
+				// 				'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
+				// 				'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+				// 			],
+				// 			img: 'images/hydrogen-powered-forklift.jpg',
+				// 			imgAlt: 'Hydrogen powered forklift.',
+				// 			imgObjectFit: 'contain',
+				// 			cards: projectCostAndCO2ReductionCards(100_000, 2.0),
+				// 		}),
+				// 		co2SavingsButton(2.0),
+				// 		selectButton(function () {
+				// 			return Pages.scope1Projects; // todo
+				// 		}),
+				// 	]
+				// }
+				Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
 			]
 		}, {
 			title: 'Invest in electrification',
@@ -258,7 +171,8 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				}
 			]
 		}
-	]
+	],
+	hideDashboard: false,
 }, Pages.selectScope);
 
 pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
@@ -319,7 +233,8 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 				}
 			]
 		}
-	]
+	],
+	hideDashboard: false,
 }, Pages.selectScope);
 
 pageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);

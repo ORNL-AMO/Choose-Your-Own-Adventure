@@ -18,9 +18,12 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 		
 		const gridItems = props.groups.map((group, idx) => {
 			
-			const choices = group.choices.map((choice, idx) => {
+			const choices = group.choices
+			.filter(choice => {
+				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
+			.map((choice, idx) => {
 				
-				return (<Grid item xs={12} key={idx}>
+				return (<Grid item xs={12} key={choice.key || idx}>
 					<PaperGridItem>
 						<Typography variant='h4'>{choice.title}</Typography>
 							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(choice.text)}/>
@@ -59,11 +62,12 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
  * TS wrapper for a GroupedChoices component control. 
  * Use this when definining a PageControl for code autocompletion and props checking.
  */
-export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBack: PageCallback): PageControl {
+export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBack: PageCallback): PageControl {	
 	return {
 		controlClass: GroupedChoices,
 		controlProps: props,
-		onBack
+		onBack,
+		hideDashboard: props.hideDashboard
 	};
 }
 
@@ -73,6 +77,14 @@ export interface Choice {
 	infoPopup?: React.ReactNode;
 	disabled?: Resolvable<boolean>;
 	buttons?: ButtonGroupButton[];
+	/**
+	 * Whether the choice will appear in the list.
+	 */
+	visible?: Resolvable<boolean>;
+	/**
+	 * Unkque key for React's internal use (if using a symbol, use symbol.description to turn it into a string)
+	 */
+	key?: string;
 }
 
 export interface GroupedChoicesGroup {
@@ -83,6 +95,7 @@ export interface GroupedChoicesGroup {
 export interface GroupedChoicesControlProps {
 	title: string;
 	groups: GroupedChoicesGroup[];
+	hideDashboard: boolean|'initial';
 }
 
 export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { }

@@ -4,8 +4,12 @@ import React from 'react';
 //                         CONTROLS
 /* -======================================================- */
 
-export function Emphasis(props: React.PropsWithChildren) {
-	return <span className='emphasis'>{props.children}</span>;
+declare interface EmphasisProps extends React.PropsWithChildren {
+	money?: boolean;
+}
+
+export function Emphasis(props: EmphasisProps) {
+	return <span className={'emphasis ' + (props.money ? 'money' : '')}>{props.children}</span>;
 }
 
 /**
@@ -14,7 +18,16 @@ export function Emphasis(props: React.PropsWithChildren) {
 export interface ControlCallbacks {
 	doPageCallback: (callback?: PageCallback) => void;
 	summonInfoDialog: (props) => void;
-	resolveToValue: <T> (value: Resolvable<T>) => T;
+	resolveToValue: <T> (value: Resolvable<T>, whenUndefined?: T) => T;
+}
+
+/**
+ * Props sent to CurrentPage
+ */
+export declare interface PageControlProps {
+	controlClass: Component;
+	controlProps: AnyDict;
+	onBack?: PageCallback;
 }
 
 /**
@@ -22,8 +35,9 @@ export interface ControlCallbacks {
  * @param controlClass Class for this component.
  * @param controlProps Properties sent to the control, NOT INCLUDING extra properties/handlers sent from App.tsx such as doPageCallback()
  */
-export declare interface PageControl {
-	controlClass: Component;
-	controlProps: AnyDict;
-	onBack?: PageCallback
+export declare interface PageControl extends PageControlProps{
+	/**
+	 * if hideDashboard is set to 'initial', then the dashboard's visibility state will remain as it was before.
+	 */
+	hideDashboard: boolean|'initial';
 }

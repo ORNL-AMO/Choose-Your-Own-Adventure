@@ -102,7 +102,7 @@ export default function GaugeChart({
 				<Text
 					verticalAnchor='middle'
 					textAnchor='middle'
-					fontSize={12}
+					fontSize={13}
 					// x={Math.sin(tickAngle) * (tickRadius + tickThickness * 2)}
 					y={1 * -(tickRadius + tickThickness + 2)}
 					style={{transform: `rotate(${tickAngle}rad)`}}

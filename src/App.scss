@@ -36,10 +36,16 @@ $blur-radius: 5px;
 .emphasis {
   color: $better-plants-blue;
   font-weight: bold;
+  &.money {
+	color: $doe-green;
+  }
 }
 
 .semi-emphasis, a, a:visited {
   color: $better-plants-blue;
+  &.money {
+	color: $doe-green;
+  }
 }
 
 .i {
@@ -51,4 +57,13 @@ $blur-radius: 5px;
 
 .noMarginBottom {
 	margin-bottom: 0
+}
+
+.year-recap-charts {
+    justify-content: center;
+    display: flex;
+	flex-wrap: wrap;
+	& > * {
+		padding: 8px;
+	}
 }
