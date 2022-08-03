@@ -196,20 +196,6 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				// {
-				// 	text: '1. Explore lighting upgrades',
-				// 	buttons: [
-				// 		// todo info
-				// 		co2SavingsButton(1.5),
-				// 		selectButtonCheckbox(function (state, nextState) {
-				// 			toggleSelectedPage(Pages.lightingUpgrades, state, nextState);
-				// 			return Pages.scope2Projects;
-				// 		}, 
-				// 		undefined,
-				// 		(state) => state.selectedProjects.includes(Pages.lightingUpgrades)
-				// 		),
-				// 	]
-				// }
 				Projects[Pages.lightingUpgrades].getChoiceControl(),
 			]
 		}, {

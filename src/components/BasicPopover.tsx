@@ -2,6 +2,9 @@ import * as React from 'react';
 import { Popover, Button, Box } from '@mui/material';
 import { resolveToValue } from '../functions-and-types';
 
+/**
+ * Material Popover with a button. See: https://mui.com/material-ui/react-popover/
+ */
 export default function BasicPopover(props: PopoverProps) {
 	const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
@@ -64,12 +67,34 @@ export default function BasicPopover(props: PopoverProps) {
 }
 
 declare interface PopoverProps extends React.PropsWithChildren {
+	/**
+	 * Icon to appear at the start of the button.
+	 */
 	startIcon?: React.ReactNode;
+	/**
+	 * Icon to appear at the end of the button.
+	 */
 	endIcon?: React.ReactNode;
+	/**
+	 * Variant of the button, see https://mui.com/material-ui/react-button/
+	 */
 	buttonVariant: buttonVariant;
+	/**
+	 * Size of the button, see https://mui.com/material-ui/react-button/
+	 */
 	buttonSize?: 'small'|'medium'|'large';
+	/**
+	 * Whether the button should appear disabled.
+	 * @default false
+	 */
 	buttonDisabled?: boolean;
+	/**
+	 * Whether the popover should open/close on a mouse click or when the button is moused over.
+	 */
 	variant?: 'click'|'mouseover',
+	/**
+	 * Text to appear in the button.
+	 */
 	text: string;
 	/**
 	 * Click handler for popover; only allowed if variant == 'mouseover'

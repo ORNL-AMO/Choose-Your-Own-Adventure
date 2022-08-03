@@ -55,8 +55,17 @@ declare interface ProjectControlParams {
 	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
 	statsHidden?: TrackedStatsApplier;
+	/**
+	 * Full title of the project, displayed on the choice info popup and the recap page.
+	 */
 	title: string;
-	choiceInfoTitle: string;
+	/**
+	 * Shorter title, displayed on the choice cards.
+	 */
+	shortTitle: string;
+	/**
+	 * Info text to 
+	 */
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
@@ -93,7 +102,7 @@ export class ProjectControl implements ProjectControlParams{
 	statsActualAppliers: TrackedStatsApplier;
 	statsHiddenAppliers?: TrackedStatsApplier;
 	title: string;
-	choiceInfoTitle: string;
+	shortTitle: string;
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
@@ -120,7 +129,7 @@ export class ProjectControl implements ProjectControlParams{
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsHiddenAppliers = params.statsHidden;
 		this.title = params.title;
-		this.choiceInfoTitle = params.choiceInfoTitle;
+		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
 		this.choiceInfoImg = params.choiceInfoImg;
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
@@ -284,9 +293,14 @@ export class ProjectControl implements ProjectControlParams{
 		}, undefined, (state) => state.selectedProjects.includes(this.pageId)));
 		
 		return {
-			text: this.choiceInfoTitle,
+			text: this.shortTitle,
 			buttons: buttons,
-			visible: this.visible,
+			visible: function (state) {
+				// Hide the project if it's already been completed
+				if (state.completedProjects.includes(self.pageId)) return false;
+				// otherwise, use the visible attribute provided by the project props (Default true)
+				else return this.resolveToValue(self.visible, true);
+			},
 			key: this.pageId.description,
 		};
 		
@@ -301,7 +315,6 @@ export class ProjectControl implements ProjectControlParams{
 					return this.state.currentPage;
 				}
 			}];
-			firstSurprise.buttonsDelay = 1000;
 			
 			this.summonInfoDialog(firstSurprise);
 		}
@@ -323,7 +336,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		naturalGasMMBTU: absolute(-50_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
-	choiceInfoTitle: 'Upgrade heat recovery on boiler/furnace system\nThis should appear on year 2!',
+	shortTitle: 'Upgrade heat recovery on boiler/furnace system\nThis should appear on year 2!',
 	choiceInfoText: [
 		'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
 		'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
@@ -364,7 +377,7 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 		naturalGasMMBTU: relative(-0.02),
 	},
 	title: 'Energy Efficiency - Digital Twin Analysis',
-	choiceInfoTitle: 'Conduct digital twin analysis',
+	shortTitle: 'Conduct digital twin analysis',
 	choiceInfoText: [
 		'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
 		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
@@ -395,7 +408,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		electricityUseKWh: relative(-0.025),
 	},
 	title: 'Energy Efficiency – Process Heating Upgrades',
-	choiceInfoTitle: 'Explore efficient process heating upgrades',
+	shortTitle: 'Explore efficient process heating upgrades',
 	choiceInfoText: [
 		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
 		'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
@@ -425,7 +438,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
 	},
 	title: 'Fuel Switching – Hydrogen Powered Forklifts',
-	choiceInfoTitle: 'Switch to hydrogen powered forklifts',
+	shortTitle: 'Switch to hydrogen powered forklifts',
 	choiceInfoText: [
 		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
 		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
@@ -457,7 +470,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		totalRebates: absolute(7500),
 	},
 	title: 'Energy Efficiency – Lighting Upgrades',
-	choiceInfoTitle: 'Explore lighting upgrades',
+	shortTitle: 'Explore lighting upgrades',
 	choiceInfoText: [
 		'Your plant currently uses {inefficient} T12 lighting. The lighting level in certain areas in the facility is {low} and affects the productivity of workers	in those areas.',
 		'You could replace this lighting with LED lighting, which provides {reduced} energy consumption, a {longer} lifespan, and lighting control.'

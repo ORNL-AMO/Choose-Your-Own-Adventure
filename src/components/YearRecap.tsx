@@ -97,7 +97,7 @@ export class YearRecap extends React.Component <YearRecapProps> {
 									</Avatar>
 								}
 								title={thisProject.title}
-								subheader={thisProject.choiceInfoTitle}
+								subheader={thisProject.shortTitle}
 							/>
 							<CardContent>
 								{thisProject.recapDescription}

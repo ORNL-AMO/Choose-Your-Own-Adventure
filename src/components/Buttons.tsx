@@ -45,10 +45,6 @@ export declare interface ButtonGroupButton {
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
 	buttons?: ButtonGroupButton[];
-	/**
-	 * Prevent button from being enabled for the provided number of milliseconds.
-	 */
-	delay?: number;
 	summonInfoDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
 	/**
@@ -62,22 +58,6 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
  * Group of configurable buttons. todo: turn into a class for render efficiency
  */
 export function ButtonGroup(props: ButtonGroupProps) {
-	
-	// // Decide whether the button group starts disabled
-	// let startsDisabled = false;
-	// if (props.delay) startsDisabled = true;
-	
-	// let [disabled, setDisabled] = useState(!!props.delay);
-	
-	
-	// // Un-disable the buttons after a delay IF it's provided
-	// useEffect(() => {
-	// 	if (props.delay) {
-	// 		setTimeout(() => {
-	// 			setDisabled(false);
-	// 		}, props.delay);
-	// 	}
-	// });
 	
 	if (!props.buttons) return <></>;
 	
