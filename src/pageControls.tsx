@@ -36,10 +36,8 @@ export const Scope2Projects = [
 ];
 
 /**
- * pageControls is a DICTIONARY containing 
+ * PageControls is a DICTIONARY object containing page controls. The key for this object is a symbol, specifically from the `Pages` object in `pages.tsx`.
  */
-
-
 export const pageControls: PageControls = { };
 
 pageControls[Pages.start] = newStartPageControl({
@@ -266,9 +264,6 @@ pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	]
 });
 
-/**
- * the PageControls type is a DICTIONARY object containing page controls. The key for this object is a symbol, specifically from the `Pages` object in `pages.tsx`.
- */
 declare interface PageControls {
 	[key: symbol]: PageControl;
 }

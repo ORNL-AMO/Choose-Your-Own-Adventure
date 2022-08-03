@@ -341,7 +341,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
 		'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
 	],
-	recapDescription: 'placeholder',
+	recapDescription: 'Insert flavor text here!',
 	choiceInfoImg: 'images/waste-heat-recovery.png',
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
@@ -382,7 +382,7 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 		'A digital twin is the virtual representation of a physical object or system across its lifecycle.', 
 		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
 	],
-	recapDescription: 'placeholder',
+	recapDescription: 'Insert flavor text here!',
 	choiceInfoImg: 'images/chiller-systems-in-plant.png',
 	choiceInfoImgAlt: 'A 3D model of the chiller systems in a plant',
 	choiceInfoImgObjectFit: 'contain',
@@ -415,7 +415,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	],
 	choiceInfoImg: 'images/car-manufacturing.png',
 	choiceInfoImgAlt: 'The frame of a car inside a manufacturing facility.',
-	recapDescription: 'Placeholder',
+	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
 		title: 'Nissan North America: New Paint Plant',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
@@ -446,7 +446,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
 	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Placeholder',
+	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
 		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
 		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
@@ -475,7 +475,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		'Your plant currently uses {inefficient} T12 lighting. The lighting level in certain areas in the facility is {low} and affects the productivity of workers	in those areas.',
 		'You could replace this lighting with LED lighting, which provides {reduced} energy consumption, a {longer} lifespan, and lighting control.'
 	],
-	recapDescription: 'Placeholder',
+	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
 		title: 'Lennox International: LED Project At New Regional Distribution Leased Location',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',

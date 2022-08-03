@@ -49,6 +49,9 @@ export interface TrackedStats {
 	year: number;
 }
 
+/**
+ * The initial state 
+ */
 export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 1_000_000, 
 	naturalGasCostPerMMBTU: 5,

@@ -153,19 +153,20 @@ export class YearRecap extends React.Component <YearRecapProps> {
 		return (<>
 			<Box m={2}>
 				<Typography variant='h3'>Year {this.props.year} Recap</Typography>
-				<Typography variant='body1'>These are the projects you have selected. Make sure to check out the case studies, where real companies have applied these ideas!</Typography>
-				<List sx={{m: 2}}>
-					{projectRecaps}
-				</List>
-				<Divider/>
-			</Box>
-			<Box m={2}>
-				<Typography variant='body1'>
+				<Typography variant='h5'>
 					This year, your company saved <Emphasis>${savings.naturalGas.toLocaleString('en-US')}</Emphasis> on natural gas and <Emphasis>${savings.electricity.toLocaleString('en-US')}</Emphasis> on electricity!
 				</Typography>
 				<Typography variant='body1'>
 					This will be added to your budget for next year, as well as the <Emphasis>${this.props.financesAvailable}</Emphasis> of your budget that was not yet spent.
 				</Typography>
+				<Divider/>
+				
+				<List >
+					<ListItem>
+					<Typography variant='body1'>These are the projects you have selected. Make sure to check out the case studies, where real companies have applied these ideas!</Typography>
+					</ListItem>
+					{projectRecaps}
+				</List>
 			</Box>
 			<MobileStepper
 				variant='progress'

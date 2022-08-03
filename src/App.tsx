@@ -97,14 +97,18 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 	}
 }
 
-export class App extends React.PureComponent <unknown, AppState> {
-	constructor(props: unknown) { 
+/**
+ * Main application.
+ */
+export class App extends React.PureComponent <never, AppState> {
+	constructor(props: never) { 
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
-		// startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
-		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
+		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
+		startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
 		
+		// For info on state, see https://reactjs.org/docs/state-and-lifecycle.html
 		this.state = {
 			currentPage: startPage,
 			companyName: 'Auto-Man, Inc.',
@@ -121,8 +125,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
-			selectedProjects: [],
-			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
+			// selectedProjects: [],
+			selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
