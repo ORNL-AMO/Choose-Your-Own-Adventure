@@ -77,7 +77,48 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			onClose={handleClose}
 			aria-describedby='alert-dialog-slide-description'
 		>
-			{cardImage}
+			{props.img && <>
+				<CardMedia
+					component='img'
+					height='260'
+					image={props.img}
+					alt={props.imgAlt}
+					title={props.imgAlt}
+					sx={{
+						objectFit: objectFit,
+						position: 'relative',
+						zIndex: 2,
+					}}
+				/>
+				{/* Blurred background IF objectFit is 'contain' */}
+				{objectFit === 'contain' && 
+					// This div is a container that clips the edges of the blurred image
+					<div style={{
+						position: 'absolute',
+						height: 260,
+						width: '100%',
+						overflow: 'hidden',
+					}}>
+						<CardMedia
+							component='img'
+							height='260'
+							image={props.img}
+							alt={props.imgAlt}
+							title={props.imgAlt}
+							sx={{
+								objectFit: 'cover',
+								position: 'absolute',
+								zIndex: 1,
+								filter: 'blur(10px) grayscale(20%)',
+								margin: '-20px',
+								width: 'calc(100% + 40px)',
+								height: '300px'
+							}}
+						/>
+					</div>
+				}
+			</>}
+			{/* {cardImage} */}
 			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.title)}></DialogTitle>
 			<DialogContent>
 				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
@@ -91,7 +132,6 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					summonInfoDialog={props.summonInfoDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
-					delay={props.buttonsDelay}
 				/>
 			</DialogActions>
 		</Dialog>
@@ -143,7 +183,7 @@ export declare interface DialogControlProps {
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
-	buttonsDelay?: number;
+	// buttonsDelay?: number; unused
 }
 
 export function fillDialogProps(obj: AnyDict): DialogStateProps {
@@ -158,7 +198,7 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		allowClose: obj.allowClose || false,
 		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
-		buttonsDelay: obj.buttonsDelay || undefined,
+		// buttonsDelay: obj.buttonsDelay || undefined, unused
 	};
 }
 
