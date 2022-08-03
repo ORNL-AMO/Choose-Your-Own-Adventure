@@ -5,9 +5,15 @@ import React from 'react';
 /* -======================================================- */
 
 declare interface EmphasisProps extends React.PropsWithChildren {
+	/**
+	 * Whether to display the text as green, i.e. for a monetary value.
+	 */
 	money?: boolean;
 }
 
+/**
+ * Emphasized text.
+ */
 export function Emphasis(props: EmphasisProps) {
 	return <span className={'emphasis ' + (props.money ? 'money' : '')}>{props.children}</span>;
 }
@@ -27,6 +33,9 @@ export interface ControlCallbacks {
 export declare interface PageControlProps {
 	controlClass: Component;
 	controlProps: AnyDict;
+	/**
+	 * Page to go to when "Back" is clicked. (Not fully implemented)
+	 */
 	onBack?: PageCallback;
 }
 

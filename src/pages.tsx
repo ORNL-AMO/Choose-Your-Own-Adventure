@@ -21,4 +21,10 @@ const Pages = {
 	windVPPA: Symbol.for('wind-vppa'),
 };
 
+export class PageError extends Error {
+	constructor(message) {
+		super(message);
+	}
+}
+
 export default Pages;

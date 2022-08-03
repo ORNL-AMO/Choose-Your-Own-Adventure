@@ -25,8 +25,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 				
 				return (<Grid item xs={12} key={choice.key || idx}>
 					<PaperGridItem>
-						<Typography variant='h4'>{choice.title}</Typography>
-							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(choice.text)}/>
+						<Typography variant='h4'>{props.resolveToValue(choice.title)}</Typography>
+							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}/>
 							<ButtonGroup 
 								buttons={choice.buttons} 
 								doPageCallback={props.doPageCallback} 
@@ -38,7 +38,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			});
 			
 			return (<Grid item xs={12} sm={6} md={gridWidth} key={idx}>
-				<Typography variant='h6' dangerouslySetInnerHTML={parseSpecialText(group.title)}/>
+				<Typography variant='h6' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(group.title))}/>
 				<Grid container spacing={2}>
 					{/* consider putting Typography title in here inside a grid item? */}
 					{choices}
@@ -48,7 +48,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 		
 		return (
 			<Box m={2}>
-				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.title)}/>
+				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}/>
 				<br/>
 				<Grid container spacing={2}>
 					{gridItems}
@@ -72,8 +72,8 @@ export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBa
 }
 
 export interface Choice {
-	title?: string;
-	text: string;
+	title?: Resolvable<string>;
+	text: Resolvable<string>;
 	infoPopup?: React.ReactNode;
 	disabled?: Resolvable<boolean>;
 	buttons?: ButtonGroupButton[];
@@ -93,7 +93,7 @@ export interface GroupedChoicesGroup {
 }
 
 export interface GroupedChoicesControlProps {
-	title: string;
+	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
 	hideDashboard: boolean|'initial';
 }

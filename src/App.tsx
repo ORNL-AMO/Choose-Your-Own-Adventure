@@ -13,8 +13,8 @@ import { calculateYearSavings } from './trackedStats';
 import { calculateAutoStats } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
-import Pages from './pages';
-import { pageControls, PageError } from './pageControls';
+import Pages, { PageError } from './pages';
+import { pageControls } from './pageControls';
 import { Scope1Projects, Scope2Projects } from './projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
@@ -360,11 +360,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		// Move selectedProjects into completedProjects
 		let newCompletedProjects = [...this.state.completedProjects, ...this.state.selectedProjects];
+		// Update yearlyTrackedStats
+		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...this.state.trackedStats}];
 		
 		this.setState({
 			completedProjects: newCompletedProjects,
 			selectedProjects: [],
 			trackedStats: newTrackedStats,
+			yearlyTrackedStats: newYearlyTrackedStats,
 		});
 		this.setPage(Pages.selectScope);
 	}

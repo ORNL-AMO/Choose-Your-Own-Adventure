@@ -1,6 +1,9 @@
+import type { OverridableComponent } from '@mui/material/OverridableComponent';
+import type { SvgIconTypeMap} from '@mui/material';
+import type { ButtonGroupButton} from './components/Buttons';
 import type { PageControl} from './components/controls';
-import { newStartPageControl } from './components/StartPage';
-import React from 'react';
+import type { AppState } from './App';import React from 'react';
+
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
@@ -8,29 +11,33 @@ import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import Co2Icon from '@mui/icons-material/Co2';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import type { SvgIconTypeMap} from '@mui/material';
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import type { ButtonGroupButton} from './components/Buttons';
+
 import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, selectButtonCheckbox, closeDialogButton } from './components/Buttons';
-import type { OverridableComponent } from '@mui/material/OverridableComponent';
-import { theme } from './components/theme';
-import { newGroupedChoicesControl } from './components/GroupedChoices';
-import { newInfoDialogControl } from './components/InfoDialog';
-import type { AppState } from './App';
 import Pages from './pages';
 import Projects from './projects';
+import { theme } from './components/theme';
+import { newStartPageControl } from './components/StartPage';
 import { newYearRecapControl } from './components/YearRecap';
+import { newGroupedChoicesControl } from './components/GroupedChoices';
+import { newInfoDialogControl } from './components/InfoDialog';
 
-let st = performance.now();
+let st = performance.now(); // Performance measurement
 
-// IMPORTANT: Keep Pages.scope1Projects and Pages.scope2Projects updated, so that the Proceed button click handler in App.tsx doesn't get confused
+// IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
+// These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
+// 	when they click Proceed (to Year Recap) while only having selected projects from one scope.
 export const Scope1Projects = [
 	Pages.wasteHeatRecovery, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
 ];
 export const Scope2Projects = [
 	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
 ];
+
+/**
+ * pageControls is a DICTIONARY containing 
+ */
 
 
 export const pageControls: PageControls = { };
@@ -57,14 +64,22 @@ pageControls[Pages.introduction] = newInfoDialogControl({
 	buttons: [
 		backButton(Pages.start),
 		continueButton(function (state, nextState) {
-			nextState.showDashboard = true; // Show dashboard after the user clicked through the introduction
 			return Pages.selectScope;
 		}),
 	]
 });
 
 pageControls[Pages.selectScope] = newGroupedChoicesControl({
-	title: 'To begin, you will need to decide which types of projects to pursue. {Would you like to...}',
+	title: function (state, nextState) {
+		// Year 1
+		if (state.trackedStats.year === 1) {
+			return 'To begin, you will need to decide which types of projects to pursue. {Would you like to...}';
+		}
+		// Subsequent years
+		else {
+			return `Welcome back. Choose the projects you wish to pursue for Year ${state.trackedStats.year}.`;
+		}
+	},
 	groups: [
 		{	
 			title: '',
@@ -181,20 +196,21 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				{
-					text: '1. Explore lighting upgrades',
-					buttons: [
-						// todo info
-						co2SavingsButton(1.5),
-						selectButtonCheckbox(function (state, nextState) {
-							toggleSelectedPage(Pages.lightingUpgrades, state, nextState);
-							return Pages.scope2Projects;
-						}, 
-						undefined,
-						(state) => state.selectedProjects.includes(Pages.lightingUpgrades)
-						),
-					]
-				}
+				// {
+				// 	text: '1. Explore lighting upgrades',
+				// 	buttons: [
+				// 		// todo info
+				// 		co2SavingsButton(1.5),
+				// 		selectButtonCheckbox(function (state, nextState) {
+				// 			toggleSelectedPage(Pages.lightingUpgrades, state, nextState);
+				// 			return Pages.scope2Projects;
+				// 		}, 
+				// 		undefined,
+				// 		(state) => state.selectedProjects.includes(Pages.lightingUpgrades)
+				// 		),
+				// 	]
+				// }
+				Projects[Pages.lightingUpgrades].getChoiceControl(),
 			]
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
@@ -264,14 +280,11 @@ pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	]
 });
 
+/**
+ * the PageControls type is a DICTIONARY object containing page controls. The key for this object is a symbol, specifically from the `Pages` object in `pages.tsx`.
+ */
 declare interface PageControls {
 	[key: symbol]: PageControl;
-}
-
-export class PageError extends Error {
-	constructor(message) {
-		super(message);
-	}
 }
 
 export function notImplemented(pageBack?: symbol) {

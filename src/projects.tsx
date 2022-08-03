@@ -82,6 +82,9 @@ declare interface ProjectControlParams {
 	visible?: Resolvable<boolean>;
 }
 
+// /**
+//  * Constructor for 
+//  */
 export class ProjectControl implements ProjectControlParams{
 	
 	pageId: symbol;
@@ -107,6 +110,10 @@ export class ProjectControl implements ProjectControlParams{
 	hasDisplayedSurprises = false;
 	visible: Resolvable<boolean>;
 	
+	/**
+	 * Project Control constructor. Contains functions for todo
+	 * @param params 
+	 */
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
 		this.statsInfoAppliers = params.statsInfoAppliers;
@@ -437,6 +444,37 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon/>,
 	},
+});
+
+Projects[Pages.lightingUpgrades] = new ProjectControl({
+	pageId: Pages.lightingUpgrades, 
+	cost: 12_000,
+	statsInfoAppliers: {
+		electricityUseKWh: relative(-0.125),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: relative(-0.125),
+		totalRebates: absolute(7500),
+	},
+	title: 'Energy Efficiency – Lighting Upgrades',
+	choiceInfoTitle: 'Explore lighting upgrades',
+	choiceInfoText: [
+		'Your plant currently uses {inefficient} T12 lighting. The lighting level in certain areas in the facility is {low} and affects the productivity of workers	in those areas.',
+		'You could replace this lighting with LED lighting, which provides {reduced} energy consumption, a {longer} lifespan, and lighting control.'
+	],
+	recapDescription: 'Placeholder',
+	caseStudy: {
+		title: 'Lennox International: LED Project At New Regional Distribution Leased Location',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
+		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
+	},
+	surprises: [
+		{
+			title: 'CONGRATULATIONS!',
+			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
+			img: 'images/confetti.png'
+		},
+	],
 });
 
 /**

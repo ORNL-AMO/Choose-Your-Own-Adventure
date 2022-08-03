@@ -218,6 +218,7 @@ declare global {
 
 	/**
 	 * Either the desired return type, or a function which returns the desired type, which will be called by binding "this" to the main App object & passed its state.
+	 * Most controls are passed the prop "resolveToValue" which will achieve this.
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
@@ -229,7 +230,8 @@ declare global {
 	type ResolvableGeneric<T> = T|((this: unknown, ...params: unknown[]) => T);
 	
 	/**
-	 * Callback for a button click which 
+	 * Data type that must resolve into a Page symbol. You can either provide a Page symbol by itself, or provide a function which returns a Page symbol.
+	 * It is mostly used for button clicks, to determine which page to display next.
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
