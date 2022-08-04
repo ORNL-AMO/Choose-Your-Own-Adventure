@@ -115,7 +115,11 @@ declare interface StatsGaugeProperties {
 }
 
 /**
- * Labels and colors and stuff for some tracked stats.
+ * Labels and colors and stuff for some tracked stats. 
+ * @param label Italicized label to display under the gauge chart.
+ * @param color Color of the chart.
+ * @param textFontSize Relative font size for the displayed number.
+ * @param maxValue Value the gauge chart goes up to. Can be updated when `updateStatsGaugeMaxValues` is called.
  */
 export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 	naturalGasMMBTU: {
@@ -129,5 +133,23 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		color: '#c0a020',
 		textFontSize: 0.85,
 		maxValue: 1_000_000,
+	},
+	carbonSavings: {
+		label: 'Carbon savings',
+		color: '#000000',
+		textFontSize: 1,
+		maxValue: 1,
 	}
 };
+
+/**
+ * Update the maxValue property of `statsGaugeProperties` if any of the corresponding stats' value exceeds the existing maxValue.
+ * For example, if an electrification project is selected, `electricityUseKWh.maxValue` might increase.
+ */
+export function updateStatsGaugeMaxValues(newStats: TrackedStats) {
+	for (let key in statsGaugeProperties) {
+		if (newStats[key] && newStats[key] > statsGaugeProperties[key].maxValue) {
+			statsGaugeProperties[key].maxValue = newStats[key];
+		}
+	}
+}

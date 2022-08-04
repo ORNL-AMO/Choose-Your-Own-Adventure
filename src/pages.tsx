@@ -8,6 +8,8 @@ const Pages = {
 	scope1Projects: Symbol.for('scope1Projects'),
 	scope2Projects: Symbol.for('scope2Projects'),
 	yearRecap: Symbol.for('year-recap'),
+	winScreen: Symbol.for('win-screen'),
+	loseScreen: Symbol.for('lose-screen'),
 	// scope 1 pages
 	wasteHeatRecovery: Symbol.for('waste-heat-recovery'),
 	wasteHeatRecoveryRebate: Symbol.for('waste-heat-recovery-rebate'),

@@ -1,11 +1,9 @@
-import { Box, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, Typography, Grid } from '@mui/material';
+import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
-import Image from 'mui-image';
 import { styled, useTheme } from '@mui/material/styles';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
-import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
 
 export const InfoCard = styled(Paper)(({ theme }) => ({
@@ -22,8 +20,10 @@ export const InfoCard = styled(Paper)(({ theme }) => ({
 	paddingRight: theme.spacing(0.5),
 }));
 
-// TODO: Support multiple images
-// 	and make vertical images look better
+/**
+ * Using a sub-function because `useMediaQuery` requires React hooks, which are only allowed in function-style React components, 
+ * but InfoDialog is using a class declaration so we can tell it when it should/should not re-render.
+ */
 function InfoDialogFunc (props: InfoDialogProps) {
 	const theme = useTheme();
 	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -43,12 +43,12 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	let cardContents: DialogCardContent[] = [];
 	if (props.cardText) {
 		cardContents = [{
-			text: props.cardText,
+			text: props.resolveToValue(props.cardText),
 			color: theme.palette.primary.light,
 		}];
 	}
 	else if (props.cards) {
-		cardContents = props.cards;
+		cardContents = props.resolveToValue(props.cards);
 	}
 	const infoCards = cardContents.map((cardContent, idx) => 
 		<InfoCard 
@@ -59,16 +59,6 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		/>
 	);
 	
-	const cardImage = (props.img) ? 
-		<CardMedia
-			component='img'
-			height='260'
-			image={props.img}
-			alt={props.imgAlt}
-			title={props.imgAlt}
-			sx={{objectFit: objectFit}}
-		/>
-		: <></>;
 	return (
 		<Dialog
 			fullScreen={fullScreen}
@@ -118,10 +108,9 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					</div>
 				}
 			</>}
-			{/* {cardImage} */}
-			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.title)}></DialogTitle>
+			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
 			<DialogContent>
-				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.text)}>
+				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
 				</DialogContentText>
 				{infoCards}
 			</DialogContent>
@@ -138,6 +127,9 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	);
 }
 
+/**
+ * Dialog pop-up that shows information.
+ */
 export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
 	render() {
 		return (
@@ -168,24 +160,26 @@ export declare interface DialogCardContent {
  * Control properties specified by the scripter (in pages.tsx).
  */
 export declare interface DialogControlProps {
-	title: string;
-	text: string|string[];
+	title: Resolvable<string>;
+	text: Resolvable<string|string[]>;
 	/**
 	 * Shorthand for cards: [{text: <text>, color: theme.palette.primary.light}] - mutually exclusive with cards
 	 */
-	cardText?: string;
+	cardText?: Resolvable<string>;
 	/**
 	 * Mutually exclusive with cardText
 	 */
-	cards?: DialogCardContent[];
+	cards?: Resolvable<DialogCardContent[]>;
 	allowClose?: boolean;
 	img?: string;
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
-	// buttonsDelay?: number; unused
 }
 
+/**
+ * Returns a new DialogStateProps object with the specified optional properties, while falling back to defaults for those not specified.
+ */
 export function fillDialogProps(obj: AnyDict): DialogStateProps {
 	return {
 		open: obj.open || false,
@@ -198,7 +192,6 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		allowClose: obj.allowClose || false,
 		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
-		// buttonsDelay: obj.buttonsDelay || undefined, unused
 	};
 }
 

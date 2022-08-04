@@ -61,6 +61,7 @@ export interface NextAppState {
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
 	selectedProjects: symbol[];
+	completedProjects: symbol[];
 	trackedStats: TrackedStats;
 	yearlyTrackedStats: TrackedStats[];
 	handleYearRecapOnProceed: () => void;
@@ -88,6 +89,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 					{...this.props.trackedStats}
 					{...controlCallbacks}
 					selectedProjects={this.props.selectedProjects}
+					completedProjects={this.props.completedProjects}
 					yearlyTrackedStats={this.props.yearlyTrackedStats}
 					handleYearRecap={this.props.handleYearRecapOnProceed}
 				/>;
@@ -100,13 +102,13 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 /**
  * Main application.
  */
-export class App extends React.PureComponent <never, AppState> {
-	constructor(props: never) { 
+export class App extends React.PureComponent <unknown, AppState> {
+	constructor(props: unknown) { 
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
 		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
-		startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
+		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
 		
 		// For info on state, see https://reactjs.org/docs/state-and-lifecycle.html
 		this.state = {
@@ -125,8 +127,8 @@ export class App extends React.PureComponent <never, AppState> {
 				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
-			// selectedProjects: [],
-			selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
+			selectedProjects: [],
+			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
@@ -373,7 +375,21 @@ export class App extends React.PureComponent <never, AppState> {
 			trackedStats: newTrackedStats,
 			yearlyTrackedStats: newYearlyTrackedStats,
 		});
-		this.setPage(Pages.selectScope);
+		
+		// Endgame
+		if (newTrackedStats.year === 10) {
+			// Win
+			if (newTrackedStats.carbonSavings >= 0.5) {
+				this.setPage(Pages.winScreen);
+			}
+			// Lose
+			else {
+				this.setPage(Pages.loseScreen);
+			}
+		}
+		else {
+			this.setPage(Pages.selectScope);
+		}
 	}
 	
 	render() {
@@ -405,7 +421,8 @@ export class App extends React.PureComponent <never, AppState> {
 									trackedStats={this.state.trackedStats}
 									controlClass={this.state.controlClass}
 									controlProps={this.state.currentPageProps}
-									selectedProjects={this.state.selectedProjects} // hacky, but this is only passed into CurrentPage so that it updates when selectedProjects changes
+									selectedProjects={this.state.selectedProjects} // note: if selectedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
+									completedProjects={this.state.completedProjects}
 									yearlyTrackedStats={this.state.yearlyTrackedStats}
 									handleYearRecapOnProceed={() => this.handleYearRecapOnProceed()}
 								/>

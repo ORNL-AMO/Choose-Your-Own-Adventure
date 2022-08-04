@@ -41,6 +41,14 @@ export declare interface ButtonGroupButton {
 	endIcon?: Resolvable<React.ReactNode>;
 	size?: 'small' | 'medium' | 'large';
 	disabled?: Resolvable<boolean>;
+	/**
+	 * for link-type buttons (`a` tag)
+	 */
+	href?: string;
+	/**
+	 * for link-type buttons (`a` tag)
+	 */
+	target?: React.HTMLAttributeAnchorTarget;
 }
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
@@ -83,7 +91,24 @@ export function ButtonGroup(props: ButtonGroupProps) {
 				{button.infoPopup}
 			</BasicPopover>
 		);
-		// Button
+		// Button with href (using 'a' as the root node)
+		else if (button.href) {
+			return (
+				<Button 
+					key={idx}
+					variant={button.variant} 
+					startIcon={props.resolveToValue(button.startIcon)}
+					endIcon={props.resolveToValue(button.endIcon)}
+					size={button.size}
+					href={button.href}
+					target={button.target}
+					disabled={thisDisabled}
+				>
+					{button.text}
+				</Button>
+			);
+		}
+		// Button without href
 		else return (
 			<Button 
 				key={idx}

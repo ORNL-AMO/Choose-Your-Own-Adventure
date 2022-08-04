@@ -83,7 +83,7 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 			title: '',
 			choices: [
 				{
-					title: 'A',
+					title: 'Scope 1',
 					text: 'Tackle Scope 1 emissions – fossil fuel consumption',
 					buttons: [
 						infoButtonWithPopup(
@@ -102,7 +102,7 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 			title: '',
 			choices: [
 				{
-					title: 'B',
+					title: 'Scope 2',
 					text: 'Tackle Scope 1 emissions – fossil fuel consumption',
 					buttons: [
 						infoButtonWithPopup(
@@ -137,51 +137,32 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Fuel switching',
 			choices: [
-				// {
-				// 	text: '4. Switch to hydrogen powered forklifts',
-				// 	buttons: [
-				// 		infoButtonWithDialog({
-				// 			title: 'Fuel Switching – Hydrogen Powered Forklifts',
-				// 			text: [
-				// 				'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-				// 				'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-				// 			],
-				// 			img: 'images/hydrogen-powered-forklift.jpg',
-				// 			imgAlt: 'Hydrogen powered forklift.',
-				// 			imgObjectFit: 'contain',
-				// 			cards: projectCostAndCO2ReductionCards(100_000, 2.0),
-				// 		}),
-				// 		co2SavingsButton(2.0),
-				// 		selectButton(function () {
-				// 			return Pages.scope1Projects; // todo
-				// 		}),
-				// 	]
-				// }
 				Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
 			]
 		}, {
 			title: 'Invest in electrification',
 			choices: [
-				{
-					text: '6. Change fossil fuel boiler to an electric boiler',
-					buttons: [
-						infoButtonWithDialog({
-							title: 'Fuel Switching - Fossil Fuel to Electric Boiler',
-							text: [
-								'Currently, your facility operates two 700-hp firetube boilers that burn {No. 2 oil}, which releases CO_{2} into the atmosphere.', 
-								'You have the opportunity to replace your oil-firing boiler with an {electric} one, which will {prevent} direct carbon emissions, {minimize} noise pollution, and {reduce} air contaminants.',
-							],
-							img: 'images/electric-boiler.png',
-							imgAlt: 'Electric boiler',
-							imgObjectFit: 'contain',
-							cards: projectCostAndCO2ReductionCards(200_000, 4.5),
-						}),
-						co2SavingsButton(4.5),
-						selectButton(function () {
-							return Pages.scope1Projects; // todo
-						}),
-					]
-				}
+				// {
+				// 	text: '6. Change fossil fuel boiler to an electric boiler',
+				// 	buttons: [
+				// 		infoButtonWithDialog({
+				// 			title: 'Fuel Switching - Fossil Fuel to Electric Boiler',
+				// 			text: [
+				// 				'Currently, your facility operates two 700-hp firetube boilers that burn {No. 2 oil}, which releases CO_{2} into the atmosphere.', 
+				// 				'You have the opportunity to replace your oil-firing boiler with an {electric} one, which will {prevent} direct carbon emissions, {minimize} noise pollution, and {reduce} air contaminants.',
+				// 			],
+				// 			img: 'images/electric-boiler.png',
+				// 			imgAlt: 'Electric boiler',
+				// 			imgObjectFit: 'contain',
+				// 			cards: projectCostAndCO2ReductionCards(200_000, 4.5),
+				// 		}),
+				// 		co2SavingsButton(4.5),
+				// 		selectButton(function () {
+				// 			return Pages.scope1Projects; // todo
+				// 		}),
+				// 	]
+				// }
+				Projects[Pages.electricBoiler].getChoiceControl(),
 			]
 		}
 	],
@@ -261,6 +242,28 @@ pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	img: 'images/ford.png',
 	buttons: [
 		continueButton(Pages.scope1Projects),
+	]
+});
+
+pageControls[Pages.winScreen] = newInfoDialogControl({
+	title: 'CONGRATULATIONS!',
+	text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years!`,
+	img: 'images/confetti.png'
+});
+
+pageControls[Pages.loseScreen] = newInfoDialogControl({
+	title: 'Sorry...',
+	text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years. Try again?`,
+	buttons: [
+		{
+			text: 'Try again',
+			variant: 'text',
+			onClick: (state) => {
+				location.href = String(location.href); // Reload the page
+				
+				return state.currentPage; // The page returned doesn't really matter
+			}
+		}
 	]
 });
 

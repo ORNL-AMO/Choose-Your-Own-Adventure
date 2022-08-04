@@ -6,7 +6,7 @@ import {
 	MobileStepper,
 	Typography,
 } from '@mui/material';
-import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio } from '../functions-and-types';
+import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
 import React from 'react';
 import GaugeChart from './GaugeChart';
 import { theme } from './theme';
@@ -18,6 +18,7 @@ import {statsGaugeProperties} from '../trackedStats';
 
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
+	
 	render() {
 		const CHART_SIZE = 250;
 
@@ -77,14 +78,6 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									label: '50%'
 								}]}
 							/>
-							{/* <GaugeChart 
-								width={CHART_SIZE}
-								value1={0.5}
-								value2={1}
-								text={'aaa'}
-								color1='black'
-								color2='gray'
-							/> */}
 							<GaugeChart
 								width={CHART_SIZE}
 								value1={clampRatio(
@@ -109,13 +102,10 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								color1={theme.palette.warning.main}
 								ticks={[{
 									value: .5,
-									label: '50%'
+									label: shortenNumber(statsGaugeProperties.electricityUseKWh.maxValue * 0.5),
 								}, {
 									value: 1,
-									label: '100%'
-								}, {
-									value: .666,
-									label: '66%'
+									label: shortenNumber(statsGaugeProperties.electricityUseKWh.maxValue)
 								}]}
 							/>
 							<HorizontalBarWithTooltip 

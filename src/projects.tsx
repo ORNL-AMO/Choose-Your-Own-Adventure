@@ -295,12 +295,12 @@ export class ProjectControl implements ProjectControlParams{
 		return {
 			text: this.shortTitle,
 			buttons: buttons,
-			visible: function (state) {
-				// Hide the project if it's already been completed
-				if (state.completedProjects.includes(self.pageId)) return false;
-				// otherwise, use the visible attribute provided by the project props (Default true)
-				else return this.resolveToValue(self.visible, true);
-			},
+			// visible: function (state) {
+			// 	// Hide the project if it's already been completed
+			// 	if (state.completedProjects.includes(self.pageId)) return false;
+			// 	// otherwise, use the visible attribute provided by the project props (Default true)
+			// 	else return this.resolveToValue(self.visible, true);
+			// },
 			key: this.pageId.description,
 		};
 		
@@ -488,6 +488,27 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 			img: 'images/confetti.png'
 		},
 	],
+});
+
+Projects[Pages.electricBoiler] = new ProjectControl({
+	pageId: Pages.electricBoiler,
+	cost: 50_000,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(200_000),
+		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(200_000),
+		naturalGasMMBTU: absolute(-20_000),
+	},
+	title: 'Fuel Switching - Fossel Fuel to Electric Boiler',
+	shortTitle: 'Change fossil fuel boiler to an electric boiler',
+	choiceInfoText: [
+		'Currently, your facility operates two 700-hp firetube boilers that burn {No. 2 oil}, which releases CO_{2} into the atmosphere.', 
+		'You have the opportunity to replace your oil-firing boiler with an {electric} one, which will {prevent} direct carbon emissions, {minimize} noise pollution, and {reduce} air contaminants.',
+	],
+	recapDescription: 'Insert flavor text here!',
+	// add case study
 });
 
 /**
