@@ -65,7 +65,7 @@ declare interface ProjectControlParams {
 	/**
 	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
-	statsHidden?: TrackedStatsApplier;
+	statsHiddenAppliers?: TrackedStatsApplier;
 	/**
 	 * Full title of the project, displayed on the choice info popup and the recap page.
 	 */
@@ -114,7 +114,7 @@ declare interface ProjectControlParams {
 	/**
 	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
-	hiddenSurprises?: DialogControlProps[];
+	hiddenSurprises?: any[]; // TODO
 	/**
 	 * External case study for a project, i.e., example of a real company doing that project idea.
 	 * @param {string} title
@@ -161,7 +161,7 @@ export class ProjectControl implements ProjectControlParams{
 		this.pageId = params.pageId;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
-		this.statsHiddenAppliers = params.statsHidden;
+		this.statsHiddenAppliers = params.statsHiddenAppliers;
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -578,7 +578,14 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
 	},
-	hiddenSurprises: [],
+	statsHiddenAppliers: {
+		financesAvailable: absolute(-30_000),
+		moneySpent: absolute(30_000),
+	},
+	hiddenSurprises: [{
+		title: 'Uh oh - Bad Asphalt!',
+		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.'
+	}],
 	title: 'Bundled RECs - Install Solar Panels to Facility\'s Carport',
 	shortTitle: 'Install solar panels to facility\'s carport',
 	choiceInfoText: [
