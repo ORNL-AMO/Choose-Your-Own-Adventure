@@ -2,6 +2,7 @@ import React from 'react';
 import type { AppState, NextAppState } from './App';
 import type App from './App';
 import type { ButtonGroupButton} from './components/Buttons';
+import { closeDialogButton} from './components/Buttons';
 import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
@@ -14,6 +15,10 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import Pages from './pages';
 import { Alert } from '@mui/material';
 
+/**
+ * Dictionary of ProjectControls. The key must be a `Page` symbol (see `Pages.tsx`), 
+ * and make sure the associated ProjectControl's `pageId` is the same as that key.
+ */
 const Projects: ProjectControls = {};
 
 export default Projects;
@@ -23,7 +28,7 @@ export const Scope1Projects = [
 	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
 ];
 export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort,
 ];
 
 export declare interface CaseStudy {
@@ -37,7 +42,13 @@ declare interface RecapAvatar {
 	backgroundColor?: string;
 }
 
+/**
+ * Parameters to pass into a ProjectControl. See code definition in `projects.tsx` for all fields and params.
+ */
 declare interface ProjectControlParams {
+	/**
+	 * `Page` symbol associated with this project.
+	 */
 	pageId: symbol;
 	/**
 	 * Project cost, exclusing rebates.
@@ -64,17 +75,37 @@ declare interface ProjectControlParams {
 	 */
 	shortTitle: string;
 	/**
-	 * Info text to 
+	 * Info text to display in the dialog when "INFO" is clicked on the choice card.
 	 */
 	choiceInfoText: string | string[];
+	/**
+	 * Image to display in the dialog when "INFO" is clicked on the choice card.
+	 */
 	choiceInfoImg?: string;
+	/**
+	 * "Alt text", i.e. image description, to display in the dialog when "INFO" is clicked on a choice card.
+	 */
 	choiceInfoImgAlt?: string;
+	/**
+	 * object-fit property in the image displayed in the dialog when "INFO" is clicked on the choice card.
+	 * `'cover'` makes it stretch to the boundaries of the card, and `'contain'` makes the entire image visible.
+	 * If `'contain'` is selected, then a larger, blurred version of the image will be visible behind the regular image (for visual appeal/interest)
+	 */
 	choiceInfoImgObjectFit?: 'cover' | 'contain';
+	/**
+	 * Extra text to display on the Year Recap page when the project has been selected.
+	 */
 	recapDescription: string | string[];
 	/**
 	 * Icon to be shown in the year recap page.
 	 */
 	recapAvatar?: RecapAvatar;
+	/**
+	 * Button to go between "INFO" and "SELECT" on the project selection page. 
+	 * 
+	 * Recommended: Include a visual startIcon to represent the **type** of project (e.g. flame, smoke, CO2)
+	 * and a number or percentage to represent the effect this project will have.
+	 */
 	previewButton?: ButtonGroupButton;
 	/**
 	 * Surprises that appear once when SELECT is clicked.
@@ -84,6 +115,12 @@ declare interface ProjectControlParams {
 	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
 	hiddenSurprises?: DialogControlProps[];
+	/**
+	 * External case study for a project, i.e., example of a real company doing that project idea.
+	 * @param {string} title
+	 * @param {string|string[]} text
+	 * @param {string} url 
+	 */
 	caseStudy?: CaseStudy;
 	/**
 	 * Whether the project will be visible. For example, only show if a PREVIOUS Project has been selected, or if the year is at least 3.
@@ -91,9 +128,6 @@ declare interface ProjectControlParams {
 	visible?: Resolvable<boolean>;
 }
 
-// /**
-//  * Constructor for 
-//  */
 export class ProjectControl implements ProjectControlParams{
 	
 	pageId: symbol;
@@ -120,7 +154,7 @@ export class ProjectControl implements ProjectControlParams{
 	visible: Resolvable<boolean>;
 	
 	/**
-	 * Project Control constructor. Contains functions for todo
+	 * Project Control constructor. Requires 
 	 * @param params 
 	 */
 	constructor(params: ProjectControlParams) {
@@ -245,12 +279,61 @@ export class ProjectControl implements ProjectControlParams{
 			img: this.choiceInfoImg,
 			imgAlt: this.choiceInfoImgAlt,
 			imgObjectFit: this.choiceInfoImgObjectFit,
-			cards: cards
+			cards: cards,
+			buttons: [
+				closeDialogButton(),
+				{
+					text: 'Select',
+					variant: 'text',
+					onClick: function (state, nextState) {
+						// If the project is already selected, do nothing.
+						if (state.selectedProjects.includes(self.pageId)) {
+							return state.currentPage;
+						}
+						// if the project is NOT selected, run the toggle function to select the project.
+						return toggleProjectSelect.apply(this, [state, nextState]);
+					},
+					// disabled when the project is selected
+					disabled: (state) => state.selectedProjects.includes(self.pageId)
+				}
+			]
 		}));
 		// Preview button (e.g. co2 savings button)
 		if (this.previewButton) buttons.push(this.previewButton);
 		// Select checkbox button, with live preview of stats
-		buttons.push(selectButtonCheckbox(function (state, nextState) {
+		buttons.push(selectButtonCheckbox(toggleProjectSelect, undefined, (state) => state.selectedProjects.includes(this.pageId)));
+		
+		return {
+			text: this.shortTitle,
+			buttons: buttons,
+			visible: function (state) {
+				// Hide the project if it's already been completed
+				if (state.completedProjects.includes(self.pageId)) return false;
+				// otherwise, use the visible attribute provided by the project props (Default true)
+				else return this.resolveToValue(self.visible, true);
+			},
+			key: this.pageId.description,
+		};
+		
+		function displaySurprises(this: App) {
+			let firstSurprise = self.surprises[0];
+			if (!firstSurprise) return;
+			
+			firstSurprise.buttons = [{
+				text: 'Continue',
+				variant: 'text',
+				onClick: () => {
+					return this.state.currentPage;
+				}
+			}];
+			
+			this.summonInfoDialog(firstSurprise);
+		}
+		
+		/**
+		 * Action to toggle whether the project is selected, after a select button is clicked.
+		 */
+		function toggleProjectSelect(this: App, state: AppState, nextState: NextAppState) {
 			let selectedProjects = state.selectedProjects.slice();
 			let newTrackedStats = {...state.trackedStats};
 			// IF PROJECT IS ALREADY SELECTED
@@ -290,33 +373,6 @@ export class ProjectControl implements ProjectControlParams{
 			nextState.trackedStats = newTrackedStats;
 			
 			return state.currentPage; // no page change
-		}, undefined, (state) => state.selectedProjects.includes(this.pageId)));
-		
-		return {
-			text: this.shortTitle,
-			buttons: buttons,
-			// visible: function (state) {
-			// 	// Hide the project if it's already been completed
-			// 	if (state.completedProjects.includes(self.pageId)) return false;
-			// 	// otherwise, use the visible attribute provided by the project props (Default true)
-			// 	else return this.resolveToValue(self.visible, true);
-			// },
-			key: this.pageId.description,
-		};
-		
-		function displaySurprises(this: App) {
-			let firstSurprise = self.surprises[0];
-			if (!firstSurprise) return;
-			
-			firstSurprise.buttons = [{
-				text: 'Continue',
-				variant: 'text',
-				onClick: () => {
-					return this.state.currentPage;
-				}
-			}];
-			
-			this.summonInfoDialog(firstSurprise);
 		}
 	}
 }
@@ -336,7 +392,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		naturalGasMMBTU: absolute(-50_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
-	shortTitle: 'Upgrade heat recovery on boiler/furnace system\nThis should appear on year 2!',
+	shortTitle: 'Upgrade heat recovery on boiler/furnace system',
 	choiceInfoText: [
 		'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system', 
 		'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
@@ -362,9 +418,10 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon/>
 	},
-	visible: function (state: AppState) {
-		return state.trackedStats.year >= 2;
-	}
+	// SEE BELOW: EXAMPLE FOR CONDITIONAL PROJECT VISIBILITY - you can also do something like state.completedProjects.includes(Pages.myOtherProject)
+	// visible: function (state: AppState) {
+	// 	return state.trackedStats.year >= 2;
+	// }
 });
 
 Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
@@ -511,8 +568,34 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	// add case study
 });
 
+
+Projects[Pages.solarPanelsCarPort] = new ProjectControl({
+	pageId: Pages.solarPanelsCarPort,
+	cost: 150_000,
+	statsInfoAppliers: {
+		electricityUseKWh: relative(-0.125),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: relative(-0.125),
+	},
+	hiddenSurprises: [],
+	title: 'Bundled RECs - Install Solar Panels to Facility\'s Carport',
+	shortTitle: 'Install solar panels to facility\'s carport',
+	choiceInfoText: [
+		'You have the opportunity to add solar panels to your facility’s carport, which could yield significant {utility savings}, while providing {clean energy} to your facility.', 
+		'This project would include under-canopy LED lighting system installation and installation of a custom-designed carport structure.'
+	],
+	choiceInfoImg: 'images/solar-panels.png',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Lockheed Martin 2.25 Megawatts Solar Carport',
+		url: 'https://www.agt.com/portfolio-type/lockheed-martin-solar-carport/',
+		text: 'In 2017, {Lockheed Martin} installed a 4-acre solar carport and was able to provide {3,595,000} kWh/year, or enough electricity to power almost {500 homes} annually.',
+	},
+});
+
 /**
- * todo better name
+ * A "class" that can apply or un-apply a numerical modifier with a custom formula.
  */
 export declare interface NumberApplier {
 	applyValue: (previous: number) => number;

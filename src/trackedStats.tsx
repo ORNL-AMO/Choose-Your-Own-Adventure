@@ -57,7 +57,7 @@ export const initialTrackedStats: TrackedStats = {
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
-	electricityUseKWh: 1_000_000, 
+	electricityUseKWh: 2_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	
@@ -132,7 +132,7 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		label: 'Electricity use (kWh)',
 		color: '#c0a020',
 		textFontSize: 0.85,
-		maxValue: 1_000_000,
+		maxValue: 2_000_000,
 	},
 	carbonSavings: {
 		label: 'Carbon savings',

@@ -1,5 +1,8 @@
 /**
- * Symbols (enums) to represent each page. Used as indexes for pageControls as well as lists like app.state.selectedProjects
+ * Symbols (enums) to represent each page. Used as indexes for pageControls as well as 
+ * lists like app.state.selectedProjects.
+ * 
+ * To convert into a string, use the property `description`, e.g. `Pages.start.description`
  */
 const Pages = {
 	start: Symbol.for('start'),
@@ -21,6 +24,7 @@ const Pages = {
 	lightingUpgrades: Symbol.for('explore-lighting-upgrades'),
 	greenPowerTariff: Symbol.for('green-power-tariff'),
 	windVPPA: Symbol.for('wind-vppa'),
+	solarPanelsCarPort: Symbol.for('solar-panels-car-port'),
 };
 
 export class PageError extends Error {

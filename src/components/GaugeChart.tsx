@@ -41,13 +41,19 @@ export type GaugeProps = {
 	 */
 	textFontSize?: string | number;
 	/**
-	 * todo doc
+	 * Tick marks that appear on the outside of the gauge chart. `value` is interpreted the same as 
+	 * in the GaugeChart, i.e., must be between 0 and 1 with no automatic normalization.
+	 * @param {number} value
+	 * @param {string} label
 	 */
 	ticks?: Tick[];
 	margin?: typeof defaultMargin;
 	animate?: boolean;
 };
 
+/**
+ * Gauge chart. Supports up to 2 values at the same time. The values MUST be between 0 and 1 - it doesn't do any automatic normalization.
+ */
 export default function GaugeChart({
 	width,
 	margin = defaultMargin,
@@ -205,6 +211,11 @@ type AnimatedArcProps = ArcProps<number> & {
 	data: number;
 }
 
+/**
+ * Uses react-spring to animate the path transition of the arc!
+ * 
+ * the documentation is pretty confusing, but https://react-spring.dev/hooks/use-transition#usetransition
+ */
 function AnimatedArc({startAngle, endAngle, innerRadius, outerRadius, fill, data}: AnimatedArcProps) {
 	
 	const [value] = useState(data);

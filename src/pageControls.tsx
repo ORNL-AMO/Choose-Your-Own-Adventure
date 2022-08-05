@@ -54,7 +54,7 @@ pageControls[Pages.start] = newStartPageControl({
 });
 
 pageControls[Pages.introduction] = newInfoDialogControl({
-	text: 'For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {$companyName}, your job is to make sure your facility meets its new corporate carbon reduction goal:',
+	text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate carbon reduction goal:`,
 	cardText: '{50%} carbon reduction over the next {10 years} with a {$1,000,000 annual budget}',
 	title: 'Introduction',
 	img: 'images/manufacturing.png',
@@ -125,7 +125,7 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 });
 
 pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-	title: 'These are the possible {Scope 1} projects {$companyName} can do this year.\nSelect what projects you want your company to work on in {Year $trackedStats.year}, and then click {Proceed} on the top right when you are ready.',
+	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
@@ -170,7 +170,7 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 }, Pages.selectScope);
 
 pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
-	title: 	'These are the possible {Scope 2} projects {$companyName} can do this year.\nSelect what projects you want your company to work on in {Year $trackedStats.year}, and then click {Proceed} on the top right when you are ready.',
+	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
@@ -180,20 +180,21 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
-				{
-					text: '4. Purchase green power tariff from local utility',
-					buttons: [
-						// todo info
-						co2SavingsButton(8.0),
-						selectButtonCheckbox(function (state, nextState) {
-							toggleSelectedPage(Pages.greenPowerTariff, state, nextState);
-							return Pages.scope2Projects;
-						},
-						undefined,
-						(state) => state.selectedProjects.includes(Pages.greenPowerTariff)
-						),
-					]
-				}
+				// {
+				// 	text: '4. Purchase green power tariff from local utility',
+				// 	buttons: [
+				// 		// todo info
+				// 		co2SavingsButton(8.0),
+				// 		selectButtonCheckbox(function (state, nextState) {
+				// 			toggleSelectedPage(Pages.greenPowerTariff, state, nextState);
+				// 			return Pages.scope2Projects;
+				// 		},
+				// 		undefined,
+				// 		(state) => state.selectedProjects.includes(Pages.greenPowerTariff)
+				// 		),
+				// 	]
+				// },
+				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
 			]
 		}, {
 			title: 'Un-bundled RECs',

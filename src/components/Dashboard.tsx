@@ -90,7 +90,10 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								color1={theme.palette.primary.dark}
 								ticks={[{
 									value: .5,
-									label: '50%'
+									label: shortenNumber(statsGaugeProperties.naturalGasMMBTU.maxValue * 0.5),
+								},{
+									value: 1,
+									label: shortenNumber(statsGaugeProperties.naturalGasMMBTU.maxValue),
 								}]}
 							/>
 							<GaugeChart

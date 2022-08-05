@@ -232,6 +232,7 @@ declare global {
 	/**
 	 * Data type that must resolve into a Page symbol. You can either provide a Page symbol by itself, or provide a function which returns a Page symbol.
 	 * It is mostly used for button clicks, to determine which page to display next.
+	 * IF YOU WANT TO DO OTHER LOGIC AND DO NOT WANT THE PAGE TO CHANGE, SIMPLY RETURN `state.currentPage`
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */

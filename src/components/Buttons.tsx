@@ -10,6 +10,9 @@ import type { DialogControlProps, DialogStateProps } from './InfoDialog';
 import { fillDialogProps } from './InfoDialog';
 import type App from '../App';
 
+/**
+ * Button control for use inside a ButtonGroup component's `buttons` prop.
+ */
 export declare interface ButtonGroupButton {
 	/**
 	 * Text to display on the button
@@ -221,6 +224,11 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
 	};
 }
 
+/**
+ * Creates an outlined 'Info' button with a dialog that pops up when clicked.
+ * @param dialogProps Dialog control props
+ * @returns Button control for use inside a ButtonGroup
+ */
 export function infoButtonWithDialog(dialogProps: DialogControlProps): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog

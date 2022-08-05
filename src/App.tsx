@@ -108,7 +108,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
-		startPage = Pages.scope1Projects; showDashboardAtStart = true; // temporary, for debugging
+		startPage = Pages.selectScope; showDashboardAtStart = true; // temporary, for debugging
 		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
 		
 		// For info on state, see https://reactjs.org/docs/state-and-lifecycle.html
