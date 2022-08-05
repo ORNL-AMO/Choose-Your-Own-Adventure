@@ -8,7 +8,8 @@ import '@fontsource/roboto/700.css';
 
 import type { PageControlProps, ControlCallbacks } from './components/controls';
 import { StartPage } from './components/StartPage';
-import type { TrackedStats } from './trackedStats';
+import type { TrackedStats} from './trackedStats';
+import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
 import { calculateAutoStats } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
@@ -247,6 +248,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
 					console.error(`Error with finances sanity check! financesAvailable=${newTrackedStats.financesAvailable}, moneySpent=${newTrackedStats.moneySpent} totalBudget=${newTrackedStats.totalBudget}`);
 				}
+				// Update max values for gauges in case they increased
+				updateStatsGaugeMaxValues(newTrackedStats);
 			}
 			
 			this.setState(newStateParams);
