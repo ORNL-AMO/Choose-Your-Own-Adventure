@@ -134,9 +134,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 			lastScrollY: -1,
 			snackbarOpen: false,
 		};
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore --- writing to state is fine in constructor. this.fillTemplateText depends on variables already being in this.state
-		this.state.currentPageProps = this.fillTemplateText(this.state.currentPageProps);
 		
 		// @ts-ignore - for debugging
 		window.app = this;
@@ -146,34 +143,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		// todo
 		// addEventListener('popstate', this.handleHistoryPopState.bind(this));
-	}
-	
-	/**
-	 * Replaces variables from the app state, such as "$companyName" -> this.state.companyName, $trackedStats.year -> this.state.trackedStats.year
-	 */
-	fillTemplateText<T=AnyDict>(obj: T): T{
-		const regex = /\$([a-zA-Z]\w*?)(\.([a-zA-Z]\w*?))?(\W)/g;
-		
-		for (let key of Object.keys(obj)) {
-			if (typeof obj[key] === 'string') {
-				obj[key] = obj[key].replace(regex, (match: string, variableKey: string, secondaryKeyPlusDot?: string, secondaryKey?: string, nextCharacter?: string) => {
-					if (this.state.hasOwnProperty(variableKey)) {
-						let thisVariable = this.state[variableKey];
-						// example: $trackedStats.year
-						if (typeof thisVariable === 'object' && secondaryKey && thisVariable.hasOwnProperty(secondaryKey)) {
-							return String(thisVariable[secondaryKey]) + nextCharacter;
-						}
-						// example: $companyName
-						else 
-							return String(this.state[variableKey]) + nextCharacter;
-					}
-					else {
-						throw new SyntaxError(`Invalid variable name ${match}`);
-					}
-				});
-			}
-		}
-		return obj;
 	}
 	
 	getThisPageControl() {
@@ -190,7 +159,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			throw new PageError(`Page controls not defined for the symbol ${page.description}`);
 		
 		let controlClass = thisPageControl.controlClass;
-		let controlProps = this.fillTemplateText(thisPageControl.controlProps);
+		let controlProps = thisPageControl.controlProps;
 		let controlOnBack = thisPageControl.onBack;
 		let hideDashboard = thisPageControl.hideDashboard;
 		
