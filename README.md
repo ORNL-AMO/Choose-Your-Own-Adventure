@@ -50,10 +50,14 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ### Template text
 Most string properties support template text:
-1. Wrapping text in curly braces `{}` will make them **emphasized**. For example: `"foo {bar} baz"` gets turned into "foo **bar** baz"
-1. Wrapping text in curly braces _followed by an underscore_ `_{}` will instead make it <sub>subscript</sub> . For example: `foo_{bar}` gets turned into foo<sub>bar</sub> .
-1. All instances of the newline character `\n` will be replaced by a line break, i.e. `<br/>` in HTML.
-1. The following format `[text](url)` will result in a clickable link, similar to Markdown. For example, `[Better Plants](https://betterbuildingssolutioncenter.energy.gov/better-plants)` will result in [Better Plants](https://betterbuildingssolutioncenter.energy.gov/better-plants).
+1. Wrapping text in curly braces `{}` will make them **emphasized**. For example: `"foo {bar} baz"` gets turned into "foo **bar** baz".
+**Note**: Do not confuse these braces with JS _template strings_: 
+```js
+let x = `hello world, my variable = ${myVariable}!`;
+```
+2. Wrapping text in curly braces _followed by an underscore_ `_{}` will instead make it <sub>subscript</sub> . For example: `foo_{bar}` gets turned into foo<sub>bar</sub> .
+3. All instances of the newline character `\n` will be replaced by a line break, i.e. `<br/>` in HTML.
+4. The following format `[text](url)` will result in a clickable link, similar to Markdown. For example, `[Better Plants](https://betterbuildingssolutioncenter.energy.gov/better-plants)` will result in [Better Plants](https://betterbuildingssolutioncenter.energy.gov/better-plants).
 
 When an array of strings is passed into `parseSpecialText()`, the strings will be joined by two line breaks. This is useful when writing multiple paragraphs.
 
