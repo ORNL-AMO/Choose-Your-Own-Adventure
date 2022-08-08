@@ -154,10 +154,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 	
 	setPage(page: symbol) {
 		
-		if (this.state.currentPage === page) {
-			return console.log(`currentPage is already ${page.description}; skipping`);
-		}
-		
 		let thisPageControl = PageControls[page];
 		if (!thisPageControl) 
 			throw new PageError(`Page controls not defined for the symbol ${page.description}`);
