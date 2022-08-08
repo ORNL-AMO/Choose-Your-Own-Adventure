@@ -28,8 +28,8 @@ import { calculateYearSavings } from '../trackedStats';
 import { calculateAutoStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
 import FactoryIcon from '@mui/icons-material/Factory';
-import type { NumberApplier } from '../projects';
-import Projects from '../projects';
+import type { NumberApplier } from '../Projects';
+import Projects from '../Projects';
 import {
 	clampRatio,
 	parseSpecialText,
@@ -315,7 +315,7 @@ export function newYearRecapControl(
 	onBack: PageCallback
 ): PageControl {
 	return {
-		controlClass: YearRecap,
+		componentClass: YearRecap,
 		controlProps: props,
 		onBack,
 		hideDashboard: true,

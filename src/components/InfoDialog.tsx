@@ -145,7 +145,7 @@ export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
  */
 export function newInfoDialogControl(props: DialogControlProps): PageControl {
 	return {
-		controlClass: InfoDialog,
+		componentClass: InfoDialog,
 		controlProps: props,
 		hideDashboard: 'initial'
 	};

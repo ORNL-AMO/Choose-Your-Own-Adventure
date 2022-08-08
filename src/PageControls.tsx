@@ -15,8 +15,8 @@ import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
 import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, selectButtonCheckbox, closeDialogButton } from './components/Buttons';
-import Pages from './pages';
-import Projects from './projects';
+import Pages from './Pages';
+import Projects from './Projects';
 import { theme } from './components/theme';
 import { newStartPageControl } from './components/StartPage';
 import { newYearRecapControl } from './components/YearRecap';
@@ -35,12 +35,16 @@ export const Scope2Projects = [
 	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
 ];
 
+declare interface PageControls {
+	[key: symbol]: PageControl;
+}
+
 /**
  * PageControls is a DICTIONARY object containing page controls. The key for this object is a symbol, specifically from the `Pages` object in `pages.tsx`.
  */
-export const pageControls: PageControls = { };
+export const PageControls: PageControls = { };
 
-pageControls[Pages.start] = newStartPageControl({
+PageControls[Pages.start] = newStartPageControl({
 	buttons: [
 		{
 			text: 'Start Playing',
@@ -53,7 +57,7 @@ pageControls[Pages.start] = newStartPageControl({
 	]
 });
 
-pageControls[Pages.introduction] = newInfoDialogControl({
+PageControls[Pages.introduction] = newInfoDialogControl({
 	text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate carbon reduction goal:`,
 	cardText: '{50%} carbon reduction over the next {10 years} with a {$1,000,000 annual budget}',
 	title: 'Introduction',
@@ -67,7 +71,7 @@ pageControls[Pages.introduction] = newInfoDialogControl({
 	]
 });
 
-pageControls[Pages.selectScope] = newGroupedChoicesControl({
+PageControls[Pages.selectScope] = newGroupedChoicesControl({
 	title: function (state, nextState) {
 		// Year 1
 		if (state.trackedStats.year === 1) {
@@ -124,7 +128,7 @@ pageControls[Pages.selectScope] = newGroupedChoicesControl({
 	return Pages.introduction;
 });
 
-pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
+PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
 	groups: [
 		{
@@ -169,7 +173,7 @@ pageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 	hideDashboard: false,
 }, Pages.selectScope);
 
-pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
+PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
 	groups: [
 		{
@@ -219,12 +223,12 @@ pageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 	hideDashboard: false,
 }, Pages.selectScope);
 
-pageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
+PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
 
 
 // TODO tomorrow: New control class for waste heat recovery, slides 7 and 8
 
-pageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
+PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
 	title: '{SELECTED}: WASTE HEAT RECOVERY',
 	cardText: 'You have achieved {3.5%} carbon emissions reduction and spent {$60,000} dollars.',
 	text: [
@@ -236,7 +240,7 @@ pageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
 	]
 });
 
-pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
+PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	title: '{SELECTED}: DIGITAL TWIN ANALYSIS',
 	cardText: 'You have achieved {2%} carbon emissions reduction and spent {$90,000} dollars.',
 	text: '[Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management](https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant)\n\nGood choice! Ford Motor Company used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a 50% reduction in campus office space energy and water use compared to their older system.',
@@ -246,13 +250,13 @@ pageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 	]
 });
 
-pageControls[Pages.winScreen] = newInfoDialogControl({
+PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
 	text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years!`,
 	img: 'images/confetti.png'
 });
 
-pageControls[Pages.loseScreen] = newInfoDialogControl({
+PageControls[Pages.loseScreen] = newInfoDialogControl({
 	title: 'Sorry...',
 	text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years. Try again?`,
 	buttons: [
@@ -267,10 +271,6 @@ pageControls[Pages.loseScreen] = newInfoDialogControl({
 		}
 	]
 });
-
-declare interface PageControls {
-	[key: symbol]: PageControl;
-}
 
 export function notImplemented(pageBack?: symbol) {
 	return newInfoDialogControl({
@@ -344,4 +344,4 @@ export function projectCostAndCO2ReductionCards(projectCost: number, co2Reductio
 	];
 }
 
-console.log(performance.now() - st);
+console.log('PageControls', performance.now() - st);

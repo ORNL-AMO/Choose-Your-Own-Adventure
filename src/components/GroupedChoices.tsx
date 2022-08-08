@@ -64,7 +64,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
  */
 export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBack: PageCallback): PageControl {	
 	return {
-		controlClass: GroupedChoices,
+		componentClass: GroupedChoices,
 		controlProps: props,
 		onBack,
 		hideDashboard: props.hideDashboard

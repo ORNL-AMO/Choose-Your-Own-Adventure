@@ -14,9 +14,9 @@ import { calculateYearSavings } from './trackedStats';
 import { calculateAutoStats } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
-import Pages, { PageError } from './pages';
-import { pageControls } from './pageControls';
-import { Scope1Projects, Scope2Projects } from './projects';
+import Pages, { PageError } from './Pages';
+import { PageControls } from './PageControls';
+import { Scope1Projects, Scope2Projects } from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -31,7 +31,7 @@ export type AppState = {
 	companyName: string;
 	dialog: DialogStateProps,
 	currentPageProps?: AnyDict; // todo
-	controlClass?: Component;
+	componentClass?: Component;
 	trackedStats: TrackedStats;
 	yearlyTrackedStats: TrackedStats[]; // to be pushed at the end of each year; does not change
 	showDashboard: boolean;
@@ -51,7 +51,7 @@ export interface NextAppState {
 	companyName?: string;
 	dialog?: DialogStateProps,
 	currentPageProps?: AnyDict;
-	controlClass?: Component;
+	componentClass?: Component;
 	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
 	selectedProjects?: symbol[];
@@ -77,11 +77,11 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 			resolveToValue: this.props.resolveToValue,
 		};
 		
-		switch (this.props.controlClass) {
+		switch (this.props.componentClass) {
 			case StartPage:
 			case GroupedChoices:
 				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
-				return (<this.props.controlClass
+				return (<this.props.componentClass
 					{...this.props.controlProps} // Pass everything into the child
 					{...controlCallbacks}
 				/>);
@@ -121,8 +121,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 				text: '',
 				cardText: undefined
 			},
-			currentPageProps: pageControls[startPage].controlProps,
-			controlClass: pageControls[startPage].controlClass,
+			currentPageProps: PageControls[startPage].controlProps,
+			componentClass: PageControls[startPage].componentClass,
 			trackedStats: {...initialTrackedStats},
 			yearlyTrackedStats: [
 				{...initialTrackedStats} // This one stays constant
@@ -146,7 +146,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 	}
 	
 	getThisPageControl() {
-		let thisPageControl = pageControls[this.state.currentPage];
+		let thisPageControl = PageControls[this.state.currentPage];
 		if (!thisPageControl) 
 			throw new PageError(`Page controls not defined for the symbol ${this.state.currentPage.description}`);
 		return thisPageControl;
@@ -154,18 +154,22 @@ export class App extends React.PureComponent <unknown, AppState> {
 	
 	setPage(page: symbol) {
 		
-		let thisPageControl = pageControls[page];
+		if (this.state.currentPage === page) {
+			return console.log(`currentPage is already ${page.description}; skipping`);
+		}
+		
+		let thisPageControl = PageControls[page];
 		if (!thisPageControl) 
 			throw new PageError(`Page controls not defined for the symbol ${page.description}`);
 		
-		let controlClass = thisPageControl.controlClass;
+		let componentClass = thisPageControl.componentClass;
 		let controlProps = thisPageControl.controlProps;
 		let controlOnBack = thisPageControl.onBack;
 		let hideDashboard = thisPageControl.hideDashboard;
 		
 		let dialog, currentPageProps;
 		
-		if (controlClass === InfoDialog) {
+		if (componentClass === InfoDialog) {
 			dialog = fillDialogProps(controlProps);
 			dialog.open = true;
 		}
@@ -177,7 +181,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		this.setState({
 			currentPage: page, 
 			dialog,
-			controlClass,
+			componentClass,
 			currentPageProps: currentPageProps,
 			currentOnBack: controlOnBack,
 		});
@@ -384,14 +388,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 									{...controlCallbacks} 
 									onBack={this.state.currentOnBack} 
 									onProceed={() => this.handleDashboardOnProceed()}
-									btnProceedDisabled={this.state.selectedProjects.length === 0 || this.state.controlClass === YearRecap}
+									btnProceedDisabled={this.state.selectedProjects.length === 0 || this.state.componentClass === YearRecap}
 								/> 
 							: <></>}
-							{(this.state.currentPageProps && this.state.controlClass) ?
+							{(this.state.currentPageProps && this.state.componentClass) ?
 								<CurrentPage
 									{...controlCallbacks}
 									trackedStats={this.state.trackedStats}
-									controlClass={this.state.controlClass}
+									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
 									selectedProjects={this.state.selectedProjects} // note: if selectedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									completedProjects={this.state.completedProjects}

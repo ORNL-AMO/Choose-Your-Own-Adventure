@@ -8,12 +8,14 @@ import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
 import type { DialogCardContent, DialogControlProps} from './components/InfoDialog';
 import { theme } from './components/theme';
-import { co2SavingsButton } from './pageControls';
+import { co2SavingsButton } from './PageControls';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
 import FactoryIcon from '@mui/icons-material/Factory';
-import Pages from './pages';
+import Pages from './Pages';
 import { Alert } from '@mui/material';
+
+let st = performance.now();
 
 /**
  * Dictionary of ProjectControls. The key must be a `Page` symbol (see `Pages.tsx`), 
@@ -687,6 +689,8 @@ function absolute(modifier: number): NumberApplier {
 /**
  * Round a number to the nearest hundred-thousandth, to help with floating point precision errors.
  */
- function round(number: number) {
+function round(number: number) {
 	return (Math.round(number * 100000)) / 100000;
 }
+
+console.log('Projects', performance.now() - st);

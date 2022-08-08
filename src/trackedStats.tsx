@@ -50,7 +50,7 @@ export interface TrackedStats {
 }
 
 /**
- * The initial state 
+ * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 1_000_000, 

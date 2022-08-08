@@ -31,7 +31,7 @@ export interface ControlCallbacks {
  * Props sent to CurrentPage
  */
 export declare interface PageControlProps {
-	controlClass: Component;
+	componentClass: Component;
 	controlProps: AnyDict;
 	/**
 	 * Page to go to when "Back" is clicked. (Not fully implemented)
