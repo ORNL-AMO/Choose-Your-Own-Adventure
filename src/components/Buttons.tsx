@@ -2,7 +2,7 @@ import { Button, Stack } from '@mui/material';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import BasicPopover from './BasicPopover';
 import { resolveToValue } from '../functions-and-types';
 import type { ControlCallbacks } from './controls';
@@ -56,6 +56,10 @@ export declare interface ButtonGroupButton {
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
 	buttons?: ButtonGroupButton[];
+	/**
+	 * Whether the entire group of buttons appears disabled.
+	 */
+	disabled?: Resolvable<boolean>;
 	summonInfoDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
 	/**
@@ -76,7 +80,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 		
 		// Decide whether the button starts disabled
 		// let thisDisabled = disabled;
-		let thisDisabled = false;
+		let thisDisabled = props.resolveToValue(props.disabled, false);
 		if (button.disabled) thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
 	
 		// Check for mutually exclusive properties
@@ -148,48 +152,64 @@ export function ButtonGroup(props: ButtonGroupProps) {
 }
 
 /* -======================================================- */
-//       COMMON BUTTON CONTROLS (for use in pages.tsx)
+//       COMMON BUTTON CONTROLS (for use in PageControls)
 /* -======================================================- */
 
-export function backButton(newPage: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
+/**
+ * Generates a "Back" button which sets the app to the specified page when clicked.
+ */
+export function backButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Back',
 		variant: 'text',
 		onClick: function (...params) {
-			return resolveToValue(newPage, undefined, params, this);
+			return resolveToValue(onClick, undefined, params, this);
 		},
-		disabled: disabled
+		disabled
 	};
 }
 
-// todo rest of disableds
-export function continueButton(newPage: PageCallback): ButtonGroupButton {
+/**
+ * Generates a "Continue" button which sets the app to the specified page when clicked.
+ */
+export function continueButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Continue',
 		variant: 'text',
 		onClick: function (...params) {
-			return resolveToValue(newPage, undefined, params, this);
-		}
-	};
-}
-
-export function selectButton(newPage: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
-	return {
-		text: 'Select',
-		variant: 'contained',
-		onClick: function (...params) {
-			return resolveToValue(newPage, undefined, params, this);
+			return resolveToValue(onClick, undefined, params, this);
 		},
-		disabled: disabled
+		disabled,
 	};
 }
 
-export function selectButtonCheckbox(newPage: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+/**
+ * Generates a "Select" button which sets the app to the specified page when clicked.
+ */
+export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Select',
 		variant: 'contained',
 		onClick: function (...params) {
-			return resolveToValue(newPage, undefined, params, this);
+			return resolveToValue(onClick, undefined, params, this);
+		},
+		disabled,
+	};
+}
+
+/**
+ * Generates a "Select" button with a checkbox.
+ * @param onClick Click handler. Must return a Page symbol.
+ * @param disabled Whether the button should appear disabled.
+ * @param selected Whether the checkbox should be checked.
+ * @returns 
+ */
+export function selectButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+	return {
+		text: 'Select',
+		variant: 'contained',
+		onClick: function (...params) {
+			return resolveToValue(onClick, undefined, params, this);
 		},
 		disabled: disabled,
 		startIcon: function (...params) {
@@ -203,24 +223,29 @@ export function selectButtonCheckbox(newPage: PageCallback, disabled?: Resolvabl
 	};
 }
 
-export function infoButtonWithPopup(popupContents: React.ReactNode): ButtonGroupButton {
+/**
+ * Generates a button with a question-mark and a popup.
+ */
+export function infoButtonWithPopup(popupContents: React.ReactNode, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Info',
 		variant: 'outlined',
 		infoPopup: popupContents,
-		startIcon: <QuestionMarkIcon/>
+		startIcon: <QuestionMarkIcon/>,
+		disabled,
 	};
 }
 
 /**
- * Example usage: CO2 savings inside GroupedChoices choice
+ * Generates a button with a custom icon and a popup.
  */
-export function iconButtonWithPopupText(text: string, icon: React.ReactNode, popupContents: React.ReactNode): ButtonGroupButton {
+export function iconButtonWithPopupText(text: string, icon: React.ReactNode, popupContents: React.ReactNode, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: text,
 		variant: 'text',
 		startIcon: icon,
-		
+		infoPopup: popupContents,
+		disabled,
 	};
 }
 
@@ -229,7 +254,7 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
  * @param dialogProps Dialog control props
  * @returns Button control for use inside a ButtonGroup
  */
-export function infoButtonWithDialog(dialogProps: DialogControlProps): ButtonGroupButton {
+export function infoButtonWithDialog(dialogProps: DialogControlProps, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
 	
@@ -238,16 +263,22 @@ export function infoButtonWithDialog(dialogProps: DialogControlProps): ButtonGro
 		variant: 'outlined',
 		startIcon: <QuestionMarkIcon/>,
 		infoDialog: fillDialogProps(dialogProps),
+		disabled,
 	};
 }
 
-export function closeDialogButton(text?: string): ButtonGroupButton {
+/**
+ * Generates a button that will close a dialog.
+ * @param text Text to display, default = 'Back'
+ */
+export function closeDialogButton(text?: string, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	if (!text) text = 'Back';
 	return {
 		text: text,
 		variant: 'text',
 		onClick: function (this: App, state) {
 			return state.currentPage;
-		}
+		},
+		disabled,
 	};
 }

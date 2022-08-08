@@ -1,5 +1,5 @@
 import { Box, Typography, Grid } from '@mui/material';
-import { parseSpecialText } from '../functions-and-types';
+import { parseSpecialText, resolveToValue } from '../functions-and-types';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
@@ -23,12 +23,17 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
 				
+				let disabled = resolveToValue(choice.disabled, false);
+				
 				return (<Grid item xs={12} key={choice.key || idx}>
-					<PaperGridItem>
+					<PaperGridItem 
+						sx={{opacity: disabled ? 0.8 : 1}} // if disabled, lower opacity
+					>
 						<Typography variant='h4'>{props.resolveToValue(choice.title)}</Typography>
 							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}/>
 							<ButtonGroup 
 								buttons={choice.buttons} 
+								disabled={disabled}
 								doPageCallback={props.doPageCallback} 
 								summonInfoDialog={props.summonInfoDialog}
 								resolveToValue={props.resolveToValue}
@@ -71,11 +76,22 @@ export function newGroupedChoicesControl(props: GroupedChoicesControlProps, onBa
 	};
 }
 
+/**
+ * A choice within a group.
+ */
 export interface Choice {
+	/**
+	 * Title of the choice. Can be an empty string to make it not appear.
+	 */
 	title?: Resolvable<string>;
+	/**
+	 * Text/description of the choice.
+	 */
 	text: Resolvable<string>;
-	infoPopup?: React.ReactNode;
 	disabled?: Resolvable<boolean>;
+	/**
+	 * Buttons to appear at the bottom of the choice.
+	 */
 	buttons?: ButtonGroupButton[];
 	/**
 	 * Whether the choice will appear in the list.
@@ -87,12 +103,21 @@ export interface Choice {
 	key?: string;
 }
 
+/**
+ * A group of Choices.
+ */
 export interface GroupedChoicesGroup {
+	/**
+	 * Title of the group. Can be an empty string to make it not appear.
+	 */
 	title: string;
 	choices: Choice[];
 }
 
 export interface GroupedChoicesControlProps {
+	/**
+	 * Title of the entire GroupedChoices page.
+	 */
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
 	hideDashboard: boolean|'initial';

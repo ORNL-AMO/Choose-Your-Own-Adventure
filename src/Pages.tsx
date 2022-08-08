@@ -1,6 +1,7 @@
 /**
  * Symbols (enums) to represent each page. Used as indexes for pageControls as well as 
- * lists like app.state.selectedProjects.
+ * lists like app.state.selectedProjects. Any time "Page symbol" is mentioned in documentation,
+ * it means one of the symbols declared inside the `Pages` object.
  * 
  * To convert into a string, use the property `description`, e.g. `Pages.start.description`
  */

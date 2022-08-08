@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BarStackHorizontal } from '@visx/shape';
 import type { SeriesPoint } from '@visx/shape/lib/types';
 import { Group } from '@visx/group';
-import { AxisBottom, AxisLeft } from '@visx/axis';
+import { AxisBottom } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { LegendOrdinal } from '@visx/legend';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
-import { localPoint } from '@visx/event';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 
 type BarChartKeys = 'Finances available' | 'Money spent';

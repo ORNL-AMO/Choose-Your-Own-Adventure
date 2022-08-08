@@ -2,7 +2,6 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import React from 'react';
 import type { App, AppState, NextAppState } from './App';
-import type { DialogStateProps } from './components/InfoDialog';
 import { theme } from './components/theme';
 
 /**

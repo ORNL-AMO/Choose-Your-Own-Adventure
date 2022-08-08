@@ -17,6 +17,23 @@ import { Alert } from '@mui/material';
 
 let st = performance.now();
 
+// IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
+// These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
+// 	when they click Proceed (to Year Recap) while only having selected projects from one scope.
+
+/**
+ * List of Page symbols for projects that are in the SCOPE 1 list.
+ */
+export const Scope1Projects = [
+	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
+];
+/**
+ * List of Page symbols for projects that are in the SCOPE 2 list.
+ */
+export const Scope2Projects = [
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort,
+];
+
 /**
  * Dictionary of ProjectControls. The key must be a `Page` symbol (see `Pages.tsx`), 
  * and make sure the associated ProjectControl's `pageId` is the same as that key.
@@ -24,14 +41,6 @@ let st = performance.now();
 const Projects: ProjectControls = {};
 
 export default Projects;
-
-// IMPORTANT: Keep Pages.scope1Projects and Pages.scope2Projects updated, so that the Proceed button click handler in App.tsx doesn't get confused
-export const Scope1Projects = [
-	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
-];
-export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort,
-];
 
 export declare interface CaseStudy {
 	title: string;
@@ -49,7 +58,7 @@ declare interface RecapAvatar {
  */
 declare interface ProjectControlParams {
 	/**
-	 * `Page` symbol associated with this project.
+	 * Page symbol associated with this project.
 	 */
 	pageId: symbol;
 	/**
@@ -128,6 +137,10 @@ declare interface ProjectControlParams {
 	 * Whether the project will be visible. For example, only show if a PREVIOUS Project has been selected, or if the year is at least 3.
 	 */
 	visible?: Resolvable<boolean>;
+	/**
+	 * Whether the project card should appear disabled.
+	 */
+	disabled?: Resolvable<boolean>;
 }
 
 export class ProjectControl implements ProjectControlParams{
@@ -154,9 +167,10 @@ export class ProjectControl implements ProjectControlParams{
 	 */
 	hasDisplayedSurprises = false;
 	visible: Resolvable<boolean>;
+	disabled: Resolvable<boolean>;
 	
 	/**
-	 * Project Control constructor. Requires 
+	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
 	 * @param params 
 	 */
 	constructor(params: ProjectControlParams) {
@@ -181,6 +195,7 @@ export class ProjectControl implements ProjectControlParams{
 		else this.surprises = [];
 		this.hiddenSurprises = params.hiddenSurprises;
 		this.visible = params.visible || true; // Default to true
+		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
 	}
 	
@@ -248,6 +263,9 @@ export class ProjectControl implements ProjectControlParams{
 		return this.cost - this.getRebates();
 	}
 	
+	/**
+	 * Gets a Choice control for the GroupedChoices pages in PageControls.tsx
+	 */
 	getChoiceControl(): Choice {
 		
 		const self = this; // for use in bound button handlers
@@ -315,6 +333,7 @@ export class ProjectControl implements ProjectControlParams{
 				else return this.resolveToValue(self.visible, true);
 			},
 			key: this.pageId.description,
+			disabled: this.disabled,
 		};
 		
 		function displaySurprises(this: App) {

@@ -25,16 +25,6 @@ import { newInfoDialogControl } from './components/InfoDialog';
 
 let st = performance.now(); // Performance measurement
 
-// IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
-// These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
-// 	when they click Proceed (to Year Recap) while only having selected projects from one scope.
-export const Scope1Projects = [
-	Pages.wasteHeatRecovery, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
-];
-export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA,
-];
-
 declare interface PageControls {
 	[key: symbol]: PageControl;
 }
@@ -146,26 +136,6 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Invest in electrification',
 			choices: [
-				// {
-				// 	text: '6. Change fossil fuel boiler to an electric boiler',
-				// 	buttons: [
-				// 		infoButtonWithDialog({
-				// 			title: 'Fuel Switching - Fossil Fuel to Electric Boiler',
-				// 			text: [
-				// 				'Currently, your facility operates two 700-hp firetube boilers that burn {No. 2 oil}, which releases CO_{2} into the atmosphere.', 
-				// 				'You have the opportunity to replace your oil-firing boiler with an {electric} one, which will {prevent} direct carbon emissions, {minimize} noise pollution, and {reduce} air contaminants.',
-				// 			],
-				// 			img: 'images/electric-boiler.png',
-				// 			imgAlt: 'Electric boiler',
-				// 			imgObjectFit: 'contain',
-				// 			cards: projectCostAndCO2ReductionCards(200_000, 4.5),
-				// 		}),
-				// 		co2SavingsButton(4.5),
-				// 		selectButton(function () {
-				// 			return Pages.scope1Projects; // todo
-				// 		}),
-				// 	]
-				// }
 				Projects[Pages.electricBoiler].getChoiceControl(),
 			]
 		}
@@ -184,20 +154,6 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
-				// {
-				// 	text: '4. Purchase green power tariff from local utility',
-				// 	buttons: [
-				// 		// todo info
-				// 		co2SavingsButton(8.0),
-				// 		selectButtonCheckbox(function (state, nextState) {
-				// 			toggleSelectedPage(Pages.greenPowerTariff, state, nextState);
-				// 			return Pages.scope2Projects;
-				// 		},
-				// 		undefined,
-				// 		(state) => state.selectedProjects.includes(Pages.greenPowerTariff)
-				// 		),
-				// 	]
-				// },
 				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
 			]
 		}, {
@@ -224,9 +180,6 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 }, Pages.selectScope);
 
 PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
-
-
-// TODO tomorrow: New control class for waste heat recovery, slides 7 and 8
 
 PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
 	title: '{SELECTED}: WASTE HEAT RECOVERY',
