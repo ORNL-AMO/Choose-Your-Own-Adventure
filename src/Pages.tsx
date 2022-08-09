@@ -26,6 +26,7 @@ const Pages = {
 	greenPowerTariff: Symbol('green-power-tariff'),
 	windVPPA: Symbol('wind-vppa'),
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
+	solarFieldOnsite: Symbol('solar-field-onsite'),
 };
 
 /**

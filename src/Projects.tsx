@@ -31,7 +31,7 @@ export const Scope1Projects = [
  * List of Page symbols for projects that are in the SCOPE 2 list.
  */
 export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort,
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite,
 ];
 
 /**
@@ -403,15 +403,21 @@ export class ProjectControl implements ProjectControlParams{
 /* -======================================================- */
 
 Projects[Pages.wasteHeatRecovery] = new ProjectControl({
+	// Page symbol associated with the project. MUST BE THE SAME AS WHAT APPEARS IN Projects[...]
 	pageId: Pages.wasteHeatRecovery,
-	cost: 65_000, // project cost, in dollars
+	// project cost, in dollars
+	cost: 65_000, 
+	// Stats that appear in the CARDS inside the INFO DIALOG.
 	statsInfoAppliers: {
-		naturalGasMMBTU: absolute(-50_000), // reduces natural gas usage
+		naturalGasMMBTU: absolute(-50_000), // reduces natural gas usage by a flat 50,000
 	},
+	// Stats that 
 	statsActualAppliers: {
 		totalRebates: absolute(5_000),
 		naturalGasMMBTU: absolute(-50_000),
 	},
+	// Stats that are HIDDEN until AFTER the user commits to the next year. 
+	statsHiddenAppliers: {},
 	title: 'Energy Efficiency - Waste Heat Recovery',
 	shortTitle: 'Upgrade heat recovery on boiler/furnace system',
 	choiceInfoText: [
@@ -422,6 +428,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImg: 'images/waste-heat-recovery.png',
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
+	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
 	surprises: [
 		{
 			title: 'CONGRATULATIONS!',
@@ -429,11 +436,13 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 			img: 'images/confetti.png'
 		},
 	],
+	// Case study to show in the year recap
 	caseStudy: {
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
 	},
+	// Bit of text to preview what to expect from the project.
 	previewButton: {
 		text: '50k',
 		variant: 'text',
@@ -614,12 +623,31 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		'This project would include under-canopy LED lighting system installation and installation of a custom-designed carport structure.'
 	],
 	choiceInfoImg: 'images/solar-panels.png',
+	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
 		title: 'Lockheed Martin 2.25 Megawatts Solar Carport',
 		url: 'https://www.agt.com/portfolio-type/lockheed-martin-solar-carport/',
 		text: 'In 2017, {Lockheed Martin} installed a 4-acre solar carport and was able to provide {3,595,000} kWh/year, or enough electricity to power almost {500 homes} annually.',
 	},
+});
+
+Projects[Pages.solarFieldOnsite] = new ProjectControl({
+	pageId: Pages.solarFieldOnsite,
+	cost: 150_000,
+	statsInfoAppliers: {},
+	statsActualAppliers: {},
+	title: 'Bundled RECs – Build Solar Field Onsite',
+	shortTitle: 'Build solar field onsite',
+	choiceInfoText: [
+		'There is {suitable, unused} land next to your facility where weather conditions are ideal for installing ground-mounted solar panels.',
+		'These solar panels could generate around {1 MWh} of electricity per year, which would {reduce} your facility’s carbon footprint by generating {zero-emission} renewable electricity.'
+	],
+	choiceInfoImg: 'images/solar-field.jpg',
+	choiceInfoImgAlt: 'A field of solar panels.',
+	recapDescription: 'Insert flavor text here!',
+	// todo case study
+	visible: state => state.completedProjects.includes(Pages.solarPanelsCarPort),
 });
 
 /**

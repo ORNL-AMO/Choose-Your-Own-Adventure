@@ -14,7 +14,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
-import { backButton, continueButton, selectButton, infoButtonWithPopup, infoButtonWithDialog, selectButtonCheckbox, closeDialogButton } from './components/Buttons';
+import { backButton, continueButton, selectButton, infoButtonWithPopup, selectButtonCheckbox } from './components/Buttons';
 import Pages from './Pages';
 import Projects from './Projects';
 import { theme } from './components/theme';
@@ -155,6 +155,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
 				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
+				Projects[Pages.solarFieldOnsite].getChoiceControl(),
 			]
 		}, {
 			title: 'Un-bundled RECs',

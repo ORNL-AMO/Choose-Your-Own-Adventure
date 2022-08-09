@@ -136,9 +136,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 		};
 		
 		// @ts-ignore - for debugging
-		window.app = this;
-		// @ts-ignore - for debugging
-		window.Pages = Pages;
+		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
+		
 		// window.onbeforeunload = () => 'Are you sure you want to exit?'; TODO enable later
 		
 		// todo
@@ -169,6 +168,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 			dialog = fillDialogProps(controlProps);
 			dialog.open = true;
 		}
+		// this happens, for example, when you do app.setPage(app.state.currentPage) after an info dialog 
+		//	has been summoned via summonInfoDialog
 		else {
 			dialog = cloneAndModify(this.state.dialog, {open: false});
 			currentPageProps = controlProps;
