@@ -401,6 +401,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 								/>
 							: <></>}
 						</Box>
+						{/* InfoDialog is always "mounted" so MUI can smoothly animate its opacity */}
 						<InfoDialog
 							{...this.state.dialog}
 							{...controlCallbacks}

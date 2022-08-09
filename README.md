@@ -94,6 +94,67 @@ Projects[Pages.myNewProject] = new ProjectControl({
 ```
 4. In the newGroupedChoicesControl parameters for `PageControls[Pages.scope1Projects]`, add `Projects[Pages.myNewProject].getChoiceControl()` to the `choices` list of one of the `groups`.
 
+### Adding new controllable components
+
+1. Create a [React component](https://reactjs.org/docs/components-and-props.html) inside the `components` subfolder. 
+```tsx
+import { PureComponentIgnoreFuncs } from './functions-and-types';
+import type { ControlCallbacks, PageControl } from './controls';
+
+export class NewComponent extends PureComponentIgnoreFuncs {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return <h1>Hello world! My name is {this.props.name}</h1>;
+	}
+}
+```
+2. Define a "control props" interface for the component, for use in PageControls.
+```tsx
+interface NewComponentControlProps {
+	name: string;
+}
+```
+3. Make the component's `props` interface/type extend `ControlCallbacks` and those control props.
+```tsx
+interface NewComponentProps extends ControlCallbacks, NewComponentControlProps { /* Leave it empty */ }
+
+class NewComponent extends PureComponentIgnoreFuncs <NewComponentProps> {
+	constructor(props: NewComponentProps) {
+		super(props);
+	}
+	render() {
+		return <h1>Hello world! My name is {this.props.name}</h1>;
+	}
+}
+```
+4. Make a "newControl" constructor function for use in PageControls, which accepts your "control props" as its first parameter.
+```tsx
+
+export function newNewComponentControl(props: NewComponentControlProps, onBack: PageCallback): PageControl {
+	return {
+		componentClass: NewComponent,
+		controlProps: props,
+		onBack,
+		hideDashboard: false, // you could also include hideDasboard as a required property of NewComponentControlProps, like in GroupedChoicesControlProps
+	}
+}
+```
+5. In `App.tsx` -> `CurrentPage`, include the new component in the switch statement, depending on what props you wish to pass it.
+```tsx
+	switch (this.props.componentClass) {
+		case StartPage:
+		case GroupedChoices:
+		case NewComponent:
+			if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
+			return (<this.props.componentClass
+				{...this.props.controlProps} // Pass everything into the child
+				{...controlCallbacks}
+			/>);
+		...
+	}
+```
 ## Misc.
 
 ### Template text
