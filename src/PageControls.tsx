@@ -97,7 +97,7 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 			choices: [
 				{
 					title: 'Scope 2',
-					text: 'Tackle Scope 1 emissions – fossil fuel consumption',
+					text: 'Tackle Scope 2 emissions – purchased electricity',
 					buttons: [
 						infoButtonWithPopup(
 							infoPopupWithIcons(

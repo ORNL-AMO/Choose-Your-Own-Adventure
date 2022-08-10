@@ -311,7 +311,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 				this.summonInfoDialog(warningDialogProps);
 			}
 			else if (!someScope2) {
-				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
 				this.summonInfoDialog(warningDialogProps);
 			}
 			return;
