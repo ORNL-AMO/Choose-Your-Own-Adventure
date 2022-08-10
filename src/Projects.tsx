@@ -14,6 +14,7 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import FactoryIcon from '@mui/icons-material/Factory';
 import Pages from './Pages';
 import { Alert } from '@mui/material';
+import TrafficConeIcon from './icons/TrafficConeIcon';
 
 let st = performance.now();
 
@@ -51,6 +52,19 @@ export declare interface CaseStudy {
 declare interface RecapAvatar {
 	icon: JSX.Element;
 	backgroundColor?: string;
+}
+
+/**
+ * Hidden surprise to appear on the year recap page.
+ */
+declare interface HiddenSurprise {
+	title: string;
+	text: string | string[];
+	avatar: {
+		icon: JSX.Element,
+		backgroundColor: string,
+		color: string,
+	}
 }
 
 /**
@@ -125,7 +139,7 @@ declare interface ProjectControlParams {
 	/**
 	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
 	 */
-	hiddenSurprises?: any[]; // TODO
+	hiddenSurprises?: HiddenSurprise[]; // TODO
 	/**
 	 * External case study for a project, i.e., example of a real company doing that project idea.
 	 * @param {string} title
@@ -159,7 +173,7 @@ export class ProjectControl implements ProjectControlParams{
 	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
 	surprises: DialogControlProps[];
-	hiddenSurprises?: DialogControlProps[];
+	hiddenSurprises?: HiddenSurprise[]; //todo
 	caseStudy?: CaseStudy;
 	recapAvatar: RecapAvatar;
 	/**
@@ -257,10 +271,17 @@ export class ProjectControl implements ProjectControlParams{
 	}
 	
 	/**
+	 * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
+	 */
+	getHiddenCost(): number {
+		return (this.statsHiddenAppliers && this.statsHiddenAppliers.moneySpent) ? this.statsHiddenAppliers.moneySpent.modifier : 0;
+	}
+	
+	/**
 	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
 	 */
 	getNetCost(): number {
-		return this.cost - this.getRebates();
+		return this.cost - this.getRebates() + this.getHiddenCost();
 	}
 	
 	/**
@@ -614,7 +635,12 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	},
 	hiddenSurprises: [{
 		title: 'Uh oh - Bad Asphalt!',
-		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.'
+		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
+		avatar: {
+			icon: <TrafficConeIcon/>,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
 	}],
 	title: 'Bundled RECs - Install Solar Panels to Facility\'s Carport',
 	shortTitle: 'Install solar panels to facility\'s carport',

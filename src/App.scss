@@ -3,49 +3,49 @@ $doe-green: #007a3e;
 $blur-radius: 5px;
 
 .homepage {
-  width: 100%;
-  height: 100%;
-  color: $better-plants-blue;
-  text-align: center;
-  &::before {
-    content: '';
-    @extend .background-image;
-  }
+	width: 100%;
+	height: 100%;
+	color: $better-plants-blue;
+	text-align: center;
+	&::before {
+		content: '';
+		@extend .background-image;
+	}
 }
 
 .background-image {
-  position: fixed;
-  z-index: -1;
-  background: url('images/home-background.jpg');
-  filter: blur($blur-radius);
-  top: -1 * $blur-radius;
-  left: -1 * $blur-radius;
-  bottom: -1 * $blur-radius;
-  right: -1 * $blur-radius;
-  display: block;
+	position: fixed;
+	z-index: -1;
+	background: url('images/home-background.jpg');
+	filter: blur($blur-radius);
+	top: -1 * $blur-radius;
+	left: -1 * $blur-radius;
+	bottom: -1 * $blur-radius;
+	right: -1 * $blur-radius;
+	display: block;
 }
 
 .row {
-  &::before, &::after {
-    content: "";
-    display: table;
-    clear: both;
-  }
+	&::before, &::after {
+		content: "";
+		display: table;
+		clear: both;
+	}
 }
 
 .emphasis {
-  color: $better-plants-blue;
-  font-weight: bold;
-  &.money {
+	color: $better-plants-blue;
+	font-weight: bold;
+	&.money {
 	color: $doe-green;
-  }
+	}
 }
 
 .semi-emphasis, a, a:visited {
-  color: $better-plants-blue;
-  &.money {
+	color: $better-plants-blue;
+	&.money {
 	color: $doe-green;
-  }
+	}
 }
 
 .i {
@@ -60,10 +60,18 @@ $blur-radius: 5px;
 }
 
 .year-recap-charts {
-    justify-content: center;
-    display: flex;
+		justify-content: center;
+		display: flex;
 	flex-wrap: wrap;
 	& > * {
 		padding: 8px;
+	}
+}
+
+.year-recap-hidden-surprise {
+	background: linear-gradient(to right bottom, rgba(251, 67, 67, 98%), rgb(147, 39, 39) 120%)!important;
+	// color: rgba(255, 255, 255, 0.9)!important;
+	& .emphasis {
+		color: white;
 	}
 }

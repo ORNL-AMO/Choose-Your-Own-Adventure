@@ -65,7 +65,7 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	completedProjects: symbol[];
 	trackedStats: TrackedStats;
 	yearlyTrackedStats: TrackedStats[];
-	handleYearRecapOnProceed: () => void;
+	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
@@ -108,7 +108,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		super(props);
 		
 		let startPage = Pages.start; let showDashboardAtStart = false;
-		startPage = Pages.selectScope; showDashboardAtStart = true; // temporary, for debugging
+		// startPage = Pages.selectScope; showDashboardAtStart = true; // temporary, for debugging
 		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
 		
 		// For info on state, see https://reactjs.org/docs/state-and-lifecycle.html
@@ -129,7 +129,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			],
 			showDashboard: showDashboardAtStart,
 			selectedProjects: [],
-			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, ], // temporary, for debugging
+			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.solarPanelsCarPort, ], // temporary, for debugging
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
@@ -321,16 +321,21 @@ export class App extends React.PureComponent <unknown, AppState> {
 		this.setPage(Pages.yearRecap);
 	}
 	
-	handleYearRecapOnProceed() {
+	/**
+	 * Proceed to the next year.\
+	 * JL note: I know it's spaghetti.... but i only had a few hours to add the hidden surprise stuff
+	 * @param yearFinalStats The final stats for the year, including calculated hidden surprises.
+	 */
+	handleYearRecapOnProceed(yearFinalStats: TrackedStats) {
 		
-		let thisYearStart = this.state.yearlyTrackedStats[this.state.trackedStats.year - 1];
-		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${this.state.trackedStats.year}`);
+		let thisYearStart = this.state.yearlyTrackedStats[yearFinalStats.year - 1];
+		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${yearFinalStats.year}`);
 		
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
-		let savings = calculateYearSavings(thisYearStart, this.state.trackedStats);
-		let newBudget = this.state.trackedStats.totalBudget + this.state.trackedStats.financesAvailable + savings.electricity + savings.naturalGas;
+		let savings = calculateYearSavings(thisYearStart, yearFinalStats);
+		let newBudget = yearFinalStats.totalBudget + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
 		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
-		let newTrackedStats = {...this.state.trackedStats};
+		let newTrackedStats = {...yearFinalStats};
 		newTrackedStats.totalBudget = newBudget;
 		newTrackedStats.financesAvailable = newBudget;
 		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
@@ -340,7 +345,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		// Move selectedProjects into completedProjects
 		let newCompletedProjects = [...this.state.completedProjects, ...this.state.selectedProjects];
 		// Update yearlyTrackedStats
-		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...this.state.trackedStats}];
+		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...yearFinalStats}];
 		
 		this.setState({
 			completedProjects: newCompletedProjects,
@@ -397,7 +402,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									selectedProjects={this.state.selectedProjects} // note: if selectedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									completedProjects={this.state.completedProjects}
 									yearlyTrackedStats={this.state.yearlyTrackedStats}
-									handleYearRecapOnProceed={() => this.handleYearRecapOnProceed()}
+									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}
 								/>
 							: <></>}
 						</Box>

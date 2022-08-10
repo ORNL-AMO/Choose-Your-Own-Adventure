@@ -20,10 +20,12 @@ import {
 	TableCell,
 	TableBody,
 	Paper,
+	ThemeProvider,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
+import { emptyTrackedStats } from '../trackedStats';
 import { calculateYearSavings } from '../trackedStats';
 import { calculateAutoStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
@@ -39,10 +41,11 @@ import {
 	withSign,
 } from '../functions-and-types';
 import GaugeChart from './GaugeChart';
+import { theme, darkTheme } from './theme';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 	render() {
-		let thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
+		const thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
 		if (!thisYearStart) {
 			throw new Error(
 				`Could not find stats for the start of year ${this.props.year} (index ${
@@ -53,9 +56,14 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		// As we loop through the projects, we'll mutate this object and provide gauge charts for how the stats changed
 		let mutableStats: TrackedStats = { ...thisYearStart };
-		// todo: hidden surprises
-
-		const projectRecaps = this.props.selectedProjects.map((projectKey, idx) => {
+		// Since hidden surprises will change stats, we need to keep track of the hidden changes for our sanity check later
+		let hiddenStatDiff: TrackedStats = { ...emptyTrackedStats };
+		
+		const projectRecaps: JSX.Element[] = [];
+		
+		for (let i in this.props.selectedProjects) {
+			let projectKey = this.props.selectedProjects[i];
+			
 			const thisProject = Projects[projectKey];
 			if (!thisProject)
 				throw new Error(
@@ -101,6 +109,17 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					/>
 				);
 			}
+			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
+			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
+			for (let key in thisProject.statsHiddenAppliers) {
+				let thisApplier: NumberApplier = thisProject.statsHiddenAppliers[key];
+				let oldValue = mutableStats[key];
+				let newValue = thisApplier.applyValue(oldValue);
+				let difference = newValue - oldValue;
+				mutableStats[key] = newValue;
+				hiddenStatDiff[key] = difference;
+			}
+			
 			let prevCarbonSavings = mutableStats.carbonSavings;
 			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
@@ -135,7 +154,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			);
 			// todo hidden, no idea how i'm gonna imp that
 
-			return (
+			projectRecaps.push(
 				<ListItem key={projectKey.description}>
 					<Card sx={{ width: '100%' }}>
 						<Grid
@@ -175,14 +194,31 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								{gaugeCharts}
 								<div style={{ width: '100%', textAlign: 'center' }}>
 									<Typography variant='body1'>
-										Initial project cost:{' '}
-										<Emphasis money>
-											${thisProject.cost.toLocaleString('en-US')}
-										</Emphasis>{' '}
-										&nbsp; Rebates:{' '}
-										<Emphasis money>
-											${thisProject.getRebates().toLocaleString('en-US')}
-										</Emphasis>
+										<>
+											Initial project cost:{' '}
+											<Emphasis money>
+												${thisProject.cost.toLocaleString('en-US')}
+											</Emphasis>
+											{' '}
+											&nbsp; Rebates:{' '}
+											<Emphasis money>
+												${thisProject.getRebates().toLocaleString('en-US')}
+											</Emphasis>
+											{' '}
+											&nbsp; Extra costs:{' '}
+											<Emphasis money>
+												${thisProject.getHiddenCost().toLocaleString('en-US')}
+											</Emphasis>
+											{/* Hidden costs... uncomment this if you want it to not show up for projects without hidden costs */}
+											{/* {thisProject.getHiddenCost() && 
+												<>
+													{' '}&nbsp; Extra costs:{' '}
+													<Emphasis money>
+														${thisProject.getHiddenCost().toLocaleString('en-US')}
+													</Emphasis>
+												</>
+											} */}
+										</>
 									</Typography>
 									<Typography variant='body1'>
 										Net cost:{' '}
@@ -207,14 +243,48 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Card>
 				</ListItem>
 			);
-		});
+			
+			// Hidden surprises underneath the project recap
+			if (thisProject.hiddenSurprises) {
+				// add to projectRecaps...
+				projectRecaps.push(
+					// ...for each hiddenSurprise
+					...thisProject.hiddenSurprises.map((surprise, idx) => {
+						return (
+							<ListItem key={`${projectKey.description}_surprise_${idx}`}>
+								{/* Using darkTheme for the text */}
+								<ThemeProvider theme={darkTheme}>
+									{/* Using SCSS for this one to be more easily editable, as well as making emphasized text not blue */}
+									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
+										<CardHeader
+											avatar={
+												<Avatar 
+													sx={{bgcolor: surprise.avatar.backgroundColor, color: surprise.avatar.color}}
+												>
+													{surprise.avatar.icon}
+												</Avatar>
+											}
+											title={surprise.title}
+											subheader={thisProject.shortTitle}
+										/>
+										<CardContent>
+											<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)}/>
+										</CardContent>
+									</Card>
+								</ThemeProvider>
+							</ListItem>
+						);
+					})
+				);
+			}
+		}
 
 		// Sanity check! The current year "real" stats are spread directly into this.props
 		for (let key in mutableStats) {
 			if (typeof this.props[key] !== 'undefined') {
-				if (this.props[key] !== mutableStats[key]) {
+				if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
 					console.error(
-						`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}`
+						`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
 					);
 				}
 			}
@@ -294,7 +364,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						<Button
 							sx={{ width: 180 }}
 							variant='text'
-							onClick={this.props.handleYearRecap}
+							onClick={() => this.props.handleYearRecap(mutableStats)}
 							endIcon={rightArrow()}
 						>
 							Proceed to year {this.props.year + 1}
@@ -331,5 +401,8 @@ export interface YearRecapProps
 	selectedProjects: symbol[];
 	completedProjects: symbol[];
 	yearlyTrackedStats: TrackedStats[];
-	handleYearRecap: () => void;
+	/**
+	 * @param yearFinalStats The final stats for the year, including hidden surprises.
+	 */
+	handleYearRecap: (yearFinalStats: TrackedStats) => void;
 }

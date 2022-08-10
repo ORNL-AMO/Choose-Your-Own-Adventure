@@ -71,6 +71,27 @@ export const initialTrackedStats: TrackedStats = {
 	year: 1,
 };
 
+/**
+ * A new TrackedStats object where everything is zero.
+ */
+export const emptyTrackedStats: TrackedStats = {
+	naturalGasMMBTU: 0, 
+	naturalGasCostPerMMBTU: 0,
+	naturalGasEmissionsPerMMBTU: 0,
+	electricityUseKWh: 0, 
+	electricityCostPerKWh: 0,
+	electricityEmissionsPerKWh: 0,
+	
+	financesAvailable: 0,
+	totalBudget: 0,
+	carbonSavings: 0,
+	carbonEmissions: 0,
+	moneySpent: 0,
+	totalMoneySpent: 0,
+	totalRebates: 0,
+	year: 0,
+};
+
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
 function calculateEmissions(stats: TrackedStats): number {

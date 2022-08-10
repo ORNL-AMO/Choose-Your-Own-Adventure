@@ -1,5 +1,6 @@
 import { createTheme, Paper, styled } from '@mui/material';
 
+// see: https://mui.com/material-ui/customization/theming/ and https://mui.com/material-ui/customization/default-theme/#main-content
 export const theme = createTheme({
 	palette: {
 		mode: 'light',
@@ -15,6 +16,15 @@ export const theme = createTheme({
 			main: '#e9bc18',
 		}
 	},
+});
+
+export const darkTheme = createTheme({
+	palette: {
+		mode: 'dark',
+		text: {
+			primary: 'rgba(255, 255, 255, 0.95)'
+		}
+	}
 });
 
 
