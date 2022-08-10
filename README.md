@@ -48,6 +48,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 # Developing
 
+Using Visual Studio Code is recommended for this project because of its built-in support for TypeScript. Make sure the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) plugin is installed for enforcing code style and automatic fixes of simple rules (like single-quote strings and tabbing). Most interfaces, types, and methods are documented with a combination of JSDoc and TypeScript. 
+
 ## Files
 
 ### Pages.tsx
@@ -77,6 +79,10 @@ The top of `Projects.tsx` contains `Scope1Projects` and `Scope2Projects` which m
 ### functions-and-types.tsx
 
 `functions-and-types.tsx` contains useful functions and type declarations used across the app. See the JSDoc inside the file for more.
+
+### trackedStats.tsx
+
+`trackedStats.tsx` contains definitions for, and functions related to, the stats that are tracked across the game such as budget and emissions.
 
 ## Adding new content
 
@@ -185,3 +191,76 @@ return (
 Some properties in `pageControls.tsx` and `projects.tsx` still just take strings, instead of supporting Resolvables, i.e., functions that return the desired type. For info on Resolvables, check `functions-and-types.tsx`. All you need to do to switch to a Resolvable is change (for example) is:
 1. In the TypeScript interface declaration for props, change `myProp: string` to `myProp: Resolvable<string>`, and
 1. In code for the component which takes the property, change all instances of `myProp` to `this.props.resolveToValue(myProp)`. All components are passed the function `App.resolveToValue`, which provides them full access to `App` via `this` as well as the app state via the first called function parameter.
+
+### Icons
+
+First, search for icons that may work in [MUI's Material Icons page](https://mui.com/material-ui/material-icons/#main-content). It comes with over 2,000 icons, and they're easy to import.
+
+```jsx
+import BoltIcon from '@mui/icons-material/Bolt';
+const icon = <BoltIcon/>;
+```
+
+If no icons that fit what you're looking for, try [iconmonstr](https://iconmonstr.com/). They're already included in the attributions section. Download it as an **svg**, then do the following:
+
+1. Create a new file in the `icons` subfolder. For example: `SmileSunglassesIcon.tsx`
+2. Add the following to the top:
+```jsx
+import React from 'react';
+import { createSvgIcon } from '@mui/material';
+```
+3. Open the svg file downloaded from iconmonstr. Copy everything INSIDE the `<svg></svg>` tags and place it according to the following pattern:
+```jsx
+export default createSvgIcon(
+	<Contents_of_SVG>,
+	'Name of SVG icon'
+);
+```
+Example:
+
+```svg
+<!-- iconmonstr-smiley-20.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm0 2c3.691 0 6.915 2.016 8.647 5h-17.294c1.732-2.984 4.956-5 8.647-5zm0 20c-5.514 0-10-4.486-10-10 0-1.045.163-2.052.461-3h1.859c.606 1.518 1.929 3 3.986 3 2.477 0 2.153-2.31 3.694-2.31s1.218 2.31 3.695 2.31c2.055 0 3.379-1.482 3.984-3h1.86c.298.948.461 1.955.461 3 0 5.514-4.486 10-10 10zm5.508-8.059l.492.493c-1.127 1.72-3.199 3.566-5.999 3.566-2.801 0-4.874-1.846-6.001-3.566l.492-.493c1.513 1.195 3.174 1.931 5.509 1.931 2.333 0 3.994-.736 5.507-1.931z"/></svg>
+```
+becomes
+```jsx
+// icons/SmileSunglassesIcon.tsx
+import React from 'react';
+import { createSvgIcon } from '@mui/material';
+
+export default createSvgIcon(
+	<path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm0 2c3.691 0 6.915 2.016 8.647 5h-17.294c1.732-2.984 4.956-5 8.647-5zm0 20c-5.514 0-10-4.486-10-10 0-1.045.163-2.052.461-3h1.859c.606 1.518 1.929 3 3.986 3 2.477 0 2.153-2.31 3.694-2.31s1.218 2.31 3.695 2.31c2.055 0 3.379-1.482 3.984-3h1.86c.298.948.461 1.955.461 3 0 5.514-4.486 10-10 10zm5.508-8.059l.492.493c-1.127 1.72-3.199 3.566-5.999 3.566-2.801 0-4.874-1.846-6.001-3.566l.492-.493c1.513 1.195 3.174 1.931 5.509 1.931 2.333 0 3.994-.736 5.507-1.931z"/>,
+	'SmileSunglassesIcon',
+);
+```
+
+# Acknowledgements
+
+This tool was developed by staff at Oak Ridge National Laboratory (ORNL) and in collaboration with the U.S. Department of Energy. This software tool was funded by the U.S. Department of Energy's Office of Energy Efficiency and Renewable Energy under Oak Ridge National Laboratory Contract No. DE-AC05-00OR22725.
+
+## Personnel
+
+### Oak Ridge National Laboratory staff
+
+- Gina Accawi
+- Kristina Armstrong
+- Paulomi Nandy
+- Sachin Nimbalkar
+- Thomas Wenning
+
+### Student Undergraduate Laboratory Internship participants
+
+- Jordan Lees
+
+## Software
+
+Choose Your Own Solution was made possible by open-source software, most notably including:
+
+- React (https://reactjs.org/)
+- MUI / Material UI (https://mui.com/)
+- visx (https://airbnb.io/visx/)
+- react-spring (https://react-spring.dev/)
+- Sass (https://sass-lang.com/)
+- Node.JS (https://nodejs.org/en/)
+- TypeScript (https://www.typescriptlang.org/)
+- Icons from iconmonstr (https://iconmonstr.com/)
