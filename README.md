@@ -248,6 +248,10 @@ This tool was developed by staff at Oak Ridge National Laboratory (ORNL) and in 
 - Sachin Nimbalkar
 - Thomas Wenning
 
+### Contractors and Oak Ridge Associated Universities Student Employees
+
+- Rachel Hernandez
+
 ### Student Undergraduate Laboratory Internship participants
 
 - Jordan Lees
