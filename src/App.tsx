@@ -340,12 +340,13 @@ export class App extends React.PureComponent <unknown, AppState> {
 		newTrackedStats.financesAvailable = newBudget;
 		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
 		newTrackedStats.moneySpent = 0;
-		newTrackedStats.year += 1;
+		newTrackedStats.year = yearFinalStats.year + 1;
+		console.log(newTrackedStats.year);
 		
 		// Move selectedProjects into completedProjects
 		let newCompletedProjects = [...this.state.completedProjects, ...this.state.selectedProjects];
 		// Update yearlyTrackedStats
-		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...yearFinalStats}];
+		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...newTrackedStats}];
 		
 		this.setState({
 			completedProjects: newCompletedProjects,

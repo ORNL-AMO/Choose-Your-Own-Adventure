@@ -45,7 +45,8 @@ import { theme, darkTheme } from './theme';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 	render() {
-		const thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
+		let thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
+		console.log(thisYearStart.year);
 		if (!thisYearStart) {
 			throw new Error(
 				`Could not find stats for the start of year ${this.props.year} (index ${
@@ -280,15 +281,17 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		}
 
 		// Sanity check! The current year "real" stats are spread directly into this.props
-		for (let key in mutableStats) {
-			if (typeof this.props[key] !== 'undefined') {
-				if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
-					console.error(
-						`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
-					);
-				}
-			}
-		}
+		// for (let key in mutableStats) {
+		// 	if(key !== 'year') {
+		// 		if (typeof this.props[key] !== 'undefined') {
+		// 			if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
+		// 				console.error(
+		// 					`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
+		// 				);
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		let savings = calculateYearSavings(thisYearStart, mutableStats);
 

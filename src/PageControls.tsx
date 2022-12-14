@@ -119,11 +119,12 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 });
 
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
+	title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
+				Projects[Pages.emptyScope1P5].getChoiceControl(),
 				Projects[Pages.wasteHeatRecovery].getChoiceControl(),
 				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
 				Projects[Pages.processHeatingUpgrades].getChoiceControl(),
@@ -132,11 +133,15 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 			title: 'Fuel switching',
 			choices: [
 				Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
+				Projects[Pages.emptyScope1P1].getChoiceControl(),				
+				Projects[Pages.emptyScope1P2].getChoiceControl(),
 			]
 		}, {
 			title: 'Invest in electrification',
 			choices: [
 				Projects[Pages.electricBoiler].getChoiceControl(),
+				Projects[Pages.emptyScope1P3].getChoiceControl(),				
+				Projects[Pages.emptyScope1P4].getChoiceControl(),
 			]
 		}
 	],
@@ -149,13 +154,18 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.lightingUpgrades].getChoiceControl(),
+				Projects[Pages.lightingUpgrades].getChoiceControl(),			
+				Projects[Pages.emptyScope2P1].getChoiceControl(),			
+				Projects[Pages.emptyScope2P2].getChoiceControl(),			
+				Projects[Pages.emptyScope2P3].getChoiceControl(),
 			]
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
 				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
-				Projects[Pages.solarFieldOnsite].getChoiceControl(),
+				Projects[Pages.solarFieldOnsite].getChoiceControl(),			
+				Projects[Pages.emptyScope2P4].getChoiceControl(),			
+				Projects[Pages.emptyScope2P5].getChoiceControl(),
 			]
 		}, {
 			title: 'Un-bundled RECs',
