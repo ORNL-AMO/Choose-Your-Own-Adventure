@@ -341,7 +341,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
 		newTrackedStats.moneySpent = 0;
 		newTrackedStats.year = yearFinalStats.year + 1;
-		console.log(newTrackedStats.year);
 		
 		// Move selectedProjects into completedProjects
 		let newCompletedProjects = [...this.state.completedProjects, ...this.state.selectedProjects];
