@@ -27,6 +27,17 @@ const Pages = {
 	windVPPA: Symbol('wind-vppa'),
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
 	solarFieldOnsite: Symbol('solar-field-onsite'),
+	//empty projs
+	emptyScope1P1: Symbol('empty-scope1-p1'),
+	emptyScope1P2: Symbol('empty-scope1-p2'),
+	emptyScope1P3: Symbol('empty-scope1-p3'),
+	emptyScope1P4: Symbol('empty-scope1-p4'),
+	emptyScope1P5: Symbol('empty-scope1-p5'),
+	emptyScope2P1: Symbol('empty-scope2-p1'),
+	emptyScope2P2: Symbol('empty-scope2-p2'),
+	emptyScope2P3: Symbol('empty-scope2-p3'),
+	emptyScope2P4: Symbol('empty-scope2-p4'),
+	emptyScope2P5: Symbol('empty-scope2-p5'),
 };
 
 /**

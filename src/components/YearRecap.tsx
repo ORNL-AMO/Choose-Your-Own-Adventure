@@ -280,15 +280,17 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		}
 
 		// Sanity check! The current year "real" stats are spread directly into this.props
-		for (let key in mutableStats) {
-			if (typeof this.props[key] !== 'undefined') {
-				if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
-					console.error(
-						`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
-					);
-				}
-			}
-		}
+		// for (let key in mutableStats) {
+		// 	if(key !== 'year') {
+		// 		if (typeof this.props[key] !== 'undefined') {
+		// 			if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
+		// 				console.error(
+		// 					`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
+		// 				);
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		let savings = calculateYearSavings(thisYearStart, mutableStats);
 
