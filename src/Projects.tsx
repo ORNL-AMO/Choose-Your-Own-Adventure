@@ -26,13 +26,13 @@ let st = performance.now();
  * List of Page symbols for projects that are in the SCOPE 1 list.
  */
 export const Scope1Projects = [
-	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler,
+	Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.processHeatingUpgrades, Pages.hydrogenPoweredForklifts, Pages.processHeatingUpgrades, Pages.electricBoiler, Pages.emptyScope1P1, Pages.emptyScope1P2, Pages.emptyScope1P3, Pages.emptyScope1P4, Pages.emptyScope1P5
 ];
 /**
  * List of Page symbols for projects that are in the SCOPE 2 list.
  */
 export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite,
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite, Pages.emptyScope2P1, Pages.emptyScope2P2, Pages.emptyScope2P3, Pages.emptyScope2P4, Pages.emptyScope2P5
 ];
 
 /**
@@ -675,6 +675,322 @@ Projects[Pages.solarFieldOnsite] = new ProjectControl({
 	// todo case study
 	visible: state => state.completedProjects.includes(Pages.solarPanelsCarPort),
 });
+
+//Empty Projects Scope 1 yr1-yr5
+Projects[Pages.emptyScope1P1] = new ProjectControl({
+	pageId: Pages.emptyScope1P1,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 1 yr1 prj1',
+	shortTitle: 'Empty Scope 1 yr1 prj1',
+	choiceInfoText: [
+		'Empty Scope 1 yr1 prj1',
+		'Empty Scope 1 yr1 prj1',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope1P2] = new ProjectControl({
+	pageId: Pages.emptyScope1P2,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 1 yr2 prj2',
+	shortTitle: 'Empty Scope 1 yr2 prj2',
+	choiceInfoText: [
+		'Empty Scope 1 yr2 prj2',
+		'Empty Scope 1 yr2 prj2',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope1P3] = new ProjectControl({
+	pageId: Pages.emptyScope1P3,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 1 yr3 prj3',
+	shortTitle: 'Empty Scope 1 yr3 prj3',
+	choiceInfoText: [
+		'Empty Scope 1 yr3 prj3',
+		'Empty Scope 1 yr3 prj3',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope1P4] = new ProjectControl({
+	pageId: Pages.emptyScope1P4,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 1 yr4 prj4',
+	shortTitle: 'Empty Scope 1 yr4 prj4',
+	choiceInfoText: [
+		'Empty Scope 1 yr4 prj4',
+		'Empty Scope 1 yr4 prj4',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope1P5] = new ProjectControl({
+	pageId: Pages.emptyScope1P5,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 1 yr5 prj5',
+	shortTitle: 'Empty Scope 1 yr5 prj5',
+	choiceInfoText: [
+		'Empty Scope 1 yr5 prj5',
+		'Empty Scope 1 yr5 prj5',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+
+//Empty Projects Scope 2 yr6-yr10
+
+Projects[Pages.emptyScope2P1] = new ProjectControl({
+	pageId: Pages.emptyScope2P1,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 2 yr1 prj1',
+	shortTitle: 'Empty Scope 1 yr1 prj1',
+	choiceInfoText: [
+		'Empty Scope 2 yr1 prj1',
+		'Empty Scope 2 yr1 prj1',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope2P2] = new ProjectControl({
+	pageId: Pages.emptyScope2P2,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 2 yr2 prj2',
+	shortTitle: 'Empty Scope 2 yr2 prj2',
+	choiceInfoText: [
+		'Empty Scope 2 yr2 prj2',
+		'Empty Scope 2 yr2 prj2',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope2P3] = new ProjectControl({
+	pageId: Pages.emptyScope2P3,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 2 yr3 prj3',
+	shortTitle: 'Empty Scope 2 yr3 prj3',
+	choiceInfoText: [
+		'Empty Scope 2 yr3 prj3',
+		'Empty Scope 2 yr3 prj3',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope2P4] = new ProjectControl({
+	pageId: Pages.emptyScope2P4,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 2 yr4 prj4',
+	shortTitle: 'Empty Scope 2 yr4 prj4',
+	choiceInfoText: [
+		'Empty Scope 2 yr4 prj4',
+		'Empty Scope 2 yr4 prj4',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+Projects[Pages.emptyScope2P5] = new ProjectControl({
+	pageId: Pages.emptyScope2P5,
+	cost: 150_000,
+	statsInfoAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	statsActualAppliers: {
+		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+	},
+	title: 'Empty Scope 2 yr5 prj5',
+	shortTitle: 'Empty Scope 2 yr5 prj5',
+	choiceInfoText: [
+		'Empty Scope 2 yr5 prj5',
+		'Empty Scope 2 yr5 prj5',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	previewButton: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
+});
+
+
 
 /**
  * A "class" that can apply or un-apply a numerical modifier with a custom formula.
