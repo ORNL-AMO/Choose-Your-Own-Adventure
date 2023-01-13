@@ -61,8 +61,8 @@ export const initialTrackedStats: TrackedStats = {
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	
-	financesAvailable: 150_000,
-	totalBudget: 150_000,
+	financesAvailable: 75_000,
+	totalBudget: 75_000,
 	carbonSavings: 0,
 	carbonEmissions: -1, // auto calculated in the next line
 	moneySpent: 0,

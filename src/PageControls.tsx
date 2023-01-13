@@ -124,24 +124,25 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.emptyScope1P5].getChoiceControl(),
+				Projects[Pages.steamTrapsMaintenance].getChoiceControl(),
 				Projects[Pages.wasteHeatRecovery].getChoiceControl(),
 				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
 				Projects[Pages.processHeatingUpgrades].getChoiceControl(),
+				Projects[Pages.airHandingUnitUpgrades].getChoiceControl(),								
+				Projects[Pages.advancedEnergyMonitoring].getChoiceControl(),
+				Projects[Pages.condensingEconomizerInstallation].getChoiceControl(),		
+				Projects[Pages.boilerControl].getChoiceControl(),			
+				Projects[Pages.improvePipeInsulation].getChoiceControl(),	
 			]
 		}, {
 			title: 'Fuel switching',
 			choices: [
 				Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
-				Projects[Pages.emptyScope1P1].getChoiceControl(),				
-				Projects[Pages.emptyScope1P2].getChoiceControl(),
 			]
 		}, {
 			title: 'Invest in electrification',
 			choices: [
-				Projects[Pages.electricBoiler].getChoiceControl(),
-				Projects[Pages.emptyScope1P3].getChoiceControl(),				
-				Projects[Pages.emptyScope1P4].getChoiceControl(),
+				Projects[Pages.electricBoiler].getChoiceControl(),	
 			]
 		}
 	],
@@ -154,18 +155,27 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.lightingUpgrades].getChoiceControl(),			
-				Projects[Pages.emptyScope2P1].getChoiceControl(),			
-				Projects[Pages.emptyScope2P2].getChoiceControl(),			
-				Projects[Pages.emptyScope2P3].getChoiceControl(),
+				Projects[Pages.lightingUpgrades].getChoiceControl(),	
+				Projects[Pages.airHandingUnitUpgrades].getChoiceControl(),								
+				Projects[Pages.advancedEnergyMonitoring].getChoiceControl(),		
+				Projects[Pages.compressedAirSystemImprovemnt].getChoiceControl(),			
+				Projects[Pages.compressedAirSystemOptimization].getChoiceControl(),			
+				Projects[Pages.chilledWaterMonitoringSystem].getChoiceControl(),			
+				Projects[Pages.refrigerationUpgrade].getChoiceControl(),			
+				Projects[Pages.loweringCompressorPressure].getChoiceControl(),				
+				Projects[Pages.improveLightingSystems].getChoiceControl(),								
+				Projects[Pages.startShutOff].getChoiceControl(),		
+				Projects[Pages.installVFDs1].getChoiceControl(),			
+				Projects[Pages.installVFDs2].getChoiceControl(),			
+				Projects[Pages.installVFDs3].getChoiceControl(),			
+				Projects[Pages.reduceFanSpeeds].getChoiceControl(),			
+				Projects[Pages.lightingOccupancySensors].getChoiceControl(),
 			]
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
 				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
-				Projects[Pages.solarFieldOnsite].getChoiceControl(),			
-				Projects[Pages.emptyScope2P4].getChoiceControl(),			
-				Projects[Pages.emptyScope2P5].getChoiceControl(),
+				Projects[Pages.solarFieldOnsite].getChoiceControl(),
 			]
 		}, {
 			title: 'Un-bundled RECs',

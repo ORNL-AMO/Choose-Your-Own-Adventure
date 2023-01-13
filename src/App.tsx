@@ -390,7 +390,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									{...controlCallbacks} 
 									onBack={this.state.currentOnBack} 
 									onProceed={() => this.handleDashboardOnProceed()}
-									btnProceedDisabled={this.state.selectedProjects.length === 0 || this.state.componentClass === YearRecap}
+									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/> 
 							: <></>}
 							{(this.state.currentPageProps && this.state.componentClass) ?
