@@ -333,7 +333,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		let savings = calculateYearSavings(thisYearStart, yearFinalStats);
-		let newBudget = yearFinalStats.totalBudget + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
+		let newBudget = 75_000 + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
 		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
 		let newTrackedStats = {...yearFinalStats};
 		newTrackedStats.totalBudget = newBudget;
