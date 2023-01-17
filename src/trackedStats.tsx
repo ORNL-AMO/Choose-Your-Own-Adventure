@@ -53,7 +53,7 @@ export interface TrackedStats {
  * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 1_000_000, 
+	naturalGasMMBTU: 2_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
