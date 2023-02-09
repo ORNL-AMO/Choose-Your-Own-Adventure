@@ -31,12 +31,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 					activeStep={this.props.year}
 					backButton={
 						<Button size='small' 
-							onClick={() => {
-								if (this.props.onBack) {
-									this.props.doPageCallback(this.props.onBack);
-								}
-								else console.error('onClick called but props.onBack is not specified');
-							}} 
+							onClick={this.props.onBack} 
 							disabled={!this.props.onBack}>
 							{leftArrow()}
 							Back
@@ -165,7 +160,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 }
 
 export interface DashboardProps extends ControlCallbacks, TrackedStats {
-	onBack?: PageCallback;
+	onBack?: () => void;
 	onProceed: () => void;
 	/**
 	 * Whether the PROCEED Button is disabled.

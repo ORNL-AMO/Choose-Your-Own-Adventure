@@ -320,6 +320,58 @@ export class App extends React.PureComponent <unknown, AppState> {
 		// Proceed to recap
 		this.setPage(Pages.yearRecap);
 	}
+
+	handleDashboardOnBack() {
+		let year = this.state.trackedStats.year;
+
+		let previousYear = this.state.yearlyTrackedStats[year - 2];
+		
+		
+		
+		let previousSelectedProjects = this.state.completedProjects;
+
+		let previousYearlyTrackedStats = [...this.state.yearlyTrackedStats];
+		
+		this.setState({
+			completedProjects: [],
+			selectedProjects: previousSelectedProjects,
+			trackedStats: previousYear,
+			yearlyTrackedStats: previousYearlyTrackedStats,
+		});
+		
+		
+		this.setPage(Pages.selectScope);
+	}
+
+
+	/**
+	 * Proceed to the next year.\
+	 * JL note: I know it's spaghetti.... but i only had a few hours to add the hidden surprise stuff
+	 * @param yearFinalStats The final stats for the year, including calculated hidden surprises.
+	 */
+	handleYearRecapOnBack(yearFinalStats: TrackedStats) {
+		
+		let thisYearStart = this.state.yearlyTrackedStats[yearFinalStats.year - 1];
+		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${yearFinalStats.year}`);
+
+		let previousYear = this.state.yearlyTrackedStats[yearFinalStats.year - 2];
+		
+		
+		
+		let previousSelectedProjects = this.state.completedProjects;
+
+		let previousYearlyTrackedStats = [...this.state.yearlyTrackedStats];
+		
+		this.setState({
+			completedProjects: [],
+			selectedProjects: previousSelectedProjects,
+			trackedStats: previousYear,
+			yearlyTrackedStats: previousYearlyTrackedStats,
+		});
+		
+		
+		this.setPage(Pages.selectScope);
+	}
 	
 	/**
 	 * Proceed to the next year.\
@@ -388,7 +440,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 								<Dashboard 
 									{...this.state.trackedStats} 
 									{...controlCallbacks} 
-									onBack={this.state.currentOnBack} 
+									onBack={() => this.handleDashboardOnBack()} 
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/> 
