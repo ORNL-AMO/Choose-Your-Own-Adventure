@@ -329,19 +329,19 @@ export class App extends React.PureComponent <unknown, AppState> {
 	handleDashboardOnBack() {
 		if (this.state.currentPage == Pages.selectScope) {
 
-			let year = this.state.trackedStats.year;
+			let year: number = this.state.trackedStats.year;
 
 			if (year == 1 || year == 0) {
 				this.setPage(Pages.start);
 			}
 			else {
 
-				let previousYear = this.state.yearlyTrackedStats[year - 2];
+				let previousYear: TrackedStats = this.state.yearlyTrackedStats[year - 2];
 
-				let previousSelectedProjects = this.state.completedProjects[year - 2];
+				let previousSelectedProjects: symbol[] = this.state.completedProjects[year - 2];
 
 				this.state.completedProjects.pop();
-				let previousCompletedProjects;
+				let previousCompletedProjects: symbol[][];
 				if (this.state.completedProjects.length == 0) {
 					previousCompletedProjects = [];
 				} else {
@@ -350,7 +350,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 
 
-				let previousAllCompletedProjects;
+				let previousAllCompletedProjects: symbol[] = [];
 				if (this.state.completedProjects.length > 0) {
 					for (let i = 0; i < this.state.completedProjects.length; ++i) {
 						for (let j = 0; j < this.state.completedProjects[i].length; ++j) {
@@ -361,8 +361,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 					previousAllCompletedProjects = [];
 				}
 
-				this.state.yearlyTrackedStats.pop();
-				let previousYearlyTrackedStats;
+				let previousYearlyTrackedStats: TrackedStats[];
 				if (this.state.yearlyTrackedStats.length > 1) {
 					this.state.yearlyTrackedStats.pop();
 				}
@@ -401,14 +400,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 	 */
 	handleYearRecapOnProceed(yearFinalStats: TrackedStats) {
 		
-		let thisYearStart = this.state.yearlyTrackedStats[yearFinalStats.year - 1];
+		let thisYearStart: TrackedStats = this.state.yearlyTrackedStats[yearFinalStats.year - 1];
 		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${yearFinalStats.year}`);
 		
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
-		let savings = calculateYearSavings(thisYearStart, yearFinalStats);
-		let newBudget = 75_000 + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
+		let savings: {naturalGas: number; electricity: number;} = calculateYearSavings(thisYearStart, yearFinalStats);
+		let newBudget: number = 75_000 + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
 		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
-		let newTrackedStats = {...yearFinalStats};
+		let newTrackedStats: TrackedStats = {...yearFinalStats};
 		newTrackedStats.totalBudget = newBudget;
 		newTrackedStats.financesAvailable = newBudget;
 		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
@@ -416,15 +415,16 @@ export class App extends React.PureComponent <unknown, AppState> {
 		newTrackedStats.year = yearFinalStats.year + 1;
 		
 		// Move selectedProjects into completedProjects
-		this.state.completedProjects.push([...this.state.selectedProjects]);
+		let newCompletedProjects: symbol[][] = this.state.completedProjects;
+		newCompletedProjects.push([...this.state.selectedProjects]);
 		// Update yearlyTrackedStats
-		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, {...newTrackedStats}];
+		let newYearlyTrackedStats: TrackedStats[] = [...this.state.yearlyTrackedStats, {...newTrackedStats}];
 		newYearlyTrackedStats[yearFinalStats.year - 1] = yearFinalStats;
 
-		let newAllCompletedProjects = [...this.state.allCompletedProjects, ...this.state.selectedProjects];
+		let newAllCompletedProjects: symbol[] = [...this.state.allCompletedProjects, ...this.state.selectedProjects];
 		
 		this.setState({
-			completedProjects: this.state.completedProjects,
+			completedProjects: newCompletedProjects,
 			allCompletedProjects: newAllCompletedProjects,
 			selectedProjects: [],
 			trackedStats: newTrackedStats,
