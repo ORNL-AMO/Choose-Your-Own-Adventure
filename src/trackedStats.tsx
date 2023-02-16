@@ -147,7 +147,7 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		label: 'Natural gas use (MMBTU)',
 		color: theme.palette.primary.dark,
 		textFontSize: 0.85,
-		maxValue: 1_000_000,
+		maxValue: 2_000,
 	},
 	electricityUseKWh: {
 		label: 'Electricity use (kWh)',
