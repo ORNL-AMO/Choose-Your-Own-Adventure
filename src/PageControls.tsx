@@ -134,12 +134,15 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 				Projects[Pages.boilerControl].getChoiceControl(),			
 				Projects[Pages.improvePipeInsulation].getChoiceControl(),	
 			]
-		}, {
-			title: 'Fuel switching',
-			choices: [
-				Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
-			]
-		}, {
+		}, 
+		//KEEP, temporarily hiding Fuel Switching Projects  
+		// {
+		// 	title: 'Fuel switching',
+		// 	choices: [
+		// 		Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
+		// 	]
+		// }, 
+		{
 			title: 'Invest in electrification',
 			choices: [
 				Projects[Pages.electricBoiler].getChoiceControl(),	
