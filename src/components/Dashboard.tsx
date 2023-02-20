@@ -139,14 +139,14 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						</Grid>
 						<Grid item xs={12} sm={6}>
 							<Typography>
-								Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
+								Emissions from natural gas: {
+									(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000).toLocaleString('en-US')
+								} metric tons
 							</Typography>
 						</Grid>
 						<Grid item xs={12} sm={6}>
 							<Typography>
-								Emissions from natural gas: {
-									(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000).toLocaleString('en-US')
-								} metric tons
+								Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
 							</Typography>
 						</Grid>
 						<Grid item xs={12} sm={6}>
