@@ -155,6 +155,10 @@ declare interface ProjectControlParams {
 	 * Whether the project card should appear disabled.
 	 */
 	disabled?: Resolvable<boolean>;
+	/**
+	 * tracks the year the project is selected 
+	 */
+	yearSelected?: number;
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -182,6 +186,7 @@ export class ProjectControl implements ProjectControlParams {
 	hasDisplayedSurprises = false;
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
+	yearSelected?: number;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -211,6 +216,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.visible = params.visible || true; // Default to true
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
+		this.yearSelected = params.yearSelected;
 	}
 
 	/**
@@ -349,7 +355,7 @@ export class ProjectControl implements ProjectControlParams {
 			buttons: buttons,
 			visible: function (state) {
 				// Hide the project if it's already been completed
-				if (state.completedProjects.includes(self.pageId)) return false;
+				if (state.allCompletedProjects.includes(self.pageId)) return false;
 				// otherwise, use the visible attribute provided by the project props (Default true)
 				else return this.resolveToValue(self.visible, true);
 			},
@@ -673,7 +679,7 @@ Projects[Pages.solarFieldOnsite] = new ProjectControl({
 	choiceInfoImgAlt: 'A field of solar panels.',
 	recapDescription: 'Insert flavor text here!',
 	// todo case study
-	visible: state => state.completedProjects.includes(Pages.solarPanelsCarPort),
+	visible: state => state.allCompletedProjects.includes(Pages.solarPanelsCarPort),
 });
 
 //Empty Projects Scope 1 yr1-yr5
@@ -1175,7 +1181,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.includes(Pages.installVFDs1),
+	visible: state => state.allCompletedProjects.includes(Pages.installVFDs1),
 });
 
 Projects[Pages.installVFDs3] = new ProjectControl({
@@ -1214,7 +1220,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.includes(Pages.installVFDs2),
+	visible: state => state.allCompletedProjects.includes(Pages.installVFDs2),
 });
 
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({

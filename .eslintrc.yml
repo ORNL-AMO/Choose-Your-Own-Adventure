@@ -18,6 +18,7 @@ plugins:
 rules: 
   prefer-const: off
   no-prototype-builtins: off
+  no-debugger: off
   jsx-quotes:
     - error
     - prefer-single

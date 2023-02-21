@@ -318,7 +318,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Typography>
 					<List>{projectRecaps}</List>
 					{/* Completed projects: Only display if there have been completed projects */}
-					{this.props.completedProjects.length > 0 && <>
+					{this.props.allCompletedProjects.length > 0 && <>
 						<Divider/>
 						<Typography variant='body1' marginTop={2}>Projects already completed:</Typography>
 						<Box m={2}>
@@ -332,7 +332,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 										</TableRow>
 									</TableHead>
 									<TableBody>
-										{this.props.completedProjects.map((projectKey) => {
+										{this.props.allCompletedProjects.map((projectKey) => {
 											const thisProject = Projects[projectKey];
 											return (<TableRow
 												key={projectKey.description}
@@ -401,7 +401,8 @@ export interface YearRecapProps
 		ControlCallbacks,
 		TrackedStats {
 	selectedProjects: symbol[];
-	completedProjects: symbol[];
+	completedProjects: symbol[][];
+	allCompletedProjects: symbol[];	
 	yearlyTrackedStats: TrackedStats[];
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
