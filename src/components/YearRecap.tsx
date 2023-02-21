@@ -30,7 +30,7 @@ import { calculateYearSavings } from '../trackedStats';
 import { calculateAutoStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
 import FactoryIcon from '@mui/icons-material/Factory';
-import type { NumberApplier } from '../Projects';
+import type { CompletedProject, NumberApplier } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -318,7 +318,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Typography>
 					<List>{projectRecaps}</List>
 					{/* Completed projects: Only display if there have been completed projects */}
-					{this.props.allCompletedProjects.length > 0 && <>
+					{this.props.completedProjects.length > 0 && <>
 						<Divider/>
 						<Typography variant='body1' marginTop={2}>Projects already completed:</Typography>
 						<Box m={2}>
@@ -332,10 +332,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 										</TableRow>
 									</TableHead>
 									<TableBody>
-										{this.props.allCompletedProjects.map((projectKey) => {
-											const thisProject = Projects[projectKey];
+										{this.props.completedProjects.map((project) => {
+											let projectSymbol: symbol = project.page;
+											const thisProject = Projects[projectSymbol];
+											// todo 15 - low priority - let's use id's here instead of description
 											return (<TableRow
-												key={projectKey.description}
+												key={projectSymbol.description}
 												sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 											>
 												<TableCell component='th' scope='row'>
@@ -401,8 +403,7 @@ export interface YearRecapProps
 		ControlCallbacks,
 		TrackedStats {
 	selectedProjects: symbol[];
-	completedProjects: symbol[][];
-	allCompletedProjects: symbol[];	
+	completedProjects: CompletedProject[];
 	yearlyTrackedStats: TrackedStats[];
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
