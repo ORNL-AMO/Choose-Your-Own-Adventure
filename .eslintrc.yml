@@ -18,6 +18,7 @@ plugins:
 rules: 
   prefer-const: off
   no-prototype-builtins: off
+  no-debugger: warn
   jsx-quotes:
     - error
     - prefer-single
@@ -35,5 +36,5 @@ rules:
       allowedNames: 
         - self
   semi:
-    - error
+    - warn
     - always
