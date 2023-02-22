@@ -8,7 +8,6 @@ import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
 import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
 import { theme } from './components/theme';
-import { co2SavingsButton } from './PageControls';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -65,6 +64,14 @@ declare interface HiddenSurprise {
 		backgroundColor: string,
 		color: string,
 	}
+}
+
+/**
+ * Used for tracking completed project related state throughout the view/pages
+ */
+export interface CompletedProject {
+	selectedYear: number,
+	page: symbol
 }
 
 /**
@@ -155,6 +162,10 @@ declare interface ProjectControlParams {
 	 * Whether the project card should appear disabled.
 	 */
 	disabled?: Resolvable<boolean>;
+	/**
+	 * tracks the year the project is selected 
+	 */
+	yearSelected?: number;
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -182,6 +193,7 @@ export class ProjectControl implements ProjectControlParams {
 	hasDisplayedSurprises = false;
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
+	yearSelected?: number;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -211,6 +223,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.visible = params.visible || true; // Default to true
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
+		this.yearSelected = params.yearSelected;
 	}
 
 	/**
@@ -349,7 +362,7 @@ export class ProjectControl implements ProjectControlParams {
 			buttons: buttons,
 			visible: function (state) {
 				// Hide the project if it's already been completed
-				if (state.completedProjects.includes(self.pageId)) return false;
+				if (state.completedProjects.some(project => project.page === self.pageId)) return false;
 				// otherwise, use the visible attribute provided by the project props (Default true)
 				else return this.resolveToValue(self.visible, true);
 			},
@@ -673,7 +686,7 @@ Projects[Pages.solarFieldOnsite] = new ProjectControl({
 	choiceInfoImgAlt: 'A field of solar panels.',
 	recapDescription: 'Insert flavor text here!',
 	// todo case study
-	visible: state => state.completedProjects.includes(Pages.solarPanelsCarPort),
+	visible: state => state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort)
 });
 
 //Empty Projects Scope 1 yr1-yr5
@@ -1175,7 +1188,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.includes(Pages.installVFDs1),
+	visible: state => state.completedProjects.some(project => project.page === Pages.installVFDs1)
 });
 
 Projects[Pages.installVFDs3] = new ProjectControl({
@@ -1214,7 +1227,8 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.includes(Pages.installVFDs2),
+	visible: state => state.completedProjects.some(project => project.page === Pages.installVFDs2)
+
 });
 
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({
