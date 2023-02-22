@@ -16,7 +16,8 @@ import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
-import { Scope1Projects, Scope2Projects } from './Projects';
+import Projects, { Scope1Projects, Scope2Projects } from './Projects';
+import type { ProjectControl} from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -287,13 +288,40 @@ export class App extends React.PureComponent <unknown, AppState> {
 		// 	the window scroll resets every time a dialog pops up. This will scroll the page back down when the dialog closes.
 		scrollTo(0, this.state.lastScrollY);
 	}
+
+	// todo 26 - this still needs to handle summing the rebates and listing projects
+	displayProjectSurprises(selectedProjects: symbol[]) {
+		let projectsWithSurprises: ProjectControl[] = selectedProjects.map(projectSymbol => {
+			return Projects[projectSymbol];
+		}).filter(projectControl => projectControl.surprises.length !== 0);
+		
+		projectsWithSurprises.forEach(project => {
+			let firstSurprise = project.surprises[0];
+			if (!firstSurprise) return;
+
+			firstSurprise.buttons = [{
+				text: 'Continue',
+				variant: 'text',
+				onClick: () => {
+					// Should become year recap page
+					return Pages.yearRecap;
+				}
+			}];
+
+			this.summonInfoDialog(firstSurprise);
+			// project.hasDisplayedSurprises = true;
+			// console.log(project);
+		});
+		return;
+	}
 	
 	handleDashboardOnProceed() {
-		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
-		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
+		let selectedProjects: symbol[] = [...this.state.selectedProjects];
+		let hasScope1 = Scope1Projects.some((page) => selectedProjects.includes(page));
+		let hasScope2 = Scope2Projects.some((page) => selectedProjects.includes(page));
 		
 		// Show warning if user hasn't tried both scopes
-		if (!someScope1 || !someScope2) {
+		if (!hasScope1 || !hasScope2) {
 			let warningDialogProps: DialogControlProps = {
 				title: 'Hold up!',
 				text: '',
@@ -304,6 +332,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 						variant: 'text',
 						endIcon: rightArrow(),
 						onClick: () => {
+							this.displayProjectSurprises(selectedProjects);
 							return Pages.yearRecap;
 						}
 					}
@@ -311,18 +340,19 @@ export class App extends React.PureComponent <unknown, AppState> {
 				allowClose: true,
 			};
 			
-			if (!someScope1) {
+			if (!hasScope1) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
 				this.summonInfoDialog(warningDialogProps);
 			}
-			else if (!someScope2) {
+			else if (!hasScope2) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
 				this.summonInfoDialog(warningDialogProps);
 			}
 			return;
+		} else {
+			this.displayProjectSurprises(selectedProjects);
 		}
-		
-		// Proceed to recap
+
 		this.setPage(Pages.yearRecap);
 	}
 

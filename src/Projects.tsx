@@ -363,21 +363,6 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
-		function displaySurprises(this: App) {
-			let firstSurprise = self.surprises[0];
-			if (!firstSurprise) return;
-
-			firstSurprise.buttons = [{
-				text: 'Continue',
-				variant: 'text',
-				onClick: () => {
-					return this.state.currentPage;
-				}
-			}];
-
-			this.summonInfoDialog(firstSurprise);
-		}
-
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.
 		 */
@@ -412,10 +397,6 @@ export class ProjectControl implements ProjectControlParams {
 				selectedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
 
-				if (!self.hasDisplayedSurprises) {
-					displaySurprises.apply(this);
-					self.hasDisplayedSurprises = true;
-				}
 			}
 			nextState.selectedProjects = selectedProjects;
 			nextState.trackedStats = newTrackedStats;

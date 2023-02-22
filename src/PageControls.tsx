@@ -321,4 +321,4 @@ export function projectCostAndCO2ReductionCards(projectCost: number, co2Reductio
 	];
 }
 
-console.log('PageControls', performance.now() - st);
+// console.log('PageControls', performance.now() - st);
