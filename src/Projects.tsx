@@ -430,12 +430,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	cost: 65_000,
 	// Stats that appear in the CARDS inside the INFO DIALOG.
 	statsInfoAppliers: {
-		naturalGasMMBTU: absolute(-50_000), // reduces natural gas usage by a flat 50,000
+		naturalGasMMBTU: absolute(-250), // reduces natural gas usage by a flat 50,000
 	},
 	// Stats that 
 	statsActualAppliers: {
 		totalRebates: absolute(5_000),
-		naturalGasMMBTU: absolute(-50_000),
+		naturalGasMMBTU: absolute(-250),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
 	statsHiddenAppliers: {},
@@ -465,7 +465,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Bit of text to preview what to expect from the project.
 	previewButton: {
-		text: '50k',
+		text: '250',
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
