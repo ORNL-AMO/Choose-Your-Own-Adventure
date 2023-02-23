@@ -371,7 +371,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							onClick={() => this.props.handleYearRecap(mutableStats)}
 							endIcon={rightArrow()}
 						>
-							Proceed to years {this.props.yearInterval} and {this.props.yearInterval + 1}
+							Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}
 						</Button>
 					}
 				/>
