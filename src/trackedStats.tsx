@@ -44,9 +44,13 @@ export interface TrackedStats {
 	 */
 	totalMoneySpent: number;
 	/**
-	 * current year, 1 through 10.
+	 * tracking year, 1 through 5.
 	 */
 	year: number;
+	/**
+	 * year to display for two year intervals
+	 */
+	yearInterval: number;
 }
 
 /**
@@ -61,14 +65,15 @@ export const initialTrackedStats: TrackedStats = {
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	
-	financesAvailable: 75_000,
-	totalBudget: 75_000,
+	financesAvailable: 150_000,
+	totalBudget: 150_000,
 	carbonSavings: 0,
 	carbonEmissions: -1, // auto calculated in the next line
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 1,
+	yearInterval: 1
 };
 
 /**
@@ -90,6 +95,7 @@ export const emptyTrackedStats: TrackedStats = {
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 0,
+	yearInterval: 0,
 };
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);

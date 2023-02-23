@@ -365,7 +365,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		let savings: { naturalGas: number; electricity: number; } = calculateYearSavings(thisYearStart, yearFinalStats);
-		let newBudget: number = 75_000 + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
+		let newBudget: number = 150_000 + yearFinalStats.financesAvailable + savings.electricity + savings.naturalGas;
 		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
 		let newTrackedStats: TrackedStats = { ...yearFinalStats };
 		newTrackedStats.totalBudget = newBudget;
@@ -373,6 +373,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		newTrackedStats.totalMoneySpent += newTrackedStats.moneySpent;
 		newTrackedStats.moneySpent = 0;
 		newTrackedStats.year = yearFinalStats.year + 1;
+		newTrackedStats.yearInterval = yearFinalStats.yearInterval + 2;
 
 		// Move selectedProjects into completedProjects
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
@@ -390,7 +391,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		});
 
 		// Endgame
-		if (newTrackedStats.year === 10) {
+		if (newTrackedStats.year === 6) {
 			// Win
 			if (newTrackedStats.carbonSavings >= 0.5) {
 				this.setPage(Pages.winScreen);

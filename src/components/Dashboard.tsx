@@ -26,7 +26,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			<>
 				<MobileStepper
 					variant='progress'
-					steps={10}
+					steps={5}
 					position='static'
 					activeStep={this.props.year}
 					backButton={
@@ -49,7 +49,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						>
 							<div style={{maxWidth: '200px'}}>
 								{/* todo: special case for last year! */}
-								Commit to your selected projects and proceed to Year {this.props.year + 1}.
+								Commit to your selected projects and proceed to Years {this.props.yearInterval} and {this.props.yearInterval + 1}.
 							</div>
 						</BasicPopover>
 					}
@@ -57,7 +57,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 				<Box m={2}>
 					{/* todo timer for each year */}
 					<Typography variant='h6'>
-						Year {this.props.year} of 10
+						Years {this.props.yearInterval} and {this.props.yearInterval + 1} of 10
 					</Typography>
 					<Grid container spacing={2}>
 						<Grid item xs={12}>

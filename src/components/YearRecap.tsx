@@ -297,7 +297,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		return (
 			<>
 				<Box m={2}>
-					<Typography variant='h3'>Year {this.props.year} Recap</Typography>
+					<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
 					<Typography variant='h5'>
 						This year, your company saved{' '}
 						<Emphasis>${savings.naturalGas.toLocaleString('en-US')}</Emphasis>{' '}
@@ -360,7 +360,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				</Box>
 				<MobileStepper
 					variant='progress'
-					steps={10}
+					steps={5}
 					position='static'
 					activeStep={this.props.year}
 					backButton={<Box sx={{ width: 180 }}></Box>}
@@ -371,7 +371,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							onClick={() => this.props.handleYearRecap(mutableStats)}
 							endIcon={rightArrow()}
 						>
-							Proceed to year {this.props.year + 1}
+							Proceed to years {this.props.yearInterval} and {this.props.yearInterval + 1}
 						</Button>
 					}
 				/>
