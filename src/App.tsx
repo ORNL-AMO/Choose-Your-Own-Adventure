@@ -425,19 +425,16 @@ export class App extends React.PureComponent <unknown, AppState> {
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
 							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
-								<Typography variant='h3'>
+								<><Typography variant='h3'>
 									Choose Your Own Solution
-								</Typography> 
-							: <></>}
-							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
-								<Button
+								</Typography><Button
 									size='small'
 									variant='contained'
 									onClick={this.handleDashboardOnRestart}
 									style={{ margin: '10px' }}>
-									New Game
-								</Button>
-							: <></>}
+										New Game
+									</Button></>
+							: <></>}							
 							{this.state.showDashboard ? 
 								<Dashboard 
 									{...this.state.trackedStats} 
