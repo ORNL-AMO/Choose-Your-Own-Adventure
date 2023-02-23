@@ -230,7 +230,18 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
 	text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years!`,
-	img: 'images/confetti.png'
+	img: 'images/confetti.png',
+	buttons: [
+		{
+			text: 'Play again',
+			variant: 'text',
+			onClick: (state) => {
+				location.href = String(location.href); // Reload the page
+				
+				return state.currentPage; // The page returned doesn't really matter
+			}
+		}
+	]
 });
 
 PageControls[Pages.loseScreen] = newInfoDialogControl({
