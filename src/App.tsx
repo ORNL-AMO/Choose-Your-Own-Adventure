@@ -389,20 +389,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 			yearlyTrackedStats: newYearlyTrackedStats,
 		});
 
-		// Endgame
-		if (newTrackedStats.year === 10) {
-			// Win
-			if (newTrackedStats.carbonSavings >= 0.5) {
-				this.setPage(Pages.winScreen);
-			}
-			// Lose
-			else {
-				this.setPage(Pages.loseScreen);
-			}
-		}
-		else {
+		if (newTrackedStats.carbonSavings >= 0.5) {
+			this.setPage(Pages.winScreen);
+		} else if (newTrackedStats.year === 10) {
+			this.setPage(Pages.loseScreen);
+		} else {
 			this.setPage(Pages.selectScope);
 		}
+
 	}
 	
 	render() {
