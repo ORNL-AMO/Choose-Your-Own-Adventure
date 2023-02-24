@@ -397,7 +397,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 		if (newTrackedStats.carbonSavings >= 0.5) {
 			this.setPage(Pages.winScreen);
-		} else if (newTrackedStats.year === 10) {
+		} else if (newTrackedStats.year === 6) {
 			this.setPage(Pages.loseScreen);
 		} else {
 			this.setPage(Pages.selectScope);
