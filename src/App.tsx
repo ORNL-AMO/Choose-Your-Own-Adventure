@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Box, ThemeProvider, Snackbar, } from '@mui/material';
+import { Container, Box, ThemeProvider, Snackbar, Typography, Button, } from '@mui/material';
 
 import './App.scss';
 import '@fontsource/roboto/400.css';
@@ -283,6 +283,11 @@ export class App extends React.PureComponent <unknown, AppState> {
 		// 	the window scroll resets every time a dialog pops up. This will scroll the page back down when the dialog closes.
 		scrollTo(0, this.state.lastScrollY);
 	}
+
+	handleDashboardOnRestart() {
+		location.href = String(location.href);
+		this.setPage(Pages.start);
+	}
 	
 	handleDashboardOnProceed() {
 		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
@@ -390,20 +395,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 			yearlyTrackedStats: newYearlyTrackedStats,
 		});
 
-		// Endgame
-		if (newTrackedStats.year === 6) {
-			// Win
-			if (newTrackedStats.carbonSavings >= 0.5) {
-				this.setPage(Pages.winScreen);
-			}
-			// Lose
-			else {
-				this.setPage(Pages.loseScreen);
-			}
-		}
-		else {
+		if (newTrackedStats.carbonSavings >= 0.5) {
+			this.setPage(Pages.winScreen);
+		} else if (newTrackedStats.year === 10) {
+			this.setPage(Pages.loseScreen);
+		} else {
 			this.setPage(Pages.selectScope);
 		}
+
 	}
 	
 	render() {
@@ -420,6 +419,17 @@ export class App extends React.PureComponent <unknown, AppState> {
 				<ThemeProvider theme={theme}>
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
+							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
+								<><Typography variant='h3'>
+									Choose Your Own Solution
+								</Typography><Button
+									size='small'
+									variant='contained'
+									onClick={this.handleDashboardOnRestart}
+									style={{ margin: '10px' }}>
+										New Game
+									</Button></>
+							: <></>}							
 							{this.state.showDashboard ? 
 								<Dashboard 
 									{...this.state.trackedStats} 
