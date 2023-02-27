@@ -34,8 +34,9 @@ export type AppState = {
 	currentPageProps?: AnyDict; // todo
 	componentClass?: Component;
 	trackedStats: TrackedStats;
-	// Array containing the current stats at the start of each year
-	yearlyTrackedStats: TrackedStats[]; // to be pushed at the end of each year; does not change
+	// * initial stats for each year range. Currently looks like the first year never changes, though
+	// * subsequent years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
+	yearRangeInitialStats: TrackedStats[]; 
 	showDashboard: boolean;
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
@@ -66,7 +67,7 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
-	yearlyTrackedStats: TrackedStats[];
+	yearRangeInitialStats: TrackedStats[];
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 }
 
@@ -92,7 +93,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 					{...controlCallbacks}
 					selectedProjects={this.props.selectedProjects}
 					completedProjects={this.props.completedProjects}
-					yearlyTrackedStats={this.props.yearlyTrackedStats}
+					yearRangeInitialStats={this.props.yearRangeInitialStats}
 					handleYearRecap={this.props.handleYearRecapOnProceed}
 				/>;
 			default:
@@ -125,7 +126,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			currentPageProps: PageControls[startPage].controlProps,
 			componentClass: PageControls[startPage].componentClass,
 			trackedStats: {...initialTrackedStats},
-			yearlyTrackedStats: [
+			yearRangeInitialStats: [
 				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
@@ -337,22 +338,21 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 	/**
 	 * Update state from previous selections and results when navigating back
-	 * Only updates current stats ('trackedStats'), not those in yearlyTrackedStats
+	 * Only updates current stats ('trackedStats'), not those in yearRangeInitialStats
 	 */
 	setPreviousAppState() {
 		let previousYear: number = this.state.trackedStats.year > 1 ? this.state.trackedStats.year - 1 : 0;
-		let yearlyTrackedStats = [...this.state.yearlyTrackedStats];
+		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.selectedYear !== previousYear);
 		let previousSelectedProjects: symbol[] = completedProjects.filter(project => project.selectedYear === previousYear).map(previousYearProject => previousYearProject.page);
 
-		yearlyTrackedStats.pop();
+		yearRangeInitialStats.pop();
 		previousYear--;
-		let previousYearStats: TrackedStats = yearlyTrackedStats[yearlyTrackedStats[previousYear].year - 1];
-		let newTrackedStats: TrackedStats = yearlyTrackedStats[previousYear];
+		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYear].year - 1];
+		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYear];
 		if (previousYearStats) {
-			// ! Only modify stats for display. YearRecap will handle yearlyTrackedStats updates
-			// ! yearlyTrackedStats array objects should stay as unmodified from yearstart 
+			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
 			let statsForResultDisplay = { ...previousYearStats }
 			let selectedProjects = [...previousSelectedProjects];
 			selectedProjects.forEach(projectSymbol => {
@@ -367,7 +367,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			completedProjects: updatedCompletedProjects,
 			selectedProjects: previousSelectedProjects,
 			trackedStats: newTrackedStats,
-			yearlyTrackedStats: yearlyTrackedStats,
+			yearRangeInitialStats: yearRangeInitialStats,
 		}
 		this.setState(onBackState);
 	}
@@ -378,7 +378,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 	 * @param yearFinalStats The final stats for the year, including calculated hidden surprises.
 	 */
 	handleYearRecapOnProceed(currentYearStats: TrackedStats) {
-		let thisYearStart: TrackedStats = this.state.yearlyTrackedStats[currentYearStats.year - 1];
+		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.year - 1];
 		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${currentYearStats.year}`);
 		
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
@@ -396,14 +396,14 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let selectedProjects: symbol[] = [...this.state.selectedProjects];
 		selectedProjects.forEach(selected => newCompletedProjects.push({ selectedYear: currentYearStats.year, page: selected }));
-		// Update yearlyTrackedStats
-		let newYearlyTrackedStats = [...this.state.yearlyTrackedStats, { ...newYearTrackedStats }];
+		// Update yearRangeInitialStats
+		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 
 		this.setState({
 			completedProjects: newCompletedProjects,
 			selectedProjects: [],
 			trackedStats: newYearTrackedStats,
-			yearlyTrackedStats: newYearlyTrackedStats,
+			yearRangeInitialStats: newYearRangeInitialStats,
 		});
 
 		// Endgame
@@ -452,7 +452,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									controlProps={this.state.currentPageProps}
 									selectedProjects={this.state.selectedProjects} // note: if selectedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									completedProjects={this.state.completedProjects}									
-									yearlyTrackedStats={this.state.yearlyTrackedStats}
+									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}
 								/>
 							: <></>}
