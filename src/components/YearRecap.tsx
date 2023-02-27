@@ -45,7 +45,7 @@ import { theme, darkTheme } from './theme';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 	render() {
-		const thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
+		const thisYearStart = this.props.yearRangeInitialStats[this.props.year - 1];
 		if (!thisYearStart) {
 			throw new Error(
 				`Could not find stats for the start of year ${this.props.year} (index ${
@@ -404,7 +404,7 @@ export interface YearRecapProps
 		TrackedStats {
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
-	yearlyTrackedStats: TrackedStats[];
+	yearRangeInitialStats: TrackedStats[];
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */
