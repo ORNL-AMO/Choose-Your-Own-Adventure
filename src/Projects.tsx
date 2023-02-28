@@ -6,7 +6,7 @@ import { closeDialogButton } from './components/Buttons';
 import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
-import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
+import type { DialogCardContent } from './components/InfoDialog';
 import { theme } from './components/theme';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -14,6 +14,7 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import Pages from './Pages';
 import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
 let st = performance.now();
 
@@ -51,12 +52,13 @@ export declare interface CaseStudy {
 declare interface RecapAvatar {
 	icon: JSX.Element;
 	backgroundColor?: string;
+	color?: string,
 }
 
 /**
  * Hidden surprise to appear on the year recap page.
  */
-declare interface HiddenSurprise {
+declare interface RecapSurprise {
 	title: string;
 	text: string | string[];
 	avatar: {
@@ -64,6 +66,9 @@ declare interface HiddenSurprise {
 		backgroundColor: string,
 		color: string,
 	}
+	img?: string;
+	imgObjectFit?: 'cover'|'contain';
+	imgAlt?: string;
 }
 
 /**
@@ -132,6 +137,7 @@ declare interface ProjectControlParams {
 	 * Icon to be shown in the year recap page.
 	 */
 	recapAvatar?: RecapAvatar;
+	rebateAvatar?: RecapAvatar;
 	/**
 	 * Button to go between "INFO" and "SELECT" on the project selection page. 
 	 * 
@@ -139,14 +145,11 @@ declare interface ProjectControlParams {
 	 * and a number or percentage to represent the effect this project will have.
 	 */
 	previewButton?: ButtonGroupButton;
+	utilityRebateValue?: number
 	/**
-	 * Surprises that appear once when SELECT is clicked.
+	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects).
 	 */
-	surprises?: DialogControlProps[];
-	/**
-	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
-	 */
-	hiddenSurprises?: HiddenSurprise[]; // TODO
+	recapSurprises?: RecapSurprise[];
 	/**
 	 * External case study for a project, i.e., example of a real company doing that project idea.
 	 * @param {string} title
@@ -183,14 +186,11 @@ export class ProjectControl implements ProjectControlParams {
 	choiceInfoImgObjectFit?: 'cover' | 'contain';
 	recapDescription: string | string[];
 	previewButton?: ButtonGroupButton;
-	surprises: DialogControlProps[];
-	hiddenSurprises?: HiddenSurprise[]; //todo
+	utilityRebateValue?: number;
+	recapSurprises?: RecapSurprise[]; //todo
 	caseStudy?: CaseStudy;
 	recapAvatar: RecapAvatar;
-	/**
-	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
-	 */
-	hasDisplayedSurprises = false;
+	rebateAvatar: RecapAvatar;
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
@@ -215,11 +215,16 @@ export class ProjectControl implements ProjectControlParams {
 			backgroundColor: undefined,
 			icon: <FactoryIcon />
 		};
+		this.rebateAvatar = params.rebateAvatar || {
+			icon: <ThumbUpAltIcon />,
+			backgroundColor: 'rgba(255,255,255,0.8)',
+			color: 'rgba(63, 163, 0, 1)',
+		};
 		this.previewButton = params.previewButton;
 		this.caseStudy = params.caseStudy;
-		if (params.surprises) this.surprises = params.surprises;
-		else this.surprises = [];
-		this.hiddenSurprises = params.hiddenSurprises;
+		if (params.utilityRebateValue) this.utilityRebateValue = params.utilityRebateValue;
+		else this.utilityRebateValue = 0;
+		this.recapSurprises = params.recapSurprises;
 		this.visible = params.visible || true; // Default to true
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
@@ -370,20 +375,6 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
-		function displaySurprises(this: App) {
-			let firstSurprise = self.surprises[0];
-			if (!firstSurprise) return;
-
-			firstSurprise.buttons = [{
-				text: 'Continue',
-				variant: 'text',
-				onClick: () => {
-					return this.state.currentPage;
-				}
-			}];
-
-			this.summonInfoDialog(firstSurprise);
-		}
 
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.
@@ -419,10 +410,6 @@ export class ProjectControl implements ProjectControlParams {
 				selectedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
 
-				if (!self.hasDisplayedSurprises) {
-					displaySurprises.apply(this);
-					self.hasDisplayedSurprises = true;
-				}
 			}
 			nextState.selectedProjects = selectedProjects;
 			nextState.trackedStats = newTrackedStats;
@@ -463,13 +450,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	// Case study to show in the year recap
 	caseStudy: {
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
@@ -602,13 +583,6 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
 		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
 });
 
 Projects[Pages.electricBoiler] = new ProjectControl({
@@ -646,7 +620,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		financesAvailable: absolute(-30_000),
 		moneySpent: absolute(30_000),
 	},
-	hiddenSurprises: [{
+	recapSurprises: [{
 		title: 'Uh oh - Bad Asphalt!',
 		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
 		avatar: {
@@ -893,14 +867,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		electricityUseKWh: relative(-0.08),
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
-	title: 'Compressed Air system Improvemnt',
+	utilityRebateValue: 5000,
+	title: 'Compressed Air system Improvement',
 	shortTitle: 'Replacing old inefficienct compressor with new more efficient compressor can help increase reliability and reduce energy waste.',
 	choiceInfoText: [
 		'The project consisted of replacing three inefficient compressors with two new, more efficient compressors and heat of compression dryers. The new configuration allowed the plant to run with fewer compressors and provided some redundancy. The redundancy will allow the plant to avoid downtime and continue operating through periods of unexpected equipment malfunctions. Due to the installed redundancy, the plant expects to gain additional cost savings from increased runtime and from eliminating the need for short-term rental compressors.',
@@ -1056,13 +1024,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		electricityUseKWh: relative(-0.04),
 		totalRebates: absolute(10_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$10,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 10000,
 	title: 'Lighting',
 	shortTitle: 'Improve Lighting Systems',
 	choiceInfoText: [
@@ -1124,13 +1086,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		electricityUseKWh: relative(-0.04),
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '1 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1162,13 +1118,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		electricityUseKWh: relative(-0.04),
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '2 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1201,13 +1151,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		electricityUseKWh: relative(-0.04),
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '3 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1382,5 +1326,3 @@ function absolute(modifier: number): NumberApplier {
 function round(number: number) {
 	return (Math.round(number * 100000)) / 100000;
 }
-
-console.log('Projects', performance.now() - st);

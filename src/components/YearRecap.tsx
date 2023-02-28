@@ -21,6 +21,7 @@ import {
 	TableBody,
 	Paper,
 	ThemeProvider,
+	ListItemText,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -29,7 +30,6 @@ import { emptyTrackedStats } from '../trackedStats';
 import { calculateYearSavings } from '../trackedStats';
 import { calculateAutoStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import FactoryIcon from '@mui/icons-material/Factory';
 import type { CompletedProject, NumberApplier } from '../Projects';
 import Projects from '../Projects';
 import {
@@ -41,15 +41,15 @@ import {
 	withSign,
 } from '../functions-and-types';
 import GaugeChart from './GaugeChart';
-import { theme, darkTheme } from './theme';
+import { darkTheme } from './theme';
 
 export class YearRecap extends React.Component<YearRecapProps> {
+
 	render() {
 		const thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
 		if (!thisYearStart) {
 			throw new Error(
-				`Could not find stats for the start of year ${this.props.year} (index ${
-					this.props.year - 1
+				`Could not find stats for the start of year ${this.props.year} (index ${this.props.year - 1
 				})`
 			);
 		}
@@ -58,8 +58,46 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		let mutableStats: TrackedStats = { ...thisYearStart };
 		// Since hidden surprises will change stats, we need to keep track of the hidden changes for our sanity check later
 		let hiddenStatDiff: TrackedStats = { ...emptyTrackedStats };
-		
+
 		const projectRecaps: JSX.Element[] = [];
+		let selectedProjects = [...this.props.selectedProjects].map(project => Projects[project]);
+
+		const utilityRebate: number = selectedProjects.reduce((total, current) => total + Number(current.utilityRebateValue), 0);
+		if (utilityRebate) {
+			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${utilityRebate.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
+			projectRecaps.push(
+				<ListItem key={`${utilityRebateText}_surprise_`}>
+					<ThemeProvider theme={darkTheme}>
+						<Card className='year-recap-rebate-surprise' sx={{ width: '100%' }}>
+							<CardHeader
+								avatar={
+									<Avatar
+										sx={{ bgcolor: selectedProjects[0].rebateAvatar.backgroundColor, color: selectedProjects[0].rebateAvatar.color }}
+									>
+										{selectedProjects[0].rebateAvatar.icon}
+									</Avatar>
+								}
+								title='Congratulations!'
+								subheader='Utility Rebates Earned'
+							/>
+							<CardContent>
+								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
+									{selectedProjects.map((project, idx) => {
+									return <List dense={true} key={project.shortTitle + idx}>
+										<ListItem>
+											<ListItemText
+												primary={project.title}
+												secondary={project.shortTitle}
+											/>
+										</ListItem>
+									</List>}
+								)}
+							</CardContent>
+						</Card>
+					</ThemeProvider>
+				</ListItem>
+			);
+		}
 		
 		for (let i in this.props.selectedProjects) {
 			let projectKey = this.props.selectedProjects[i];
@@ -152,7 +190,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					]}
 				/>
 			);
-			// todo hidden, no idea how i'm gonna imp that
 
 			projectRecaps.push(
 				<ListItem key={projectKey.description}>
@@ -243,18 +280,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Card>
 				</ListItem>
 			);
-			
-			// Hidden surprises underneath the project recap
-			if (thisProject.hiddenSurprises) {
-				// add to projectRecaps...
+			if (thisProject.recapSurprises) {
 				projectRecaps.push(
-					// ...for each hiddenSurprise
-					...thisProject.hiddenSurprises.map((surprise, idx) => {
+					...thisProject.recapSurprises.map((surprise, idx) => {
 						return (
 							<ListItem key={`${projectKey.description}_surprise_${idx}`}>
-								{/* Using darkTheme for the text */}
 								<ThemeProvider theme={darkTheme}>
-									{/* Using SCSS for this one to be more easily editable, as well as making emphasized text not blue */}
 									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
 										<CardHeader
 											avatar={
