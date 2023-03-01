@@ -61,6 +61,22 @@ export interface NextAppState {
 	snackbarContent?: JSX.Element;
 }
 
+/**
+ * Used for tracking Game Settings  
+ */
+export interface GameSettings {
+	intervalOfYears: number;
+}
+
+/**
+ * Used for tracking Game Settings
+ * interval options: 1 or 2  
+ */
+export const gameSettings: GameSettings = {
+	intervalOfYears: 2,
+}
+
+
 interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
