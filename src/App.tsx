@@ -17,7 +17,7 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import Projects, { Scope1Projects, Scope2Projects } from './Projects';
-import type {CompletedProject} from './Projects';
+import type {CompletedProject, SelectedProject} from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -38,8 +38,9 @@ export type AppState = {
 	// * subsequent years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
 	yearRangeInitialStats: TrackedStats[]; 
 	showDashboard: boolean;
-	selectedProjects: symbol[];
+	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
+	selectedProjectsForComparison: SelectedProject[];
 	lastScrollY: number;
 	snackbarOpen: boolean;
 	snackbarContent?: JSX.Element;
@@ -57,14 +58,14 @@ export interface NextAppState {
 	componentClass?: Component;
 	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
-	selectedProjects?: symbol[];
+	implementedProjects?: symbol[];
 	completedProjects?: CompletedProject[];
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
-	selectedProjects: symbol[];
+	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
 	yearRangeInitialStats: TrackedStats[];
@@ -91,7 +92,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
-					selectedProjects={this.props.selectedProjects}
+					implementedProjects={this.props.implementedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
 					handleYearRecap={this.props.handleYearRecapOnProceed}
@@ -130,8 +131,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 				{...initialTrackedStats} // This one stays constant
 			],
 			showDashboard: showDashboardAtStart,
-			selectedProjects: [],
-			// selectedProjects: [Pages.wasteHeatRecovery, Pages.digitalTwinAnalysis, Pages.solarPanelsCarPort, ], // temporary, for debugging
+			implementedProjects: [],
+			selectedProjectsForComparison: [],
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
@@ -289,8 +290,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 	}
 	
 	handleDashboardOnProceed() {
-		let someScope1 = Scope1Projects.some((page) => this.state.selectedProjects.includes(page));
-		let someScope2 = Scope2Projects.some((page) => this.state.selectedProjects.includes(page));
+		let someScope1 = Scope1Projects.some((page) => this.state.implementedProjects.includes(page));
+		let someScope2 = Scope2Projects.some((page) => this.state.implementedProjects.includes(page));
 		
 		// Show warning if user hasn't tried both scopes
 		if (!someScope1 || !someScope2) {
@@ -350,7 +351,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.selectedYear !== previousYear);
-		let previousSelectedProjects: symbol[] = completedProjects.filter(project => project.selectedYear === previousYear).map(previousYearProject => previousYearProject.page);
+		let previousimplementedProjects: symbol[] = completedProjects.filter(project => project.selectedYear === previousYear).map(previousYearProject => previousYearProject.page);
 
 		yearRangeInitialStats.pop();
 		previousYear--;
@@ -359,8 +360,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 		if (previousYearStats) {
 			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
 			let statsForResultDisplay = { ...previousYearStats };
-			let selectedProjects = [...previousSelectedProjects];
-			selectedProjects.forEach(projectSymbol => {
+			let implementedProjects = [...previousimplementedProjects];
+			implementedProjects.forEach(projectSymbol => {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
@@ -370,7 +371,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 		let onBackState = {
 			completedProjects: updatedCompletedProjects,
-			selectedProjects: previousSelectedProjects,
+			implementedProjects: previousimplementedProjects,
 			trackedStats: newTrackedStats,
 			yearRangeInitialStats: yearRangeInitialStats,
 		};
@@ -397,16 +398,16 @@ export class App extends React.PureComponent <unknown, AppState> {
 		newYearTrackedStats.moneySpent = 0;
 		newYearTrackedStats.year = currentYearStats.year + 1;
 
-		// Move selectedProjects into completedProjects
+		// Move implementedProjects into completedProjects
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
-		let selectedProjects: symbol[] = [...this.state.selectedProjects];
-		selectedProjects.forEach(selected => newCompletedProjects.push({ selectedYear: currentYearStats.year, page: selected }));
+		let implementedProjects: symbol[] = [...this.state.implementedProjects];
+		implementedProjects.forEach(selected => newCompletedProjects.push({ selectedYear: currentYearStats.year, page: selected }));
 		// Update yearRangeInitialStats
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 
 		this.setState({
 			completedProjects: newCompletedProjects,
-			selectedProjects: [],
+			implementedProjects: [],
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
 		});
@@ -460,7 +461,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									trackedStats={this.state.trackedStats}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
-									selectedProjects={this.state.selectedProjects} // note: if selectedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
+									implementedProjects={this.state.implementedProjects} // note: if implementedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									completedProjects={this.state.completedProjects}									
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}

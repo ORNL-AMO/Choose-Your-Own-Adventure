@@ -14,14 +14,9 @@ import type App from '../App';
  * Button control for use inside a ButtonGroup component's `buttons` prop.
  */
 export declare interface ButtonGroupButton {
-	/**
-	 * Text to display on the button
-	 */
 	text: string;
-	/**
-	 * Variant of the button
-	 */
 	variant: buttonVariant;
+	color?: 'primary' | 'inherit' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | undefined;
 	/**
 	 * Contents to appear in an info popup. Mutually exclusive with infoDialog and onClick.
 	 */
@@ -44,13 +39,7 @@ export declare interface ButtonGroupButton {
 	endIcon?: Resolvable<React.ReactNode>;
 	size?: 'small' | 'medium' | 'large';
 	disabled?: Resolvable<boolean>;
-	/**
-	 * for link-type buttons (`a` tag)
-	 */
 	href?: string;
-	/**
-	 * for link-type buttons (`a` tag)
-	 */
 	target?: React.HTMLAttributeAnchorTarget;
 }
 
@@ -112,7 +101,8 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		return (
 			<Button 
 				key={idx}
-				variant={button.variant} 
+				variant={button.variant}
+				color={button.color}
 				startIcon={props.resolveToValue(button.startIcon)}
 				endIcon={props.resolveToValue(button.endIcon)}
 				size={button.size}
@@ -125,10 +115,12 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		);
 	}
 	// Button without href
-	else return (
+	else {
+		return (
 		<Button 
 			key={idx}
-			variant={button.variant} 
+			variant={button.variant}
+			color={button.color}
 			startIcon={props.resolveToValue(button.startIcon)}
 			endIcon={props.resolveToValue(button.endIcon)}
 			size={button.size}
@@ -145,6 +137,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 			{button.text}
 		</Button>
 	);
+	}
 }
 
 /* -======================================================- */
@@ -200,9 +193,11 @@ export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolea
  * @param selected Whether the checkbox should be checked.
  * @returns 
  */
-export function selectButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+
+export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Implement Project',
+		color: 'success',
 		variant: 'contained',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);

@@ -60,9 +60,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		let hiddenStatDiff: TrackedStats = { ...emptyTrackedStats };
 
 		const projectRecaps: JSX.Element[] = [];
-		let selectedProjects = [...this.props.selectedProjects].map(project => Projects[project]);
+		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
 
-		const utilityRebate: number = selectedProjects.reduce((total, current) => total + Number(current.utilityRebateValue), 0);
+		const utilityRebate: number = implementedProjects.reduce((total, current) => total + Number(current.utilityRebateValue), 0);
 		if (utilityRebate) {
 			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${utilityRebate.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
 			projectRecaps.push(
@@ -72,9 +72,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							<CardHeader
 								avatar={
 									<Avatar
-										sx={{ bgcolor: selectedProjects[0].rebateAvatar.backgroundColor, color: selectedProjects[0].rebateAvatar.color }}
+										sx={{ bgcolor: implementedProjects[0].rebateAvatar.backgroundColor, color: implementedProjects[0].rebateAvatar.color }}
 									>
-										{selectedProjects[0].rebateAvatar.icon}
+										{implementedProjects[0].rebateAvatar.icon}
 									</Avatar>
 								}
 								title='Congratulations!'
@@ -82,7 +82,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							/>
 							<CardContent>
 								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
-									{selectedProjects.map((project, idx) => {
+									{implementedProjects.map((project, idx) => {
 									return <List dense={true} key={project.shortTitle + idx}>
 										<ListItem>
 											<ListItemText
@@ -99,8 +99,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			);
 		}
 		
-		for (let i in this.props.selectedProjects) {
-			let projectKey = this.props.selectedProjects[i];
+		for (let i in this.props.implementedProjects) {
+			let projectKey = this.props.implementedProjects[i];
 			
 			const thisProject = Projects[projectKey];
 			if (!thisProject)
@@ -433,7 +433,7 @@ export interface YearRecapProps
 	extends YearRecapControlProps,
 		ControlCallbacks,
 		TrackedStats {
-	selectedProjects: symbol[];
+	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
 	/**

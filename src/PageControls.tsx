@@ -1,6 +1,6 @@
 import type { OverridableComponent } from '@mui/material/OverridableComponent';
 import type { SvgIconTypeMap} from '@mui/material';
-import type { ButtonGroupButton} from './components/Buttons';
+import type { ButtonGroupButton } from './components/Buttons';
 import type { PageControl} from './components/controls';
 import type { AppState } from './App';import React from 'react';
 
@@ -13,7 +13,7 @@ import Co2Icon from '@mui/icons-material/Co2';
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
-import { backButton, continueButton, selectButton, infoButtonWithPopup, selectButtonCheckbox } from './components/Buttons';
+import { backButton, continueButton, selectButton, infoButtonWithPopup } from './components/Buttons';
 import Pages from './Pages';
 import Projects from './Projects';
 import { theme } from './components/theme';
@@ -183,20 +183,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Un-bundled RECs',
 			choices: [
-				{
-					text: '8. Invest in wind VPPA',
-					buttons: [
-						// todo info
-						co2SavingsButton(10.0),
-						selectButtonCheckbox(function (state, nextState) {
-							toggleSelectedPage(Pages.windVPPA, state, nextState);
-							return Pages.scope2Projects;
-						},
-						undefined,
-						(state) => state.selectedProjects.includes(Pages.windVPPA)
-						),
-					]
-				}
+				Projects[Pages.windVPPA].getProjectChoiceControl(),
 			]
 		}
 	],
@@ -271,19 +258,19 @@ export function notImplemented(pageBack?: symbol) {
 }
 
 /**
- * Toggle whether a certain symbol is included in app.state.selectedProjects.
+ * Toggle whether a certain symbol is included in app.state.implementedProjects.
  */
 export function toggleSelectedPage(page: symbol, state: AppState, nextState: AnyDict) {
-	let selectedProjects = state.selectedProjects.slice();
+	let implementedProjects = state.implementedProjects.slice();
 	// IF ALREADY SELECTED
-	if (selectedProjects.includes(page)) {
-		selectedProjects.splice(selectedProjects.indexOf(page), 1);
+	if (implementedProjects.includes(page)) {
+		implementedProjects.splice(implementedProjects.indexOf(page), 1);
 	}
 	// IF NOT ALREADY SELECTED
 	else {
-		selectedProjects.push(page);
+		implementedProjects.push(page);
 	}
-	nextState.selectedProjects = selectedProjects;
+	nextState.implementedProjects = implementedProjects;
 }
 
 export function co2SavingsButton(percent: number): ButtonGroupButton {

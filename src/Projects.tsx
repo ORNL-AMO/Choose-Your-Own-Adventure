@@ -3,7 +3,7 @@ import type { AppState, NextAppState } from './App';
 import type App from './App';
 import type { ButtonGroupButton } from './components/Buttons';
 import { closeDialogButton } from './components/Buttons';
-import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
+import { infoButtonWithDialog, implementButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
 import type { DialogCardContent } from './components/InfoDialog';
@@ -15,6 +15,8 @@ import Pages from './Pages';
 import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import Co2Icon from '@mui/icons-material/Co2';
+
 
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
 // These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
@@ -72,8 +74,16 @@ declare interface RecapSurprise {
 /**
  * Used for tracking completed project related state throughout the view/pages
  */
-export interface CompletedProject {
+export interface CompletedProject extends Project {
 	selectedYear: number,
+}
+
+export interface SelectedProject extends Project {
+	selectedYear: number,
+}
+
+
+export interface Project {
 	page: symbol
 }
 
@@ -312,24 +322,24 @@ export class ProjectControl implements ProjectControlParams {
 
 		infoDialogStatCards.push({
 			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
-			color: theme.palette.secondary.dark, // todo change?
+			color: theme.palette.secondary.dark, 
 		});
 
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			infoDialogStatCards.push({
 				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
-				color: theme.palette.primary.light, // todo change?
+				color: theme.palette.primary.light,
 			});
 		}
 		if (this.statsInfoAppliers.electricityUseKWh) {
 			infoDialogStatCards.push({
 				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
-				color: theme.palette.warning.light, // todo change?
+				color: theme.palette.warning.light,
 			});
 		}
-		// todo more stats
 
 		let buttons: ButtonGroupButton[] = [];
+
 		// Info button
 		buttons.push(infoButtonWithDialog({
 			title: this.title,
@@ -342,22 +352,27 @@ export class ProjectControl implements ProjectControlParams {
 				closeDialogButton(),
 				{
 					text: 'Implement Project',
-					variant: 'text',
+					variant: 'contained',
+					color: 'success',
 					onClick: function (state, nextState) {
-						const isProjectSelected: boolean = state.selectedProjects.includes(self.pageId);
+						const isProjectSelected: boolean = state.implementedProjects.includes(self.pageId);
 						if (isProjectSelected) {
 							return state.currentPage;
 						}
-						return toggleProjectSelect.apply(this, [state, nextState]);
+						return toggleProjectImplemented.apply(this, [state, nextState]);
 					},
 					// disabled when the project is selected
-					disabled: (state) => state.selectedProjects.includes(self.pageId)
+					disabled: (state) => state.implementedProjects.includes(self.pageId)
 				}
 			]
 		}));
 		if (this.energySavingsPreviewButton) choiceStats.push(this.energySavingsPreviewButton);
-		// Select checkbox button, with live preview of stats
-		buttons.push(selectButtonCheckbox(toggleProjectSelect, undefined, (state) => state.selectedProjects.includes(this.pageId)));
+		// Select for comparison / Is Implemented
+		buttons.push(implementButtonCheckbox(
+			toggleProjectImplemented, 
+			undefined, 
+			(state) => state.implementedProjects.includes(this.pageId)
+		));
 
 		return {
 			title: this.title,
@@ -378,22 +393,22 @@ export class ProjectControl implements ProjectControlParams {
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.
 		 */
-		function toggleProjectSelect(this: App, state: AppState, nextState: NextAppState) {
-			let selectedProjects = state.selectedProjects.slice();
+		function toggleProjectImplemented(this: App, state: AppState, nextState: NextAppState) {
+			let implementedProjects = state.implementedProjects.slice();
 			let newTrackedStats = { ...state.trackedStats };
 			// IF PROJECT IS ALREADY SELECTED
-			if (selectedProjects.includes(self.pageId)) {
+			if (implementedProjects.includes(self.pageId)) {
 				// Since the order of projects matters, we can't simply unApplyChanges to ourself.
 				// 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
-				for (let i = selectedProjects.length - 1; i >= 0; i--) {
-					let pageId = selectedProjects[i];
+				for (let i = implementedProjects.length - 1; i >= 0; i--) {
+					let pageId = implementedProjects[i];
 					Projects[pageId].unApplyStatChanges(newTrackedStats);
 				}
 
-				selectedProjects.splice(selectedProjects.indexOf(self.pageId), 1);
+				implementedProjects.splice(implementedProjects.indexOf(self.pageId), 1);
 
-				for (let i = 0; i < selectedProjects.length; i++) {
-					let pageId = selectedProjects[i];
+				for (let i = 0; i < implementedProjects.length; i++) {
+					let pageId = implementedProjects[i];
 					Projects[pageId].applyStatChanges(newTrackedStats);
 				}
 			}
@@ -406,11 +421,11 @@ export class ProjectControl implements ProjectControlParams {
 					return state.currentPage;
 				}
 
-				selectedProjects.push(self.pageId);
+				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
 
 			}
-			nextState.selectedProjects = selectedProjects;
+			nextState.implementedProjects = implementedProjects;
 			nextState.trackedStats = newTrackedStats;
 
 			return state.currentPage; // no page change
@@ -1234,6 +1249,29 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	},
 });
 
+Projects[Pages.windVPPA] = new ProjectControl({
+	pageId: Pages.windVPPA,
+	cost: 0,
+	statsInfoAppliers: {
+		electricityUseKWh: undefined,
+	},
+	statsActualAppliers: {
+		electricityUseKWh: undefined,
+	},
+	title: 'Invest in wind VPPA',
+	shortTitle: '',
+	choiceInfoText: [''],
+	choiceInfoImg: '',
+	choiceInfoImgAlt: '',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewButton: {
+		text: '10.0%',
+		variant: 'text',
+		startIcon: <Co2Icon/>,
+	},
+});
 
 
 /**
