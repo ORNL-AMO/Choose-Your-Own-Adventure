@@ -22,7 +22,6 @@ import { newYearRecapControl } from './components/YearRecap';
 import { newGroupedChoicesControl } from './components/GroupedChoices';
 import { newInfoDialogControl } from './components/InfoDialog';
 
-let st = performance.now(); // Performance measurement
 
 declare interface PageControls {
 	[key: symbol]: PageControl;
@@ -332,5 +331,3 @@ export function projectCostAndCO2ReductionCards(projectCost: number, co2Reductio
 		}
 	];
 }
-
-console.log('PageControls', performance.now() - st);
