@@ -10,7 +10,6 @@ import LocationCityIcon from '@mui/icons-material/LocationCity';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import Co2Icon from '@mui/icons-material/Co2';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
@@ -55,7 +54,7 @@ PageControls[Pages.introduction] = newInfoDialogControl({
 	imgAlt: 'A robotic arm working on a car.',
 	buttons: [
 		backButton(Pages.start),
-		continueButton(function (state, nextState) {
+		continueButton(function (state, _nextState) {
 			return Pages.selectScope;
 		}),
 	]
@@ -120,32 +119,33 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 	title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
+	isProjectGroupChoice: true,
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.steamTrapsMaintenance].getChoiceControl(),
-				Projects[Pages.wasteHeatRecovery].getChoiceControl(),
-				Projects[Pages.digitalTwinAnalysis].getChoiceControl(),
-				Projects[Pages.processHeatingUpgrades].getChoiceControl(),
-				Projects[Pages.airHandingUnitUpgrades].getChoiceControl(),								
-				Projects[Pages.advancedEnergyMonitoring].getChoiceControl(),
-				Projects[Pages.condensingEconomizerInstallation].getChoiceControl(),		
-				Projects[Pages.boilerControl].getChoiceControl(),			
-				Projects[Pages.improvePipeInsulation].getChoiceControl(),	
+				Projects[Pages.steamTrapsMaintenance].getProjectChoiceControl(),
+				Projects[Pages.wasteHeatRecovery].getProjectChoiceControl(),
+				Projects[Pages.digitalTwinAnalysis].getProjectChoiceControl(),
+				Projects[Pages.processHeatingUpgrades].getProjectChoiceControl(),
+				Projects[Pages.airHandingUnitUpgrades].getProjectChoiceControl(),								
+				Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),
+				Projects[Pages.condensingEconomizerInstallation].getProjectChoiceControl(),		
+				Projects[Pages.boilerControl].getProjectChoiceControl(),			
+				Projects[Pages.improvePipeInsulation].getProjectChoiceControl(),	
 			]
 		}, 
 		//KEEP, temporarily hiding Fuel Switching Projects  
 		// {
 		// 	title: 'Fuel switching',
 		// 	choices: [
-		// 		Projects[Pages.hydrogenPoweredForklifts].getChoiceControl(),
+		// 		Projects[Pages.hydrogenPoweredForklifts].getProjectChoiceControl(),
 		// 	]
 		// }, 
 		{
 			title: 'Invest in electrification',
 			choices: [
-				Projects[Pages.electricBoiler].getChoiceControl(),	
+				Projects[Pages.electricBoiler].getProjectChoiceControl(),	
 			]
 		}
 	],
@@ -154,31 +154,32 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 
 PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
+	isProjectGroupChoice: true,
 	groups: [
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.lightingUpgrades].getChoiceControl(),	
-				Projects[Pages.airHandingUnitUpgrades].getChoiceControl(),								
-				Projects[Pages.advancedEnergyMonitoring].getChoiceControl(),		
-				Projects[Pages.compressedAirSystemImprovemnt].getChoiceControl(),			
-				Projects[Pages.compressedAirSystemOptimization].getChoiceControl(),			
-				Projects[Pages.chilledWaterMonitoringSystem].getChoiceControl(),			
-				Projects[Pages.refrigerationUpgrade].getChoiceControl(),			
-				Projects[Pages.loweringCompressorPressure].getChoiceControl(),				
-				Projects[Pages.improveLightingSystems].getChoiceControl(),								
-				Projects[Pages.startShutOff].getChoiceControl(),		
-				Projects[Pages.installVFDs1].getChoiceControl(),			
-				Projects[Pages.installVFDs2].getChoiceControl(),			
-				Projects[Pages.installVFDs3].getChoiceControl(),			
-				Projects[Pages.reduceFanSpeeds].getChoiceControl(),			
-				Projects[Pages.lightingOccupancySensors].getChoiceControl(),
+				Projects[Pages.lightingUpgrades].getProjectChoiceControl(),	
+				Projects[Pages.airHandingUnitUpgrades].getProjectChoiceControl(),								
+				Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),		
+				Projects[Pages.compressedAirSystemImprovemnt].getProjectChoiceControl(),			
+				Projects[Pages.compressedAirSystemOptimization].getProjectChoiceControl(),			
+				Projects[Pages.chilledWaterMonitoringSystem].getProjectChoiceControl(),			
+				Projects[Pages.refrigerationUpgrade].getProjectChoiceControl(),			
+				Projects[Pages.loweringCompressorPressure].getProjectChoiceControl(),				
+				Projects[Pages.improveLightingSystems].getProjectChoiceControl(),								
+				Projects[Pages.startShutOff].getProjectChoiceControl(),		
+				Projects[Pages.installVFDs1].getProjectChoiceControl(),			
+				Projects[Pages.installVFDs2].getProjectChoiceControl(),			
+				Projects[Pages.installVFDs3].getProjectChoiceControl(),			
+				Projects[Pages.reduceFanSpeeds].getProjectChoiceControl(),			
+				Projects[Pages.lightingOccupancySensors].getProjectChoiceControl(),
 			]
 		}, {
 			title: 'Bundled RECs (Renewable Energy Credits)',
 			choices: [
-				Projects[Pages.solarPanelsCarPort].getChoiceControl(),
-				Projects[Pages.solarFieldOnsite].getChoiceControl(),
+				Projects[Pages.solarPanelsCarPort].getProjectChoiceControl(),
+				Projects[Pages.solarFieldOnsite].getProjectChoiceControl(),
 			]
 		}, {
 			title: 'Un-bundled RECs',
