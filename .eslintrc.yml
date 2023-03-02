@@ -19,6 +19,7 @@ rules:
   prefer-const: off
   no-prototype-builtins: off
   no-debugger: warn
+  no-unused-vars: off
   jsx-quotes:
     - error
     - prefer-single
@@ -26,6 +27,7 @@ rules:
     - error
     - single
   '@typescript-eslint/no-empty-interface': warn
+  '@typescript-eslint/no-unused-vars': off
   '@typescript-eslint/ban-ts-comment': warn
   '@typescript-eslint/consistent-type-imports': error
   'react/prop-types': warn
