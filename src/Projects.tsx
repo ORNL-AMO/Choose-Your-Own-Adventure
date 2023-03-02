@@ -16,8 +16,6 @@ import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
-let st = performance.now();
-
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
 // These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
 // 	when they click Proceed (to Year Recap) while only having selected projects from one scope.

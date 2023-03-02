@@ -53,7 +53,7 @@ PageControls[Pages.introduction] = newInfoDialogControl({
 	imgAlt: 'A robotic arm working on a car.',
 	buttons: [
 		backButton(Pages.start),
-		continueButton(function (state, _nextState) {
+		continueButton(function (state, nextState) {
 			return Pages.selectScope;
 		}),
 	]
