@@ -90,7 +90,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 												secondary={project.shortTitle}
 											/>
 										</ListItem>
-									</List>}
+									</List>} // eslint-disable-line 
 								)}
 							</CardContent>
 						</Card>
@@ -427,7 +427,7 @@ export function newYearRecapControl(
 	};
 }
 
-export interface YearRecapControlProps {}
+export interface YearRecapControlProps {} // eslint-disable-line 
 
 export interface YearRecapProps
 	extends YearRecapControlProps,

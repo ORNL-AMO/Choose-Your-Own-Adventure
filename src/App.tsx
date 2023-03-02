@@ -137,7 +137,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			snackbarOpen: false,
 		};
 		
-		// @ts-ignore - for debugging
+		// @ts-ignore - for debugging 
 		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
 		
 		// window.onbeforeunload = () => 'Are you sure you want to exit?'; TODO enable later
@@ -358,7 +358,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYear];
 		if (previousYearStats) {
 			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
-			let statsForResultDisplay = { ...previousYearStats }
+			let statsForResultDisplay = { ...previousYearStats };
 			let selectedProjects = [...previousSelectedProjects];
 			selectedProjects.forEach(projectSymbol => {
 				let project = Projects[projectSymbol];
@@ -373,7 +373,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			selectedProjects: previousSelectedProjects,
 			trackedStats: newTrackedStats,
 			yearRangeInitialStats: yearRangeInitialStats,
-		}
+		};
 		this.setState(onBackState);
 	}
 	
