@@ -18,6 +18,7 @@ plugins:
 rules: 
   prefer-const: off
   no-prototype-builtins: off
+  no-unused-vars: ["warn", {"argsIgnorePattern": "^_|^state$|^nextState$"}]
   no-debugger: warn
   jsx-quotes:
     - error

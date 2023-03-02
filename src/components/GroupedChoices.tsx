@@ -1,4 +1,4 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, CardHeader } from '@mui/material';
 import { parseSpecialText, resolveToValue } from '../functions-and-types';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
@@ -24,20 +24,48 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			.map((choice, idx) => {
 				
 				let disabled = resolveToValue(choice.disabled, false);
-				
+				let headerStyle;
+				if (props.isProjectGroupChoice) {
+					headerStyle = {
+						'& .MuiCardHeader-title': {
+							textAlign: 'left',
+							fontSize: '1.25rem'
+						},
+					};
+				}
 				return (<Grid item xs={12} key={choice.key || idx}>
-					<PaperGridItem 
-						sx={{opacity: disabled ? 0.8 : 1}} // if disabled, lower opacity
+					<PaperGridItem
+						sx={{ 
+							opacity: disabled ? 0.8 : 1,
+							paddingBottom: '1rem'		
+						}} // if disabled, lower opacity
 					>
-						<Typography variant='h4'>{props.resolveToValue(choice.title)}</Typography>
-							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}/>
-							<ButtonGroup 
-								buttons={choice.buttons} 
-								disabled={disabled}
-								doPageCallback={props.doPageCallback} 
-								summonInfoDialog={props.summonInfoDialog}
-								resolveToValue={props.resolveToValue}
-							/>
+						<CardHeader
+							action={
+									<ButtonGroup
+										buttons={choice.choiceStats}
+										disabled={disabled}
+										doPageCallback={props.doPageCallback}
+										summonInfoDialog={props.summonInfoDialog}
+										resolveToValue={props.resolveToValue}
+										isProjectGroupChoice={props.isProjectGroupChoice}
+									/>
+							}
+							title={props.resolveToValue(choice.title)}
+							sx={headerStyle}
+						/>
+
+						<Typography variant='body1' p={2} pt={0} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}  
+							textAlign={props.isProjectGroupChoice? 'left': 'center'}
+						/>
+						<ButtonGroup
+							buttons={choice.buttons}
+							disabled={disabled}
+							doPageCallback={props.doPageCallback}
+							summonInfoDialog={props.summonInfoDialog}
+							resolveToValue={props.resolveToValue}
+							isProjectGroupChoice={props.isProjectGroupChoice}
+						/>
 					</PaperGridItem>
 				</Grid>);
 			});
@@ -89,6 +117,8 @@ export interface Choice {
 	 */
 	text: Resolvable<string>;
 	disabled?: Resolvable<boolean>;
+	// Quick/small stats to include in card headers or elsewhere 
+	choiceStats?: ButtonGroupButton[]
 	/**
 	 * Buttons to appear at the bottom of the choice.
 	 */
@@ -120,6 +150,7 @@ export interface GroupedChoicesControlProps {
 	 */
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
+	isProjectGroupChoice?: boolean;
 	hideDashboard: boolean|'initial';
 }
 

@@ -56,6 +56,7 @@ export declare interface ButtonGroupButton {
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
 	buttons?: ButtonGroupButton[];
+	isProjectGroupChoice?: boolean;
 	/**
 	 * Whether the entire group of buttons appears disabled.
 	 */
@@ -76,79 +77,74 @@ export function ButtonGroup(props: ButtonGroupProps) {
 	
 	if (!props.buttons) return <></>;
 	
-	const buttons = props.buttons.map((button, idx) => {
-		
-		// Decide whether the button starts disabled
-		// let thisDisabled = disabled;
-		let thisDisabled = props.resolveToValue(props.disabled, false);
-		if (button.disabled) thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
-	
-		// Check for mutually exclusive properties
-		if (
-			(button.infoPopup && (button.infoDialog || button.onClick)) ||
-			(button.infoDialog && (button.infoPopup || button.onClick)) ||
-			(button.onClick && (button.infoPopup || button.infoDialog))
-		) {
-			throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
-		}
-		
-		// Info popup
-		if (button.infoPopup) return (
-			<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
-				{button.infoPopup}
-			</BasicPopover>
+	const buttons = props.buttons.map((button, idx) => getButtonComponent(props, button, idx));
+	if (props.useMUIStack === false) 
+		return <>{buttons}</>;
+	else {
+		// By default, use a Stack element to space the buttons
+		return (
+			<Stack direction='row' justifyContent={props.isProjectGroupChoice? 'flex-end' : 'center'} spacing={2}>
+				{buttons}
+			</Stack>
 		);
-		// Button with href (using 'a' as the root node)
-		else if (button.href) {
-			return (
-				<Button 
-					key={idx}
-					variant={button.variant} 
-					startIcon={props.resolveToValue(button.startIcon)}
-					endIcon={props.resolveToValue(button.endIcon)}
-					size={button.size}
-					href={button.href}
-					target={button.target}
-					disabled={thisDisabled}
-				>
-					{button.text}
-				</Button>
-			);
-		}
-		// Button without href
-		else return (
+	}
+}
+
+export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupButton, idx: number) {
+	let thisDisabled = props.resolveToValue(props.disabled, false);
+	if (button.disabled) thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+
+	if (
+		(button.infoPopup && (button.infoDialog || button.onClick)) ||
+		(button.infoDialog && (button.infoPopup || button.onClick)) ||
+		(button.onClick && (button.infoPopup || button.infoDialog))
+	) {
+		throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
+	}
+	
+	if (button.infoPopup) return (
+		<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
+			{button.infoPopup}
+		</BasicPopover>
+	);
+	// Button with href (using 'a' as the root node)
+	else if (button.href) {
+		return (
 			<Button 
 				key={idx}
 				variant={button.variant} 
 				startIcon={props.resolveToValue(button.startIcon)}
 				endIcon={props.resolveToValue(button.endIcon)}
 				size={button.size}
+				href={button.href}
+				target={button.target}
 				disabled={thisDisabled}
-				onClick={() => {
-					// Button's provided onclick handler
-					if (button.onClick) {
-						props.doPageCallback(button.onClick);
-					}
-					// Button's provided infoDialog props
-					else if (button.infoDialog) {
-						props.summonInfoDialog(button.infoDialog);
-					}
-				}}
 			>
 				{button.text}
 			</Button>
 		);
-	});
-	
-	if (props.useMUIStack === false) 
-		return <>{buttons}</>;
-	else 
-		// By default, use a Stack element to space the buttons
-		return (
-			<Stack direction='row' justifyContent='center' spacing={2}>
-				{buttons}
-			</Stack>
-		);
+	}
+	// Button without href
+	else return (
+		<Button 
+			key={idx}
+			variant={button.variant} 
+			startIcon={props.resolveToValue(button.startIcon)}
+			endIcon={props.resolveToValue(button.endIcon)}
+			size={button.size}
+			disabled={thisDisabled}
+			onClick={() => {
+				if (button.onClick) {
+					props.doPageCallback(button.onClick);
+				}
+				else if (button.infoDialog) {
+					props.summonInfoDialog(button.infoDialog);
+				}
+			}}
+		>
+			{button.text}
+		</Button>
+	);
 }
 
 /* -======================================================- */
@@ -206,7 +202,7 @@ export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolea
  */
 export function selectButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
 	return {
-		text: 'Select',
+		text: 'Implement Project',
 		variant: 'contained',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
