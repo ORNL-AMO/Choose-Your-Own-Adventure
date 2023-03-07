@@ -21,7 +21,6 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	
 	render() {
 		const CHART_SIZE = 250;
-
 		return (
 			<>
 				<MobileStepper
@@ -47,7 +46,9 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							endIcon={rightArrow()}
 							buttonDisabled={this.props.btnProceedDisabled}
 						>
-							<div style={{maxWidth: '200px'}}>
+							<div 
+							style={{maxWidth: '200px'}}
+							>
 								{/* todo: special case for last year! */}
 								Commit to your selected projects and proceed to Year {this.props.year + 1}.
 							</div>
