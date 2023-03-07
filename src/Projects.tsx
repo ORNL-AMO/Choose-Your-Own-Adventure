@@ -287,6 +287,20 @@ export class ProjectControl implements ProjectControlParams {
 	}
 
 	/**
+	 * Returns the total amount of in-year and end-of-year rebates of this project.
+	 */
+	getYearEndRebates(): number {
+		let total = 0
+		if (this.statsActualAppliers.totalRebates) {
+			total += this.statsActualAppliers.totalRebates.modifier
+		}
+		if (this.statsHiddenAppliers?.totalRebates) {
+			total += this.statsHiddenAppliers.totalRebates.modifier;
+		}
+		return total;
+	}
+
+	/**
 	 * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
 	 */
 	getHiddenCost(): number {
@@ -296,8 +310,8 @@ export class ProjectControl implements ProjectControlParams {
 	/**
 	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
 	 */
-	getNetCost(): number {
-		return this.cost - this.getRebates() + this.getHiddenCost();
+	getYearEndNetCost(): number {
+		return this.cost - this.getYearEndRebates() + this.getHiddenCost();
 	}
 
 	/**
@@ -399,9 +413,8 @@ export class ProjectControl implements ProjectControlParams {
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
-				let rebates = self.getRebates();
 				// Figure out if this project can be afforded
-				if ((self.cost - rebates) > state.trackedStats.financesAvailable) {
+				if (self.cost > state.trackedStats.financesAvailable) {
 					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
@@ -433,11 +446,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Stats that 
 	statsActualAppliers: {
-		totalRebates: absolute(5_000),
 		naturalGasMMBTU: absolute(-250),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
-	statsHiddenAppliers: {},
+	statsHiddenAppliers: {
+		totalRebates: absolute(5_000),
+	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
 	shortTitle: 'Upgrade heat recovery on boiler/furnace system',
 	choiceInfoText: [
@@ -568,7 +582,9 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
-		totalRebates: absolute(7500),
+	},
+	statsHiddenAppliers: {
+		totalRebates: absolute(7_500),
 	},
 	title: 'Energy Efficiency – Lighting Upgrades',
 	shortTitle: 'Explore lighting upgrades',
@@ -865,6 +881,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.08),
+	},
+	statsHiddenAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1022,6 +1040,8 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsHiddenAppliers: {
 		totalRebates: absolute(10_000),
 	},
 	utilityRebateValue: 10000,
@@ -1084,6 +1104,8 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsHiddenAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1116,6 +1138,8 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsHiddenAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1149,6 +1173,8 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsHiddenAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
