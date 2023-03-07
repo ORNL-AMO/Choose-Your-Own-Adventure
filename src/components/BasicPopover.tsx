@@ -24,7 +24,6 @@ export default function BasicPopover(props: PopoverProps) {
 	if (!variant) variant = 'click';
 	
 	if (props.variant !== 'mouseover' && props.onClick) throw new Error('props.onClick is only allowed if props.variant == \'mouseover\'');
-
 	return (
 		<React.Fragment>
 			<Button 
@@ -43,26 +42,28 @@ export default function BasicPopover(props: PopoverProps) {
 			>
 				{props.text}
 			</Button>
-			<Popover
-				id={id}
-				open={open}
-				anchorEl={anchorEl}
-				onClose={handlePopoverClose}
-				anchorOrigin={{
-					vertical: 'bottom',
-					horizontal: 'center',
-				}}
-				transformOrigin={{
-					vertical: 'top',
-					horizontal: 'center',
-				}}
-				sx={{
-					pointerEvents: (variant === 'mouseover' ? 'none' : 'unset'),
-				}}
-			>
-				<Box sx={{ p: 2 }}>{resolveToValue(props.children)}</Box>
-			</Popover>
-		</React.Fragment>
+            <Popover
+                id={id}
+                sx={{
+                    pointerEvents: (variant === 'mouseover' ? 'none' : 'unset'),
+                }}
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                onClose={handlePopoverClose}
+                disableRestoreFocus
+				disableScrollLock
+            >
+                <Box sx={{ p: 2 }}>{resolveToValue(props.children)}</Box>
+            </Popover>
+        </React.Fragment>
 	);
 }
 
