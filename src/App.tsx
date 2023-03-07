@@ -8,6 +8,7 @@ import '@fontsource/roboto/700.css';
 
 import type { PageControlProps, ControlCallbacks } from './components/controls';
 import { StartPage } from './components/StartPage';
+import type { StartPageProps } from './components/StartPage';
 import type { TrackedStats} from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
@@ -20,7 +21,8 @@ import Projects, { Scope1Projects, Scope2Projects } from './Projects';
 import type {CompletedProject, SelectedProject} from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
-import { GroupedChoices } from './components/GroupedChoices';
+import { GroupedChoices} from './components/GroupedChoices';
+import type { GroupedChoicesProps } from './components/GroupedChoices';
 import type { DialogControlProps, DialogStateProps} from './components/InfoDialog';
 import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
@@ -39,6 +41,7 @@ export type AppState = {
 	yearRangeInitialStats: TrackedStats[]; 
 	showDashboard: boolean;
 	implementedProjects: symbol[];
+	allowImplementProjects: symbol[];
 	completedProjects: CompletedProject[];
 	selectedProjectsForComparison: SelectedProject[];
 	lastScrollY: number;
@@ -60,12 +63,14 @@ export interface NextAppState {
 	showDashboard?: boolean;
 	implementedProjects?: symbol[];
 	completedProjects?: CompletedProject[];
+	allowImplementProjects?: symbol[];
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
 }
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
 	implementedProjects: symbol[];
+	allowImplementProjects: symbol[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
 	yearRangeInitialStats: TrackedStats[];
@@ -74,20 +79,34 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 	render() {
-		const controlCallbacks = {
+		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: this.props.doPageCallback,
+			doAppStateCallback: this.props.doAppStateCallback,
 			summonInfoDialog: this.props.summonInfoDialog,
 			resolveToValue: this.props.resolveToValue,
 		};
-		
+
 		switch (this.props.componentClass) {
-			case StartPage:
-			case GroupedChoices:
-				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
-				return (<this.props.componentClass
-					{...this.props.controlProps} // Pass everything into the child
-					{...controlCallbacks}
-				/>);
+			case StartPage: {
+				const startPageProps = {
+					...this.props.controlProps,
+					...controlCallbacks
+				} as StartPageProps;
+
+				return <StartPage
+				{...startPageProps}
+				/>;
+			}
+			case GroupedChoices: {
+				const groupedChoicesControlProps = {
+					...this.props.controlProps,
+					...controlCallbacks
+				} as GroupedChoicesProps;
+
+				return <GroupedChoices
+				{...groupedChoicesControlProps}
+				/>;
+			}
 			case YearRecap:
 				return <YearRecap
 					{...this.props.trackedStats}
@@ -132,6 +151,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			],
 			showDashboard: showDashboardAtStart,
 			implementedProjects: [],
+			allowImplementProjects: [],
 			selectedProjectsForComparison: [],
 			completedProjects: [],
 			lastScrollY: -1,
@@ -155,7 +175,6 @@ export class App extends React.PureComponent <unknown, AppState> {
 	}
 	
 	setPage(page: symbol) {
-
 		let thisPageControl = PageControls[page];
 		if (!thisPageControl) 
 			throw new PageError(`Page controls not defined for the symbol ${page.description}`);
@@ -229,8 +248,18 @@ export class App extends React.PureComponent <unknown, AppState> {
 		
 		this.setPage(nextPage);
 	}
+
+	handleAppStateCallback(appStateCallback?: AppStateCallback) {
+		let currentPage;
+		let newStateParams: Pick<AppState, never> = {};
+		currentPage = resolveToValue(appStateCallback, undefined, [this.state, newStateParams], this);
+		// Only setState on specific properties for now
+		if (newStateParams['allowImplementProjects']) {
+			this.setState(newStateParams);
+		}
+	}
 	
-	// todo
+
 	handleHistoryPopState() {
 		// console.log(event);
 		// if (!event.state) return;
@@ -424,8 +453,9 @@ export class App extends React.PureComponent <unknown, AppState> {
 	
 	render() {
 		// Standard callbacks to spread to each control.
-		const controlCallbacks = {
+		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: (callback) => this.handlePageCallback(callback),
+			doAppStateCallback: (callback) => this.handleAppStateCallback(callback),
 			summonInfoDialog: (props) => this.summonInfoDialog(props),
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
 		};
@@ -462,6 +492,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
 									implementedProjects={this.state.implementedProjects} // note: if implementedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
+									allowImplementProjects={this.state.allowImplementProjects}
 									completedProjects={this.state.completedProjects}									
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}

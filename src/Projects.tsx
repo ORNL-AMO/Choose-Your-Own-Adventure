@@ -348,6 +348,10 @@ export class ProjectControl implements ProjectControlParams {
 			imgAlt: this.choiceInfoImgAlt,
 			imgObjectFit: this.choiceInfoImgObjectFit,
 			cards: infoDialogStatCards,
+			projectSymbol: this.pageId,
+			handleProjectInfoViewed: function (state, nextState) {
+				return setAllowImplementProject.apply(this, [state, nextState]);
+			},
 			buttons: [
 				closeDialogButton(),
 				{
@@ -362,16 +366,26 @@ export class ProjectControl implements ProjectControlParams {
 						return toggleProjectImplemented.apply(this, [state, nextState]);
 					},
 					// disabled when the project is selected
-					disabled: (state) => state.implementedProjects.includes(self.pageId)
+					disabled: (state) => state.implementedProjects.includes(self.pageId),
 				}
 			]
 		}));
+
+		// const shouldDisplayImplementButton = (props) => {
+		// 	return props.allowImplementProjects.includes(this.pageId);
+		// };
+		const shouldDisableImplementButton = (props) => {
+			return !props.allowImplementProjects.includes(this.pageId);
+		};
+		const isProjectSelected = (props) => {
+			return props.implementedProjects.includes(this.pageId);
+		};
 		if (this.energySavingsPreviewButton) choiceStats.push(this.energySavingsPreviewButton);
-		// Select for comparison / Is Implemented
 		buttons.push(implementButtonCheckbox(
 			toggleProjectImplemented, 
-			undefined, 
-			(state) => state.implementedProjects.includes(this.pageId)
+			(props) => shouldDisableImplementButton(props),
+			(props) => isProjectSelected(props),
+			// (props) => shouldDisplayImplementButton(props)
 		));
 
 		return {
@@ -389,6 +403,13 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
+		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
+			if (state.dialog.projectSymbol) {
+				let allowImplementProjects = [...state.allowImplementProjects];
+				allowImplementProjects.push(state.dialog.projectSymbol);
+				nextState.allowImplementProjects = [...allowImplementProjects];
+			}
+		}
 
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.

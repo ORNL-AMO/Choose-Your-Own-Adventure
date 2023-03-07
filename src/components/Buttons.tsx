@@ -24,7 +24,7 @@ export declare interface ButtonGroupButton {
 	/**
 	 * Contents to appear in an InfoDialog. Mutually exclusive with infoPopup and onClick.
 	 */
-	infoDialog?: DialogStateProps; // todo
+	infoDialog?: DialogStateProps; 
 	/**
 	 * PageCallback to run on click. Mutually exclusive with infoPopup and infoDialog.
 	 */
@@ -39,6 +39,7 @@ export declare interface ButtonGroupButton {
 	endIcon?: Resolvable<React.ReactNode>;
 	size?: 'small' | 'medium' | 'large';
 	disabled?: Resolvable<boolean>;
+	shouldDisplay?: Resolvable<boolean>
 	href?: string;
 	target?: React.HTMLAttributeAnchorTarget;
 }
@@ -130,6 +131,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 					props.doPageCallback(button.onClick);
 				}
 				else if (button.infoDialog) {
+					// todo 25 set allowImplementProjects should happen here instead of InfoDialog useEfffect
 					props.summonInfoDialog(button.infoDialog);
 				}
 			}}
@@ -194,7 +196,7 @@ export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolea
  * @returns 
  */
 
-export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>, shouldDisplay?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Implement Project',
 		color: 'success',
@@ -203,6 +205,7 @@ export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolv
 			return resolveToValue(onClick, undefined, params, this);
 		},
 		disabled: disabled,
+		shouldDisplay: shouldDisplay,
 		startIcon: function (...params) {
 			if (resolveToValue(selected, false, params, this)) {
 				return <CheckBoxIcon/>;
@@ -248,13 +251,13 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
 export function infoButtonWithDialog(dialogProps: DialogControlProps, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
-	
 	return {
 		text: 'Info',
 		variant: 'outlined',
 		startIcon: <QuestionMarkIcon/>,
 		infoDialog: fillDialogProps(dialogProps),
 		disabled,
+		shouldDisplay: true
 	};
 }
 
@@ -268,6 +271,7 @@ export function closeDialogButton(text?: string, disabled?: Resolvable<boolean>)
 		text: text,
 		variant: 'text',
 		onClick: function (this: App, state) {
+			this.handleDialogClose();
 			return state.currentPage;
 		},
 		disabled,

@@ -17,14 +17,13 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 		let gridWidth = 12 / numGroups;
 		
 		const gridItems = props.groups.map((group, idx) => {
-			
 			const choices = group.choices
 			.filter(choice => {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
-				
 				let disabled = resolveToValue(choice.disabled, false);
 				let headerStyle;
+				let choiceButtons: ButtonGroupButton[] | undefined = choice.buttons;
 				if (props.isProjectGroupChoice) {
 					headerStyle = {
 						'& .MuiCardHeader-title': {
@@ -32,6 +31,14 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							fontSize: '1.25rem'
 						},
 					};
+
+					// if (choice.buttons) {
+					// 	// todo 25 still display but make disabled
+					// 	choiceButtons = choice.buttons.filter(button => {
+					// 		const shouldDisplay = props.resolveToValue(button.shouldDisplay, false);
+					// 		return shouldDisplay;
+					// 	});
+					// }
 				}
 				return (<Grid item xs={12} key={choice.key || idx}>
 					<PaperGridItem
@@ -59,11 +66,12 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							textAlign={props.isProjectGroupChoice? 'left': 'center'}
 						/>
 						<ButtonGroup
-							buttons={choice.buttons}
+							buttons={choiceButtons}
 							disabled={disabled}
 							doPageCallback={props.doPageCallback}
 							summonInfoDialog={props.summonInfoDialog}
 							resolveToValue={props.resolveToValue}
+							doAppStateCallback={props.doAppStateCallback}
 							isProjectGroupChoice={props.isProjectGroupChoice}
 						/>
 					</PaperGridItem>
@@ -148,10 +156,12 @@ export interface GroupedChoicesControlProps {
 	/**
 	 * Title of the entire GroupedChoices page.
 	 */
+	allowImplementProjects?: symbol[]
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
 	isProjectGroupChoice?: boolean;
 	hideDashboard: boolean|'initial';
 }
 
-export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { }
+export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { 
+}
