@@ -582,6 +582,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
 		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
 	},
+	utilityRebateValue: 5000,
 });
 
 Projects[Pages.electricBoiler] = new ProjectControl({

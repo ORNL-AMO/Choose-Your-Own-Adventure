@@ -62,9 +62,16 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const projectRecaps: JSX.Element[] = [];
 		let selectedProjects = [...this.props.selectedProjects].map(project => Projects[project]);
 
-		const utilityRebate: number = selectedProjects.reduce((total, current) => total + Number(current.utilityRebateValue), 0);
-		if (utilityRebate) {
-			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${utilityRebate.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
+		let totalUtilityRebates = 0;
+		let rebateProjects = selectedProjects.filter(project => {
+			let rebateValue = Number(project.utilityRebateValue);
+			if (rebateValue) {
+				totalUtilityRebates += rebateValue;
+				return project;
+			}
+		});
+		if (totalUtilityRebates) {
+			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${totalUtilityRebates.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
 			projectRecaps.push(
 				<ListItem key={`${utilityRebateText}_surprise_`}>
 					<ThemeProvider theme={darkTheme}>
@@ -72,9 +79,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							<CardHeader
 								avatar={
 									<Avatar
-										sx={{ bgcolor: selectedProjects[0].rebateAvatar.backgroundColor, color: selectedProjects[0].rebateAvatar.color }}
+										sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
 									>
-										{selectedProjects[0].rebateAvatar.icon}
+										{rebateProjects[0].rebateAvatar.icon}
 									</Avatar>
 								}
 								title='Congratulations!'
@@ -82,7 +89,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							/>
 							<CardContent>
 								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
-									{selectedProjects.map((project, idx) => {
+									{rebateProjects.map((project, idx) => {
 									return <List dense={true} key={project.shortTitle + idx}>
 										<ListItem>
 											<ListItemText
