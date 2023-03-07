@@ -189,8 +189,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
 			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
-			for (let key in thisProject.statsHiddenAppliers) {
-				let thisApplier: NumberApplier = thisProject.statsHiddenAppliers[key];
+			for (let key in thisProject.statsRecapAppliers) {
+				let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
 				let oldValue = mutableStats[key];
 				let newValue = thisApplier.applyValue(oldValue);
 				let difference = newValue - oldValue;

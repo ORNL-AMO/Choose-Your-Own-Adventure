@@ -98,9 +98,9 @@ declare interface ProjectControlParams {
 	 */
 	statsActualAppliers: TrackedStatsApplier;
 	/**
-	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
+	 * Stats that are applied at year end (or year range) recap
 	 */
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	/**
 	 * Full title of the project, displayed on the choice info popup and the recap page.
 	 */
@@ -175,7 +175,7 @@ export class ProjectControl implements ProjectControlParams {
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
 	choiceInfoText: string | string[];
@@ -201,7 +201,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.pageId = params.pageId;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
-		this.statsHiddenAppliers = params.statsHiddenAppliers;
+		this.statsRecapAppliers = params.statsRecapAppliers;
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -294,8 +294,8 @@ export class ProjectControl implements ProjectControlParams {
 		if (this.statsActualAppliers.totalRebates) {
 			total += this.statsActualAppliers.totalRebates.modifier
 		}
-		if (this.statsHiddenAppliers?.totalRebates) {
-			total += this.statsHiddenAppliers.totalRebates.modifier;
+		if (this.statsRecapAppliers?.totalRebates) {
+			total += this.statsRecapAppliers.totalRebates.modifier;
 		}
 		return total;
 	}
@@ -304,7 +304,7 @@ export class ProjectControl implements ProjectControlParams {
 	 * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
 	 */
 	getHiddenCost(): number {
-		return (this.statsHiddenAppliers && this.statsHiddenAppliers.moneySpent) ? this.statsHiddenAppliers.moneySpent.modifier : 0;
+		return (this.statsRecapAppliers && this.statsRecapAppliers.moneySpent) ? this.statsRecapAppliers.moneySpent.modifier : 0;
 	}
 
 	/**
@@ -449,7 +449,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		naturalGasMMBTU: absolute(-250),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
@@ -583,7 +583,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(7_500),
 	},
 	title: 'Energy Efficiency – Lighting Upgrades',
@@ -632,7 +632,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),
 		moneySpent: absolute(30_000),
 	},
@@ -882,7 +882,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.08),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1041,7 +1041,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(10_000),
 	},
 	utilityRebateValue: 10000,
@@ -1105,7 +1105,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1139,7 +1139,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1174,7 +1174,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
