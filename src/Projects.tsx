@@ -6,7 +6,7 @@ import { closeDialogButton } from './components/Buttons';
 import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
-import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
+import type { DialogCardContent } from './components/InfoDialog';
 import { theme } from './components/theme';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -14,8 +14,7 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import Pages from './Pages';
 import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
-
-let st = performance.now();
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
 // These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
@@ -51,12 +50,13 @@ export declare interface CaseStudy {
 declare interface RecapAvatar {
 	icon: JSX.Element;
 	backgroundColor?: string;
+	color?: string,
 }
 
 /**
  * Hidden surprise to appear on the year recap page.
  */
-declare interface HiddenSurprise {
+declare interface RecapSurprise {
 	title: string;
 	text: string | string[];
 	avatar: {
@@ -64,6 +64,9 @@ declare interface HiddenSurprise {
 		backgroundColor: string,
 		color: string,
 	}
+	img?: string;
+	imgObjectFit?: 'cover'|'contain';
+	imgAlt?: string;
 }
 
 /**
@@ -95,9 +98,9 @@ declare interface ProjectControlParams {
 	 */
 	statsActualAppliers: TrackedStatsApplier;
 	/**
-	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
+	 * Stats that are applied at year end (or year range) recap
 	 */
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	/**
 	 * Full title of the project, displayed on the choice info popup and the recap page.
 	 */
@@ -132,21 +135,19 @@ declare interface ProjectControlParams {
 	 * Icon to be shown in the year recap page.
 	 */
 	recapAvatar?: RecapAvatar;
+	rebateAvatar?: RecapAvatar;
 	/**
 	 * Button to go between "INFO" and "SELECT" on the project selection page. 
 	 * 
 	 * Recommended: Include a visual startIcon to represent the **type** of project (e.g. flame, smoke, CO2)
 	 * and a number or percentage to represent the effect this project will have.
 	 */
-	previewButton?: ButtonGroupButton;
+	energySavingsPreviewButton?: ButtonGroupButton;
+	utilityRebateValue?: number
 	/**
-	 * Surprises that appear once when SELECT is clicked.
+	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects).
 	 */
-	surprises?: DialogControlProps[];
-	/**
-	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
-	 */
-	hiddenSurprises?: HiddenSurprise[]; // TODO
+	recapSurprises?: RecapSurprise[];
 	/**
 	 * External case study for a project, i.e., example of a real company doing that project idea.
 	 * @param {string} title
@@ -174,7 +175,7 @@ export class ProjectControl implements ProjectControlParams {
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
 	choiceInfoText: string | string[];
@@ -182,15 +183,12 @@ export class ProjectControl implements ProjectControlParams {
 	choiceInfoImgAlt?: string;
 	choiceInfoImgObjectFit?: 'cover' | 'contain';
 	recapDescription: string | string[];
-	previewButton?: ButtonGroupButton;
-	surprises: DialogControlProps[];
-	hiddenSurprises?: HiddenSurprise[]; //todo
+	energySavingsPreviewButton?: ButtonGroupButton;
+	utilityRebateValue?: number;
+	recapSurprises?: RecapSurprise[]; 
 	caseStudy?: CaseStudy;
 	recapAvatar: RecapAvatar;
-	/**
-	 * Whether surprises have been displayed already. Only show them for the first time the user checks the checkbox (TODO CONFIRM IF THIS IS WHAT WE WANT)
-	 */
-	hasDisplayedSurprises = false;
+	rebateAvatar: RecapAvatar;
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
@@ -203,7 +201,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.pageId = params.pageId;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
-		this.statsHiddenAppliers = params.statsHiddenAppliers;
+		this.statsRecapAppliers = params.statsRecapAppliers;
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -215,11 +213,16 @@ export class ProjectControl implements ProjectControlParams {
 			backgroundColor: undefined,
 			icon: <FactoryIcon />
 		};
-		this.previewButton = params.previewButton;
+		this.energySavingsPreviewButton = params.energySavingsPreviewButton;
+		this.rebateAvatar = params.rebateAvatar || {
+			icon: <ThumbUpAltIcon />,
+			backgroundColor: 'rgba(255,255,255,0.8)',
+			color: 'rgba(63, 163, 0, 1)',
+		};
 		this.caseStudy = params.caseStudy;
-		if (params.surprises) this.surprises = params.surprises;
-		else this.surprises = [];
-		this.hiddenSurprises = params.hiddenSurprises;
+		if (params.utilityRebateValue) this.utilityRebateValue = params.utilityRebateValue;
+		else this.utilityRebateValue = 0;
+		this.recapSurprises = params.recapSurprises;
 		this.visible = params.visible || true; // Default to true
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
@@ -284,41 +287,56 @@ export class ProjectControl implements ProjectControlParams {
 	}
 
 	/**
+	 * Returns the total amount of in-year and end-of-year rebates of this project.
+	 */
+	getYearEndRebates(): number {
+		let total = 0
+		if (this.statsActualAppliers.totalRebates) {
+			total += this.statsActualAppliers.totalRebates.modifier
+		}
+		if (this.statsRecapAppliers?.totalRebates) {
+			total += this.statsRecapAppliers.totalRebates.modifier;
+		}
+		return total;
+	}
+
+	/**
 	 * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
 	 */
 	getHiddenCost(): number {
-		return (this.statsHiddenAppliers && this.statsHiddenAppliers.moneySpent) ? this.statsHiddenAppliers.moneySpent.modifier : 0;
+		return (this.statsRecapAppliers && this.statsRecapAppliers.moneySpent) ? this.statsRecapAppliers.moneySpent.modifier : 0;
 	}
 
 	/**
 	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
 	 */
-	getNetCost(): number {
-		return this.cost - this.getRebates() + this.getHiddenCost();
+	getYearEndNetCost(): number {
+		return this.cost - this.getYearEndRebates() + this.getHiddenCost();
 	}
 
 	/**
 	 * Gets a Choice control for the GroupedChoices pages in PageControls.tsx
 	 */
-	getChoiceControl(): Choice {
+	getProjectChoiceControl(): Choice {
 
 		const self = this; // for use in bound button handlers
 
-		let cards: DialogCardContent[] = [];
+		let infoDialogStatCards: DialogCardContent[] = [];
+		let choiceStats: ButtonGroupButton[] = [];
 
-		cards.push({
+		infoDialogStatCards.push({
 			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
 			color: theme.palette.secondary.dark, // todo change?
 		});
 
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
-			cards.push({
+			infoDialogStatCards.push({
 				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
 				color: theme.palette.primary.light, // todo change?
 			});
 		}
 		if (this.statsInfoAppliers.electricityUseKWh) {
-			cards.push({
+			infoDialogStatCards.push({
 				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
 				color: theme.palette.warning.light, // todo change?
 			});
@@ -333,18 +351,17 @@ export class ProjectControl implements ProjectControlParams {
 			img: this.choiceInfoImg,
 			imgAlt: this.choiceInfoImgAlt,
 			imgObjectFit: this.choiceInfoImgObjectFit,
-			cards: cards,
+			cards: infoDialogStatCards,
 			buttons: [
 				closeDialogButton(),
 				{
-					text: 'Select',
+					text: 'Implement Project',
 					variant: 'text',
 					onClick: function (state, nextState) {
-						// If the project is already selected, do nothing.
-						if (state.selectedProjects.includes(self.pageId)) {
+						const isProjectSelected: boolean = state.selectedProjects.includes(self.pageId);
+						if (isProjectSelected) {
 							return state.currentPage;
 						}
-						// if the project is NOT selected, run the toggle function to select the project.
 						return toggleProjectSelect.apply(this, [state, nextState]);
 					},
 					// disabled when the project is selected
@@ -352,13 +369,14 @@ export class ProjectControl implements ProjectControlParams {
 				}
 			]
 		}));
-		// Preview button (e.g. co2 savings button)
-		if (this.previewButton) buttons.push(this.previewButton);
+		if (this.energySavingsPreviewButton) choiceStats.push(this.energySavingsPreviewButton);
 		// Select checkbox button, with live preview of stats
 		buttons.push(selectButtonCheckbox(toggleProjectSelect, undefined, (state) => state.selectedProjects.includes(this.pageId)));
 
 		return {
+			title: this.title,
 			text: this.shortTitle,
+			choiceStats: choiceStats,
 			buttons: buttons,
 			visible: function (state) {
 				// Hide the project if it's already been completed
@@ -370,20 +388,6 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
-		function displaySurprises(this: App) {
-			let firstSurprise = self.surprises[0];
-			if (!firstSurprise) return;
-
-			firstSurprise.buttons = [{
-				text: 'Continue',
-				variant: 'text',
-				onClick: () => {
-					return this.state.currentPage;
-				}
-			}];
-
-			this.summonInfoDialog(firstSurprise);
-		}
 
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.
@@ -409,9 +413,8 @@ export class ProjectControl implements ProjectControlParams {
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
-				let rebates = self.getRebates();
 				// Figure out if this project can be afforded
-				if ((self.cost - rebates) > state.trackedStats.financesAvailable) {
+				if (self.cost > state.trackedStats.financesAvailable) {
 					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
@@ -419,10 +422,6 @@ export class ProjectControl implements ProjectControlParams {
 				selectedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
 
-				if (!self.hasDisplayedSurprises) {
-					displaySurprises.apply(this);
-					self.hasDisplayedSurprises = true;
-				}
 			}
 			nextState.selectedProjects = selectedProjects;
 			nextState.trackedStats = newTrackedStats;
@@ -447,11 +446,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Stats that 
 	statsActualAppliers: {
-		totalRebates: absolute(5_000),
 		naturalGasMMBTU: absolute(-250),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
-	statsHiddenAppliers: {},
+	statsRecapAppliers: {
+		totalRebates: absolute(5_000),
+	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
 	shortTitle: 'Upgrade heat recovery on boiler/furnace system',
 	choiceInfoText: [
@@ -463,13 +463,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	// Case study to show in the year recap
 	caseStudy: {
 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
@@ -477,7 +471,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
 	},
 	// Bit of text to preview what to expect from the project.
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '250',
 		variant: 'text',
 		startIcon: <FlameIcon />
@@ -512,7 +506,7 @@ Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '2.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -542,7 +536,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
 		text: 'In 2010, {Nissan’s Vehicle Assembly Plant} in Smyrna, Tennessee is {40%} more energy efficient than its predecessor, using an innovative “3-Wet” paint process that allows for the removal of a costly high temperature over bake step.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '2.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -573,7 +567,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
 		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '??%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -588,7 +582,9 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
-		totalRebates: absolute(7500),
+	},
+	statsRecapAppliers: {
+		totalRebates: absolute(7_500),
 	},
 	title: 'Energy Efficiency – Lighting Upgrades',
 	shortTitle: 'Explore lighting upgrades',
@@ -602,13 +598,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
 		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 });
 
 Projects[Pages.electricBoiler] = new ProjectControl({
@@ -642,11 +632,11 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),
 		moneySpent: absolute(30_000),
 	},
-	hiddenSurprises: [{
+	recapSurprises: [{
 		title: 'Uh oh - Bad Asphalt!',
 		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
 		avatar: {
@@ -717,7 +707,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/nissan-north-america-air-handling-units-control-upgrade-delivers-massive-energy',
 		text: 'Nissan’s Canton, Mississippi plant is one of four of the company’s manufacturing facilities in the United States. Opened in 2003, the Canton plant is a 4.5 million square foot plant that can produce up to 410,000 vehicles annually.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '5.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -750,7 +740,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-advanced-energy-monitoring-wireless-submetering',
 		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing carbon emissions and lowering energy intensity.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '3.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -782,7 +772,7 @@ Projects[Pages.condensingEconomizerInstallation] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/pepsico-condensing-economizer-installation',
 		text: 'As part of the company’s 2025 25% greenhouse gas (GHG) reduction goal, it set out to reduce the energy usage of the Gatorade pasteurization process. Pasteurization is a process in which certain foods, such as milk and fruit juice, are treated with heat to eliminate pathogens and extend shelf life.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '7.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -813,7 +803,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/bentley-mills-boiler-control-system-upgrades',
 		text: 'Bentley Mills uses a large quantity of steam throughout their manufacturing process chain. In 2014, Bentley Mills began implementing a project to upgrade the control system for one of its largest natural gas fired boilers (Boiler #1) at its facility in the City of Industry, Los Angeles. Bentley Mills has been operating the facility since 1979 and employs over 300 people. The facility makes commercial modular carpet tile, broadloom and area rugs in its 280,000 square feet of manufacturing space.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '3.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -843,7 +833,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '5.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -873,7 +863,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '3.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -891,16 +881,12 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.08),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
-	title: 'Compressed Air system Improvemnt',
+	utilityRebateValue: 5000,
+	title: 'Compressed Air system Improvement',
 	shortTitle: 'Replacing old inefficienct compressor with new more efficient compressor can help increase reliability and reduce energy waste.',
 	choiceInfoText: [
 		'The project consisted of replacing three inefficient compressors with two new, more efficient compressors and heat of compression dryers. The new configuration allowed the plant to run with fewer compressors and provided some redundancy. The redundancy will allow the plant to avoid downtime and continue operating through periods of unexpected equipment malfunctions. Due to the installed redundancy, the plant expects to gain additional cost savings from increased runtime and from eliminating the need for short-term rental compressors.',
@@ -915,7 +901,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-milford-compressed-air-system-improvement',
 		text: 'As part of its commitment to reducing its energy intensity, Saint-Gobain undertook a large compressed air system retrofit project at its Milford, Massachusetts glass plant. Upon completion, the compressed air system improvement is expected to deliver energy savings of 15% compared to the system it is replacing.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '8.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -946,7 +932,7 @@ Projects[Pages.compressedAirSystemOptimization] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/darigold-compressed-air-system-optimization',
 		text: 'Americas fifth-largest dairy co-op, Darigold has 11 plants in the northwestern United States that produce milk, butter, sour cream, milk powder, and other dairy products. The Sunnyside plant is the company’s largest facility and each day it produces about 530,000 pounds of cheese and 615,000 pounds of powdered dairy products. Compressed air supports production at this plant through control valves, cylinders, positioners, dampers, and pulsing for bag houses. An inefficient distribution system compelled the partner to upgrade its air piping to enable stable system pressure.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -976,7 +962,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/nissan-north-america-chilled-water-system-upgrades-and-dashboard',
 		text: 'During the process of pursuing ISO 50001 certification for Nissan’s vehicle assembly plant in Canton, Mississippi, Nissan’s Energy Team identified their chilled water system as a Significant Energy Use (SEU). Based on the facility’s 2014 energy baseline, the chilled water system accounted for 15% of the plant’s total electrical consumption.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '2.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1009,7 +995,7 @@ Projects[Pages.refrigerationUpgrade] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/agropur-refrigeration-upgrades',
 		text: 'Le Sueur Cheese is one of seven Agropur cheese and whey protein drying plants in the United States. In 2010, Le Sueur Cheese joined the Better Buildings, Better Plants program and set a goal to reduce its energy intensity by 25% over a 10-year period.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '5.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1039,7 +1025,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/compressed-air',
 		text: 'Compressed air provides a safe and reliable source of pneumatic pressure for a wide range of industrial processes. However, with over 80% of its input energy being lost as heat, air compressors are naturally inefficient. Energy-Efficient process design should opt for alternatives wherever possible and isolate compressed air usage to only processes that mandate it.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '2.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1054,15 +1040,11 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(10_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$10,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 10000,
 	title: 'Lighting',
 	shortTitle: 'Improve Lighting Systems',
 	choiceInfoText: [
@@ -1077,7 +1059,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/lighting',
 		text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors it can be higher.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1107,7 +1089,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '3.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1122,15 +1104,11 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '1 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1145,7 +1123,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1160,15 +1138,11 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '2 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1183,7 +1157,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1199,15 +1173,11 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
-	surprises: [
-		{
-			title: 'CONGRATULATIONS!',
-			text: 'Great choice! This project qualifies you for your local utility’s energy efficiency {rebate program}. You will receive a {$5,000 utility credit} for implementing energy efficiency measures.',
-			img: 'images/confetti.png'
-		},
-	],
+	utilityRebateValue: 5000,
 	title: 'Install VFDs',
 	shortTitle: '3 Install VFDs on motors with high use variablity.',
 	choiceInfoText: [
@@ -1222,7 +1192,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1254,7 +1224,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '0.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1284,7 +1254,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	previewButton: {
+	energySavingsPreviewButton: {
 		text: '2.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1382,5 +1352,3 @@ function absolute(modifier: number): NumberApplier {
 function round(number: number) {
 	return (Math.round(number * 100000)) / 100000;
 }
-
-console.log('Projects', performance.now() - st);

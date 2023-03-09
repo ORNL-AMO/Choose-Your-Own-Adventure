@@ -98,7 +98,7 @@ Projects[Pages.myNewProject] = new ProjectControl({
 	...
 });
 ```
-4. In the newGroupedChoicesControl parameters for `PageControls[Pages.scope1Projects]`, add `Projects[Pages.myNewProject].getChoiceControl()` to the `choices` list of one of the `groups`.
+4. In the newGroupedChoicesControl parameters for `PageControls[Pages.scope1Projects]`, add `Projects[Pages.myNewProject].getProjectChoiceControl()` to the `choices` list of one of the `groups`.
 
 ### Adding new controllable components
 
