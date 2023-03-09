@@ -108,9 +108,9 @@ declare interface ProjectControlParams {
 	 */
 	statsActualAppliers: TrackedStatsApplier;
 	/**
-	 * HIDDEN numbers that appear AFTER PROCEED is clicked (after they've committed to the selected projects). TODO IMPLEMENT
+	 * Stats that are applied at year end (or year range) recap
 	 */
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	/**
 	 * Full title of the project, displayed on the choice info popup and the recap page.
 	 */
@@ -185,7 +185,7 @@ export class ProjectControl implements ProjectControlParams {
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
-	statsHiddenAppliers?: TrackedStatsApplier;
+	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
 	choiceInfoText: string | string[];
@@ -211,7 +211,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.pageId = params.pageId;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
-		this.statsHiddenAppliers = params.statsHiddenAppliers;
+		this.statsRecapAppliers = params.statsRecapAppliers;
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -297,17 +297,31 @@ export class ProjectControl implements ProjectControlParams {
 	}
 
 	/**
+	 * Returns the total amount of in-year and end-of-year rebates of this project.
+	 */
+	getYearEndRebates(): number {
+		let total = 0
+		if (this.statsActualAppliers.totalRebates) {
+			total += this.statsActualAppliers.totalRebates.modifier
+		}
+		if (this.statsRecapAppliers?.totalRebates) {
+			total += this.statsRecapAppliers.totalRebates.modifier;
+		}
+		return total;
+	}
+
+	/**
 	 * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
 	 */
 	getHiddenCost(): number {
-		return (this.statsHiddenAppliers && this.statsHiddenAppliers.moneySpent) ? this.statsHiddenAppliers.moneySpent.modifier : 0;
+		return (this.statsRecapAppliers && this.statsRecapAppliers.moneySpent) ? this.statsRecapAppliers.moneySpent.modifier : 0;
 	}
 
 	/**
 	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
 	 */
-	getNetCost(): number {
-		return this.cost - this.getRebates() + this.getHiddenCost();
+	getYearEndNetCost(): number {
+		return this.cost - this.getYearEndRebates() + this.getHiddenCost();
 	}
 
 	/**
@@ -435,9 +449,8 @@ export class ProjectControl implements ProjectControlParams {
 			}
 			// IF PROJECT IS NOT ALREADY SELECTED
 			else {
-				let rebates = self.getRebates();
 				// Figure out if this project can be afforded
-				if ((self.cost - rebates) > state.trackedStats.financesAvailable) {
+				if (self.cost > state.trackedStats.financesAvailable) {
 					this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 					return state.currentPage;
 				}
@@ -469,11 +482,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Stats that 
 	statsActualAppliers: {
-		totalRebates: absolute(5_000),
 		naturalGasMMBTU: absolute(-250),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
-	statsHiddenAppliers: {},
+	statsRecapAppliers: {
+		totalRebates: absolute(5_000),
+	},
 	title: 'Energy Efficiency - Waste Heat Recovery',
 	shortTitle: 'Upgrade heat recovery on boiler/furnace system',
 	choiceInfoText: [
@@ -604,7 +618,9 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
-		totalRebates: absolute(7500),
+	},
+	statsRecapAppliers: {
+		totalRebates: absolute(7_500),
 	},
 	title: 'Energy Efficiency – Lighting Upgrades',
 	shortTitle: 'Explore lighting upgrades',
@@ -618,6 +634,7 @@ Projects[Pages.lightingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
 		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
 	},
+	utilityRebateValue: 5000,
 });
 
 Projects[Pages.electricBoiler] = new ProjectControl({
@@ -651,7 +668,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.125),
 	},
-	statsHiddenAppliers: {
+	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),
 		moneySpent: absolute(30_000),
 	},
@@ -900,6 +917,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.08),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1057,6 +1076,8 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(10_000),
 	},
 	utilityRebateValue: 10000,
@@ -1119,6 +1140,8 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1151,6 +1174,8 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
@@ -1184,6 +1209,8 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		electricityUseKWh: relative(-0.04),
+	},
+	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,

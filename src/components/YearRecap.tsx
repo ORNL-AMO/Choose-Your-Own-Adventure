@@ -62,9 +62,16 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const projectRecaps: JSX.Element[] = [];
 		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
 
-		const utilityRebate: number = implementedProjects.reduce((total, current) => total + Number(current.utilityRebateValue), 0);
-		if (utilityRebate) {
-			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${utilityRebate.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
+		let totalUtilityRebates = 0;
+		let rebateProjects = implementedProjects.filter(project => {
+			let rebateValue = Number(project.utilityRebateValue);
+			if (rebateValue) {
+				totalUtilityRebates += rebateValue;
+				return project;
+			}
+		});
+		if (totalUtilityRebates) {
+			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${totalUtilityRebates.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
 			projectRecaps.push(
 				<ListItem key={`${utilityRebateText}_surprise_`}>
 					<ThemeProvider theme={darkTheme}>
@@ -72,9 +79,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							<CardHeader
 								avatar={
 									<Avatar
-										sx={{ bgcolor: implementedProjects[0].rebateAvatar.backgroundColor, color: implementedProjects[0].rebateAvatar.color }}
+										sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
 									>
-										{implementedProjects[0].rebateAvatar.icon}
+										{rebateProjects[0].rebateAvatar.icon}
 									</Avatar>
 								}
 								title='Congratulations!'
@@ -82,7 +89,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							/>
 							<CardContent>
 								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
-									{implementedProjects.map((project, idx) => {
+									{rebateProjects.map((project, idx) => {
 									return <List dense={true} key={project.shortTitle + idx}>
 										<ListItem>
 											<ListItemText
@@ -98,7 +105,40 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				</ListItem>
 			);
 		}
+
+
+		implementedProjects.forEach(project => {
+			if (project.recapSurprises) {
+				projectRecaps.push(
+					...project.recapSurprises.map((projectSurprise, idx) => {
+						return (
+							<ListItem key={`${project.pageId.description}_surprise_${idx}`}>
+								<ThemeProvider theme={darkTheme}>
+									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
+										<CardHeader
+											avatar={
+												<Avatar 
+													sx={{bgcolor: projectSurprise.avatar.backgroundColor, color: projectSurprise.avatar.color}}
+												>
+													{projectSurprise.avatar.icon}
+												</Avatar>
+											}
+											title={project.title}
+											subheader={project.shortTitle}
+										/>
+										<CardContent>
+											<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(projectSurprise.text)}/>
+										</CardContent>
+									</Card>
+								</ThemeProvider>
+							</ListItem>
+						);
+					})
+				);
+			}
+		});
 		
+		let nextYearFinancesAvailable = this.props.financesAvailable;
 		for (let i in this.props.implementedProjects) {
 			let projectKey = this.props.implementedProjects[i];
 			
@@ -149,8 +189,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
 			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
-			for (let key in thisProject.statsHiddenAppliers) {
-				let thisApplier: NumberApplier = thisProject.statsHiddenAppliers[key];
+			for (let key in thisProject.statsRecapAppliers) {
+				let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
 				let oldValue = mutableStats[key];
 				let newValue = thisApplier.applyValue(oldValue);
 				let difference = newValue - oldValue;
@@ -162,6 +202,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
 
+			const totalYearEndRebates = thisProject.getYearEndRebates();
+			const yearEndNetCost = thisProject.getYearEndNetCost();
+			const totalYearEndExtraCosts = thisProject.getHiddenCost();
+
+			nextYearFinancesAvailable -= totalYearEndExtraCosts;
+			nextYearFinancesAvailable += totalYearEndRebates;
 			gaugeCharts.push(
 				<GaugeChart
 					key={'carbonSavings'}
@@ -190,7 +236,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					]}
 				/>
 			);
-
 			projectRecaps.push(
 				<ListItem key={projectKey.description}>
 					<Card sx={{ width: '100%' }}>
@@ -239,28 +284,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 											{' '}
 											&nbsp; Rebates:{' '}
 											<Emphasis money>
-												${thisProject.getRebates().toLocaleString('en-US')}
+												${totalYearEndRebates.toLocaleString('en-US')}
 											</Emphasis>
 											{' '}
 											&nbsp; Extra costs:{' '}
 											<Emphasis money>
-												${thisProject.getHiddenCost().toLocaleString('en-US')}
+												${totalYearEndExtraCosts.toLocaleString('en-US')}
 											</Emphasis>
-											{/* Hidden costs... uncomment this if you want it to not show up for projects without hidden costs */}
-											{/* {thisProject.getHiddenCost() && 
-												<>
-													{' '}&nbsp; Extra costs:{' '}
-													<Emphasis money>
-														${thisProject.getHiddenCost().toLocaleString('en-US')}
-													</Emphasis>
-												</>
-											} */}
 										</>
 									</Typography>
 									<Typography variant='body1'>
 										Net cost:{' '}
 										<Emphasis money>
-											${thisProject.getNetCost().toLocaleString('en-US')}
+											${yearEndNetCost.toLocaleString('en-US')}
 										</Emphasis>
 									</Typography>
 								</div>
@@ -280,34 +316,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Card>
 				</ListItem>
 			);
-			if (thisProject.recapSurprises) {
-				projectRecaps.push(
-					...thisProject.recapSurprises.map((surprise, idx) => {
-						return (
-							<ListItem key={`${projectKey.description}_surprise_${idx}`}>
-								<ThemeProvider theme={darkTheme}>
-									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
-										<CardHeader
-											avatar={
-												<Avatar 
-													sx={{bgcolor: surprise.avatar.backgroundColor, color: surprise.avatar.color}}
-												>
-													{surprise.avatar.icon}
-												</Avatar>
-											}
-											title={surprise.title}
-											subheader={thisProject.shortTitle}
-										/>
-										<CardContent>
-											<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)}/>
-										</CardContent>
-									</Card>
-								</ThemeProvider>
-							</ListItem>
-						);
-					})
-				);
-			}
 		}
 
 		// Sanity check! The current year "real" stats are spread directly into this.props
@@ -338,7 +346,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Typography>
 					<Typography variant='body1'>
 						This will be added to your budget for next year, as well as the{' '}
-						<Emphasis>${this.props.financesAvailable}</Emphasis> of your budget
+						<Emphasis>${nextYearFinancesAvailable}</Emphasis> of your budget
 						that was not yet spent.
 					</Typography>
 					{/* <Divider/> */}
