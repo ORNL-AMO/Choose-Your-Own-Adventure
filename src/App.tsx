@@ -17,7 +17,7 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import Projects, { Scope1Projects, Scope2Projects } from './Projects';
-import type {CompletedProject} from './Projects';
+import type {CompletedProject, GameSettings} from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -25,6 +25,7 @@ import type { DialogControlProps, DialogStateProps} from './components/InfoDialo
 import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
+import { SelectGameSettings } from './components/SelectGameSettings';
 
 export type AppState = {
 	currentPage: symbol;
@@ -43,6 +44,7 @@ export type AppState = {
 	lastScrollY: number;
 	snackbarOpen: boolean;
 	snackbarContent?: JSX.Element;
+	gameSettings: GameSettings;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -63,27 +65,12 @@ export interface NextAppState {
 	snackbarContent?: JSX.Element;
 }
 
-/**
- * Used for tracking Game Settings  
- */
-export interface GameSettings {
-	intervalOfYears: number;
-}
-
-/**
- * Used for tracking Game Settings
- * interval options: 1 or 2  
- */
-export const gameSettings: GameSettings = {
-	intervalOfYears: 2,
-}
-
-
 interface CurrentPageProps extends ControlCallbacks, PageControlProps { 
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
 	yearRangeInitialStats: TrackedStats[];
+	gameSettings: GameSettings;
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 }
 
@@ -97,6 +84,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 		
 		switch (this.props.componentClass) {
 			case StartPage:
+			case SelectGameSettings:
 			case GroupedChoices:
 				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
 				return (<this.props.componentClass
@@ -107,6 +95,7 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
+					{...this.props.gameSettings}
 					selectedProjects={this.props.selectedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
@@ -151,6 +140,9 @@ export class App extends React.PureComponent <unknown, AppState> {
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
+			gameSettings: {
+				totalIterations: 5
+			}
 		};
 		
 		// @ts-ignore - for debugging 
@@ -430,7 +422,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 
 		if (newYearTrackedStats.carbonSavings >= 0.5) {
 			this.setPage(Pages.winScreen);
-		} else if (newYearTrackedStats.year === 6) {
+		} else if (newYearTrackedStats.year === this.state.gameSettings.totalIterations + 1) {
 			this.setPage(Pages.loseScreen);
 		} else {
 			this.setPage(Pages.selectScope);
@@ -466,6 +458,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 								<Dashboard 
 									{...this.state.trackedStats} 
 									{...controlCallbacks} 
+									{...this.state.gameSettings}
 									onBack={() => this.handleDashboardOnBack()} 
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
@@ -474,6 +467,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 							{(this.state.currentPageProps && this.state.componentClass) ?
 								<CurrentPage
 									{...controlCallbacks}
+									gameSettings={this.state.gameSettings}
 									trackedStats={this.state.trackedStats}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}

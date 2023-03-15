@@ -78,6 +78,13 @@ export interface CompletedProject {
 }
 
 /**
+ * Used for tracking Game Settings  
+ */
+export interface GameSettings {
+	totalIterations: number,
+}
+
+/**
  * Parameters to pass into a ProjectControl. See code definition in `projects.tsx` for all fields and params.
  */
 declare interface ProjectControlParams {
@@ -290,9 +297,9 @@ export class ProjectControl implements ProjectControlParams {
 	 * Returns the total amount of in-year and end-of-year rebates of this project.
 	 */
 	getYearEndRebates(): number {
-		let total = 0
+		let total = 0;
 		if (this.statsActualAppliers.totalRebates) {
-			total += this.statsActualAppliers.totalRebates.modifier
+			total += this.statsActualAppliers.totalRebates.modifier;
 		}
 		if (this.statsRecapAppliers?.totalRebates) {
 			total += this.statsRecapAppliers.totalRebates.modifier;

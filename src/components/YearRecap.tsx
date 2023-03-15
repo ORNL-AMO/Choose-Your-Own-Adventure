@@ -30,7 +30,7 @@ import { emptyTrackedStats } from '../trackedStats';
 import { calculateYearSavings } from '../trackedStats';
 import { calculateAutoStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import type { CompletedProject, NumberApplier } from '../Projects';
+import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -336,7 +336,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		return (
 			<>
 				<Box m={2}>
-					<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
+					{this.props.totalIterations == 5 &&
+						<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
+					}
+					{this.props.totalIterations == 10 &&
+						<Typography variant='h3'>Year {this.props.year} Recap</Typography>
+					}
 					<Typography variant='h5'>
 						This year, your company saved{' '}
 						<Emphasis>${savings.naturalGas.toLocaleString('en-US')}</Emphasis>{' '}
@@ -399,9 +404,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				</Box>
 				<MobileStepper
 					variant='progress'
-					steps={5}
+					steps={this.props.totalIterations}
 					position='static'
-					activeStep={this.props.year}
+					activeStep={this.props.year - 1}
 					backButton={<Box sx={{ width: 180 }}></Box>}
 					nextButton={
 						<Button
@@ -410,7 +415,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							onClick={() => this.props.handleYearRecap(mutableStats)}
 							endIcon={rightArrow()}
 						>
-							Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}
+							{this.props.totalIterations == 5 &&								
+								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+							}
+							{this.props.totalIterations == 10 &&								
+								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+							}
 						</Button>
 					}
 				/>
@@ -440,7 +450,8 @@ export interface YearRecapControlProps {} // eslint-disable-line
 export interface YearRecapProps
 	extends YearRecapControlProps,
 		ControlCallbacks,
-		TrackedStats {
+		TrackedStats,
+		GameSettings {
 	selectedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
