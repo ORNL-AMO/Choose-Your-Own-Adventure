@@ -60,26 +60,7 @@ PageControls[Pages.introduction] = newInfoDialogControl({
 	]
 });
 
-PageControls[Pages.selectGameSettings] = newSelectGameSettingsControl({
-	buttons: [
-		{
-			text: 'Back',
-			variant: 'contained',
-			onClick: function () {
-				return Pages.introduction;
-			},
-			size: 'medium',
-		},
-		{
-			text: 'Start Playing',
-			variant: 'contained',
-			onClick: function () {
-				return Pages.selectScope;
-			},
-			size: 'medium',
-		}
-	]
-});
+PageControls[Pages.selectGameSettings] = newSelectGameSettingsControl({});
 
 PageControls[Pages.selectScope] = newGroupedChoicesControl({
 	title: function (state, nextState) {

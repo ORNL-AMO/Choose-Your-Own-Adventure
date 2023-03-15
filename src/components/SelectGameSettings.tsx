@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
 import Image from 'mui-image';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
@@ -28,14 +28,14 @@ export const SettingsCard = styled(Paper)(({ theme }) => ({
 export function SelectGameSettings(props: SelectGameSettingsProps) {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const [totalIterations, setTotalIterations] = React.useState('5');
+    const [totalYearIterations, setTotalIterations] = React.useState(props.totalIterations);
 
     const handleChange = (event: SelectChangeEvent) => {
-        setTotalIterations(event.target.value);
+        setTotalIterations(event.target.value as unknown as number);
     }
 
     return (
-        <React.Fragment>
+        <>
             <Dialog
                 fullScreen={fullScreen}
                 open={true}
@@ -52,7 +52,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <Select
                             labelId='selectYearInterval'
                             id='selectedInterval'
-                            value={totalIterations}
+                            value={totalYearIterations as unknown as string}
                             label='totalIterations'
                             onChange={handleChange}
                         >
@@ -60,23 +60,27 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                             <MenuItem value={5}> 2 year intervals</MenuItem>
 
                         </Select>
-                    
-                    
+
+
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <ButtonGroup
-                        buttons={props.buttons}
-                        doPageCallback={props.doPageCallback}
-                        summonInfoDialog={props.summonInfoDialog}
-                        resolveToValue={props.resolveToValue}
-                        useMUIStack={false}
-                    />
+                    <Button
+                        size='small'
+                        onClick={props.onBack} >
+                        Back
+                    </Button>
+                    <Button
+                        size='small'
+                        onClick={() => props.onProceed(totalYearIterations)} >
+                        Start Playing
+                    </Button>
                 </DialogActions>
 
             </Dialog>
-        </React.Fragment>
+        </>
     );
+
 }
 
 /**
@@ -95,8 +99,10 @@ export function newSelectGameSettingsControl(props: SelectGameSettingsControlPro
  * Control properties specified by the scripter (in pages.tsx).
  */
 export declare interface SelectGameSettingsControlProps {
-    totalIterations?: Resolvable<number>; 
     buttons?: ButtonGroupButton[];
 }
 
-export declare interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks { }
+export interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks, GameSettings {
+    onBack?: () => void;
+    onProceed: (totalYearIterations: number) => void;
+}

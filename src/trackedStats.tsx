@@ -57,16 +57,16 @@ export interface TrackedStats {
  * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 4_000, 
+	naturalGasMMBTU: 2_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
-	electricityUseKWh: 4_000_000, 
+	electricityUseKWh: 2_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	
-	financesAvailable: 150_000,
-	totalBudget: 150_000,
+	financesAvailable: 75_000,
+	totalBudget: 75_000,
 	carbonSavings: 0,
 	carbonEmissions: -1, // auto calculated in the next line
 	moneySpent: 0,
@@ -153,13 +153,13 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		label: 'Natural gas use (MMBTU)',
 		color: theme.palette.primary.dark,
 		textFontSize: 0.85,
-		maxValue: 4_000,
+		maxValue: 2_000,
 	},
 	electricityUseKWh: {
 		label: 'Electricity use (kWh)',
 		color: '#c0a020',
 		textFontSize: 0.85,
-		maxValue: 4_000_000,
+		maxValue: 2_000_000,
 	},
 	carbonSavings: {
 		label: 'Carbon savings',

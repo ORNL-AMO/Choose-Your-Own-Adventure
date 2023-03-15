@@ -72,6 +72,8 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	yearRangeInitialStats: TrackedStats[];
 	gameSettings: GameSettings;
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
+	handleGameSettingsOnBack: () => void;
+	handleGameSettingsOnProceed: (totalYearIterations: number) => void;
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
@@ -85,6 +87,12 @@ class CurrentPage extends PureComponentIgnoreFuncs <CurrentPageProps> {
 		switch (this.props.componentClass) {
 			case StartPage:
 			case SelectGameSettings:
+				return <SelectGameSettings
+					{...this.props.gameSettings}
+					{...controlCallbacks}
+					onBack={this.props.handleGameSettingsOnBack} 
+					onProceed={this.props.handleGameSettingsOnProceed}
+                />;
 			case GroupedChoices:
 				if (!this.props.controlProps) throw new Error('currentPageProps not defined'); 
 				return (<this.props.componentClass
@@ -141,7 +149,7 @@ export class App extends React.PureComponent <unknown, AppState> {
 			lastScrollY: -1,
 			snackbarOpen: false,
 			gameSettings: {
-				totalIterations: 5
+				totalIterations: 10
 			}
 		};
 		
@@ -429,6 +437,42 @@ export class App extends React.PureComponent <unknown, AppState> {
 		}
 
 	}
+
+	handleGameSettingsOnProceed(totalYearIterations: number){
+		let budget = 0;
+		let naturalGas = 0;
+		let electricity = 0;
+		if(totalYearIterations == 5) {
+			budget = 150_000;
+			naturalGas = 4_000;
+			electricity = 4_000_000;
+		}
+		if ( totalYearIterations == 10) {
+			budget = 75_000;
+			naturalGas = 2_000;
+			electricity = 2_000_000;
+		}
+		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
+		updatingInitialTrackedStats.totalBudget = budget;
+		updatingInitialTrackedStats.financesAvailable = budget;
+		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
+		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		this.setState({
+			trackedStats: updatingInitialTrackedStats,
+			yearRangeInitialStats: [
+				updatingInitialTrackedStats,
+			],
+			gameSettings: {
+				totalIterations: totalYearIterations,
+			}
+		});
+		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
+		this.setPage(Pages.selectScope);
+	}
+
+	handleGameSettingsOnBack(){
+		this.setPage(Pages.introduction);
+	}
 	
 	render() {
 		// Standard callbacks to spread to each control.
@@ -475,6 +519,8 @@ export class App extends React.PureComponent <unknown, AppState> {
 									completedProjects={this.state.completedProjects}									
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}
+									handleGameSettingsOnProceed={(totalYearIterations) => this.handleGameSettingsOnProceed(totalYearIterations)}
+									handleGameSettingsOnBack={() => this.handleGameSettingsOnBack()}
 								/>
 							: <></>}
 						</Box>
