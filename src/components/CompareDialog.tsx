@@ -141,7 +141,12 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 		const objectFit = (project.infoDialog.imgObjectFit) ? project.infoDialog.imgObjectFit : 'cover';
 		const projectStatCards = getProjectStatCards(project, props, theme);
 		// todo 25 use theme to set cardStyle width smaller for xl breakpoint
-		const cardStyle = { width: .33, marginLeft: '.5rem', marginRight: '.5rem', position: 'relative' };
+		const cardStyle = { 
+			width: props.selectedProjectsForComparison.length == 2? .50 : .33, 
+			marginLeft: '.5rem', 
+			marginRight: '.5rem', 
+			position: 'relative' 
+		};
 		return (
 			<Card key={project.page.description} sx={cardStyle}>
 				{project.infoDialog.img && <>
@@ -186,6 +191,22 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 						</div>
 					}
 				</>}
+				{!project.infoDialog.img && 
+					<>
+					<CardMedia
+						component='img'
+						height='260'
+						image={project.infoDialog.img}
+						alt={project.infoDialog.imgAlt}
+						title={project.infoDialog.imgAlt}
+						sx={{
+							objectFit: objectFit,
+							position: 'relative',
+							zIndex: 2,
+						}}
+					/>
+					</>
+				}
 				<CardContent>
 					{/* Setting some static heights below to display all cards similarly */}
 					<Typography gutterBottom variant='h5' component='div' className='semi-emphasis'
