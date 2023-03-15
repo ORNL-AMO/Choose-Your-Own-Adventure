@@ -1,7 +1,7 @@
 import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
 import { styled, useTheme } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -28,7 +28,21 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	const theme = useTheme();
 	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	
-	// Optional objectFit parameter
+	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
+	useEffect(() => {
+		// timeout delay button display until dialog open - less page jump
+		const timeout = setTimeout(() => {
+			if (props.handleProjectInfoViewed && props.doAppStateCallback) {
+				props.doAppStateCallback(props.handleProjectInfoViewed);
+			}
+		}, 100);
+
+		return () => {
+			// ensure state cleared before next effect
+			clearTimeout(timeout);
+		};
+	});
+
 	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
 	
 	function handleClose() {
@@ -118,6 +132,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 				<ButtonGroup 
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback} 
+					doAppStateCallback={props.doAppStateCallback} 
 					summonInfoDialog={props.summonInfoDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
@@ -175,6 +190,9 @@ export declare interface DialogControlProps {
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
+	comparisonDialogButtons?: ButtonGroupButton[];
+	handleProjectInfoViewed?: AppStateCallback;
+	handleRemoveSelectedCompare?: PageCallback;
 }
 
 /**
@@ -192,6 +210,8 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		allowClose: obj.allowClose || false,
 		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
+		comparisonDialogButtons: obj.comparisonDialogButtons || undefined,
+		handleProjectInfoViewed: obj.handleProjectInfoViewed
 	};
 }
 

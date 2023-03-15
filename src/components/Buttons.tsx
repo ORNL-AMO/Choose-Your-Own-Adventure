@@ -14,14 +14,9 @@ import type App from '../App';
  * Button control for use inside a ButtonGroup component's `buttons` prop.
  */
 export declare interface ButtonGroupButton {
-	/**
-	 * Text to display on the button
-	 */
 	text: string;
-	/**
-	 * Variant of the button
-	 */
 	variant: buttonVariant;
+	color?: 'primary' | 'inherit' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | undefined;
 	/**
 	 * Contents to appear in an info popup. Mutually exclusive with infoDialog and onClick.
 	 */
@@ -29,11 +24,12 @@ export declare interface ButtonGroupButton {
 	/**
 	 * Contents to appear in an InfoDialog. Mutually exclusive with infoPopup and onClick.
 	 */
-	infoDialog?: DialogStateProps; // todo
+	infoDialog?: DialogStateProps; 
 	/**
 	 * PageCallback to run on click. Mutually exclusive with infoPopup and infoDialog.
 	 */
 	onClick?: PageCallback;
+	getDynamicButtonText?: Resolvable<string>;
 	/**
 	 * Optional icon at start of button text
 	 */
@@ -44,13 +40,8 @@ export declare interface ButtonGroupButton {
 	endIcon?: Resolvable<React.ReactNode>;
 	size?: 'small' | 'medium' | 'large';
 	disabled?: Resolvable<boolean>;
-	/**
-	 * for link-type buttons (`a` tag)
-	 */
+	shouldDisplay?: Resolvable<boolean>
 	href?: string;
-	/**
-	 * for link-type buttons (`a` tag)
-	 */
 	target?: React.HTMLAttributeAnchorTarget;
 }
 
@@ -92,7 +83,9 @@ export function ButtonGroup(props: ButtonGroupProps) {
 
 export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupButton, idx: number) {
 	let thisDisabled = props.resolveToValue(props.disabled, false);
-	if (button.disabled) thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+	if (button.disabled) {
+		thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+	}
 
 	if (
 		(button.infoPopup && (button.infoDialog || button.onClick)) ||
@@ -101,18 +94,25 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 	) {
 		throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
 	}
-	
-	if (button.infoPopup) return (
-		<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
-			{button.infoPopup}
-		</BasicPopover>
-	);
-	// Button with href (using 'a' as the root node)
-	else if (button.href) {
+
+	let stateDependentText = props.resolveToValue(button.getDynamicButtonText);
+	if (stateDependentText) {
+		button.text = stateDependentText;
+	}
+
+	if (button.infoPopup) {
 		return (
-			<Button 
+			<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
+				{button.infoPopup}
+			</BasicPopover>
+		);
+	} else if (button.href) {
+		// Button with href (using 'a' as the root node)
+		return (
+			<Button
 				key={idx}
-				variant={button.variant} 
+				variant={button.variant}
+				color={button.color}
 				startIcon={props.resolveToValue(button.startIcon)}
 				endIcon={props.resolveToValue(button.endIcon)}
 				size={button.size}
@@ -125,26 +125,30 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		);
 	}
 	// Button without href
-	else return (
-		<Button 
-			key={idx}
-			variant={button.variant} 
-			startIcon={props.resolveToValue(button.startIcon)}
-			endIcon={props.resolveToValue(button.endIcon)}
-			size={button.size}
-			disabled={thisDisabled}
-			onClick={() => {
-				if (button.onClick) {
-					props.doPageCallback(button.onClick);
-				}
-				else if (button.infoDialog) {
-					props.summonInfoDialog(button.infoDialog);
-				}
-			}}
-		>
-			{button.text}
-		</Button>
-	);
+	else {
+		return (
+			<Button
+				key={idx}
+				variant={button.variant}
+				color={button.color}
+				startIcon={props.resolveToValue(button.startIcon)}
+				endIcon={props.resolveToValue(button.endIcon)}
+				size={button.size}
+				disabled={thisDisabled}
+				onClick={() => {
+					if (button.onClick) {
+						props.doPageCallback(button.onClick);
+					}
+					else if (button.infoDialog) {
+						// todo 25 set allowImplementProjects should probably happen here instead of <InfoDialog/> useEfffect
+						props.summonInfoDialog(button.infoDialog);
+					}
+				}}
+			>
+				{button.text}
+			</Button>
+		);
+	}
 }
 
 /* -======================================================- */
@@ -200,14 +204,17 @@ export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolea
  * @param selected Whether the checkbox should be checked.
  * @returns 
  */
-export function selectButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>): ButtonGroupButton {
+
+export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>, shouldDisplay?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Implement Project',
+		color: 'success',
 		variant: 'contained',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
 		},
 		disabled: disabled,
+		shouldDisplay: shouldDisplay,
 		startIcon: function (...params) {
 			if (resolveToValue(selected, false, params, this)) {
 				return <CheckBoxIcon/>;
@@ -253,13 +260,62 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
 export function infoButtonWithDialog(dialogProps: DialogControlProps, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
-	
 	return {
 		text: 'Info',
 		variant: 'outlined',
 		startIcon: <QuestionMarkIcon/>,
 		infoDialog: fillDialogProps(dialogProps),
 		disabled,
+		shouldDisplay: true
+	};
+}
+
+/**
+ * Generates a "Compare" button with a checkbox.
+ * @param addProjectToCompare Click handler. Must return a Page symbol.
+ * @param selected Whether the checkbox should be checked. 
+ * @param disabled Whether the button should appear disabled.
+ * @param buttonText dependant on whether selected
+ * @returns 
+ */
+export function compareButton(addProjectToCompare: PageCallback, selected: Resolvable<boolean>, disabled?: Resolvable<boolean>, buttonText?: Resolvable<string>): ButtonGroupButton {
+	return {
+		text: 'Compare',
+		variant: 'outlined',
+		onClick: function (...params) {
+			return resolveToValue(addProjectToCompare, undefined, params, this);
+		},
+		getDynamicButtonText: function (...params) {
+			return resolveToValue(buttonText, false, params, this);
+		},
+		disabled,
+		startIcon: function (...params) {
+			if (resolveToValue(selected, false, params, this)) {
+				return <CheckBoxIcon/>;
+			}
+			else {
+				return <CheckBoxOutlineBlankIcon/>;
+			}
+		},
+		shouldDisplay: true
+	};
+}
+
+
+/**
+ * Generates a "Compare" button with a checkbox.
+ * @param onClick removes from list of selected for compare
+
+ * @returns 
+ */
+export function deselectButton(onClick: AppStateCallback): ButtonGroupButton {
+	return {
+		text: 'Deselect',
+		variant: 'outlined',
+		onClick: function (...params) {
+			return resolveToValue(onClick, undefined, params, this);
+		},
+		shouldDisplay: true
 	};
 }
 
@@ -273,6 +329,7 @@ export function closeDialogButton(text?: string, disabled?: Resolvable<boolean>)
 		text: text,
 		variant: 'text',
 		onClick: function (this: App, state) {
+			this.handleDialogClose();
 			return state.currentPage;
 		},
 		disabled,
