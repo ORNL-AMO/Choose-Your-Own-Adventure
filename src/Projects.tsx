@@ -396,7 +396,7 @@ export class ProjectControl implements ProjectControlParams {
 			choiceStats.push(self.energySavingsPreviewButton);
 		}
 
-		comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare))
+		comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
 		addImplementProjectButton(comparisonDialogButtons);
 		this.projectDialogInfo.comparisonDialogButtons = comparisonDialogButtons;
 
@@ -464,7 +464,6 @@ export class ProjectControl implements ProjectControlParams {
 			} 
 		}
 
-		// todo 25 Use in other methods
 		function removeSelectedForCompare(state): Array<SelectedProject> {
 			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
 			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
@@ -475,11 +474,7 @@ export class ProjectControl implements ProjectControlParams {
 		}
 
 		function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
-			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
-			selectedProjectsForComparison.splice(removeProjectIndex, 1);
-			nextState.selectedProjectsForComparison = [...selectedProjectsForComparison];
-
+			nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
 			if (nextState.selectedProjectsForComparison.length === 0) {
 				nextState.isCompareDialogOpen = false;
 			}
@@ -488,26 +483,21 @@ export class ProjectControl implements ProjectControlParams {
 
 		function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
 			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-			let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId)
+			let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId);
 			if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
 				selectedProjectsForComparison.push({ 
 					page: self.pageId,
 					infoDialog: self.projectDialogInfo
 				});
 			} else {
-				const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
-				selectedProjectsForComparison.splice(removeProjectIndex, 1);
+				selectedProjectsForComparison = removeSelectedForCompare(state);
 			}
 
 			let isCompareDialogOpen = false;
 			// Auto open when 3 selected
 			if (selectedProjectsForComparison.length == 3) {
-				if (isSelectingCompare) {
-					isCompareDialogOpen = true;
-					this.openCompareDialog();
-				} else {
-					this.handleCompareDialogClose();
-				}
+				isCompareDialogOpen = isSelectingCompare? true : false;
+				this.handleCompareDialogDisplay(isCompareDialogOpen);
 			} else if (selectedProjectsForComparison.length < 2) {
 				isCompareDialogOpen = false;
 			}

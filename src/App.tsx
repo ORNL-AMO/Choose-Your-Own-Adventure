@@ -78,8 +78,8 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	selectedProjectsForComparison: SelectedProject[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
-	handleCompareProjectsClick: any;
-	handleClearProjectsClick: any;
+	handleCompareProjectsClick: () => void;
+	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 }
@@ -290,19 +290,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let dialog = cloneAndModify(this.state.dialog, {open: false});
 		this.setState({dialog});
 	}
-	
 
-	// combine above
-	openCompareDialog() {
-		const isCompareDialogOpen = true;
+	handleCompareDialogDisplay(isCompareDialogOpen: boolean) {
 		setTimeout(() => {
 			this.setState({ isCompareDialogOpen });
 			this.saveScrollY();
 		}, 50);
-	}
-	handleCompareDialogClose() {
-		const isCompareDialogOpen = false;
-		this.setState({ isCompareDialogOpen });
 	}
 
 	handleClearSelectedProjects() {
@@ -531,7 +524,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 									completedProjects={this.state.completedProjects}
 									handleClearProjectsClick={() => this.handleClearSelectedProjects}
-									handleCompareProjectsClick={() => this.openCompareDialog}
+									handleCompareProjectsClick={() => this.handleCompareDialogDisplay(true)}
+									// handleCompareProjectsClick={() => this.openCompareDialog}
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}
 								/>
@@ -548,7 +542,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 							isOpen={this.state.isCompareDialogOpen}
 							selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 							onClearSelectedProjects={() => this.handleClearSelectedProjects()}
-							onClose={() => this.handleCompareDialogClose()}
+							onClose={() => this.handleCompareDialogDisplay(false)}
 						/>
 						<Snackbar
 							open={this.state.snackbarOpen}

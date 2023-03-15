@@ -197,8 +197,8 @@ export interface GroupedChoicesControlProps {
 	 */
 	allowImplementProjects?: symbol[]
 	selectedProjectsForComparison?: SelectedProject[];
-	handleClearProjectsClick?: any;
-	handleCompareProjectsClick?: any;
+	handleClearProjectsClick?: () => void;
+	handleCompareProjectsClick?: () => void;
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
 	isProjectGroupChoice?: boolean;
