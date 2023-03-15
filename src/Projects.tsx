@@ -1383,15 +1383,15 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 
 Projects[Pages.windVPPA] = new ProjectControl({
 	pageId: Pages.windVPPA,
-	cost: 0,
+	cost: 40000,
 	statsInfoAppliers: {
-		electricityUseKWh: undefined,
+		electricityUseKWh: relative(0),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: undefined,
+		electricityUseKWh: relative(0),
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: '',
+	shortTitle: 'Invest in building a wind farm as a virtual power purchase agreement.',
 	choiceInfoText: [''],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
