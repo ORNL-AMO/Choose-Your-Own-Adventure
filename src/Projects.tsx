@@ -1,12 +1,13 @@
 import React from 'react';
 import type { AppState, NextAppState } from './App';
 import type App from './App';
+import { compareButton, deselectButton } from './components/Buttons';
 import type { ButtonGroupButton } from './components/Buttons';
 import { closeDialogButton } from './components/Buttons';
-import { infoButtonWithDialog, selectButtonCheckbox } from './components/Buttons';
+import { infoButtonWithDialog, implementButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
-import type { DialogCardContent } from './components/InfoDialog';
+import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
 import { theme } from './components/theme';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -15,6 +16,8 @@ import Pages from './Pages';
 import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import Co2Icon from '@mui/icons-material/Co2';
+
 
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
 // These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
@@ -72,8 +75,16 @@ declare interface RecapSurprise {
 /**
  * Used for tracking completed project related state throughout the view/pages
  */
-export interface CompletedProject {
+export interface CompletedProject extends Project {
 	selectedYear: number,
+}
+
+export interface SelectedProject extends Project {
+	infoDialog: DialogControlProps
+}
+
+
+export interface Project {
 	page: symbol
 }
 
@@ -167,6 +178,7 @@ declare interface ProjectControlParams {
 	 * tracks the year the project is selected 
 	 */
 	yearSelected?: number;
+	projectDialogInfo?: DialogControlProps;
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -192,6 +204,7 @@ export class ProjectControl implements ProjectControlParams {
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
+	projectDialogInfo: DialogControlProps;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -227,6 +240,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
 		this.yearSelected = params.yearSelected;
+		this.projectDialogInfo = {title: '', text: ''};
 	}
 
 	/**
@@ -290,9 +304,9 @@ export class ProjectControl implements ProjectControlParams {
 	 * Returns the total amount of in-year and end-of-year rebates of this project.
 	 */
 	getYearEndRebates(): number {
-		let total = 0
+		let total = 0;
 		if (this.statsActualAppliers.totalRebates) {
-			total += this.statsActualAppliers.totalRebates.modifier
+			total += this.statsActualAppliers.totalRebates.modifier;
 		}
 		if (this.statsRecapAppliers?.totalRebates) {
 			total += this.statsRecapAppliers.totalRebates.modifier;
@@ -326,58 +340,71 @@ export class ProjectControl implements ProjectControlParams {
 
 		infoDialogStatCards.push({
 			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
-			color: theme.palette.secondary.dark, // todo change?
+			color: theme.palette.secondary.dark, 
 		});
 
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			infoDialogStatCards.push({
 				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
-				color: theme.palette.primary.light, // todo change?
+				color: theme.palette.primary.light,
 			});
 		}
 		if (this.statsInfoAppliers.electricityUseKWh) {
 			infoDialogStatCards.push({
 				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
-				color: theme.palette.warning.light, // todo change?
+				color: theme.palette.warning.light,
 			});
 		}
-		// todo more stats
 
-		let buttons: ButtonGroupButton[] = [];
-		// Info button
-		buttons.push(infoButtonWithDialog({
-			title: this.title,
-			text: this.choiceInfoText,
-			img: this.choiceInfoImg,
-			imgAlt: this.choiceInfoImgAlt,
-			imgObjectFit: this.choiceInfoImgObjectFit,
+		let choiceCardButtons: ButtonGroupButton[] = [];
+		let comparisonDialogButtons: ButtonGroupButton[] = [];
+
+		this.projectDialogInfo = {
+			title: self.title,
+			text: self.choiceInfoText,
+			img: self.choiceInfoImg,
+			imgAlt: self.choiceInfoImgAlt,
+			imgObjectFit: self.choiceInfoImgObjectFit,
 			cards: infoDialogStatCards,
+			handleProjectInfoViewed: function (state, nextState) {
+				return setAllowImplementProject.apply(this, [state, nextState]);
+			},
 			buttons: [
 				closeDialogButton(),
 				{
 					text: 'Implement Project',
-					variant: 'text',
+					variant: 'contained',
+					color: 'success',
 					onClick: function (state, nextState) {
-						const isProjectSelected: boolean = state.selectedProjects.includes(self.pageId);
-						if (isProjectSelected) {
+						const isProjectImplemented: boolean = state.implementedProjects.includes(self.pageId);
+						if (isProjectImplemented) {
 							return state.currentPage;
 						}
-						return toggleProjectSelect.apply(this, [state, nextState]);
+						return toggleProjectImplemented.apply(this, [state, nextState]);
 					},
-					// disabled when the project is selected
-					disabled: (state) => state.selectedProjects.includes(self.pageId)
+					// disabled when the project is implemented
+					disabled: (state) => state.implementedProjects.includes(self.pageId),
 				}
-			]
-		}));
-		if (this.energySavingsPreviewButton) choiceStats.push(this.energySavingsPreviewButton);
-		// Select checkbox button, with live preview of stats
-		buttons.push(selectButtonCheckbox(toggleProjectSelect, undefined, (state) => state.selectedProjects.includes(this.pageId)));
+			],
+		};
+
+		addCompareProjectButton(choiceCardButtons);
+		choiceCardButtons.push(infoButtonWithDialog(this.projectDialogInfo));
+		addImplementProjectButton(choiceCardButtons);
+		
+		if (self.energySavingsPreviewButton) {
+			choiceStats.push(self.energySavingsPreviewButton);
+		}
+
+		comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
+		addImplementProjectButton(comparisonDialogButtons);
+		this.projectDialogInfo.comparisonDialogButtons = comparisonDialogButtons;
 
 		return {
 			title: this.title,
 			text: this.shortTitle,
 			choiceStats: choiceStats,
-			buttons: buttons,
+			buttons: choiceCardButtons,
 			visible: function (state) {
 				// Hide the project if it's already been completed
 				if (state.completedProjects.some(project => project.page === self.pageId)) return false;
@@ -388,26 +415,118 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
+		function addCompareProjectButton(buttons: ButtonGroupButton[]) {
+			const isSelectedForCompare = (props) => {
+				return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			};
+
+			const isDisabled = (props) => {
+				return props.selectedProjectsForComparison.length >= 3 && !isSelectedForCompare(props);
+			};
+
+			const getButtonText = (props) => {
+				let selected = isSelectedForCompare(props);
+				return selected ? 'Select another to compare' : 'Compare';
+			};
+
+			buttons.push(compareButton(
+				toggleSelectedProjectToCompare,
+				(props) => isSelectedForCompare(props),
+				(props) => isDisabled(props),
+				(props) => getButtonText(props)
+			));
+		}
+
+		function addImplementProjectButton(buttons: ButtonGroupButton[]) {
+			// const shouldDisplayImplementButton = (props) => {
+			// 	return props.allowImplementProjects.includes(this.pageId);
+			// };
+			const shouldDisableImplementButton = (props) => {
+				return !props.allowImplementProjects.includes(self.pageId);
+			};
+			const isProjectImplemented = (props) => {
+				return props.implementedProjects.includes(self.pageId);
+			};
+			buttons.push(implementButtonCheckbox(
+				toggleProjectImplemented,
+				(props) => shouldDisableImplementButton(props),
+				(props) => isProjectImplemented(props),
+				// (props) => shouldDisplayImplementButton(props)
+			));
+		}
+
+		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
+			let allowImplementProjects = [...state.allowImplementProjects];
+			const existingIndex: number = allowImplementProjects.findIndex(projectPageId => projectPageId === self.pageId);
+			if (existingIndex === -1) {
+				allowImplementProjects.push(self.pageId);
+				nextState.allowImplementProjects = [...allowImplementProjects];
+			} 
+		}
+
+		function removeSelectedForCompare(state): Array<SelectedProject> {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
+			if (removeProjectIndex !== -1) {
+				selectedProjectsForComparison.splice(removeProjectIndex, 1);
+			}
+			return selectedProjectsForComparison;
+		}
+
+		function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
+			nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+			if (nextState.selectedProjectsForComparison.length === 0) {
+				nextState.isCompareDialogOpen = false;
+			}
+			return state.currentPage;
+		}
+
+		function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId);
+			if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
+				selectedProjectsForComparison.push({ 
+					page: self.pageId,
+					infoDialog: self.projectDialogInfo
+				});
+			} else {
+				selectedProjectsForComparison = removeSelectedForCompare(state);
+			}
+
+			let isCompareDialogOpen = false;
+			// Auto open when 3 selected
+			if (selectedProjectsForComparison.length == 3) {
+				isCompareDialogOpen = isSelectingCompare? true : false;
+				this.handleCompareDialogDisplay(isCompareDialogOpen);
+			} else if (selectedProjectsForComparison.length < 2) {
+				isCompareDialogOpen = false;
+			}
+
+
+			nextState.isCompareDialogOpen = isCompareDialogOpen;
+			nextState.selectedProjectsForComparison = selectedProjectsForComparison;
+			return state.currentPage;
+		}
 
 		/**
 		 * Action to toggle whether the project is selected, after a select button is clicked.
 		 */
-		function toggleProjectSelect(this: App, state: AppState, nextState: NextAppState) {
-			let selectedProjects = state.selectedProjects.slice();
+		function toggleProjectImplemented(this: App, state: AppState, nextState: NextAppState) {
+			let implementedProjects = state.implementedProjects.slice();
 			let newTrackedStats = { ...state.trackedStats };
 			// IF PROJECT IS ALREADY SELECTED
-			if (selectedProjects.includes(self.pageId)) {
+			if (implementedProjects.includes(self.pageId)) {
 				// Since the order of projects matters, we can't simply unApplyChanges to ourself.
 				// 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
-				for (let i = selectedProjects.length - 1; i >= 0; i--) {
-					let pageId = selectedProjects[i];
+				for (let i = implementedProjects.length - 1; i >= 0; i--) {
+					let pageId = implementedProjects[i];
 					Projects[pageId].unApplyStatChanges(newTrackedStats);
 				}
 
-				selectedProjects.splice(selectedProjects.indexOf(self.pageId), 1);
+				implementedProjects.splice(implementedProjects.indexOf(self.pageId), 1);
 
-				for (let i = 0; i < selectedProjects.length; i++) {
-					let pageId = selectedProjects[i];
+				for (let i = 0; i < implementedProjects.length; i++) {
+					let pageId = implementedProjects[i];
 					Projects[pageId].applyStatChanges(newTrackedStats);
 				}
 			}
@@ -419,11 +538,12 @@ export class ProjectControl implements ProjectControlParams {
 					return state.currentPage;
 				}
 
-				selectedProjects.push(self.pageId);
+				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
+				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
 
 			}
-			nextState.selectedProjects = selectedProjects;
+			nextState.implementedProjects = implementedProjects;
 			nextState.trackedStats = newTrackedStats;
 
 			return state.currentPage; // no page change
@@ -1261,6 +1381,29 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	},
 });
 
+Projects[Pages.windVPPA] = new ProjectControl({
+	pageId: Pages.windVPPA,
+	cost: 40000,
+	statsInfoAppliers: {
+		electricityUseKWh: relative(0),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: relative(0),
+	},
+	title: 'Invest in wind VPPA',
+	shortTitle: 'Invest in building a wind farm as a virtual power purchase agreement.',
+	choiceInfoText: [''],
+	choiceInfoImg: '',
+	choiceInfoImgAlt: '',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewButton: {
+		text: '10.0%',
+		variant: 'text',
+		startIcon: <Co2Icon/>,
+	},
+});
 
 
 /**

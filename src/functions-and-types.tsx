@@ -238,6 +238,13 @@ declare global {
 	type PageCallback = ((this: App, state: AppState, nextState: NextAppState) => symbol)|symbol;
 	
 	/**
+	 * Make state changes without Page navigation
+	 * @param state Read-only, immutable state of the main app
+	 * @param nextState Mutable object containing properties to assign to the app's state next.
+	 */
+	type AppStateCallback = ((this: App, state: AppState, nextState: NextAppState) => void);
+	
+	/**
 	 * JS does not discern between integers and floats, but we can still identify as necessary which numbers should be integers only.
 	 */
 	type integer = number;

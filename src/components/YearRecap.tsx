@@ -60,10 +60,10 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		let hiddenStatDiff: TrackedStats = { ...emptyTrackedStats };
 
 		const projectRecaps: JSX.Element[] = [];
-		let selectedProjects = [...this.props.selectedProjects].map(project => Projects[project]);
+		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
 
 		let totalUtilityRebates = 0;
-		let rebateProjects = selectedProjects.filter(project => {
+		let rebateProjects = implementedProjects.filter(project => {
 			let rebateValue = Number(project.utilityRebateValue);
 			if (rebateValue) {
 				totalUtilityRebates += rebateValue;
@@ -107,7 +107,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		}
 
 
-		selectedProjects.forEach(project => {
+		implementedProjects.forEach(project => {
 			if (project.recapSurprises) {
 				projectRecaps.push(
 					...project.recapSurprises.map((projectSurprise, idx) => {
@@ -139,8 +139,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		});
 		
 		let nextYearFinancesAvailable = this.props.financesAvailable;
-		for (let i in this.props.selectedProjects) {
-			let projectKey = this.props.selectedProjects[i];
+		for (let i in this.props.implementedProjects) {
+			let projectKey = this.props.implementedProjects[i];
 			
 			const thisProject = Projects[projectKey];
 			if (!thisProject)
@@ -441,7 +441,7 @@ export interface YearRecapProps
 	extends YearRecapControlProps,
 		ControlCallbacks,
 		TrackedStats {
-	selectedProjects: symbol[];
+	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
 	/**
