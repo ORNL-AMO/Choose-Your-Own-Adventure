@@ -1,12 +1,13 @@
 import React from 'react';
 import type { AppState, NextAppState } from './App';
 import type App from './App';
+import { compareButton, deselectButton } from './components/Buttons';
 import type { ButtonGroupButton } from './components/Buttons';
 import { closeDialogButton } from './components/Buttons';
 import { infoButtonWithDialog, implementButtonCheckbox } from './components/Buttons';
 import type { TrackedStats } from './trackedStats';
 import type { Choice } from './components/GroupedChoices';
-import type { DialogCardContent } from './components/InfoDialog';
+import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
 import { theme } from './components/theme';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -79,7 +80,7 @@ export interface CompletedProject extends Project {
 }
 
 export interface SelectedProject extends Project {
-	selectedYear: number,
+	infoDialog: DialogControlProps
 }
 
 
@@ -177,6 +178,7 @@ declare interface ProjectControlParams {
 	 * tracks the year the project is selected 
 	 */
 	yearSelected?: number;
+	projectDialogInfo?: DialogControlProps;
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -202,6 +204,7 @@ export class ProjectControl implements ProjectControlParams {
 	visible: Resolvable<boolean>;
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
+	projectDialogInfo: DialogControlProps;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -237,6 +240,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.disabled = params.disabled || false; // Default to false
 		this.cost = params.cost;
 		this.yearSelected = params.yearSelected;
+		this.projectDialogInfo = {title: '', text: ''};
 	}
 
 	/**
@@ -300,9 +304,9 @@ export class ProjectControl implements ProjectControlParams {
 	 * Returns the total amount of in-year and end-of-year rebates of this project.
 	 */
 	getYearEndRebates(): number {
-		let total = 0
+		let total = 0;
 		if (this.statsActualAppliers.totalRebates) {
-			total += this.statsActualAppliers.totalRebates.modifier
+			total += this.statsActualAppliers.totalRebates.modifier;
 		}
 		if (this.statsRecapAppliers?.totalRebates) {
 			total += this.statsRecapAppliers.totalRebates.modifier;
@@ -352,17 +356,16 @@ export class ProjectControl implements ProjectControlParams {
 			});
 		}
 
-		let buttons: ButtonGroupButton[] = [];
+		let choiceCardButtons: ButtonGroupButton[] = [];
+		let comparisonDialogButtons: ButtonGroupButton[] = [];
 
-		// Info button
-		buttons.push(infoButtonWithDialog({
-			title: this.title,
-			text: this.choiceInfoText,
-			img: this.choiceInfoImg,
-			imgAlt: this.choiceInfoImgAlt,
-			imgObjectFit: this.choiceInfoImgObjectFit,
+		this.projectDialogInfo = {
+			title: self.title,
+			text: self.choiceInfoText,
+			img: self.choiceInfoImg,
+			imgAlt: self.choiceInfoImgAlt,
+			imgObjectFit: self.choiceInfoImgObjectFit,
 			cards: infoDialogStatCards,
-			projectSymbol: this.pageId,
 			handleProjectInfoViewed: function (state, nextState) {
 				return setAllowImplementProject.apply(this, [state, nextState]);
 			},
@@ -373,40 +376,35 @@ export class ProjectControl implements ProjectControlParams {
 					variant: 'contained',
 					color: 'success',
 					onClick: function (state, nextState) {
-						const isProjectSelected: boolean = state.implementedProjects.includes(self.pageId);
-						if (isProjectSelected) {
+						const isProjectImplemented: boolean = state.implementedProjects.includes(self.pageId);
+						if (isProjectImplemented) {
 							return state.currentPage;
 						}
 						return toggleProjectImplemented.apply(this, [state, nextState]);
 					},
-					// disabled when the project is selected
+					// disabled when the project is implemented
 					disabled: (state) => state.implementedProjects.includes(self.pageId),
 				}
-			]
-		}));
+			],
+		};
 
-		// const shouldDisplayImplementButton = (props) => {
-		// 	return props.allowImplementProjects.includes(this.pageId);
-		// };
-		const shouldDisableImplementButton = (props) => {
-			return !props.allowImplementProjects.includes(this.pageId);
-		};
-		const isProjectSelected = (props) => {
-			return props.implementedProjects.includes(this.pageId);
-		};
-		if (this.energySavingsPreviewButton) choiceStats.push(this.energySavingsPreviewButton);
-		buttons.push(implementButtonCheckbox(
-			toggleProjectImplemented, 
-			(props) => shouldDisableImplementButton(props),
-			(props) => isProjectSelected(props),
-			// (props) => shouldDisplayImplementButton(props)
-		));
+		addCompareProjectButton(choiceCardButtons);
+		choiceCardButtons.push(infoButtonWithDialog(this.projectDialogInfo));
+		addImplementProjectButton(choiceCardButtons);
+		
+		if (self.energySavingsPreviewButton) {
+			choiceStats.push(self.energySavingsPreviewButton);
+		}
+
+		comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare))
+		addImplementProjectButton(comparisonDialogButtons);
+		this.projectDialogInfo.comparisonDialogButtons = comparisonDialogButtons;
 
 		return {
 			title: this.title,
 			text: this.shortTitle,
 			choiceStats: choiceStats,
-			buttons: buttons,
+			buttons: choiceCardButtons,
 			visible: function (state) {
 				// Hide the project if it's already been completed
 				if (state.completedProjects.some(project => project.page === self.pageId)) return false;
@@ -417,12 +415,107 @@ export class ProjectControl implements ProjectControlParams {
 			disabled: this.disabled,
 		};
 
+		function addCompareProjectButton(buttons: ButtonGroupButton[]) {
+			const isSelectedForCompare = (props) => {
+				return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			};
+
+			const isDisabled = (props) => {
+				return props.selectedProjectsForComparison.length >= 3 && !isSelectedForCompare(props);
+			};
+
+			const getButtonText = (props) => {
+				let selected = isSelectedForCompare(props);
+				return selected ? 'Select another to compare' : 'Compare';
+			};
+
+			buttons.push(compareButton(
+				toggleSelectedProjectToCompare,
+				(props) => isSelectedForCompare(props),
+				(props) => isDisabled(props),
+				(props) => getButtonText(props)
+			));
+		}
+
+		function addImplementProjectButton(buttons: ButtonGroupButton[]) {
+			// const shouldDisplayImplementButton = (props) => {
+			// 	return props.allowImplementProjects.includes(this.pageId);
+			// };
+			const shouldDisableImplementButton = (props) => {
+				return !props.allowImplementProjects.includes(self.pageId);
+			};
+			const isProjectImplemented = (props) => {
+				return props.implementedProjects.includes(self.pageId);
+			};
+			buttons.push(implementButtonCheckbox(
+				toggleProjectImplemented,
+				(props) => shouldDisableImplementButton(props),
+				(props) => isProjectImplemented(props),
+				// (props) => shouldDisplayImplementButton(props)
+			));
+		}
+
 		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
-			if (state.dialog.projectSymbol) {
-				let allowImplementProjects = [...state.allowImplementProjects];
-				allowImplementProjects.push(state.dialog.projectSymbol);
+			let allowImplementProjects = [...state.allowImplementProjects];
+			const existingIndex: number = allowImplementProjects.findIndex(projectPageId => projectPageId === self.pageId);
+			if (existingIndex === -1) {
+				allowImplementProjects.push(self.pageId);
 				nextState.allowImplementProjects = [...allowImplementProjects];
+			} 
+		}
+
+		// todo 25 Use in other methods
+		function removeSelectedForCompare(state): Array<SelectedProject> {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
+			if (removeProjectIndex !== -1) {
+				selectedProjectsForComparison.splice(removeProjectIndex, 1);
 			}
+			return selectedProjectsForComparison;
+		}
+
+		function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
+			selectedProjectsForComparison.splice(removeProjectIndex, 1);
+			nextState.selectedProjectsForComparison = [...selectedProjectsForComparison];
+
+			if (nextState.selectedProjectsForComparison.length === 0) {
+				nextState.isCompareDialogOpen = false;
+			}
+			return state.currentPage;
+		}
+
+		function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId)
+			if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
+				selectedProjectsForComparison.push({ 
+					page: self.pageId,
+					infoDialog: self.projectDialogInfo
+				});
+			} else {
+				const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
+				selectedProjectsForComparison.splice(removeProjectIndex, 1);
+			}
+
+			let isCompareDialogOpen = false;
+			// Auto open when 3 selected
+			if (selectedProjectsForComparison.length == 3) {
+				if (isSelectingCompare) {
+					isCompareDialogOpen = true;
+					this.openCompareDialog();
+				} else {
+					this.handleCompareDialogClose();
+				}
+			} else if (selectedProjectsForComparison.length < 2) {
+				isCompareDialogOpen = false;
+			}
+
+
+			nextState.isCompareDialogOpen = isCompareDialogOpen;
+			nextState.selectedProjectsForComparison = selectedProjectsForComparison;
+			return state.currentPage;
 		}
 
 		/**
@@ -457,6 +550,7 @@ export class ProjectControl implements ProjectControlParams {
 
 				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
+				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
 
 			}
 			nextState.implementedProjects = implementedProjects;

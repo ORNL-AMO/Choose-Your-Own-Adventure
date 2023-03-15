@@ -1,10 +1,12 @@
-import { Box, Typography, Grid, CardHeader } from '@mui/material';
+import { Box, Typography, Grid, CardHeader, Divider, Button } from '@mui/material';
 import { parseSpecialText, resolveToValue } from '../functions-and-types';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
 import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
+import { Stack } from '@mui/system';
+import type { SelectedProject } from '../Projects';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -21,7 +23,13 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			.filter(choice => {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
+				// todo 25 eventually implement success border
+				// let implemented = resolveToValue(choice.implemented, false);
 				let disabled = resolveToValue(choice.disabled, false);
+				let paperStyle = { 
+					opacity: disabled ? 0.8 : 1,
+					paddingBottom: '1rem'		
+				};
 				let headerStyle;
 				let choiceButtons: ButtonGroupButton[] | undefined = choice.buttons;
 				if (props.isProjectGroupChoice) {
@@ -42,10 +50,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 				}
 				return (<Grid item xs={12} key={choice.key || idx}>
 					<PaperGridItem
-						sx={{ 
-							opacity: disabled ? 0.8 : 1,
-							paddingBottom: '1rem'		
-						}} // if disabled, lower opacity
+						// className={implemented? 'implementedChoiceBorder' : undefined}
+						sx={paperStyle} // if disabled, lower opacity
 					>
 						<CardHeader
 							action={
@@ -87,10 +93,42 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			</Grid>);
 		});
 		
+		const isProjectPage = props.resolveToValue(props.title).includes('Scope 1');
 		return (
 			<Box m={2}>
-				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}/>
+				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))} />
 				<br/>
+				{isProjectPage && 
+				<Stack direction='row'
+						justifyContent='end'
+						alignItems='center'
+						spacing={2}>
+				<Button
+					size='medium'
+					variant='outlined'
+					disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 1}
+					onClick={() => {
+						if (props.handleClearProjectsClick) {
+							props.resolveToValue(props.handleClearProjectsClick());
+						}
+					}}
+					style={{ margin: '10px' }}>
+					Clear Comparisons
+				</Button>
+				<Button
+					size='medium'
+					variant='contained'
+					disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 2}
+					onClick={() => {
+						if (props.selectedProjectsForComparison && props.selectedProjectsForComparison.length >= 2 && props.handleCompareProjectsClick) {
+							props.resolveToValue(props.handleCompareProjectsClick());
+						}
+					}}
+					style={{ margin: '10px' }}>
+					Compare Selected Projects
+				</Button>
+				</Stack>}
+
 				<Grid container spacing={2}>
 					{gridItems}
 				</Grid>
@@ -125,6 +163,7 @@ export interface Choice {
 	 */
 	text: Resolvable<string>;
 	disabled?: Resolvable<boolean>;
+	implemented?: Resolvable<boolean>;
 	// Quick/small stats to include in card headers or elsewhere 
 	choiceStats?: ButtonGroupButton[]
 	/**
@@ -157,6 +196,9 @@ export interface GroupedChoicesControlProps {
 	 * Title of the entire GroupedChoices page.
 	 */
 	allowImplementProjects?: symbol[]
+	selectedProjectsForComparison?: SelectedProject[];
+	handleClearProjectsClick?: any;
+	handleCompareProjectsClick?: any;
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
 	isProjectGroupChoice?: boolean;

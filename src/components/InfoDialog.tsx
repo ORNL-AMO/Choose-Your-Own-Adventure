@@ -28,7 +28,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	const theme = useTheme();
 	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	
-	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, but state hasn't been updated with project symbol from dialog
+	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
 	useEffect(() => {
 		// timeout delay button display until dialog open - less page jump
 		const timeout = setTimeout(() => {
@@ -132,6 +132,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 				<ButtonGroup 
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback} 
+					doAppStateCallback={props.doAppStateCallback} 
 					summonInfoDialog={props.summonInfoDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
@@ -189,8 +190,9 @@ export declare interface DialogControlProps {
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
-	projectSymbol?: symbol;
+	comparisonDialogButtons?: ButtonGroupButton[];
 	handleProjectInfoViewed?: AppStateCallback;
+	handleRemoveSelectedCompare?: PageCallback;
 }
 
 /**
@@ -208,7 +210,7 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		allowClose: obj.allowClose || false,
 		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
-		projectSymbol: obj.projectSymbol || undefined,
+		comparisonDialogButtons: obj.comparisonDialogButtons || undefined,
 		handleProjectInfoViewed: obj.handleProjectInfoViewed
 	};
 }
