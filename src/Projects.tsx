@@ -812,7 +812,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		naturalGasMMBTU: relative(-0.05),
 	},
 	title: 'Air Handing Unit Upgrades',
-	shortTitle: 'Auntomated AHU controls to manage airflow without ongoing plant operator managing the settings',
+	shortTitle: 'Automated AHU controls to manage airflow without ongoing plant operator managing the settings',
 	choiceInfoText: [
 		'Facility funded a project to upgrade 35 more AHUs throughout the area of the plant.  The 35 AHUs deliver over 2.1 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality. The controls system will lower the speed of the AHU motors once set points are met.',
 		'This enables the temperature and humidity to be maintained while running the motors at a lower kilowatt (kW) load. Additionally, the controls include CO2 sensors to monitor air quality and adjust outdoor air ventilation accordingly. If the air quality is low based on higher CO2 levels, the dampers modulate open to bring in more outside air.',
