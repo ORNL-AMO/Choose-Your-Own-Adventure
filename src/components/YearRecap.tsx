@@ -199,7 +199,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			
 			let prevCarbonSavings = mutableStats.carbonSavings;
-			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
+			mutableStats = calculateAutoStats(mutableStats, this.props.baselineTrackedStats); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
 
 			const totalYearEndRebates = thisProject.getYearEndRebates();
@@ -455,6 +455,7 @@ export interface YearRecapProps
 	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
+	baselineTrackedStats: TrackedStats;
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */

@@ -12,7 +12,7 @@ import type { StartPageProps } from './components/StartPage';
 import type { TrackedStats } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
-import { calculateAutoStats } from './trackedStats';
+import { calculateAutoStats, calculateEmissions } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
@@ -51,6 +51,7 @@ export type AppState = {
 	isCompareDialogOpen: boolean;
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
+	baselineTrackedStats: TrackedStats;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -83,7 +84,8 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	handleCompareProjectsClick: () => void;
 	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
-	gameSettings: GameSettings;
+	gameSettings: GameSettings;	
+	baselineTrackedStats:TrackedStats;
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 	handleGameSettingsOnProceed: (totalYearIterations: number) => void;
 }
@@ -131,7 +133,8 @@ class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
-					{...this.props.gameSettings}
+					{...this.props.gameSettings}					
+					baselineTrackedStats ={this.props.baselineTrackedStats}
 					implementedProjects={this.props.implementedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
@@ -180,10 +183,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 			isCompareDialogOpen: false,
 			gameSettings: {
 				totalIterations: 10,
-				budget: 75_000,
-				naturalGasUse: 2_000,
-				electricityUse: 2_000_000,
-			}
+				budget: 150_000,
+				naturalGasUse: 4_000,
+				electricityUse: 4_000_000,
+			},
+			baselineTrackedStats: { ...initialTrackedStats }
 		};
 
 		// @ts-ignore - for debugging 
@@ -259,7 +263,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 
 			if (newStateParams['trackedStats']) {
-				let newTrackedStats = calculateAutoStats(newStateParams['trackedStats']);
+				let newTrackedStats = calculateAutoStats(newStateParams['trackedStats'], this.state.baselineTrackedStats);
 				newStateParams['trackedStats'] = newTrackedStats;
 				// Sanity check!
 				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
@@ -426,7 +430,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
-			newTrackedStats = calculateAutoStats(statsForResultDisplay);
+			newTrackedStats = calculateAutoStats(statsForResultDisplay, this.state.baselineTrackedStats);
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
 
@@ -504,6 +508,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		updatingInitialTrackedStats.financesAvailable = budget;
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
 		this.setState({
 			trackedStats: updatingInitialTrackedStats,
 			yearRangeInitialStats: [
@@ -514,7 +519,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 				budget: budget,
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
-			}
+			},
+			baselineTrackedStats: updatingInitialTrackedStats
 		});
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
 		this.setPage(Pages.selectScope);
@@ -575,6 +581,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									trackedStats={this.state.trackedStats}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
+									baselineTrackedStats={this.state.baselineTrackedStats}
 									implementedProjects={this.state.implementedProjects} // note: if implementedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									allowImplementProjects={this.state.allowImplementProjects}
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}
