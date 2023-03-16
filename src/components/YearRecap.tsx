@@ -330,23 +330,29 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		// 		}
 		// 	}
 		// }
-
-		let savings = calculateYearSavings(thisYearStart, mutableStats);
-
+		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0, 
+			maximumFractionDigits: 0, 
+		});
+		const savings = calculateYearSavings(thisYearStart, mutableStats);
+		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
+		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
+		
+		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		return (
 			<>
 				<Box m={2}>
 					<Typography variant='h3'>Year {this.props.year} Recap</Typography>
 					<Typography variant='h5'>
 						This year, your company saved{' '}
-						<Emphasis>${savings.naturalGas.toLocaleString('en-US')}</Emphasis>{' '}
+						<Emphasis>${naturalGasSavingsFormatted}</Emphasis>{' '}
 						on natural gas and{' '}
-						<Emphasis>${savings.electricity.toLocaleString('en-US')}</Emphasis>{' '}
+						<Emphasis>${electricitySavingsFormatted}</Emphasis>{' '}
 						on electricity!
 					</Typography>
 					<Typography variant='body1'>
 						This will be added to your budget for next year, as well as the{' '}
-						<Emphasis>${nextYearFinancesAvailable}</Emphasis> of your budget
+						<Emphasis>${nextYearFinancesAvailableFormatted}</Emphasis> of your budget
 						that was not yet spent.
 					</Typography>
 					{/* <Divider/> */}

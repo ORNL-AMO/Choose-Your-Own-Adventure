@@ -21,6 +21,28 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	
 	render() {
 		const CHART_SIZE = 250;
+
+		const singleDecimalFormatter = Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 1, 
+			maximumFractionDigits: 1, 
+		  });
+		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
+		  minimumFractionDigits: 0, 
+		  maximumFractionDigits: 0, 
+		});
+		  
+		const carbonSavingsPercent = this.props.carbonSavings * 100;
+		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
+		
+		const naturalGasFormatted: string = noDecimalsFormatter.format(this.props.naturalGasMMBTU);
+		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
+		
+		const electricityEmissionsFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000);
+		const naturalGasEmissionsFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
+
+		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0))
+		
+
 		return (
 			<>
 				<MobileStepper
@@ -66,7 +88,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							<GaugeChart
 								width={CHART_SIZE}
 								value1={clampRatio(this.props.carbonSavings, 1)}
-								text={`${(this.props.carbonSavings * 100).toLocaleString('en-US')}%`}
+								text={carbonSavingsFormatted}
 								label='Carbon savings'
 								color1={theme.palette.primary.dark}
 								ticks={[{
@@ -80,7 +102,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									this.props.naturalGasMMBTU,
 									statsGaugeProperties.naturalGasMMBTU.maxValue,
 								)}
-								text={(this.props.naturalGasMMBTU).toLocaleString('en-US')}
+								text={naturalGasFormatted}
 								label='Natural gas use (MMBTU)'
 								textFontSize={0.85}
 								color1={theme.palette.primary.dark}
@@ -95,7 +117,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							<GaugeChart
 								width={CHART_SIZE}
 								value1={clampRatio(this.props.electricityUseKWh, statsGaugeProperties.electricityUseKWh.maxValue)}
-								text={this.props.electricityUseKWh.toLocaleString('en-US')}
+								text={electricityUseFormatted}
 								label='Electricity use (kWh)'
 								textFontSize={0.85}
 								color1={theme.palette.warning.main}
@@ -111,7 +133,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								width={400} height={145}
 								data={[{
 									// Finances available can be negative UP TO the amount of rebates.... may be changed later
-									'Finances available': Math.max(this.props.financesAvailable, 0),
+									'Finances available': Math.max(financesFormatted, 0),
 									'Money spent': this.props.moneySpent,
 								}]}
 							/>
@@ -136,7 +158,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						<Grid item xs={12} sm={6}>
 							<Typography>
 								Emissions from natural gas: {
-									(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000).toLocaleString('en-US')
+									naturalGasEmissionsFormatted
 								} metric tons
 							</Typography>
 						</Grid>
@@ -147,8 +169,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						</Grid>
 						<Grid item xs={12} sm={6}>
 							<Typography>
-								Emissions from electrical grid: {
-									(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000).toLocaleString('en-US')
+								Emissions from electricity: {
+									electricityEmissionsFormatted
 								} metric tons
 							</Typography>
 						</Grid>
