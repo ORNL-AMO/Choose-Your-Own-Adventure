@@ -220,7 +220,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		if (hideDashboard !== 'initial') {
 			this.setState({ showDashboard: !hideDashboard });
 		}
-
 		this.saveScrollY();
 	}
 	saveScrollY() {
@@ -322,10 +321,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 		return resolveToValue(item, whenUndefined, [this.state], this);
 	}
 
-	componentDidUpdate() {
-		// On a thin screen, user has to scroll down in the project selection page. It can be very annoying if 
-		// 	the window scroll resets every time a dialog pops up. This will scroll the page back down when the dialog closes.
-		scrollTo(0, this.state.lastScrollY);
+	componentDidUpdate(prevProps: AnyDict, prevState: AppState) {
+		// Ignore scroll height reset after dialog close
+		const isDialogStateClosedEvent = (prevState.dialog.open && !this.state.dialog.open) ||  (prevState.isCompareDialogOpen && !this.state.isCompareDialogOpen);
+		if (isDialogStateClosedEvent) {
+			scrollTo(0, this.state.lastScrollY);
+		}
 	}
 
 	handleDashboardOnRestart() {
