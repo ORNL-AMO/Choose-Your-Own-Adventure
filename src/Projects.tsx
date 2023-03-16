@@ -93,6 +93,9 @@ export interface Project {
  */
 export interface GameSettings {
 	totalIterations: number,
+	budget: number,
+	naturalGasUse: number,
+	electricityUse: number,
 }
 
 /**

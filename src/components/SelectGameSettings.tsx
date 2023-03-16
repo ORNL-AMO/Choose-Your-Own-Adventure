@@ -7,6 +7,7 @@ import { ButtonGroup } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
 import { parseSpecialText } from '../functions-and-types';
 import type { GameSettings } from '../Projects';
+import Pages from '../Pages';
 
 export const SettingsCard = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
@@ -30,12 +31,12 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [totalYearIterations, setTotalIterations] = React.useState(props.totalIterations);
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setTotalIterations(event.target.value as unknown as number);
+    const handleChange = (event: SelectChangeEvent<typeof totalYearIterations>) => {
+        setTotalIterations(event.target.value as number);
     }
 
     return (
-        <>
+        <React.Fragment>
             <Dialog
                 fullScreen={fullScreen}
                 open={true}
@@ -52,7 +53,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <Select
                             labelId='selectYearInterval'
                             id='selectedInterval'
-                            value={totalYearIterations as unknown as string}
+                            value={totalYearIterations}
                             label='totalIterations'
                             onChange={handleChange}
                         >
@@ -67,7 +68,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 <DialogActions>
                     <Button
                         size='small'
-                        onClick={props.onBack} >
+                        onClick={() => props.doPageCallback(Pages.introduction)} >
                         Back
                     </Button>
                     <Button
@@ -78,7 +79,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogActions>
 
             </Dialog>
-        </>
+        </React.Fragment>
     );
 
 }
@@ -103,6 +104,6 @@ export declare interface SelectGameSettingsControlProps {
 }
 
 export interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks, GameSettings {
-    onBack?: () => void;
     onProceed: (totalYearIterations: number) => void;
+    doPageCallback: (callback?: PageCallback) => void;
 }
