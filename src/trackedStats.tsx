@@ -36,8 +36,9 @@ export interface TrackedStats {
 	
 	totalBudget: number;
 	financesAvailable: number;
-	carbonSavings: number;
+	carbonSavingsPercent: number;
 	carbonEmissions: number;
+	carbonEmissionsSavings: number;
 	moneySpent: number;
 	/**
 	 * Total money spent, across the whole run.
@@ -63,8 +64,9 @@ export const initialTrackedStats: TrackedStats = {
 	
 	financesAvailable: 75_000,
 	totalBudget: 75_000,
-	carbonSavings: 0,
+	carbonSavingsPercent: 0,
 	carbonEmissions: -1, // auto calculated in the next line
+	carbonEmissionsSavings: 0, 
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
@@ -84,7 +86,8 @@ export const emptyTrackedStats: TrackedStats = {
 	
 	financesAvailable: 0,
 	totalBudget: 0,
-	carbonSavings: 0,
+	carbonSavingsPercent: 0,
+	carbonEmissionsSavings: 0,
 	carbonEmissions: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
@@ -92,9 +95,10 @@ export const emptyTrackedStats: TrackedStats = {
 	year: 0,
 };
 
-initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
+initialTrackedStats.carbonEmissions = calculateYearEmissions(initialTrackedStats);
 
-function calculateEmissions(stats: TrackedStats): number {
+function calculateYearEmissions(stats: TrackedStats): number {
+	// * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
 	let elecEmissions = stats.electricityUseKWh * stats.electricityEmissionsPerKWh;
 	return ngEmissions + elecEmissions;
@@ -102,13 +106,16 @@ function calculateEmissions(stats: TrackedStats): number {
 
 /**
  * Mutates the provided newStats object with the new auto-calculated stat changes. Currently automatically handled:
- * 	- carbonSavings
+ * 	- carbonSavingsPercent
  * 	- carbonEmissions
  */
 export function calculateAutoStats(newStats: TrackedStats) {
-	newStats.carbonEmissions = calculateEmissions(newStats);
-	let newSavings = (initialTrackedStats.carbonEmissions - newStats.carbonEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
-	newStats.carbonSavings = newSavings;
+	let yearTotalEmissions = calculateYearEmissions(newStats);
+	let carbonSavingsPercent = (initialTrackedStats.carbonEmissions - yearTotalEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
+	// * % CO2 saved * total initial emissions;
+	newStats.carbonEmissionsSavings = carbonSavingsPercent * yearTotalEmissions;
+
+	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }
 

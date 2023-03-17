@@ -4,6 +4,8 @@ import {
 	Divider,
 	Grid,
 	MobileStepper,
+	Paper,
+	styled,
 	Typography,
 } from '@mui/material';
 import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
@@ -31,18 +33,24 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		  maximumFractionDigits: 0, 
 		});
 		  
-		const carbonSavingsPercent = this.props.carbonSavings * 100;
+		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
 		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
+		
+		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
+		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
+
+		const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
+		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000);
+
+		const electricityCost = noDecimalsFormatter.format(this.props.electricityCostPerKWh * this.props.electricityUseKWh);
+		const naturalGasCost = noDecimalsFormatter.format(this.props.naturalGasCostPerMMBTU * this.props.naturalGasMMBTU); 
 		
 		const naturalGasFormatted: string = noDecimalsFormatter.format(this.props.naturalGasMMBTU);
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
 		
-		const electricityEmissionsFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000);
-		const naturalGasEmissionsFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
 
-		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0))
+		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
 		
-
 		return (
 			<>
 				<MobileStepper
@@ -87,7 +95,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							{/* <Typography variant="h3">Dashboard</Typography> */}
 							<GaugeChart
 								width={CHART_SIZE}
-								value1={clampRatio(this.props.carbonSavings, 1)}
+								value1={clampRatio(this.props.carbonSavingsPercent, 1)}
 								text={carbonSavingsFormatted}
 								label='Carbon savings'
 								color1={theme.palette.primary.dark}
@@ -138,42 +146,59 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								}]}
 							/>
 						</Grid>
-						{/* <Grid item xs={12} sm={6} md={4}>
+
+
+						<Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 16 }} pt={3}>
+							<Grid item xs={2} sm={4} md={4}>
 							<Typography>
-								Finances available: $
-								{this.props.financesAvailable.toLocaleString("en-US")} / $
-								{this.props.totalBudget.toLocaleString("en-US")}
-							</Typography>
-						</Grid> */}
-						{/* <Grid item xs={12} sm={6} md={4}>
+									Natural gas emission rate: {
+										naturalGasEmissionRateFormatted
+									} kg/MMBTU
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography>
+									Emissions from natural gas: {
+										emissionsFromNaturalGasFormatted
+									} metric tons
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography>
+									Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
 							<Typography>
-								Rebates: ${this.props.totalRebates.toLocaleString("en-US")}
-							</Typography>
-						</Grid> */}
-						<Grid item xs={12} sm={6}>
+									Natural gas cost: ${naturalGasCost}
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
 							<Typography>
-								Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
-							</Typography>
+									Electricity emission rate: {
+										electricityEmissionRateFormatted
+									} kg/kWh
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography>
+									Emissions from electricity: {
+										emissionsFromElectricityFormatted
+									} metric tons
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography>
+									Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography>
+									Electricity cost: ${electricityCost}
+								</Typography>
+							</Grid>
 						</Grid>
-						<Grid item xs={12} sm={6}>
-							<Typography>
-								Emissions from natural gas: {
-									naturalGasEmissionsFormatted
-								} metric tons
-							</Typography>
-						</Grid>
-						<Grid item xs={12} sm={6}>
-							<Typography>
-								Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
-							</Typography>
-						</Grid>
-						<Grid item xs={12} sm={6}>
-							<Typography>
-								Emissions from electricity: {
-									electricityEmissionsFormatted
-								} metric tons
-							</Typography>
-						</Grid>
+
 					</Grid>
 				</Box>
 				<Divider variant='middle' />

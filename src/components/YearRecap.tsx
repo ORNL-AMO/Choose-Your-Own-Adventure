@@ -22,6 +22,7 @@ import {
 	Paper,
 	ThemeProvider,
 	ListItemText,
+	ListItemIcon,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -42,6 +43,7 @@ import {
 } from '../functions-and-types';
 import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
+import InfoIcon from '@mui/icons-material/Info'
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -139,6 +141,11 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		});
 		
 		let nextYearFinancesAvailable = this.props.financesAvailable;
+		let costPerCarbonSavings = 0;
+		let yearEndNetCost = 0;
+
+		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
+		// * with current projects modifiers, not the cumulative stats for the year
 		for (let i in this.props.implementedProjects) {
 			let projectKey = this.props.implementedProjects[i];
 			
@@ -198,14 +205,14 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				hiddenStatDiff[key] = difference;
 			}
 			
-			let prevCarbonSavings = mutableStats.carbonSavings;
+			let prevCarbonSavings = mutableStats.carbonSavingsPercent;
 			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
 
 			const totalYearEndRebates = thisProject.getYearEndRebates();
-			const yearEndNetCost = thisProject.getYearEndNetCost();
+			const projectNetCost = thisProject.getYearEndNetCost();
+			yearEndNetCost += projectNetCost;
 			const totalYearEndExtraCosts = thisProject.getHiddenCost();
-
 			nextYearFinancesAvailable -= totalYearEndExtraCosts;
 			nextYearFinancesAvailable += totalYearEndRebates;
 			gaugeCharts.push(
@@ -214,11 +221,11 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					width={250}
 					value1={prevCarbonSavings}
 					color1='#888888'
-					value2={mutableStats.carbonSavings}
+					value2={mutableStats.carbonSavingsPercent}
 					color2='#000000'
 					text={
 						withSign(
-							(mutableStats.carbonSavings - prevCarbonSavings) * 100,
+							(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
 							1
 						) + '%'
 					}
@@ -226,8 +233,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					label='Carbon savings'
 					ticks={[
 						{
-							label: toPercent(mutableStats.carbonSavings),
-							value: mutableStats.carbonSavings,
+							label: toPercent(mutableStats.carbonSavingsPercent),
+							value: mutableStats.carbonSavingsPercent,
 						},
 						{
 							label: '50%',
@@ -296,7 +303,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 									<Typography variant='body1'>
 										Net cost:{' '}
 										<Emphasis money>
-											${yearEndNetCost.toLocaleString('en-US')}
+											${projectNetCost.toLocaleString('en-US')}
 										</Emphasis>
 									</Typography>
 								</div>
@@ -334,28 +341,78 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			minimumFractionDigits: 0, 
 			maximumFractionDigits: 0, 
 		});
+		// * budgetSpent / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+		costPerCarbonSavings += yearEndNetCost / mutableStats.carbonEmissionsSavings;
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
+		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
+		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings? noDecimalsFormatter.format(costPerCarbonSavings) : '0';
+
 		return (
 			<>
 				<Box m={2}>
-					<Typography variant='h3'>Year {this.props.year} Recap</Typography>
-					<Typography variant='h5'>
-						This year, your company saved{' '}
-						<Emphasis>${naturalGasSavingsFormatted}</Emphasis>{' '}
-						on natural gas and{' '}
-						<Emphasis>${electricitySavingsFormatted}</Emphasis>{' '}
-						on electricity!
-					</Typography>
-					<Typography variant='body1'>
-						This will be added to your budget for next year, as well as the{' '}
-						<Emphasis>${nextYearFinancesAvailableFormatted}</Emphasis> of your budget
-						that was not yet spent.
-					</Typography>
-					{/* <Divider/> */}
+					<Typography variant='h3' my={2}>Year {this.props.year} Recap</Typography>
+
+					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
+						<List dense={true}>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant='h5'>
+											This year, your company saved{' '}
+											<Emphasis>${naturalGasSavingsFormatted}</Emphasis>{' '}
+											on natural gas and{' '}
+											<Emphasis>${electricitySavingsFormatted}</Emphasis>{' '}
+											on electricity!
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography sx={{ fontSize: '20px' }} >
+											This will be added to your budget for next year, as well as the{' '}
+											<Emphasis>${nextYearFinancesAvailableFormatted}</Emphasis> of your budget
+											that was not yet spent.
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primaryTypographyProps={{ fontSize: '20px' }}
+									primary={
+										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs.</span>
+									}
+								/>
+							</ListItem>
+							<ListItem>
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primaryTypographyProps={{ fontSize: '20px' }}
+									primary={
+										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO2</Emphasis>{' '}</span>
+									}
+								/>
+							</ListItem>
+						</List>
+					</Box>
+
 					<Typography variant='body1' marginTop={2}>
 						These are the projects you have selected for this year. Make sure to
 						check out the case studies, where real companies have applied these
