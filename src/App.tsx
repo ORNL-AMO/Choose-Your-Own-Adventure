@@ -545,11 +545,13 @@ export class App extends React.PureComponent<unknown, AppState> {
 							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
 								<>
 									<Box sx={{ flexGrow: 1 }}>
-										<AppBar position='relative' sx={{bgcolor: 'transparent'}}>
+										<AppBar position='relative' 
+										sx={{bgcolor: 'white', boxShadow: 'none', paddingBottom: '.5rem'}}
+										>
 										<Toolbar>
 											<Typography variant='h4' fontWeight='800'
 												textAlign='left' pl={2} component='div'
-												sx={{ flexGrow: 1 }}
+												// sx={{ flexGrow: 1 }}
 												className='bp-font-color'>
 												Choose Your Own Solution
 											</Typography>
@@ -557,7 +559,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 													size='small'
 													variant='contained'
 													onClick={this.handleDashboardOnRestart}
-													style={{ margin: '10px' }}>
+													style={{ margin: '10px', marginLeft: '2rem' }}>
 													New Game
 												</Button>
 											</Toolbar>
