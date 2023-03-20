@@ -12,7 +12,7 @@ import type { StartPageProps } from './components/StartPage';
 import type { TrackedStats } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
-import { calculateAutoStats, calculateEmissions } from './trackedStats';
+import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
@@ -51,7 +51,7 @@ export type AppState = {
 	isCompareDialogOpen: boolean;
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
-	baselineTrackedStats: TrackedStats;
+	defaultTrackedStats : TrackedStats;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -85,7 +85,7 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
 	gameSettings: GameSettings;	
-	baselineTrackedStats:TrackedStats;
+	defaultTrackedStats :TrackedStats;
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
 	handleGameSettingsOnProceed: (totalYearIterations: number) => void;
 }
@@ -134,7 +134,7 @@ class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 					{...this.props.trackedStats}
 					{...controlCallbacks}
 					{...this.props.gameSettings}					
-					baselineTrackedStats ={this.props.baselineTrackedStats}
+					defaultTrackedStats  ={this.props.defaultTrackedStats }
 					implementedProjects={this.props.implementedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
@@ -187,7 +187,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
 			},
-			baselineTrackedStats: { ...initialTrackedStats }
+			defaultTrackedStats : { ...initialTrackedStats }
 		};
 
 		// @ts-ignore - for debugging 
@@ -263,7 +263,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 
 			if (newStateParams['trackedStats']) {
-				let newTrackedStats = calculateAutoStats(newStateParams['trackedStats'], this.state.baselineTrackedStats);
+				let newTrackedStats = setCarbonEmissionsAndSavings(newStateParams['trackedStats'], this.state.defaultTrackedStats );
 				newStateParams['trackedStats'] = newTrackedStats;
 				// Sanity check!
 				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
@@ -430,7 +430,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
-			newTrackedStats = calculateAutoStats(statsForResultDisplay, this.state.baselineTrackedStats);
+			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats );
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
 
@@ -520,7 +520,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
 			},
-			baselineTrackedStats: updatingInitialTrackedStats
+			defaultTrackedStats : updatingInitialTrackedStats
 		});
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
 		this.setPage(Pages.selectScope);
@@ -581,7 +581,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									trackedStats={this.state.trackedStats}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
-									baselineTrackedStats={this.state.baselineTrackedStats}
+									defaultTrackedStats ={this.state.defaultTrackedStats }
 									implementedProjects={this.state.implementedProjects} // note: if implementedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									allowImplementProjects={this.state.allowImplementProjects}
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}

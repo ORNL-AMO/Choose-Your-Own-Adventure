@@ -28,7 +28,7 @@ import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
 import { emptyTrackedStats } from '../trackedStats';
 import { calculateYearSavings } from '../trackedStats';
-import { calculateAutoStats } from '../trackedStats';
+import { setCarbonEmissionsAndSavings } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
 import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
 import Projects from '../Projects';
@@ -199,7 +199,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			
 			let prevCarbonSavings = mutableStats.carbonSavings;
-			mutableStats = calculateAutoStats(mutableStats, this.props.baselineTrackedStats); // update carbonEmissions and carbonSavings
+			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats ); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
 
 			const totalYearEndRebates = thisProject.getYearEndRebates();
@@ -455,7 +455,7 @@ export interface YearRecapProps
 	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
-	baselineTrackedStats: TrackedStats;
+	defaultTrackedStats : TrackedStats;
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */

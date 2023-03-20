@@ -31,12 +31,12 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [totalYearIterations, setTotalIterations] = React.useState(props.totalIterations);
 
-    const handleChange = (event: SelectChangeEvent<typeof totalYearIterations>) => {
+    const handleChange = (event: SelectChangeEvent<number>) => {
         setTotalIterations(event.target.value as number);
     }
 
     return (
-        <React.Fragment>
+        <>
             <Dialog
                 fullScreen={fullScreen}
                 open={true}
@@ -48,22 +48,20 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
 
                 <DialogContent>
                     <DialogContentText id='alert-dialog-slide-description' gutterBottom>
-                        You have the option to play through in 1 OR 2 year intervals,
-                        <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
-                        <Select
-                            labelId='selectYearInterval'
-                            id='selectedInterval'
-                            value={totalYearIterations}
-                            label='totalIterations'
-                            onChange={handleChange}
-                        >
-                            <MenuItem value={10}> 1 year intervals </MenuItem>
-                            <MenuItem value={5}> 2 year intervals</MenuItem>
-
-                        </Select>
-
-
+                        You have the option to play through in 1 OR 2 year intervals.
                     </DialogContentText>
+                    <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
+                    <Select
+                        labelId='selectYearInterval'
+                        id='selectedInterval'
+                        value={totalYearIterations}
+                        label='totalIterations'
+                        onChange={handleChange}
+                    >
+                        <MenuItem value={10}> 1 year intervals </MenuItem>
+                        <MenuItem value={5}> 2 year intervals</MenuItem>
+
+                    </Select>
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -79,7 +77,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogActions>
 
             </Dialog>
-        </React.Fragment>
+        </>
     );
 
 }
