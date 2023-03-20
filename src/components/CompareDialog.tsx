@@ -212,7 +212,7 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 					<Typography gutterBottom variant='h5' component='div' className='semi-emphasis'
 						dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.infoDialog.title))}>
 					</Typography>
-					<Typography variant='body2' color='text.secondary' component='div' height={150} sx={{overflowY: 'auto'}}
+					<Typography variant='body2' color='#000000' component='div' height={150} sx={{overflowY: 'auto'}}
 						gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.infoDialog.text))}>
 					</Typography>
 					<div style={{height: 225}}>
@@ -250,7 +250,7 @@ function getProjectStatCards(project, props: CompareDialogProps, theme) {
 		<InfoCard
 			key={idx}
 			variant='outlined'
-			sx={{ borderColor: cardContent.color, color: cardContent.color }}
+			sx={{borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold'}}
 			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
 		/>
 	);
