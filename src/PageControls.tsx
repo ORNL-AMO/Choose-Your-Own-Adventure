@@ -219,7 +219,7 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 
 PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
-	text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years!`,
+	text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years!`,
 	img: 'images/confetti.png',
 	buttons: [
 		{
@@ -236,7 +236,7 @@ PageControls[Pages.winScreen] = newInfoDialogControl({
 
 PageControls[Pages.loseScreen] = newInfoDialogControl({
 	title: 'Sorry...',
-	text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavings * 100).toFixed(1)}%} in 10 years. Try again?`,
+	text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years. Try again?`,
 	buttons: [
 		{
 			text: 'Try again',

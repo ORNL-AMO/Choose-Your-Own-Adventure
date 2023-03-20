@@ -36,8 +36,9 @@ export interface TrackedStats {
 	
 	totalBudget: number;
 	financesAvailable: number;
-	carbonSavings: number;
+	carbonSavingsPercent: number;
 	carbonEmissions: number;
+	carbonEmissionsSavings: number;
 	moneySpent: number;
 	/**
 	 * Total money spent, across the whole run.
@@ -64,11 +65,11 @@ export const initialTrackedStats: TrackedStats = {
 	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
-	
+	carbonSavingsPercent: 0,
 	financesAvailable: 150_000,
 	totalBudget: 150_000,
-	carbonSavings: 0,
 	carbonEmissions: -1, // auto calculated in the next line
+	carbonEmissionsSavings: 0, 
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
@@ -89,7 +90,8 @@ export const emptyTrackedStats: TrackedStats = {
 	
 	financesAvailable: 0,
 	totalBudget: 0,
-	carbonSavings: 0,
+	carbonSavingsPercent: 0,
+	carbonEmissionsSavings: 0,
 	carbonEmissions: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
@@ -108,13 +110,16 @@ export function calculateEmissions(stats: TrackedStats): number {
 
 /**
  * Mutates the provided newStats object with the new auto-calculated stat changes. Currently automatically handled:
- * 	- carbonSavings
+ * 	- carbonSavingsPercent
  * 	- carbonEmissions
  */
 export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats : TrackedStats) {
-	newStats.carbonEmissions = calculateEmissions(newStats);
-	let newSavings = (defaultTrackedStats .carbonEmissions - newStats.carbonEmissions) / (defaultTrackedStats .carbonEmissions); // might be wrong
-	newStats.carbonSavings = newSavings;
+	let yearTotalEmissions = calculateEmissions(newStats);
+	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - yearTotalEmissions) / (defaultTrackedStats.carbonEmissions); // might be wrong
+	// * % CO2 saved * total initial emissions;
+	newStats.carbonEmissionsSavings = carbonSavingsPercent * yearTotalEmissions;
+
+	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }
 

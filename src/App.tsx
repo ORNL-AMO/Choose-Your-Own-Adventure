@@ -480,7 +480,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			yearRangeInitialStats: newYearRangeInitialStats,
 		});
 
-		if (newYearTrackedStats.carbonSavings >= 0.5) {
+		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
 			this.setPage(Pages.winScreen);
 		} else if (newYearTrackedStats.year === this.state.gameSettings.totalIterations + 1) {
 			this.setPage(Pages.loseScreen);
