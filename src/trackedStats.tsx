@@ -45,32 +45,36 @@ export interface TrackedStats {
 	 */
 	totalMoneySpent: number;
 	/**
-	 * current year, 1 through 10.
+	 * tracking year, 1 through 5.
 	 */
 	year: number;
+	/**
+	 * year to display for two year intervals
+	 */
+	yearInterval: number;
 }
 
 /**
  * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 2_000, 
+	naturalGasMMBTU: 4_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
-	electricityUseKWh: 2_000_000, 
+	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
-	
-	financesAvailable: 75_000,
-	totalBudget: 75_000,
 	carbonSavingsPercent: 0,
+	financesAvailable: 150_000,
+	totalBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
 	carbonEmissionsSavings: 0, 
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 1,
+	yearInterval: 1
 };
 
 /**
@@ -93,12 +97,12 @@ export const emptyTrackedStats: TrackedStats = {
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 0,
+	yearInterval: 0,
 };
 
-initialTrackedStats.carbonEmissions = calculateYearEmissions(initialTrackedStats);
+initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
-function calculateYearEmissions(stats: TrackedStats): number {
-	// * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
 	let elecEmissions = stats.electricityUseKWh * stats.electricityEmissionsPerKWh;
 	return ngEmissions + elecEmissions;
@@ -109,9 +113,9 @@ function calculateYearEmissions(stats: TrackedStats): number {
  * 	- carbonSavingsPercent
  * 	- carbonEmissions
  */
-export function calculateAutoStats(newStats: TrackedStats) {
-	let yearTotalEmissions = calculateYearEmissions(newStats);
-	let carbonSavingsPercent = (initialTrackedStats.carbonEmissions - yearTotalEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
+export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats : TrackedStats) {
+	let yearTotalEmissions = calculateEmissions(newStats);
+	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - yearTotalEmissions) / (defaultTrackedStats.carbonEmissions); // might be wrong
 	// * % CO2 saved * total initial emissions;
 	newStats.carbonEmissionsSavings = carbonSavingsPercent * yearTotalEmissions;
 

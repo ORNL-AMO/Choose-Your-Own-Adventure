@@ -89,6 +89,16 @@ export interface Project {
 }
 
 /**
+ * Used for tracking Game Settings  
+ */
+export interface GameSettings {
+	totalIterations: number,
+	budget: number,
+	naturalGasUse: number,
+	electricityUse: number,
+}
+
+/**
  * Parameters to pass into a ProjectControl. See code definition in `projects.tsx` for all fields and params.
  */
 declare interface ProjectControlParams {

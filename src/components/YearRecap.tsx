@@ -29,9 +29,9 @@ import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
 import { emptyTrackedStats } from '../trackedStats';
 import { calculateYearSavings } from '../trackedStats';
-import { calculateAutoStats } from '../trackedStats';
+import { setCarbonEmissionsAndSavings } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import type { CompletedProject, NumberApplier } from '../Projects';
+import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -206,7 +206,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			
 			let prevCarbonSavings = mutableStats.carbonSavingsPercent;
-			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
+			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats ); // update carbonEmissions and carbonSavings
 			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
 
 			const totalYearEndRebates = thisProject.getYearEndRebates();
@@ -354,7 +354,13 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		return (
 			<>
 				<Box m={2}>
-					<Typography variant='h3' my={2}>Year {this.props.year} Recap</Typography>
+					{this.props.totalIterations == 5 &&
+						<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
+					}
+					{this.props.totalIterations == 10 &&
+						<Typography variant='h3'>Year {this.props.year} Recap</Typography>
+					}
+
 
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<List dense={true}>
@@ -462,9 +468,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				</Box>
 				<MobileStepper
 					variant='progress'
-					steps={10}
+					steps={this.props.totalIterations}
 					position='static'
-					activeStep={this.props.year}
+					activeStep={this.props.year - 1}
 					backButton={<Box sx={{ width: 180 }}></Box>}
 					nextButton={
 						<Button
@@ -473,7 +479,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							onClick={() => this.props.handleYearRecap(mutableStats)}
 							endIcon={rightArrow()}
 						>
-							Proceed to year {this.props.year + 1}
+							{this.props.totalIterations == 5 &&								
+								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+							}
+							{this.props.totalIterations == 10 &&								
+								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+							}
 						</Button>
 					}
 				/>
@@ -503,10 +514,12 @@ export interface YearRecapControlProps {} // eslint-disable-line
 export interface YearRecapProps
 	extends YearRecapControlProps,
 		ControlCallbacks,
-		TrackedStats {
+		TrackedStats,
+		GameSettings {
 	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
 	yearRangeInitialStats: TrackedStats[];
+	defaultTrackedStats : TrackedStats;
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */

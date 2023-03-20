@@ -12,13 +12,13 @@ import type { StartPageProps } from './components/StartPage';
 import type { TrackedStats } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
-import { calculateAutoStats } from './trackedStats';
+import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
 import { initialTrackedStats } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import Projects, { Scope1Projects, Scope2Projects } from './Projects';
-import type { CompletedProject, SelectedProject } from './Projects';
+import type { CompletedProject, SelectedProject, GameSettings} from './Projects';
 import { resolveToValue, PureComponentIgnoreFuncs, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { GroupedChoices } from './components/GroupedChoices';
@@ -28,6 +28,7 @@ import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 import { CompareDialog } from './components/CompareDialog';
+import { SelectGameSettings } from './components/SelectGameSettings';
 
 export type AppState = {
 	currentPage: symbol;
@@ -49,6 +50,8 @@ export type AppState = {
 	snackbarOpen: boolean;
 	isCompareDialogOpen: boolean;
 	snackbarContent?: JSX.Element;
+	gameSettings: GameSettings;
+	defaultTrackedStats : TrackedStats;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -81,7 +84,10 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	handleCompareProjectsClick: () => void;
 	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
+	gameSettings: GameSettings;	
+	defaultTrackedStats :TrackedStats;
 	handleYearRecapOnProceed: (yearFinalStats: TrackedStats) => void;
+	handleGameSettingsOnProceed: (totalYearIterations: number) => void;
 }
 
 class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
@@ -104,6 +110,12 @@ class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 					{...startPageProps}
 				/>;
 			}
+			case SelectGameSettings:
+				return <SelectGameSettings
+					{...this.props.gameSettings}
+					{...controlCallbacks}
+					onProceed={this.props.handleGameSettingsOnProceed}
+                />;
 			case GroupedChoices: {
 				const groupedChoicesControlProps = {
 					...this.props.controlProps,
@@ -121,6 +133,8 @@ class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
+					{...this.props.gameSettings}					
+					defaultTrackedStats  ={this.props.defaultTrackedStats }
 					implementedProjects={this.props.implementedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
@@ -166,7 +180,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
-			isCompareDialogOpen: false
+			isCompareDialogOpen: false,
+			gameSettings: {
+				totalIterations: 10,
+				budget: 150_000,
+				naturalGasUse: 4_000,
+				electricityUse: 4_000_000,
+			},
+			defaultTrackedStats : { ...initialTrackedStats }
 		};
 
 		// @ts-ignore - for debugging 
@@ -241,7 +262,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 
 			if (newStateParams['trackedStats']) {
-				let newTrackedStats = calculateAutoStats(newStateParams['trackedStats']);
+				let newTrackedStats = setCarbonEmissionsAndSavings(newStateParams['trackedStats'], this.state.defaultTrackedStats );
 				newStateParams['trackedStats'] = newTrackedStats;
 				// Sanity check!
 				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
@@ -410,7 +431,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
-			newTrackedStats = calculateAutoStats(statsForResultDisplay);
+			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats );
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
 
@@ -434,7 +455,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		let savings: { naturalGas: number; electricity: number; } = calculateYearSavings(thisYearStart, currentYearStats);
-		let newBudget: number = 75_000 + currentYearStats.financesAvailable + savings.electricity + savings.naturalGas;
+		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + savings.electricity + savings.naturalGas;
 		// New tracked stats -- Clear or reset or modify stats as necessary for a new fiscal year
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		newYearTrackedStats.totalBudget = newBudget;
@@ -442,6 +463,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.totalMoneySpent += newYearTrackedStats.moneySpent;
 		newYearTrackedStats.moneySpent = 0;
 		newYearTrackedStats.year = currentYearStats.year + 1;
+		newYearTrackedStats.yearInterval = currentYearStats.yearInterval + 2;
 
 		// Move implementedProjects into completedProjects
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
@@ -460,7 +482,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
 			this.setPage(Pages.winScreen);
-		} else if (newYearTrackedStats.year === 10) {
+		} else if (newYearTrackedStats.year === this.state.gameSettings.totalIterations + 1) {
 			this.setPage(Pages.loseScreen);
 		} else {
 			this.setPage(Pages.selectScope);
@@ -468,6 +490,44 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	}
 
+	handleGameSettingsOnProceed(totalYearIterations: number){
+		let budget = 0;
+		let naturalGas = 0;
+		let electricity = 0;
+		if(totalYearIterations == 5) {
+			budget = 150_000;
+			naturalGas = 4_000;
+			electricity = 4_000_000;
+		}
+		if ( totalYearIterations == 10) {
+			budget = 75_000;
+			naturalGas = 2_000;
+			electricity = 2_000_000;
+		}
+		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
+		updatingInitialTrackedStats.totalBudget = budget;
+		updatingInitialTrackedStats.financesAvailable = budget;
+		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
+		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
+		this.setState({
+			trackedStats: updatingInitialTrackedStats,
+			yearRangeInitialStats: [
+				updatingInitialTrackedStats,
+			],
+			gameSettings: {
+				totalIterations: totalYearIterations,
+				budget: budget,
+				naturalGasUse: naturalGas,
+				electricityUse: electricity,
+			},
+			defaultTrackedStats : updatingInitialTrackedStats
+		});
+		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
+		this.setPage(Pages.selectScope);
+	}
+
+	
 	render() {
 		// Standard callbacks to spread to each control.
 		const controlCallbacks: ControlCallbacks = {
@@ -509,6 +569,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 								<Dashboard
 									{...this.state.trackedStats}
 									{...controlCallbacks}
+									{...this.state.gameSettings}
 									onBack={() => this.handleDashboardOnBack()}
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
@@ -517,9 +578,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 							{(this.state.currentPageProps && this.state.componentClass) ?
 								<CurrentPage
 									{...controlCallbacks}
+									gameSettings={this.state.gameSettings}
 									trackedStats={this.state.trackedStats}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
+									defaultTrackedStats ={this.state.defaultTrackedStats }
 									implementedProjects={this.state.implementedProjects} // note: if implementedProjects is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									allowImplementProjects={this.state.allowImplementProjects}
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}
@@ -529,6 +592,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									// handleCompareProjectsClick={() => this.openCompareDialog}
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleYearRecapOnProceed={(yearFinalStats) => this.handleYearRecapOnProceed(yearFinalStats)}
+									handleGameSettingsOnProceed={(totalYearIterations) => this.handleGameSettingsOnProceed(totalYearIterations)}
 								/>
 								: <></>}
 						</Box>
