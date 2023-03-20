@@ -15,7 +15,7 @@ import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
 import {statsGaugeProperties} from '../trackedStats';
-
+import type { GameSettings } from '../Projects';
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	
@@ -47,9 +47,9 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			<>
 				<MobileStepper
 					variant='progress'
-					steps={10}
+					steps={this.props.totalIterations}
 					position='static'
-					activeStep={this.props.year}
+					activeStep={this.props.year - 1}
 					backButton={
 						<Button size='small' 
 							onClick={this.props.onBack} 
@@ -68,20 +68,37 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							endIcon={rightArrow()}
 							buttonDisabled={this.props.btnProceedDisabled}
 						>
-							<div 
-							style={{maxWidth: '200px'}}
-							>
-								{/* todo: special case for last year! */}
-								Commit to your selected projects and proceed to Year {this.props.year + 1}.
-							</div>
+							{this.props.totalIterations == 5 &&
+								<div 
+								style={{maxWidth: '200px'}}
+								>
+									{/* todo: special case for last year! */}
+									Commit to your selected projects and proceed to Years {this.props.yearInterval} and {this.props.yearInterval + 1}.
+								</div>
+							}
+							{this.props.totalIterations == 10 &&
+								<div 
+								style={{maxWidth: '200px'}}
+								>
+									{/* todo: special case for last year! */}
+									Commit to your selected projects and proceed to Year {this.props.year}.
+								</div>
+							}
 						</BasicPopover>
 					}
 				/> 
 				<Box m={2}>
 					{/* todo timer for each year */}
-					<Typography variant='h6'>
-						Year {this.props.year} of 10
-					</Typography>
+					{this.props.totalIterations == 5 &&
+						<Typography variant='h6'>
+							Years {this.props.yearInterval} and {this.props.yearInterval + 1} of 10
+						</Typography>
+					}
+					{this.props.totalIterations == 10 &&
+						<Typography variant='h6'>
+							Year {this.props.year} of 10
+						</Typography>
+					}
 					<Grid container spacing={2}>
 						<Grid item xs={12}>
 							{/* <Typography variant="h3">Dashboard</Typography> */}
@@ -182,7 +199,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 	}
 }
 
-export interface DashboardProps extends ControlCallbacks, TrackedStats {
+export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
 	onBack?: () => void;
 	onProceed: () => void;
 	/**

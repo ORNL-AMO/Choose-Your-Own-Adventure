@@ -8,6 +8,7 @@
 const Pages = {
 	start: Symbol('start'),
 	introduction: Symbol('introduction'),
+	selectGameSettings: Symbol('selectGameSettings'),
 	selectScope: Symbol('selectScope'),
 	scope1Projects: Symbol('scope1Projects'),
 	scope2Projects: Symbol('scope2Projects'),
