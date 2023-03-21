@@ -16,21 +16,21 @@ import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
-import {statsGaugeProperties} from '../trackedStats';
+import { statsGaugeProperties } from '../trackedStats';
 import type { GameSettings } from '../Projects';
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
-	
+
 	render() {
 		const CHART_SIZE = 250;
 
 		const singleDecimalFormatter = Intl.NumberFormat('en-US', {
-			minimumFractionDigits: 1, 
-			maximumFractionDigits: 1, 
-		  });
+			minimumFractionDigits: 1,
+			maximumFractionDigits: 1,
+		});
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
-		  minimumFractionDigits: 0, 
-		  maximumFractionDigits: 0, 
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
 		});
 		  
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
@@ -44,23 +44,27 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
 		const electricityCost = noDecimalsFormatter.format(this.props.electricityCostPerKWh * this.props.electricityUseKWh);
 		const naturalGasCost = noDecimalsFormatter.format(this.props.naturalGasCostPerMMBTU * this.props.naturalGasMMBTU); 
-		
+
 		const naturalGasFormatted: string = noDecimalsFormatter.format(this.props.naturalGasMMBTU);
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
-		
 
 		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
-		
+
+
 		return (
 			<>
+			<Divider/>
 				<MobileStepper
 					variant='progress'
 					steps={this.props.totalIterations}
 					position='static'
 					activeStep={this.props.year - 1}
+					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+					sx={{ padding: '.75rem' }}
 					backButton={
-						<Button size='small' 
-							onClick={this.props.onBack} 
+						<Button size='medium'
+							variant='outlined'
+							onClick={this.props.onBack}
 							disabled={!this.props.onBack}>
 							{leftArrow()}
 							Back
@@ -68,25 +72,25 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 					}
 					nextButton={
 						<BasicPopover
-							buttonSize='small'
+							buttonSize='medium'
 							onClick={this.props.onProceed}
-							buttonVariant='text'
+							buttonVariant='outlined'
 							text='Proceed'
 							variant='mouseover'
 							endIcon={rightArrow()}
 							buttonDisabled={this.props.btnProceedDisabled}
 						>
 							{this.props.totalIterations == 5 &&
-								<div 
-								style={{maxWidth: '200px'}}
+								<div
+									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
 									Commit to your selected projects and proceed to Years {this.props.yearInterval} and {this.props.yearInterval + 1}.
 								</div>
 							}
 							{this.props.totalIterations == 10 &&
-								<div 
-								style={{maxWidth: '200px'}}
+								<div
+									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
 									Commit to your selected projects and proceed to Year {this.props.year}.
@@ -94,7 +98,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							}
 						</BasicPopover>
 					}
-				/> 
+				/>
 				<Box m={2}>
 					{/* todo timer for each year */}
 					{this.props.totalIterations == 5 &&
@@ -134,7 +138,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								ticks={[{
 									value: .5,
 									label: shortenNumber(statsGaugeProperties.naturalGasMMBTU.maxValue * 0.5),
-								},{
+								}, {
 									value: 1,
 									label: shortenNumber(statsGaugeProperties.naturalGasMMBTU.maxValue),
 								}]}
@@ -154,7 +158,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									label: shortenNumber(statsGaugeProperties.electricityUseKWh.maxValue)
 								}]}
 							/>
-							<HorizontalBarWithTooltip 
+							<HorizontalBarWithTooltip
 								width={400} height={145}
 								data={[{
 									// Finances available can be negative UP TO the amount of rebates.... may be changed later
