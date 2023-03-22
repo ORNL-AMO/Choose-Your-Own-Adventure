@@ -919,12 +919,12 @@ Projects[Pages.condensingEconomizerInstallation] = new ProjectControl({
 
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
-	cost: 25_000,
+	cost: 80_000,
 	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		naturalGasMMBTU: absolute(-4800),
 	},
 	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		naturalGasMMBTU: absolute(-4800),
 	},
 	title: 'Boiler Control',
 	shortTitle: 'A combustion controller monitors the fuel-to-air ratio and optimizes excess oxygen in such a way as to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation. ',
@@ -1013,12 +1013,12 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 
 Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	pageId: Pages.compressedAirSystemImprovemnt,
-	cost: 85_000,
+	cost: 200_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.08),
+		electricityUseKWh: absolute(-1_200_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.08),
+		electricityUseKWh: absolute(-1_200_000),
 	},
 	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
