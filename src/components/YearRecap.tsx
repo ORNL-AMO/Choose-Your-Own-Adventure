@@ -243,6 +243,20 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					]}
 				/>
 			);
+			let headerStyle = {
+				'& .MuiCardHeader-title': {
+					textAlign: 'left',
+					fontSize: '30px',
+					fontWeight: 'bold'
+				},
+				'& .MuiCardHeader-subheader': {
+					textAlign: 'left',
+					fontSize: '18px',
+					fontWeight: '400',
+					color: '#000000',
+				},
+			};
+
 			projectRecaps.push(
 				<ListItem key={projectKey.description}>
 					<Card sx={{ width: '100%' }}>
@@ -254,35 +268,40 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						>
 							<Grid item xs={12} md={6}>
 								<CardHeader
-									avatar={
-										<Avatar color={thisProject.recapAvatar.backgroundColor}>
-											{thisProject.recapAvatar.icon}
-										</Avatar>
-									}
 									title={thisProject.title}
 									subheader={thisProject.shortTitle}
+									sx={headerStyle}
 								/>
 								<CardContent>
-									{thisProject.recapDescription}
 									{thisProject.caseStudy && (
 										<>
-											<p className='emphasis'>
+											<p style={{color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
 												Case Study - {thisProject.caseStudy.title}
 											</p>
-											<p
-												dangerouslySetInnerHTML={parseSpecialText(
-													thisProject.caseStudy.text
-												)}
-												className='noMarginBottom'
-											/>
 										</>
 									)}
 								</CardContent>
+								{thisProject.caseStudy && (
+									<CardActions>
+										<Button
+											variant='outlined'
+											href={thisProject.caseStudy.url}
+											target='_blank'
+											size='large'
+											sx={{
+												fontSize: '18px',
+												textDecorationLine: 'underline',
+											}}
+										>
+											Read case study
+										</Button>
+									</CardActions>
+								)}
 							</Grid>
 							<Grid item xs={12} md={6} className='year-recap-charts'>
 								{gaugeCharts}
 								<div style={{ width: '100%', textAlign: 'center' }}>
-									<Typography variant='body1'>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
 										<>
 											Initial project cost:{' '}
 											<Emphasis money>
@@ -300,7 +319,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 											</Emphasis>
 										</>
 									</Typography>
-									<Typography variant='body1'>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
 										Net cost:{' '}
 										<Emphasis money>
 											${projectNetCost.toLocaleString('en-US')}
@@ -309,17 +328,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								</div>
 							</Grid>
 						</Grid>
-						{thisProject.caseStudy && (
-							<CardActions>
-								<Button
-									variant='text'
-									href={thisProject.caseStudy.url}
-									target='_blank'
-								>
-									Read case study
-								</Button>
-							</CardActions>
-						)}
 					</Card>
 				</ListItem>
 			);
