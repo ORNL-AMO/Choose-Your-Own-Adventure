@@ -33,7 +33,7 @@ export const Scope1Projects = [
  * List of Page symbols for projects that are in the SCOPE 2 list.
  */
 export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.windVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite, Pages.airHandingUnitUpgrades, Pages.advancedEnergyMonitoring, Pages.compressedAirSystemImprovemnt, Pages.compressedAirSystemOptimization, Pages.chilledWaterMonitoringSystem, Pages.refrigerationUpgrade, Pages.loweringCompressorPressure, Pages.improveLightingSystems, Pages.startShutOff, Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3, Pages.reduceFanSpeeds, Pages.lightingOccupancySensors
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.smallVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite, Pages.airHandingUnitUpgrades, Pages.advancedEnergyMonitoring, Pages.compressedAirSystemImprovemnt, Pages.compressedAirSystemOptimization, Pages.chilledWaterMonitoringSystem, Pages.refrigerationUpgrade, Pages.loweringCompressorPressure, Pages.improveLightingSystems, Pages.startShutOff, Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3, Pages.reduceFanSpeeds, Pages.lightingOccupancySensors
 ];
 
 /**
@@ -100,6 +100,11 @@ declare interface ProjectControlParams {
 	 * Project cost, exclusing rebates.
 	 */
 	cost: number;
+	/**
+	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
+	*/
+	renewalRequired?: boolean;
+
 	/**
 	 * Numbers that appear on the INFO CARD, before checking the checkbox.
 	 */
@@ -184,6 +189,7 @@ declare interface ProjectControlParams {
 export class ProjectControl implements ProjectControlParams {
 
 	pageId: symbol;
+	renewalRequired?: boolean;
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
@@ -212,6 +218,7 @@ export class ProjectControl implements ProjectControlParams {
 	 */
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
+		this.renewalRequired = params.renewalRequired;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
@@ -1381,25 +1388,55 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	},
 });
 
-Projects[Pages.windVPPA] = new ProjectControl({
-	pageId: Pages.windVPPA,
-	cost: 40000,
+Projects[Pages.smallVPPA] = new ProjectControl({
+	pageId: Pages.smallVPPA,
+	renewalRequired: true,
+	cost: 75_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(0),
+		// electricityUseKWh: relative(-0.05),
+		// naturalGasMMBTU: relative(-0.05),
+		// absoluteCarbonSavings: absolute(1_200_000);
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(0),
+		// electricityUseKWh: relative(-0.05),
+		// naturalGasMMBTU: relative(-0.05),
+		// absoluteCarbonSavings: absolute(1_200_000);
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in building a wind farm as a virtual power purchase agreement.',
-	choiceInfoText: [''],
+	shortTitle: 'Invest in wind VPPA to offset 10% of your electricity emissions. YOU MUST RENEW THIS PROJECT ANNUALLY',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting 10% of your electricity emissions.  Working with upper management, you work out a deal where half of the project costs come from your budget and the other half from a corporate budget. YOU MUST RENEW THIS PROJECT ANNUALLY.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
-		text: '10.0%',
+		text: '1,200,000',
+		variant: 'text',
+		startIcon: <Co2Icon/>,
+	},
+});
+
+Projects[Pages.midSolar] = new ProjectControl({
+	pageId: Pages.midSolar,
+	renewalRequired: true,
+	cost: 100_000,
+	statsInfoAppliers: {
+		// absoluteCarbonSavings: absolute(1_717_000);
+	},
+	statsActualAppliers: {
+		// absoluteCarbonSavings: absolute(1_717_000);
+	},
+	title: 'Enter a PPPA with your local utility to build a 2MW rooftop solar array. YOU MUST RENEW THIS PROJECT ANNUALLY.',
+	shortTitle: 'Invest in wind VPPA to offset 10% of your electricity emissions. YOU MUST RENEW THIS PROJECT ANNUALLY',
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing your rooftop to your utility for solar panels and receiving the electricity as a lease to own agreement (NEED TO GET THE NAMING CONVENTIONS CORRECT). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system without interfering with your existing roof infrastructure. Working with upper management, you work out a deal where half of the project costs come from your budget and the other half from a corporate budget. You will be paying for this project for the next 10 years, so YOU MUST RENEW THIS PROJECT ANNUALLY.'],
+	choiceInfoImg: '',
+	choiceInfoImgAlt: '',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewButton: {
+		text: '1,717,000',
 		variant: 'text',
 		startIcon: <Co2Icon/>,
 	},
