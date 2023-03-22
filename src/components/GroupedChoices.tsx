@@ -28,7 +28,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 				let disabled = resolveToValue(choice.disabled, false);
 				let paperStyle = { 
 					opacity: disabled ? 0.8 : 1,
-					paddingBottom: '1rem'		
+					paddingBottom: '1rem',					
+					color: '#000000'	
 				};
 				let headerStyle;
 				let choiceButtons: ButtonGroupButton[] | undefined = choice.buttons;
