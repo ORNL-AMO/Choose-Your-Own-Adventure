@@ -17,6 +17,7 @@ import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import Co2Icon from '@mui/icons-material/Co2';
+import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
 
 
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
@@ -525,6 +526,7 @@ export class ProjectControl implements ProjectControlParams {
 			let implementedProjects = state.implementedProjects.slice();
 			let newTrackedStats = { ...state.trackedStats };
 			// IF PROJECT IS ALREADY SELECTED
+			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
 			if (implementedProjects.includes(self.pageId)) {
 				// Since the order of projects matters, we can't simply unApplyChanges to ourself.
 				// 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
@@ -550,9 +552,13 @@ export class ProjectControl implements ProjectControlParams {
 
 				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
+				if (!hasAbsoluteCarbonSavings) {
+					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
+				} 
 				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-
 			}
+			
+			newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
 			nextState.implementedProjects = implementedProjects;
 			nextState.trackedStats = newTrackedStats;
 
@@ -757,10 +763,12 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	cost: 150_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.125),
+		// todo 81 testing only
+		// absoluteCarbonSavings: absolute(-180_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.125),
+		// todo 81 testing only
+		// absoluteCarbonSavings: absolute(-180_000),
 	},
 	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),

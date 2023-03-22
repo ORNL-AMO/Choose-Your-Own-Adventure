@@ -9,11 +9,11 @@ import '@fontsource/roboto/700.css';
 import type { PageControlProps, ControlCallbacks } from './components/controls';
 import { StartPage } from './components/StartPage';
 import type { StartPageProps } from './components/StartPage';
+import { calculateEmissions } from './trackedStats';
 import type { TrackedStats } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
-import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
-import { initialTrackedStats } from './trackedStats';
+import { initialTrackedStats, setCarbonEmissionsAndSavings } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
@@ -262,12 +262,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 
 			if (newStateParams['trackedStats']) {
-				let newTrackedStats = setCarbonEmissionsAndSavings(newStateParams['trackedStats'], this.state.defaultTrackedStats );
+				let newTrackedStats = newStateParams['trackedStats'];
 				newStateParams['trackedStats'] = newTrackedStats;
-				// Sanity check!
-				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
-					console.error(`Error with finances sanity check! financesAvailable=${newTrackedStats.financesAvailable}, moneySpent=${newTrackedStats.moneySpent} totalBudget=${newTrackedStats.totalBudget}`);
-				}
 				// Update max values for gauges in case they increased
 				updateStatsGaugeMaxValues(newTrackedStats);
 			}
@@ -431,7 +427,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
-			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats );
+
+			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats); 
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
 

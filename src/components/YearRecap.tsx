@@ -27,10 +27,7 @@ import {
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
-import { emptyTrackedStats } from '../trackedStats';
-import { calculateYearSavings } from '../trackedStats';
-import { setCarbonEmissionsAndSavings } from '../trackedStats';
-import { statsGaugeProperties } from '../trackedStats';
+import { emptyTrackedStats, statsGaugeProperties, calculateYearSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
 import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
 import Projects from '../Projects';
 import {
@@ -56,6 +53,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			);
 		}
 
+		debugger;
 		// As we loop through the projects, we'll mutate this object and provide gauge charts for how the stats changed
 		let mutableStats: TrackedStats = { ...thisYearStart };
 		// Since hidden surprises will change stats, we need to keep track of the hidden changes for our sanity check later
@@ -156,23 +154,16 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				);
 
 			let gaugeCharts: JSX.Element[] = [];
-			// Go through the project's "actual" stats appliers and create a gauge chart for each one
 			for (let key in thisProject.statsActualAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
-				let thisGaugeProps = statsGaugeProperties[key];
-				if (!thisGaugeProps) {
-					console.log(
-						`No dashboardStatsGaugeProperties for ${key} (check Dashboard.tsx)`
-					);
-					continue;
-				}
 				let oldValue = mutableStats[key];
 				let newValue = thisApplier.applyValue(oldValue);
 				let difference = newValue - oldValue;
 				mutableStats[key] = newValue;
-
-				gaugeCharts.push(
-					<GaugeChart
+				let thisGaugeProps = statsGaugeProperties[key];
+				if (thisGaugeProps) {
+					gaugeCharts.push(
+						<GaugeChart
 						key={key}
 						width={250}
 						backgroundColor={'#88888820'}
@@ -191,11 +182,13 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								value: clampRatio(newValue, thisGaugeProps.maxValue),
 							},
 						]}
-					/>
-				);
-			}
-			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
-			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
+						/>
+						);
+					}
+				}
+				
+				// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
+				// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
 			for (let key in thisProject.statsRecapAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
 				let oldValue = mutableStats[key];
@@ -206,9 +199,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			}
 			
 			let prevCarbonSavings = mutableStats.carbonSavingsPercent;
-			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats ); // update carbonEmissions and carbonSavings
-			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
-
+			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats); 
+			thisProject.applyCost(mutableStats); 
 			const totalYearEndRebates = thisProject.getYearEndRebates();
 			const projectNetCost = thisProject.getYearEndNetCost();
 			yearEndNetCost += projectNetCost;
@@ -217,8 +209,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			nextYearFinancesAvailable += totalYearEndRebates;
 			gaugeCharts.push(
 				<GaugeChart
-					key={'carbonSavings'}
-					width={250}
+				key={'carbonSavings'}
+				width={250}
 					value1={prevCarbonSavings}
 					color1='#888888'
 					value2={mutableStats.carbonSavingsPercent}

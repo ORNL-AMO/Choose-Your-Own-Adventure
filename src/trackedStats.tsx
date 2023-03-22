@@ -39,6 +39,10 @@ export interface TrackedStats {
 	carbonSavingsPercent: number;
 	carbonEmissions: number;
 	carbonEmissionsSavings: number;
+	/**
+	 * Emissions savings in kg coming from projects with absolute/static savings
+	 */
+	absoluteCarbonSavings: number;
 	moneySpent: number;
 	/**
 	 * Total money spent, across the whole run.
@@ -70,6 +74,7 @@ export const initialTrackedStats: TrackedStats = {
 	totalBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
 	carbonEmissionsSavings: 0, 
+	absoluteCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
@@ -93,6 +98,7 @@ export const emptyTrackedStats: TrackedStats = {
 	carbonSavingsPercent: 0,
 	carbonEmissionsSavings: 0,
 	carbonEmissions: 0,
+	absoluteCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
@@ -108,17 +114,20 @@ export function calculateEmissions(stats: TrackedStats): number {
 	return ngEmissions + elecEmissions;
 }
 
-/**
- * Mutates the provided newStats object with the new auto-calculated stat changes. Currently automatically handled:
- * 	- carbonSavingsPercent
- * 	- carbonEmissions
- */
-export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats : TrackedStats) {
-	let yearTotalEmissions = calculateEmissions(newStats);
-	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - yearTotalEmissions) / (defaultTrackedStats.carbonEmissions); // might be wrong
-	// * % CO2 saved * total initial emissions;
-	newStats.carbonEmissionsSavings = carbonSavingsPercent * yearTotalEmissions;
+export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats: TrackedStats) {
+	console.log('setCarbonEmissionsAndSavings newStats', JSON.parse(JSON.stringify(newStats)))
 
+	if (newStats.absoluteCarbonSavings) {
+		newStats.carbonEmissions = newStats.carbonEmissions + newStats.absoluteCarbonSavings;
+		// below only works if absolute carbonSavings will never have other values change
+		// yearTotalEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
+	} else {
+		newStats.carbonEmissions = calculateEmissions(newStats);
+	}
+
+	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newStats.carbonEmissions) / (defaultTrackedStats.carbonEmissions);
+	// * % CO2 saved * total initial emissions;
+	newStats.carbonEmissionsSavings = carbonSavingsPercent * newStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }
