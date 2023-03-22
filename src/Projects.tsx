@@ -349,19 +349,19 @@ export class ProjectControl implements ProjectControlParams {
 		let choiceStats: ButtonGroupButton[] = [];
 
 		infoDialogStatCards.push({
-			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
+			text: `Total project cost: $${(this.cost).toLocaleString('en-US')}`,
 			color: theme.palette.secondary.dark, 
 		});
 
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			infoDialogStatCards.push({
-				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
+				text: `Natural gas reduction: ${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}`,
 				color: theme.palette.primary.light,
 			});
 		}
 		if (this.statsInfoAppliers.electricityUseKWh) {
 			infoDialogStatCards.push({
-				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
+				text: `Electricity reduction: ${this.statsInfoAppliers.electricityUseKWh.toString(true)}`,
 				color: theme.palette.warning.light,
 			});
 		}
