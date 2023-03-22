@@ -53,7 +53,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			);
 		}
 
-		debugger;
 		// As we loop through the projects, we'll mutate this object and provide gauge charts for how the stats changed
 		let mutableStats: TrackedStats = { ...thisYearStart };
 		// Since hidden surprises will change stats, we need to keep track of the hidden changes for our sanity check later
