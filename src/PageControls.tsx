@@ -120,7 +120,7 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 });
 
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-	title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
+	title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.`,
 	isProjectGroupChoice: true,
 	groups: [
 		{
@@ -155,7 +155,7 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 }, Pages.selectScope);
 
 PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
-	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.\nSelect what projects you want your company to work on in {Year ${state.trackedStats.year}}, and then click {Proceed} on the top right when you are ready.`,
+	title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.`,
 	isProjectGroupChoice: true,
 	groups: [
 		{
@@ -193,7 +193,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 	hideDashboard: false,
 }, Pages.selectScope);
 
-PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
+PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.scope1Projects);
 
 PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
 	title: '{SELECTED}: WASTE HEAT RECOVERY',

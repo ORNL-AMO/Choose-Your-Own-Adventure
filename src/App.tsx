@@ -29,6 +29,7 @@ import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 import { CompareDialog } from './components/CompareDialog';
 import { SelectGameSettings } from './components/SelectGameSettings';
+import ScopeTabs from './components/ScopeTabs';
 
 export type AppState = {
 	currentPage: symbol;
@@ -395,8 +396,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	handleDashboardOnBack() {
 		// * default back page
-		let nextPage: symbol = Pages.selectScope;
-		if (this.state.currentPage == Pages.selectScope) {
+		let nextPage: symbol = this.state.currentPage;
+		if (this.state.currentPage == Pages.scope1Projects || this.state.currentPage == Pages.scope2Projects ) {
 			let year: number = this.state.trackedStats.year;
 			if (year == 1) {
 				nextPage = Pages.start;
@@ -406,6 +407,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 			}
 		}
 		this.setPage(nextPage);
+	}
+
+	handleChangeScopeTabs(newValue: number){
+		if(newValue == 0){
+			this.setPage(Pages.scope1Projects);
+		} else if(newValue == 1){
+			this.setPage(Pages.scope2Projects);
+		}
 	}
 
 	/**
@@ -485,7 +494,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		} else if (newYearTrackedStats.year === this.state.gameSettings.totalIterations + 1) {
 			this.setPage(Pages.loseScreen);
 		} else {
-			this.setPage(Pages.selectScope);
+			this.setPage(Pages.scope1Projects);
 		}
 
 	}
@@ -524,7 +533,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			defaultTrackedStats : updatingInitialTrackedStats
 		});
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
-		this.setPage(Pages.selectScope);
+		this.setPage(Pages.scope1Projects);
 	}
 
 	
@@ -575,6 +584,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 									onBack={() => this.handleDashboardOnBack()}
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
+								/>
+								: <></>}
+							{this.state.showDashboard ?
+								<ScopeTabs
+									handleChangeScopeTabs={(newValue) => this.handleChangeScopeTabs(newValue)} 
 								/>
 								: <></>}
 							{(this.state.currentPageProps && this.state.componentClass) ?
