@@ -118,7 +118,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								width={CHART_SIZE}
 								value1={clampRatio(this.props.carbonSavingsPercent, 1)}
 								text={carbonSavingsFormatted}
-								label='Carbon savings'
+								label='Carbon Savings'
+								textFontSize={0.85}
 								color1={theme.palette.primary.dark}
 								ticks={[{
 									value: .5,
@@ -132,7 +133,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									statsGaugeProperties.naturalGasMMBTU.maxValue,
 								)}
 								text={naturalGasFormatted}
-								label='Natural gas use (MMBTU)'
+								label='Natural Gas Use (MMBTU)'
 								textFontSize={0.85}
 								color1={theme.palette.primary.dark}
 								ticks={[{
@@ -147,7 +148,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								width={CHART_SIZE}
 								value1={clampRatio(this.props.electricityUseKWh, statsGaugeProperties.electricityUseKWh.maxValue)}
 								text={electricityUseFormatted}
-								label='Electricity use (kWh)'
+								label='Electricity Use (kWh)'
 								textFontSize={0.85}
 								color1={theme.palette.warning.main}
 								ticks={[{
@@ -171,50 +172,50 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
 						<Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 16 }} pt={3}>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography>
+							<Typography id='dashboardText'>
 									Natural gas emission rate: {
 										naturalGasEmissionRateFormatted
 									} kg/MMBTU
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-								<Typography>
+								<Typography id='dashboardText'>
 									Emissions from natural gas: {
 										emissionsFromNaturalGasFormatted
 									} metric tons
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-								<Typography>
+								<Typography id='dashboardText'>
 									Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography>
+							<Typography id='dashboardText'>
 									Natural gas cost: ${naturalGasCost}
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography>
+							<Typography id='dashboardText'>
 									Electricity emission rate: {
 										electricityEmissionRateFormatted
 									} kg/kWh
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-								<Typography>
+								<Typography id='dashboardText'>
 									Emissions from electricity: {
 										emissionsFromElectricityFormatted
 									} metric tons
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-								<Typography>
+								<Typography id='dashboardText'>
 									Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-								<Typography>
+								<Typography id='dashboardText'>
 									Electricity cost: ${electricityCost}
 								</Typography>
 							</Grid>

@@ -20,6 +20,7 @@ export const InfoCard = styled(Paper)(({ theme }) => ({
 	paddingRight: theme.spacing(0.5),
 }));
 
+
 /**
  * Using a sub-function because `useMediaQuery` requires React hooks, which are only allowed in function-style React components, 
  * but InfoDialog is using a class declaration so we can tell it when it should/should not re-render.
@@ -58,7 +59,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	if (props.cardText) {
 		cardContents = [{
 			text: props.resolveToValue(props.cardText),
-			color: theme.palette.primary.light,
+			color: '#000000',
 		}];
 	}
 	else if (props.cards) {
@@ -68,7 +69,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		<InfoCard 
 			key={idx}
 			variant='outlined' 
-			sx={{borderColor: cardContent.color, color: cardContent.color}}
+			sx={{borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold'}}
 			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
 		/>
 	);
@@ -80,6 +81,9 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			keepMounted
 			onClose={handleClose}
 			aria-describedby='alert-dialog-slide-description'
+			sx={{
+				backdropFilter: 'blur(10px)'
+			}}
 		>
 			{props.img && <>
 				<CardMedia

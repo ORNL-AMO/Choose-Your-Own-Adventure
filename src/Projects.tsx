@@ -284,6 +284,8 @@ export class ProjectControl implements ProjectControlParams {
 	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
 	 */
 	unApplyStatChanges(mutableStats: TrackedStats) {
+		// todo 81 bandaid for multiyear absolutes
+		this.statsActualAppliers
 		for (let key in this.statsActualAppliers) {
 			let thisApplier = this.statsActualAppliers[key];
 			if (!thisApplier) return;
@@ -350,19 +352,19 @@ export class ProjectControl implements ProjectControlParams {
 		let choiceStats: ButtonGroupButton[] = [];
 
 		infoDialogStatCards.push({
-			text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
+			text: `Total project cost: $${(this.cost).toLocaleString('en-US')}`,
 			color: theme.palette.secondary.dark, 
 		});
 
 		if (this.statsInfoAppliers.naturalGasMMBTU) {
 			infoDialogStatCards.push({
-				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
+				text: `Natural gas reduction: ${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}`,
 				color: theme.palette.primary.light,
 			});
 		}
 		if (this.statsInfoAppliers.electricityUseKWh) {
 			infoDialogStatCards.push({
-				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
+				text: `Electricity reduction: ${this.statsInfoAppliers.electricityUseKWh.toString(true)}`,
 				color: theme.palette.warning.light,
 			});
 		}
@@ -587,14 +589,14 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// Page symbol associated with the project. MUST BE THE SAME AS WHAT APPEARS IN Projects[...]
 	pageId: Pages.wasteHeatRecovery,
 	// project cost, in dollars
-	cost: 65_000,
+	cost: 210_000,
 	// Stats that appear in the CARDS inside the INFO DIALOG.
 	statsInfoAppliers: {
-		naturalGasMMBTU: absolute(-250), // reduces natural gas usage by a flat 50,000
+		naturalGasMMBTU: absolute(-12_000),
 	},
 	// Stats that 
 	statsActualAppliers: {
-		naturalGasMMBTU: absolute(-250),
+		naturalGasMMBTU: absolute(-12_000),
 	},
 	// Stats that are HIDDEN until AFTER the user commits to the next year. 
 	statsRecapAppliers: {
@@ -620,7 +622,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewButton: {
-		text: '250',
+		text: '10%',
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
@@ -630,45 +632,45 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// }
 });
 
-Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
-	pageId: Pages.digitalTwinAnalysis,
-	cost: 90_000,
-	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.02),
-	},
-	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.02),
-	},
-	title: 'Energy Efficiency - Digital Twin Analysis',
-	shortTitle: 'Conduct digital twin analysis',
-	choiceInfoText: [
-		'A digital twin is the virtual representation of a physical object or system across its lifecycle.',
-		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
-	],
-	recapDescription: 'Insert flavor text here!',
-	choiceInfoImg: 'images/chiller-systems-in-plant.png',
-	choiceInfoImgAlt: 'A 3D model of the chiller systems in a plant',
-	choiceInfoImgObjectFit: 'contain',
-	caseStudy: {
-		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
-		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
-	},
-	energySavingsPreviewButton: {
-		text: '2.0%',
-		variant: 'text',
-		startIcon: <FlameIcon />,
-	}
-});
+// Projects[Pages.digitalTwinAnalysis] = new ProjectControl({
+// 	pageId: Pages.digitalTwinAnalysis,
+// 	cost: 90_000,
+// 	statsInfoAppliers: {
+// 		naturalGasMMBTU: absolute(-2_400),
+// 	},
+// 	statsActualAppliers: {
+// 		naturalGasMMBTU: absolute(-2_400),
+// 	},
+// 	title: 'Energy Efficiency - Digital Twin Analysis',
+// 	shortTitle: 'Conduct digital twin analysis',
+// 	choiceInfoText: [
+// 		'A digital twin is the virtual representation of a physical object or system across its lifecycle.',
+// 		'You can use digital twin technology to accurately {detect energy losses}, pinpoint areas where energy can be conserved, and improve the overall performance of production lines.'
+// 	],
+// 	recapDescription: 'Insert flavor text here!',
+// 	choiceInfoImg: 'images/chiller-systems-in-plant.png',
+// 	choiceInfoImgAlt: 'A 3D model of the chiller systems in a plant',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	caseStudy: {
+// 		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
+// 		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
+// 		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
+// 	},
+// 	energySavingsPreviewButton: {
+// 		text: '2.0%',
+// 		variant: 'text',
+// 		startIcon: <FlameIcon />,
+// 	}
+// });
 
 Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
 	cost: 80_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.025),
+		electricityUseKWh: absolute(-750_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.025),
+		electricityUseKWh: absolute(-750_000),
 	},
 	title: 'Energy Efficiency – Process Heating Upgrades',
 	shortTitle: 'Explore efficient process heating upgrades',
@@ -691,63 +693,63 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	},
 });
 
-Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
-	pageId: Pages.hydrogenPoweredForklifts,
-	cost: 100_000,
-	statsInfoAppliers: {
-		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-	},
-	statsActualAppliers: {
-		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-	},
-	title: 'Fuel Switching – Hydrogen Powered Forklifts',
-	shortTitle: 'Switch to hydrogen powered forklifts',
-	choiceInfoText: [
-		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: {
-		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
-		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
-		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
-	},
-	energySavingsPreviewButton: {
-		text: '??%',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-});
+// Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
+// 	pageId: Pages.hydrogenPoweredForklifts,
+// 	cost: 100_000,
+// 	statsInfoAppliers: {
+// 		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+// 	},
+// 	statsActualAppliers: {
+// 		// I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
+// 	},
+// 	title: 'Fuel Switching – Hydrogen Powered Forklifts',
+// 	shortTitle: 'Switch to hydrogen powered forklifts',
+// 	choiceInfoText: [
+// 		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
+// 		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+// 	],
+// 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+// 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: {
+// 		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+// 		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+// 		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+// 	},
+// 	energySavingsPreviewButton: {
+// 		text: '??%',
+// 		variant: 'text',
+// 		startIcon: <BoltIcon />,
+// 	},
+// });
 
-Projects[Pages.lightingUpgrades] = new ProjectControl({
-	pageId: Pages.lightingUpgrades,
-	cost: 12_000,
-	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.125),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: relative(-0.125),
-	},
-	statsRecapAppliers: {
-		totalRebates: absolute(7_500),
-	},
-	title: 'Energy Efficiency – Lighting Upgrades',
-	shortTitle: 'Explore lighting upgrades',
-	choiceInfoText: [
-		'Your plant currently uses {inefficient} T12 lighting. The lighting level in certain areas in the facility is {low} and affects the productivity of workers	in those areas.',
-		'You could replace this lighting with LED lighting, which provides {reduced} energy consumption, a {longer} lifespan, and lighting control.'
-	],
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: {
-		title: 'Lennox International: LED Project At New Regional Distribution Leased Location',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
-		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
-	},
-	utilityRebateValue: 5000,
-});
+// Projects[Pages.lightingUpgrades] = new ProjectControl({
+// 	pageId: Pages.lightingUpgrades,
+// 	cost: 12_000,
+// 	statsInfoAppliers: {
+// 		electricityUseKWh: relative(-0.125),
+// 	},
+// 	statsActualAppliers: {
+// 		electricityUseKWh: relative(-0.125),
+// 	},
+// 	statsRecapAppliers: {
+// 		totalRebates: absolute(7_500),
+// 	},
+// 	title: 'Energy Efficiency – Lighting Upgrades',
+// 	shortTitle: 'Explore lighting upgrades',
+// 	choiceInfoText: [
+// 		'Your plant currently uses {inefficient} T12 lighting. The lighting level in certain areas in the facility is {low} and affects the productivity of workers	in those areas.',
+// 		'You could replace this lighting with LED lighting, which provides {reduced} energy consumption, a {longer} lifespan, and lighting control.'
+// 	],
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: {
+// 		title: 'Lennox International: LED Project At New Regional Distribution Leased Location',
+// 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/lennox-international-led-project-at-new-regional-distribution-leased-location',
+// 		text: 'In 2016, {Lennox International} in Richardson, Texas implemented LED lighting throughout their warehouse, which resulted in annual energy savings of {$35,000.}'
+// 	},
+// 	utilityRebateValue: 5000,
+// });
 
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
@@ -832,14 +834,14 @@ Projects[Pages.solarFieldOnsite] = new ProjectControl({
 //Empty Projects Scope 1 yr1-yr5
 Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	pageId: Pages.airHandingUnitUpgrades,
-	cost: 45_000,
+	cost: 125_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.05),
-		naturalGasMMBTU: relative(-0.05),
+		electricityUseKWh: absolute(-1_100_000),
+		naturalGasMMBTU: absolute(-3000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.05),
-		naturalGasMMBTU: relative(-0.05),
+		electricityUseKWh: absolute(-1_100_000),
+		naturalGasMMBTU: absolute(-3000),
 	},
 	title: 'Air Handing Unit Upgrades',
 	shortTitle: 'Automated AHU controls to manage airflow without ongoing plant operator managing the settings',
@@ -858,7 +860,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		text: 'Nissan’s Canton, Mississippi plant is one of four of the company’s manufacturing facilities in the United States. Opened in 2003, the Canton plant is a 4.5 million square foot plant that can produce up to 410,000 vehicles annually.'
 	},
 	energySavingsPreviewButton: {
-		text: '5.0%',
+		text: '2.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -866,14 +868,14 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 
 Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
-	cost: 35_000,
+	cost: 60_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.03),
-		naturalGasMMBTU: relative(-0.03),
+		// electricityUseKWh: absolute(-0.03),
+		// naturalGasMMBTU: relative(-0.03),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.03),
-		naturalGasMMBTU: relative(-0.03),
+		// electricityUseKWh: relative(-0.03),
+		// naturalGasMMBTU: relative(-0.03),
 	},
 	title: 'Advanced Energy monitoring with Wireless Submetering',
 	shortTitle: 'Reducing peak demand to reduced electricity use and cost',
@@ -891,43 +893,43 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing carbon emissions and lowering energy intensity.'
 	},
 	energySavingsPreviewButton: {
-		text: '3.0%',
+		text: '0.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
 
-Projects[Pages.condensingEconomizerInstallation] = new ProjectControl({
-	pageId: Pages.condensingEconomizerInstallation,
-	cost: 95_000,
-	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.07),
-	},
-	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.07),
-	},
-	title: 'Condensing Economizer Installation',
-	shortTitle: 'Condensing Economizer Installation ',
-	choiceInfoText: [
-		'The project involved recovering heat from the boiler exhaust via a direct contact condensing economizer. Exhaust is vented to the economizer in conjunction with the steam from each of the site’s deaerators and condensate return tanks.',
-		'Dampers (a valve or plate that regulates the flow of air inside a duct) installed at each broiler stack ensure proper draft and combustion flow to the economizer. This allows water in direct contact with the boiler exhaust to be heated and piped throughout the facility to the heat sinks (a temperature regulator).',
-		' As a result, the hot water is used to pre-heat boiler water andfacility product through air gap plate and frame heat exchangers. Hot water flow is then regulated via control valves set to certain temperatures at an extremely steady state. Overall, the heat recovery system is monitored by a programmable logic control (PLC) system.',
-	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: {
-		title: 'PEPSICO: CONDENSING ECONOMIZER INSTALLATION',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/pepsico-condensing-economizer-installation',
-		text: 'As part of the company’s 2025 25% greenhouse gas (GHG) reduction goal, it set out to reduce the energy usage of the Gatorade pasteurization process. Pasteurization is a process in which certain foods, such as milk and fruit juice, are treated with heat to eliminate pathogens and extend shelf life.'
-	},
-	energySavingsPreviewButton: {
-		text: '7.0%',
-		variant: 'text',
-		startIcon: <FlameIcon />,
-	},
-});
+// Projects[Pages.condensingEconomizerInstallation] = new ProjectControl({
+// 	pageId: Pages.condensingEconomizerInstallation,
+// 	cost: 95_000,
+// 	statsInfoAppliers: {
+// 		naturalGasMMBTU: relative(-0.07),
+// 	},
+// 	statsActualAppliers: {
+// 		naturalGasMMBTU: relative(-0.07),
+// 	},
+// 	title: 'Condensing Economizer Installation',
+// 	shortTitle: 'Condensing Economizer Installation ',
+// 	choiceInfoText: [
+// 		'The project involved recovering heat from the boiler exhaust via a direct contact condensing economizer. Exhaust is vented to the economizer in conjunction with the steam from each of the site’s deaerators and condensate return tanks.',
+// 		'Dampers (a valve or plate that regulates the flow of air inside a duct) installed at each broiler stack ensure proper draft and combustion flow to the economizer. This allows water in direct contact with the boiler exhaust to be heated and piped throughout the facility to the heat sinks (a temperature regulator).',
+// 		' As a result, the hot water is used to pre-heat boiler water andfacility product through air gap plate and frame heat exchangers. Hot water flow is then regulated via control valves set to certain temperatures at an extremely steady state. Overall, the heat recovery system is monitored by a programmable logic control (PLC) system.',
+// 	],
+// 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+// 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: {
+// 		title: 'PEPSICO: CONDENSING ECONOMIZER INSTALLATION',
+// 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/pepsico-condensing-economizer-installation',
+// 		text: 'As part of the company’s 2025 25% greenhouse gas (GHG) reduction goal, it set out to reduce the energy usage of the Gatorade pasteurization process. Pasteurization is a process in which certain foods, such as milk and fruit juice, are treated with heat to eliminate pathogens and extend shelf life.'
+// 	},
+// 	energySavingsPreviewButton: {
+// 		text: '7.0%',
+// 		variant: 'text',
+// 		startIcon: <FlameIcon />,
+// 	},
+// });
 
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
@@ -954,7 +956,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		text: 'Bentley Mills uses a large quantity of steam throughout their manufacturing process chain. In 2014, Bentley Mills began implementing a project to upgrade the control system for one of its largest natural gas fired boilers (Boiler #1) at its facility in the City of Industry, Los Angeles. Bentley Mills has been operating the facility since 1979 and employs over 300 people. The facility makes commercial modular carpet tile, broadloom and area rugs in its 280,000 square feet of manufacturing space.'
 	},
 	energySavingsPreviewButton: {
-		text: '3.0%',
+		text: '4.0%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -964,10 +966,10 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
 	cost: 15_000,
 	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.05),
+		naturalGasMMBTU: absolute(-1800),
 	},
 	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.05),
+		naturalGasMMBTU: absolute(-1800),
 	},
 	title: 'Steam Traps Maintenance',
 	shortTitle: 'During a treasure hunt the facility realized that 35% of their steam traps were not operating correctly.',
@@ -984,7 +986,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewButton: {
-		text: '5.0%',
+		text: '1.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -992,12 +994,12 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 
 Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
-	cost: 10_000,
+	cost: 7_000,
 	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		naturalGasMMBTU: absolute(-900),
 	},
 	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		naturalGasMMBTU: absolute(-900),
 	},
 	title: 'Improve Pipe Insulation ',
 	shortTitle: 'Insulate exterior steam pipes.',
@@ -1014,7 +1016,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewButton: {
-		text: '3.0%',
+		text: '0.75%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -1052,51 +1054,51 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		text: 'As part of its commitment to reducing its energy intensity, Saint-Gobain undertook a large compressed air system retrofit project at its Milford, Massachusetts glass plant. Upon completion, the compressed air system improvement is expected to deliver energy savings of 15% compared to the system it is replacing.'
 	},
 	energySavingsPreviewButton: {
-		text: '8.0%',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-});
-
-Projects[Pages.compressedAirSystemOptimization] = new ProjectControl({
-	pageId: Pages.compressedAirSystemOptimization,
-	cost: 30_000,
-	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.04),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: relative(-0.04),
-	},
-	title: 'Compressed Air System Optimization',
-	shortTitle: 'The facility was experiencing pressure drops throughout their compressed air delivery pipe system and decided on investigating thei pipe sizing to solve the issue.',
-	choiceInfoText: [
-		'They replaced an existing 4” header pipe running from the compressors to a storage tank with a 6” header. The shorter pipe diameter hadn’t sufficiently served the system, as engineers recorded air pressure losses starting in the compressor room.',
-		'They also added a second 4” header pipe parallel to an existing 4” header leading out of the storage tank to supply separate parts of the plant and form a complete loop.',
-	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: {
-		title: 'DARIGOLD: COMPRESSED AIR SYSTEM OPTIMIZATION',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/darigold-compressed-air-system-optimization',
-		text: 'Americas fifth-largest dairy co-op, Darigold has 11 plants in the northwestern United States that produce milk, butter, sour cream, milk powder, and other dairy products. The Sunnyside plant is the company’s largest facility and each day it produces about 530,000 pounds of cheese and 615,000 pounds of powdered dairy products. Compressed air supports production at this plant through control valves, cylinders, positioners, dampers, and pulsing for bag houses. An inefficient distribution system compelled the partner to upgrade its air piping to enable stable system pressure.'
-	},
-	energySavingsPreviewButton: {
 		text: '4.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
 
+// Projects[Pages.compressedAirSystemOptimization] = new ProjectControl({
+// 	pageId: Pages.compressedAirSystemOptimization,
+// 	cost: 30_000,
+// 	statsInfoAppliers: {
+// 		electricityUseKWh: relative(-0.04),
+// 	},
+// 	statsActualAppliers: {
+// 		electricityUseKWh: relative(-0.04),
+// 	},
+// 	title: 'Compressed Air System Optimization',
+// 	shortTitle: 'The facility was experiencing pressure drops throughout their compressed air delivery pipe system and decided on investigating thei pipe sizing to solve the issue.',
+// 	choiceInfoText: [
+// 		'They replaced an existing 4” header pipe running from the compressors to a storage tank with a 6” header. The shorter pipe diameter hadn’t sufficiently served the system, as engineers recorded air pressure losses starting in the compressor room.',
+// 		'They also added a second 4” header pipe parallel to an existing 4” header leading out of the storage tank to supply separate parts of the plant and form a complete loop.',
+// 	],
+// 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+// 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: {
+// 		title: 'DARIGOLD: COMPRESSED AIR SYSTEM OPTIMIZATION',
+// 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/darigold-compressed-air-system-optimization',
+// 		text: 'Americas fifth-largest dairy co-op, Darigold has 11 plants in the northwestern United States that produce milk, butter, sour cream, milk powder, and other dairy products. The Sunnyside plant is the company’s largest facility and each day it produces about 530,000 pounds of cheese and 615,000 pounds of powdered dairy products. Compressed air supports production at this plant through control valves, cylinders, positioners, dampers, and pulsing for bag houses. An inefficient distribution system compelled the partner to upgrade its air piping to enable stable system pressure.'
+// 	},
+// 	energySavingsPreviewButton: {
+// 		text: '4.0%',
+// 		variant: 'text',
+// 		startIcon: <BoltIcon />,
+// 	},
+// });
+
 Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	pageId: Pages.chilledWaterMonitoringSystem,
-	cost: 35_000,
+	cost: 30_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-300_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-300_000),
 	},
 	title: 'Chilled Water System and Monitoring System ',
 	shortTitle: 'The facility identified their chilled water system as a Significant Energy Use (SEU) pursuing ISO 50001 certification. The chilled water system accounted for 15% of the plant’s total electrical consumption. The upgrades consisted of installing an online, real-time dashboard platform to monitor the four main areas of the system. This online dashboard tracks year-to-date and month-to-date system efficiency (kW/ton) of the project, and allows multiple persons to view the progress of upgrades.',
@@ -1113,53 +1115,54 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 		text: 'During the process of pursuing ISO 50001 certification for Nissan’s vehicle assembly plant in Canton, Mississippi, Nissan’s Energy Team identified their chilled water system as a Significant Energy Use (SEU). Based on the facility’s 2014 energy baseline, the chilled water system accounted for 15% of the plant’s total electrical consumption.'
 	},
 	energySavingsPreviewButton: {
-		text: '2.0%',
+		text: '1.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
 });
 
-Projects[Pages.refrigerationUpgrade] = new ProjectControl({
-	pageId: Pages.refrigerationUpgrade,
-	cost: 10_000,
-	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.05),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: relative(-0.05),
-	},
-	title: 'Refrigeration Upgrade',
-	shortTitle: 'Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system which help in reducing load on the comrpessor and increasing overall system effieicny.',
-	choiceInfoText: [
-		'The plant commissioned a study in June of 2017 to identify areas to improve energy efficiency. Previously, suction pressure was being run at 20.4 PSI to build the ice in the ice bank to optimal levels. In order to increase the efficiency of the system, it was decided to increase the ammonia suction pressure to 35.6 PSI, which is the pressure going into the compression step of the refrigeration cycle. Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system. A reduction in lift accomplishes the following:',
-		'Reduces the overall work required by the compressors',
-		'Increases compressor capacity',
-		'Increases overall system efficiency',
-	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: {
-		title: 'AGROPUR: REFRIGERATION UPGRADES',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/agropur-refrigeration-upgrades',
-		text: 'Le Sueur Cheese is one of seven Agropur cheese and whey protein drying plants in the United States. In 2010, Le Sueur Cheese joined the Better Buildings, Better Plants program and set a goal to reduce its energy intensity by 25% over a 10-year period.'
-	},
-	energySavingsPreviewButton: {
-		text: '5.0%',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-});
+// Projects[Pages.refrigerationUpgrade] = new ProjectControl({
+// 	pageId: Pages.refrigerationUpgrade,
+// 	cost: 10_000,
+// 	statsInfoAppliers: {
+// 		electricityUseKWh: relative(-0.05),
+// 	},
+// 	statsActualAppliers: {
+// 		electricityUseKWh: relative(-0.05),
+// 	},
+// 	title: 'Refrigeration Upgrade',
+// 	shortTitle: 'Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system which help in reducing load on the comrpessor and increasing overall system effieicny.',
+// 	choiceInfoText: [
+// 		'The plant commissioned a study in June of 2017 to identify areas to improve energy efficiency. Previously, suction pressure was being run at 20.4 PSI to build the ice in the ice bank to optimal levels. In order to increase the efficiency of the system, it was decided to increase the ammonia suction pressure to 35.6 PSI, which is the pressure going into the compression step of the refrigeration cycle. Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system. A reduction in lift accomplishes the following:',
+// 		'Reduces the overall work required by the compressors',
+// 		'Increases compressor capacity',
+// 		'Increases overall system efficiency',
+// 	],
+// 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+// 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: {
+// 		title: 'AGROPUR: REFRIGERATION UPGRADES',
+// 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/agropur-refrigeration-upgrades',
+// 		text: 'Le Sueur Cheese is one of seven Agropur cheese and whey protein drying plants in the United States. In 2010, Le Sueur Cheese joined the Better Buildings, Better Plants program and set a goal to reduce its energy intensity by 25% over a 10-year period.'
+// 	},
+// 	energySavingsPreviewButton: {
+// 		text: '5.0%',
+// 		variant: 'text',
+// 		startIcon: <BoltIcon />,
+// 	},
+// });
 
 Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	pageId: Pages.loweringCompressorPressure,
-	cost: 5_000,
+	cost: 3_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-150_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-150_000),
 	},
 	title: 'Lowering Compressor Pressure',
 	shortTitle: 'Lowering compressd air pressure results in energy savings',
@@ -1176,7 +1179,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 		text: 'Compressed air provides a safe and reliable source of pneumatic pressure for a wide range of industrial processes. However, with over 80% of its input energy being lost as heat, air compressors are naturally inefficient. Energy-Efficient process design should opt for alternatives wherever possible and isolate compressed air usage to only processes that mandate it.'
 	},
 	energySavingsPreviewButton: {
-		text: '2.0%',
+		text: '0.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1186,10 +1189,10 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
 	cost: 50_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(450_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(450_000),
 	},
 	statsRecapAppliers: {
 		totalRebates: absolute(10_000),
@@ -1210,7 +1213,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors it can be higher.'
 	},
 	energySavingsPreviewButton: {
-		text: '4.0%',
+		text: '1.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1220,10 +1223,10 @@ Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
 	cost: 5_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.03),
+		electricityUseKWh: absolute(-225_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.03),
+		electricityUseKWh: absolute(-225_000),
 	},
 	title: 'Start Shut-off Program',
 	shortTitle: 'Start program to shut-off equipment when not in use.',
@@ -1240,7 +1243,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
-		text: '3.0%',
+		text: '0.75%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1248,12 +1251,12 @@ Projects[Pages.startShutOff] = new ProjectControl({
 
 Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
-	cost: 20_000,
+	cost: 30_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-300_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-300_000),
 	},
 	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
@@ -1274,20 +1277,22 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
 	energySavingsPreviewButton: {
-		text: '4.0%',
+		text: '1.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+
 });
 
 Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
-	cost: 20_000,
+	cost: 40_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-450_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-450_000),
 	},
 	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
@@ -1308,21 +1313,22 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
 	energySavingsPreviewButton: {
-		text: '4.0%',
+		text: '1.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.installVFDs1)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+
 });
 
 Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
-	cost: 20_000,
+	cost: 100_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-900_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.04),
+		electricityUseKWh: absolute(-900_000),
 	},
 	statsRecapAppliers: {
 		totalRebates: absolute(5_000),
@@ -1343,11 +1349,11 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
 	energySavingsPreviewButton: {
-		text: '4.0%',
+		text: '3.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.installVFDs2)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
 
 });
 
@@ -1355,10 +1361,10 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
 	cost: 1_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.005),
+		electricityUseKWh: absolute(-75_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.005),
+		electricityUseKWh: absolute(-75_000),
 	},
 	title: 'Reduce Fan Speeds',
 	shortTitle: 'Run interior fans at a slightly lower speed.',
@@ -1375,7 +1381,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
-		text: '0.5%',
+		text: '0.25%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1385,10 +1391,10 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
 	cost: 3_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-150_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.02),
+		electricityUseKWh: absolute(-150_000),
 	},
 	title: 'Lighting Occupancy Sensors',
 	shortTitle: 'Turn off lights in unoccupied areas of facility',
@@ -1405,7 +1411,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
-		text: '2.0%',
+		text: '.50%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
