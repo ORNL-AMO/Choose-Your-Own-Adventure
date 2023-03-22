@@ -56,6 +56,7 @@ export interface TrackedStats {
 	 * year to display for two year intervals
 	 */
 	yearInterval: number;
+	gameYears?: number;
 }
 
 /**
@@ -115,7 +116,6 @@ export function calculateEmissions(stats: TrackedStats): number {
 }
 
 export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats: TrackedStats) {
-	console.log('setCarbonEmissionsAndSavings newStats', JSON.parse(JSON.stringify(newStats)))
 
 	if (newStats.absoluteCarbonSavings) {
 		newStats.carbonEmissions = newStats.carbonEmissions + newStats.absoluteCarbonSavings;

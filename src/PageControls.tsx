@@ -128,11 +128,11 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
 			choices: [
 				Projects[Pages.steamTrapsMaintenance].getProjectChoiceControl(),
 				Projects[Pages.wasteHeatRecovery].getProjectChoiceControl(),
-				Projects[Pages.digitalTwinAnalysis].getProjectChoiceControl(),
+				// Projects[Pages.digitalTwinAnalysis].getProjectChoiceControl(),
 				Projects[Pages.processHeatingUpgrades].getProjectChoiceControl(),
 				Projects[Pages.airHandingUnitUpgrades].getProjectChoiceControl(),								
 				Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),
-				Projects[Pages.condensingEconomizerInstallation].getProjectChoiceControl(),		
+				// Projects[Pages.condensingEconomizerInstallation].getProjectChoiceControl(),		
 				Projects[Pages.boilerControl].getProjectChoiceControl(),			
 				Projects[Pages.improvePipeInsulation].getProjectChoiceControl(),	
 			]
@@ -161,13 +161,13 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		{
 			title: 'Invest in energy efficiency',
 			choices: [
-				Projects[Pages.lightingUpgrades].getProjectChoiceControl(),	
+				// Projects[Pages.lightingUpgrades].getProjectChoiceControl(),	
 				Projects[Pages.airHandingUnitUpgrades].getProjectChoiceControl(),								
 				Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),		
 				Projects[Pages.compressedAirSystemImprovemnt].getProjectChoiceControl(),			
-				Projects[Pages.compressedAirSystemOptimization].getProjectChoiceControl(),			
+				// Projects[Pages.compressedAirSystemOptimization].getProjectChoiceControl(),			
 				Projects[Pages.chilledWaterMonitoringSystem].getProjectChoiceControl(),			
-				Projects[Pages.refrigerationUpgrade].getProjectChoiceControl(),			
+				// Projects[Pages.refrigerationUpgrade].getProjectChoiceControl(),			
 				Projects[Pages.loweringCompressorPressure].getProjectChoiceControl(),				
 				Projects[Pages.improveLightingSystems].getProjectChoiceControl(),								
 				Projects[Pages.startShutOff].getProjectChoiceControl(),		

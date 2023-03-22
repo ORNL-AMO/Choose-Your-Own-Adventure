@@ -491,21 +491,24 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let budget = 0;
 		let naturalGas = 0;
 		let electricity = 0;
+		let gameYears = 1;
 		if(totalYearIterations == 5) {
 			budget = 150_000;
-			naturalGas = 300_000;
-			electricity = 80_000_000;
+			naturalGas = 240_000;
+			electricity = 60_000_000;
+			gameYears = 2;
 		}
 		if ( totalYearIterations == 10) {
 			budget = 75_000;
-			naturalGas = 150_000;
-			electricity = 40_000_000;
+			naturalGas = 120_000;
+			electricity = 30_000_000;
 		}
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
 		updatingInitialTrackedStats.totalBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		updatingInitialTrackedStats.gameYears = gameYears
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
 		this.setState({
 			trackedStats: updatingInitialTrackedStats,
