@@ -577,6 +577,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 								</>
 								: <></>}
 							{this.state.showDashboard ?
+							<>
 								<Dashboard
 									{...this.state.trackedStats}
 									{...controlCallbacks}
@@ -585,11 +586,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/>
-								: <></>}
-							{this.state.showDashboard ?
 								<ScopeTabs
 									handleChangeScopeTabs={(newValue) => this.handleChangeScopeTabs(newValue)} 
 								/>
+							</>
 								: <></>}
 							{(this.state.currentPageProps && this.state.componentClass) ?
 								<CurrentPage
