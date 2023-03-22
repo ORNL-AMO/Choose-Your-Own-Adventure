@@ -550,6 +550,18 @@ export class ProjectControl implements ProjectControlParams {
 					return state.currentPage;
 				}
 
+				
+				let projectImplementationLimit = 5;
+				let overLimitMsg = 'Due to manpower limitations, you cannot select more than 5 projects per year';
+				if (state.gameSettings.totalIterations === 5) {
+					projectImplementationLimit = 10;
+					overLimitMsg = 'Due to manpower limitations, you cannot select more than 10 projects per budget period';
+				}
+				if (implementedProjects.length >= projectImplementationLimit) {
+					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
+					return state.currentPage;
+				}
+
 				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
 				if (!hasAbsoluteCarbonSavings) {

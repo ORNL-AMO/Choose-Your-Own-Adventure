@@ -345,6 +345,31 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		return (
 			<>
+			<Divider/>
+			<MobileStepper
+					variant='progress'
+					steps={this.props.totalIterations}
+					position='static'
+					activeStep={this.props.year - 1}
+					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+					sx={{ padding: '.75rem' }}
+					backButton={<Box sx={{ width: 180 }}></Box>}
+					nextButton={
+						<Button
+							variant='outlined'
+							size='medium'
+							onClick={() => this.props.handleYearRecap(mutableStats)}
+							endIcon={rightArrow()}
+						>
+							{this.props.totalIterations == 5 &&								
+								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+							}
+							{this.props.totalIterations == 10 &&								
+								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+							}
+						</Button>
+					}
+				/>
 				<Box m={2}>
 					{this.props.totalIterations == 5 &&
 						<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
@@ -455,31 +480,33 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								</Table>
 							</TableContainer>
 						</Box>
+						<MobileStepper
+							variant='progress'
+							steps={this.props.totalIterations}
+							position='static'
+							activeStep={this.props.year - 1}
+							LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+							sx={{ padding: '.75rem' }}
+							backButton={<Box sx={{ width: 180 }}></Box>}
+							nextButton={
+								<Button
+									variant='outlined'
+									size='medium'
+									onClick={() => this.props.handleYearRecap(mutableStats)}
+									endIcon={rightArrow()}
+								>
+									{this.props.totalIterations == 5 &&								
+										<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+									}
+									{this.props.totalIterations == 10 &&								
+										<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+									}
+								</Button>
+							}
+						/>
 					</>
 					}
 				</Box>
-				<MobileStepper
-					variant='progress'
-					steps={this.props.totalIterations}
-					position='static'
-					activeStep={this.props.year - 1}
-					backButton={<Box sx={{ width: 180 }}></Box>}
-					nextButton={
-						<Button
-							sx={{ width: 180 }}
-							variant='text'
-							onClick={() => this.props.handleYearRecap(mutableStats)}
-							endIcon={rightArrow()}
-						>
-							{this.props.totalIterations == 5 &&								
-								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
-							}
-							{this.props.totalIterations == 10 &&								
-								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
-							}
-						</Button>
-					}
-				/>
 			</>
 		);
 	}
