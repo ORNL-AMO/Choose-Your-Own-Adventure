@@ -42,8 +42,10 @@ export type AppState = {
 	// * subsequent years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
 	yearRangeInitialStats: TrackedStats[];
 	showDashboard: boolean;
+	// * Projects that have been selected to implement
 	implementedProjects: symbol[];
 	allowImplementProjects: symbol[];
+	// * Implemented/selected projects from the previous year
 	completedProjects: CompletedProject[];
 	selectedProjectsForComparison: SelectedProject[];
 	lastScrollY: number;
@@ -441,15 +443,19 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setState(onBackState);
 	}
 
-	/**
-	 * Proceed to the next year.\
-	 * JL note: I know it's spaghetti.... but i only had a few hours to add the hidden surprise stuff
-	 * @param yearFinalStats The final stats for the year, including calculated hidden surprises.
-	 */
 	handleYearRecapOnProceed(currentYearStats: TrackedStats) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.year - 1];
 		if (!thisYearStart) throw new TypeError(`thisYearStart not defined - year=${currentYearStats.year}`);
 
+		let implementedProjects: symbol[] = [...this.state.implementedProjects];
+		const projectsRequireRenewal: symbol[] = implementedProjects.filter(projectSymbol => {
+			return Projects[projectSymbol].renewalRequired;
+		});
+
+		if (projectsRequireRenewal.length !== 0) {
+			this.resetRenewableProjects(implementedProjects, projectsRequireRenewal, currentYearStats);
+		}
+				
 		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		let savings: { naturalGas: number; electricity: number; } = calculateYearSavings(thisYearStart, currentYearStats);
 		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + savings.electricity + savings.naturalGas;
@@ -464,7 +470,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		// Move implementedProjects into completedProjects
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
-		let implementedProjects: symbol[] = [...this.state.implementedProjects];
 		implementedProjects.forEach(selected => newCompletedProjects.push({ selectedYear: currentYearStats.year, page: selected }));
 		// Update yearRangeInitialStats
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
@@ -528,6 +533,27 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	
+	
+	/**
+	 * Reset stats from projects that must be re-implemented each year
+	 * Costs are updated in handleYearRecapOnProcced
+	 */
+	resetRenewableProjects(implementedProjects: Array<symbol>, projectsRequireRenewal: Array<symbol>, newYearTrackedStats: TrackedStats) {
+		for (let i = implementedProjects.length - 1; i >= 0; i--) {
+			let pageId = implementedProjects[i];
+			Projects[pageId].unApplyStatChanges(newYearTrackedStats);
+		}
+		projectsRequireRenewal.forEach(projectSymbol => {
+			implementedProjects.splice(implementedProjects.indexOf(projectSymbol), 1);
+		});
+
+		for (let i = 0; i < implementedProjects.length; i++) {
+			let pageId = implementedProjects[i];
+			Projects[pageId].applyStatChanges(newYearTrackedStats);
+		}
+		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
+	}
+
 	render() {
 		// Standard callbacks to spread to each control.
 		const controlCallbacks: ControlCallbacks = {

@@ -186,7 +186,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 		}, {
 			title: 'Un-bundled RECs',
 			choices: [
-				Projects[Pages.windVPPA].getProjectChoiceControl(),
+				Projects[Pages.smallVPPA].getProjectChoiceControl(),
 			]
 		}
 	],
