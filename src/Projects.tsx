@@ -34,7 +34,7 @@ export const Scope1Projects = [
  * List of Page symbols for projects that are in the SCOPE 2 list.
  */
 export const Scope2Projects = [
-	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.smallVPPA, Pages.solarPanelsCarPort, Pages.solarFieldOnsite, Pages.airHandingUnitUpgrades, Pages.advancedEnergyMonitoring, Pages.compressedAirSystemImprovemnt, Pages.compressedAirSystemOptimization, Pages.chilledWaterMonitoringSystem, Pages.refrigerationUpgrade, Pages.loweringCompressorPressure, Pages.improveLightingSystems, Pages.startShutOff, Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3, Pages.reduceFanSpeeds, Pages.lightingOccupancySensors
+	Pages.lightingUpgrades, Pages.greenPowerTariff, Pages.smallVPPA, Pages.midSolar, Pages.solarPanelsCarPort, Pages.solarFieldOnsite, Pages.airHandingUnitUpgrades, Pages.advancedEnergyMonitoring, Pages.compressedAirSystemImprovemnt, Pages.compressedAirSystemOptimization, Pages.chilledWaterMonitoringSystem, Pages.refrigerationUpgrade, Pages.loweringCompressorPressure, Pages.improveLightingSystems, Pages.startShutOff, Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3, Pages.reduceFanSpeeds, Pages.lightingOccupancySensors
 ];
 
 /**
@@ -558,11 +558,11 @@ export class ProjectControl implements ProjectControlParams {
 				}
 
 				
-				let projectImplementationLimit = 5;
-				let overLimitMsg = 'Due to manpower limitations, you cannot select more than 5 projects per year';
+				let projectImplementationLimit = 4;
+				let overLimitMsg = 'Due to manpower limitations, you cannot select more than 4 projects per year';
 				if (state.gameSettings.totalIterations === 5) {
-					projectImplementationLimit = 10;
-					overLimitMsg = 'Due to manpower limitations, you cannot select more than 10 projects per budget period';
+					projectImplementationLimit = 6;
+					overLimitMsg = 'Due to manpower limitations, you cannot select more than 6 projects per budget period';
 				}
 				if (implementedProjects.length >= projectImplementationLimit) {
 					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
@@ -1430,14 +1430,10 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	renewalRequired: true,
 	cost: 75_000,
 	statsInfoAppliers: {
-		// electricityUseKWh: relative(-0.05),
-		// naturalGasMMBTU: relative(-0.05),
-		// absoluteCarbonSavings: absolute(1_200_000);
+		absoluteCarbonSavings: absolute(-1_200_000)
 	},
 	statsActualAppliers: {
-		// electricityUseKWh: relative(-0.05),
-		// naturalGasMMBTU: relative(-0.05),
-		// absoluteCarbonSavings: absolute(1_200_000);
+		absoluteCarbonSavings: absolute(-1_200_000)
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset 10% of your electricity emissions. YOU MUST RENEW THIS PROJECT ANNUALLY',
@@ -1448,7 +1444,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
-		text: '1,200,000',
+		text: '6.5%',
 		variant: 'text',
 		startIcon: <Co2Icon/>,
 	},
@@ -1459,13 +1455,13 @@ Projects[Pages.midSolar] = new ProjectControl({
 	renewalRequired: true,
 	cost: 100_000,
 	statsInfoAppliers: {
-		// absoluteCarbonSavings: absolute(1_717_000);
+		absoluteCarbonSavings: absolute(-1_717_000)
 	},
 	statsActualAppliers: {
-		// absoluteCarbonSavings: absolute(1_717_000);
+		absoluteCarbonSavings: absolute(-1_717_000)
 	},
-	title: 'Enter a PPPA with your local utility to build a 2MW rooftop solar array. YOU MUST RENEW THIS PROJECT ANNUALLY.',
-	shortTitle: 'Invest in wind VPPA to offset 10% of your electricity emissions. YOU MUST RENEW THIS PROJECT ANNUALLY',
+	title: 'Mid Solar',
+	shortTitle: 'Enter a PPPA with your local utility to build a 2MW rooftop solar array. YOU MUST RENEW THIS PROJECT ANNUALLY.',
 	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing your rooftop to your utility for solar panels and receiving the electricity as a lease to own agreement (NEED TO GET THE NAMING CONVENTIONS CORRECT). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system without interfering with your existing roof infrastructure. Working with upper management, you work out a deal where half of the project costs come from your budget and the other half from a corporate budget. You will be paying for this project for the next 10 years, so YOU MUST RENEW THIS PROJECT ANNUALLY.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
@@ -1473,7 +1469,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
-		text: '1,717,000',
+		text: '9.3%',
 		variant: 'text',
 		startIcon: <Co2Icon/>,
 	},

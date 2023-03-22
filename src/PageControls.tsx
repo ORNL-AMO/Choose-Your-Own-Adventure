@@ -182,6 +182,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 			choices: [
 				Projects[Pages.solarPanelsCarPort].getProjectChoiceControl(),
 				Projects[Pages.solarFieldOnsite].getProjectChoiceControl(),
+				Projects[Pages.midSolar].getProjectChoiceControl(),								
 			]
 		}, {
 			title: 'Un-bundled RECs',

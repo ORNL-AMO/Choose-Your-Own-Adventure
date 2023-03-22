@@ -33,7 +33,6 @@ rules:
   '@typescript-eslint/consistent-type-imports': error
   '@typescript-eslint/no-inferrable-types': warn
   'react/prop-types': warn
-  "@typescript-eslint/no-inferrable-types": warn
   '@typescript-eslint/no-this-alias':
     - off # temp
     - 
