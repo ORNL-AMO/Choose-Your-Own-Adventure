@@ -496,13 +496,13 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let electricity = 0;
 		if(totalYearIterations == 5) {
 			budget = 150_000;
-			naturalGas = 4_000;
-			electricity = 4_000_000;
+			naturalGas = 240_000;
+			electricity = 60_000_000;
 		}
 		if ( totalYearIterations == 10) {
 			budget = 75_000;
-			naturalGas = 2_000;
-			electricity = 2_000_000;
+			naturalGas = 120_000;
+			electricity = 30_000_000;
 		}
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
 		updatingInitialTrackedStats.totalBudget = budget;
