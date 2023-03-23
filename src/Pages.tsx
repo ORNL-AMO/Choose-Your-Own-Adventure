@@ -25,7 +25,8 @@ const Pages = {
 	// below: scope 2 projects
 	lightingUpgrades: Symbol('explore-lighting-upgrades'),
 	greenPowerTariff: Symbol('green-power-tariff'),
-	windVPPA: Symbol('wind-vppa'),
+	smallVPPA: Symbol('wind-vppa'),
+	midSolar: Symbol('mid-solar'),
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
 	solarFieldOnsite: Symbol('solar-field-onsite'),
 	airHandingUnitUpgrades: Symbol('air-handing-unit-upgrades'),
