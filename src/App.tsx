@@ -9,11 +9,11 @@ import '@fontsource/roboto/700.css';
 import type { PageControlProps, ControlCallbacks } from './components/controls';
 import { StartPage } from './components/StartPage';
 import type { StartPageProps } from './components/StartPage';
+import { calculateEmissions } from './trackedStats';
 import type { TrackedStats } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { calculateYearSavings } from './trackedStats';
-import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
-import { initialTrackedStats } from './trackedStats';
+import { initialTrackedStats, setCarbonEmissionsAndSavings } from './trackedStats';
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
@@ -262,12 +262,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
 
 			if (newStateParams['trackedStats']) {
-				let newTrackedStats = setCarbonEmissionsAndSavings(newStateParams['trackedStats'], this.state.defaultTrackedStats );
+				let newTrackedStats = newStateParams['trackedStats'];
 				newStateParams['trackedStats'] = newTrackedStats;
-				// Sanity check!
-				if (newTrackedStats.financesAvailable + newTrackedStats.moneySpent !== newTrackedStats.totalBudget) {
-					console.error(`Error with finances sanity check! financesAvailable=${newTrackedStats.financesAvailable}, moneySpent=${newTrackedStats.moneySpent} totalBudget=${newTrackedStats.totalBudget}`);
-				}
 				// Update max values for gauges in case they increased
 				updateStatsGaugeMaxValues(newTrackedStats);
 			}
@@ -431,7 +427,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 				let project = Projects[projectSymbol];
 				project.applyStatChanges(statsForResultDisplay);
 			});
-			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats );
+
+			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats); 
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
 
@@ -494,22 +491,26 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let budget = 0;
 		let naturalGas = 0;
 		let electricity = 0;
+		let gameYears = 1;
 		if(totalYearIterations == 5) {
 			budget = 150_000;
-			naturalGas = 4_000;
-			electricity = 4_000_000;
+			naturalGas = 240_000;
+			electricity = 60_000_000;
+			gameYears = 2;
 		}
 		if ( totalYearIterations == 10) {
 			budget = 75_000;
-			naturalGas = 2_000;
-			electricity = 2_000_000;
+			naturalGas = 120_000;
+			electricity = 30_000_000;
 		}
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
 		updatingInitialTrackedStats.totalBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		updatingInitialTrackedStats.gameYears = gameYears;
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
+		console.log('starting emissions', updatingInitialTrackedStats.carbonEmissions);
 		this.setState({
 			trackedStats: updatingInitialTrackedStats,
 			yearRangeInitialStats: [

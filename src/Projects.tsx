@@ -17,6 +17,7 @@ import { Alert } from '@mui/material';
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import Co2Icon from '@mui/icons-material/Co2';
+import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
 
 
 // IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
@@ -261,7 +262,9 @@ export class ProjectControl implements ProjectControlParams {
 		for (let key in this.statsActualAppliers) {
 			let thisApplier = this.statsActualAppliers[key];
 			if (!thisApplier) return;
-			mutableStats[key] = thisApplier.applyValue(mutableStats[key]);
+			let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined; 
+			console.log(key, thisApplier.isAbsolute)
+			mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
 		}
 		// Now, apply the change to finances
 		this.applyCost(mutableStats);
@@ -286,7 +289,9 @@ export class ProjectControl implements ProjectControlParams {
 		for (let key in this.statsActualAppliers) {
 			let thisApplier = this.statsActualAppliers[key];
 			if (!thisApplier) return;
-			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key]);
+			let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined; 
+			console.log(key, thisApplier.isAbsolute)
+			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
 		}
 		// Now, apply the change to finances
 		this.unApplyCost(mutableStats);
@@ -525,6 +530,7 @@ export class ProjectControl implements ProjectControlParams {
 			let implementedProjects = state.implementedProjects.slice();
 			let newTrackedStats = { ...state.trackedStats };
 			// IF PROJECT IS ALREADY SELECTED
+			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
 			if (implementedProjects.includes(self.pageId)) {
 				// Since the order of projects matters, we can't simply unApplyChanges to ourself.
 				// 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
@@ -550,9 +556,13 @@ export class ProjectControl implements ProjectControlParams {
 
 				implementedProjects.push(self.pageId);
 				self.applyStatChanges(newTrackedStats);
+				if (!hasAbsoluteCarbonSavings) {
+					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
+				} 
 				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-
 			}
+			
+			newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
 			nextState.implementedProjects = implementedProjects;
 			nextState.trackedStats = newTrackedStats;
 
@@ -560,6 +570,7 @@ export class ProjectControl implements ProjectControlParams {
 		}
 	}
 }
+
 
 /* -======================================================- */
 //                   PROJECT CONTROLS
@@ -755,12 +766,15 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
-	cost: 150_000,
+	cost: 50_000,
 	statsInfoAppliers: {
-		electricityUseKWh: relative(-0.125),
+		// electricityUseKWh: relative(-0.125),
+		// todo 81 testing
+		absoluteCarbonSavings: absolute(-300_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: relative(-0.125),
+		absoluteCarbonSavings: absolute(-300_000),
+		// electricityUseKWh: relative(-0.125),
 	},
 	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),
@@ -974,10 +988,13 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
 	cost: 10_000,
 	statsInfoAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		// naturalGasMMBTU: relative(-0.03),
+		// todo 81
+		absoluteCarbonSavings: absolute(-200_000),
 	},
 	statsActualAppliers: {
-		naturalGasMMBTU: relative(-0.03),
+		absoluteCarbonSavings: absolute(-200_000),
+		// naturalGasMMBTU: relative(-0.03),
 	},
 	title: 'Improve Pipe Insulation ',
 	shortTitle: 'Insulate exterior steam pipes.',
@@ -1393,7 +1410,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 
 Projects[Pages.windVPPA] = new ProjectControl({
 	pageId: Pages.windVPPA,
-	cost: 40000,
+	cost: 40_000,
 	statsInfoAppliers: {
 		electricityUseKWh: relative(0),
 	},
@@ -1420,12 +1437,14 @@ Projects[Pages.windVPPA] = new ProjectControl({
  * A "class" that can apply or un-apply a numerical modifier with a custom formula.
  */
 export declare interface NumberApplier {
-	applyValue: (previous: number) => number;
-	unApplyValue: (previous: number) => number;
+	applyValue: (previous: number, gameYears?: number) => number;
+	unApplyValue: (previous: number, gameYears?: number) => number;
 	/**
 	 * Returns the original modifier.
 	 */
 	modifier: number;
+	isAbsolute?: boolean;
+
 	/**
 	 * Turns the NumberApplier into a string, optionally multiplying it by -1 first.
 	 */
@@ -1481,13 +1500,24 @@ function relative(modifier: number): NumberApplier {
  */
 function absolute(modifier: number): NumberApplier {
 	const thisApplier: NumberApplier = {
-		applyValue: function (previous: number) {
-			return round(previous + this.modifier);
+		applyValue: function (previous: number, gameYears?: number) {
+			let modifier = this.modifier;
+			if (gameYears) {
+				modifier = gameYears * (this.modifier);
+			}
+			console.log('apply', modifier)
+			return round(previous + modifier);
 		},
-		unApplyValue: function (previous: number) {
-			return round(previous - this.modifier);
+		unApplyValue: function (previous: number, gameYears?: number) {
+			let modifier = this.modifier;
+			if (gameYears) {
+				modifier = gameYears * (this.modifier);
+			}
+			console.log('unapply', modifier)
+			return round(previous - modifier);
 		},
 		modifier: modifier,
+		isAbsolute: true,
 		toString: function (negative: boolean) {
 			if (negative)
 				return (-1 * this.modifier).toLocaleString('en-US');
