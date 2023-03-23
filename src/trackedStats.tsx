@@ -107,7 +107,7 @@ function calculateEmissions(stats: TrackedStats): number {
  */
 export function calculateAutoStats(newStats: TrackedStats) {
 	newStats.carbonEmissions = calculateEmissions(newStats);
-	let newSavings = (initialTrackedStats.carbonEmissions - newStats.carbonEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
+	let newSavings = (initialTrackedStats.carbonEmissions - newStats.carbonEmissions) / (initialTrackedStats.carbonEmissions); 
 	newStats.carbonSavings = newSavings;
 	return newStats;
 }

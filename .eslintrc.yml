@@ -21,7 +21,6 @@ rules:
   no-debugger: warn
   no-unused-vars: off
   no-mixed-spaces-and-tabs: warn
-  no-inferrable-types: warn
   jsx-quotes:
     - error
     - prefer-single
@@ -33,6 +32,7 @@ rules:
   '@typescript-eslint/ban-ts-comment': warn
   '@typescript-eslint/consistent-type-imports': error
   'react/prop-types': warn
+  "@typescript-eslint/no-inferrable-types": warn
   '@typescript-eslint/no-this-alias':
     - off # temp
     - 
