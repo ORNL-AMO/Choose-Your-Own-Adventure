@@ -587,20 +587,21 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
     pageId: Pages.wasteHeatRecovery,
     // project cost, in dollars
     cost: 210_000,
-    // Stats that appear in the CARDS inside the INFO DIALOG.
+    // Stats that appear in the CARDS inside the INFO DIALOG. These should mirror ActualAppliers 
     statsInfoAppliers: {
         naturalGasMMBTU: absolute(-14_400),
     },
-    // Stats that 
+    // statsActualAppliers should mirror 
     statsActualAppliers: {
         naturalGasMMBTU: absolute(-14_400),
     },
-    // Stats that are HIDDEN until AFTER the user commits to the next year. 
+    // Stats / Surprises that are applied in Year Recap. 
     statsRecapAppliers: {
         totalRebates: absolute(5_000),
     },
     title: 'Energy Efficiency - Waste Heat Recovery',
     shortTitle: 'Upgrade heat recovery on boiler/furnace system',
+	// bracketed words show as bold emphasis in the app 
     choiceInfoText: [
         'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system',
         'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
