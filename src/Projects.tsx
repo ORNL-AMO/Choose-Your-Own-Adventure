@@ -599,12 +599,12 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
     statsRecapAppliers: {
         totalRebates: absolute(5_000),
     },
-    title: 'Energy Efficiency - Waste Heat Recovery',
-    shortTitle: 'Upgrade heat recovery on boiler/furnace system',
+    title: 'Waste Heat Recovery',
+    shortTitle: 'Install waste heat recovery to preheat boiler water',
 	// bracketed words show as bold emphasis in the app 
     choiceInfoText: [
-        'Currently, your facility uses {inefficient, high-volume} furnace technology, where {combustion gases} are evacuated through a side take-off duct into the emission control system',
-        'You can invest in capital improvements to {maximize waste heat recovery} at your facility through new control system installation and piping upgrades.'
+        'Your plant’s boilers currently pull water in directly from the plant water inlet.',
+	    'Installing a waste heat recovery system to preheat the water would reduce the amount of natural gas required by the system.'
     ],
     recapDescription: 'Insert flavor text here!',
     choiceInfoImg: 'images/waste-heat-recovery.png',
@@ -670,8 +670,8 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
         electricityUseKWh: absolute(-300_000),
         naturalGasMMBTU: absolute(-3000),
     },
-    title: 'Energy Efficiency – Process Heating Upgrades',
-    shortTitle: 'Explore efficient process heating upgrades',
+    title: 'Paint Booth Upgrades',
+    shortTitle: 'Explore upgrades for entire paint process system',
     choiceInfoText: [
         'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
         'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
@@ -757,11 +757,11 @@ Projects[Pages.electricBoiler] = new ProjectControl({
         electricityUseKWh: absolute(200_000),
         naturalGasMMBTU: absolute(-20_000),
     },
-    title: 'Fuel Switching - Fossel Fuel to Electric Boiler',
-    shortTitle: 'Change fossil fuel boiler to an electric boiler',
+    title: 'Fossel Fuel to Electric Boiler',
+    shortTitle: 'Replace old fossil fuel boiler with an electric boiler',
     choiceInfoText: [
-        'Currently, your facility operates two 700-hp firetube boilers that burn {No. 2 oil}, which releases CO_{2} into the atmosphere.',
-        'You have the opportunity to replace your oil-firing boiler with an {electric} one, which will {prevent} direct carbon emissions, {minimize} noise pollution, and {reduce} air contaminants.',
+        'The smaller of your two boilers is older and near ready for replacement.  You can replace that boiler with an electric providing the same steam pressure, temperature and rate. ',
+	    'As the boiler needs replacing soon, corporate has agreed to pay for part of this project out of capital funds, leaving you with about half the total installed cost.'
     ],
     recapDescription: 'Insert flavor text here!',
     // add case study
@@ -770,10 +770,10 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
     pageId: Pages.solarPanelsCarPort,
     cost: 150_000,
     statsInfoAppliers: {
-        electricityUseKWh: relative(-0.125),
+        electricityUseKWh: absolute(-537_000),
     },
     statsActualAppliers: {
-        electricityUseKWh: relative(-0.125),
+        electricityUseKWh: absolute(-537_000),
     },
     statsRecapAppliers: {
         financesAvailable: absolute(-30_000),
@@ -788,11 +788,12 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
             color: 'rgb(255 135 33)',
         }
     }],
-    title: 'Bundled RECs - Install Solar Panels to Facility\'s Carport',
-    shortTitle: 'Install solar panels to facility\'s carport',
+    title: 'Small Carport Solar Installation',
+    shortTitle: 'Install solar panels on new facility carport',
     choiceInfoText: [
-        'You have the opportunity to add solar panels to your facility’s carport, which could yield significant {utility savings}, while providing {clean energy} to your facility.',
-        'This project would include under-canopy LED lighting system installation and installation of a custom-designed carport structure.'
+        'You decided to look into installing a small covered carport with a solar electricity generation system.',
+	    'Given the sizing of your parking lot and available room, you decide on a 0.25 MW system and using parking in the carport as an incentive to well performing or energy saving employees.  You decide to pay for the carport outright and not via a power purchase agreement.,'
+	    'You will recieve {CREDITs} to your budget for the energy generated (and not purchased).'
     ],
     choiceInfoImg: 'images/solar-panels.png',
     choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
@@ -802,24 +803,54 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
         url: 'https://www.agt.com/portfolio-type/lockheed-martin-solar-carport/',
         text: 'In 2017, {Lockheed Martin} installed a 4-acre solar carport and was able to provide {3,595,000} kWh/year, or enough electricity to power almost {500 homes} annually.',
     },
+		energySavingsPreviewButton: {
+		text: '1.8%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
 });
-Projects[Pages.solarFieldOnsite] = new ProjectControl({
-    pageId: Pages.solarFieldOnsite,
-    cost: 150_000,
-    statsInfoAppliers: {},
-    statsActualAppliers: {},
-    title: 'Bundled RECs – Build Solar Field Onsite',
-    shortTitle: 'Build solar field onsite',
-    choiceInfoText: [
-        'There is {suitable, unused} land next to your facility where weather conditions are ideal for installing ground-mounted solar panels.',
-        'These solar panels could generate around {1 MWh} of electricity per year, which would {reduce} your facility’s carbon footprint by generating {zero-emission} renewable electricity.'
-    ],
-    choiceInfoImg: 'images/solar-field.jpg',
-    choiceInfoImgAlt: 'A field of solar panels.',
-    recapDescription: 'Insert flavor text here!',
-    // todo case study
-    visible: state => state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort)
+Projects[Pages.solarPanelsCarportMaintenance] = new ProjectControl({
+	pageId: Pages.solarPanelsCarportMaintenance,
+	renewalRequired: true,
+	cost: 10_000,
+    statsInfoAppliers: {
+        electricityUseKWh: absolute(-537_000),
+    },
+    statsActualAppliers: {
+        electricityUseKWh: absolute(-537_000),
+    },
+	title: 'Carport Solar - Maintenance',
+	shortTitle: 'Continue receiving energy from your solar generation. YOU CAN SELECT THIS ANNUALLY.',
+	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. YOU MUST SELECT THIS PROJECT EVERY YEAR to continue recieving the energy credits.'],
+	choiceInfoImg: '',
+	choiceInfoImgAlt: '',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewButton: {
+		text: '1.8%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},
 });
+
+//Projects[Pages.solarFieldOnsite] = new ProjectControl({
+//    pageId: Pages.solarFieldOnsite,
+//    cost: 150_000,
+//    statsInfoAppliers: {},
+//    statsActualAppliers: {},
+//    title: 'Bundled RECs – Build Solar Field Onsite',
+//    shortTitle: 'Build solar field onsite',
+//    choiceInfoText: [
+//        'There is {suitable, unused} land next to your facility where weather conditions are ideal for installing ground-mounted solar panels.',
+//        'These solar panels could generate around {1 MWh} of electricity per year, which would {reduce} your facility’s carbon footprint by generating {zero-emission} renewable electricity.'
+//    ],
+//    choiceInfoImg: 'images/solar-field.jpg',
+//    choiceInfoImgAlt: 'A field of solar panels.',
+//    recapDescription: 'Insert flavor text here!',
+//    // todo case study
+//    visible: state => state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort)
+// });
 //Empty Projects Scope 1 yr1-yr5
 Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
     pageId: Pages.airHandingUnitUpgrades,
@@ -832,12 +863,12 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
         electricityUseKWh: absolute(-1_165_000),
         naturalGasMMBTU: absolute(-3600),
     },
-    title: 'Air Handing Unit Upgrades',
-    shortTitle: 'Automated AHU controls to manage airflow without ongoing plant operator managing the settings',
+    title: 'Install automated controls for Air Handing Units',
+    shortTitle: 'Install automated AHU controls to manage airflow without requiring the plant operator to manage the settings.',
     choiceInfoText: [
-        'Facility funded a project to upgrade 35 more AHUs throughout the area of the plant.  The 35 AHUs deliver over 2.1 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality. The controls system will lower the speed of the AHU motors once set points are met.',
-        'This enables the temperature and humidity to be maintained while running the motors at a lower kilowatt (kW) load. Additionally, the controls include CO2 sensors to monitor air quality and adjust outdoor air ventilation accordingly. If the air quality is low based on higher CO2 levels, the dampers modulate open to bring in more outside air.',
-        'The AHU controls upgrade lowered the power demand of the 35 AHUs resulting in 480 kW of total load shed. The project is estimated to reduce the energy usage of the plant by over 4.8 million kWh or the equivalent of 1,800 metric tons of CO2 emissions. The success of the project has led the company to invest in AHU units in other facilities.'
+        'Your facilities has 20 AHUs that deliver over 1.2 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality.',
+	    'Upgrading the controls system will lower the speed of the AHU motors once set points are met, enabling the temperature and humidity to be maintained while running the motors at a lower kilowatt (kW) load.',
+	    'Additionally, the controls include CO2 sensors to monitor air quality and adjust outdoor air ventilation accordingly. '
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -866,10 +897,10 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
         // naturalGasMMBTU: relative(-0.03),
     },
     title: 'Advanced Energy monitoring with Wireless Submetering',
-    shortTitle: 'Reducing peak demand to reduced electricity use and cost',
+    shortTitle: 'Installing submeters and an energy monitoring system will allow for the identification of future projects.',
     choiceInfoText: [
-        'Installing submeters at every electrical and natural gas load in the plant is beneficial, but not economical or necessary. Enough submeters are installed so that the modeled energy consumption mimics the site’s actual energy curve. ',
-        'To determine which electrical loads the plant would benefit from determining the energy consumption of, a load profile that showed each electrical load and operational hours with the subsequent electricity consumption, cost, and savings if electricity consumption could be decreased by an assumed 5%. The loads resulting in savings that were more than the cost of a sensor were chosen as metering points.',
+        'Your plant has no monitoring of its electrical and natural gas load beyond their monthly utility bills. However, installing submeters at every electrical and natural gas load in the plant is not economical or necessary. ',
+        'It was determined that you only need enough submeters  installed so that the modeled energy consumption mimics the site’s actual energy curve. This project would first determine which electrical loads the plant would benefit from determining the energy consumption of:  a load profile was created showing each electrical load and operational hours with the subsequent electricity consumption, cost, and savings if electricity consumption could be decreased by an assumed 5%. The loads resulting in savings that were more than the cost of a sensor were chosen as metering points. Sites for 50 sensors were identified, covering over 75% of the facility load. While this project has no direct energy savings, it will allow for other projects to become available. ',
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -926,11 +957,11 @@ Projects[Pages.boilerControl] = new ProjectControl({
     statsActualAppliers: {
         naturalGasMMBTU: absolute(-9600),
     },
-    title: 'Boiler Control',
-    shortTitle: 'A combustion controller monitors the fuel-to-air ratio and optimizes excess oxygen in such a way as to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation. ',
+    title: 'Installing boiler monitors and control',
+    shortTitle: 'Install a combustion controller to monitor and optimize the fuel-to-air ratio to maximize the efficiency of the combustion process. ',
     choiceInfoText: [
-        'A combustion controller monitors the fuel-to-air ratio and optimizes excess oxygen in such a way as to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation. In addition, the flue gas recirculation fan improves performance by lowering the maximum flame temperature to the minimum required level.',
-        'The recirculation fan also reduces nitrogen oxide emissions by lowering the average oxygen content of the air. Optimizing the exhaust gas composition and minimizing the stack temperature reduces energy losses, minimizes O&M costs, and extends the useful lifetime of the boiler  Once implemented, the upgraded boiler controls yielded annual energy and energy cost savings of 11,000 MMBtu/year and $53,000. The boiler’s energy intensity also improved by 15.2%. With project implementation costs of $104,000 the project yielded a simple payback of just under 2 years ',
+        'Your larger boiler is older, but still well within its expected lifetime. Adding a combustion controller to monitor the fuel-to-air ratio and can allow you to optimize excess oxygen to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation.',
+	    'In addition, the flue gas recirculation fan can be installed to improve performance by lowering the maximum flame temperature to the minimum required level and reduces nitrogen oxide emissions by lowering the average oxygen content of the air. Together this will also minimize O&M costs, and extend the useful lifetime of the boiler.  ,
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -956,10 +987,11 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
     statsActualAppliers: {
         naturalGasMMBTU: absolute(-1800),
     },
-    title: 'Steam Traps Maintenance',
-    shortTitle: 'During a treasure hunt the facility realized that 35% of their steam traps were not operating correctly.',
+    title: 'Treasure Hunt - Steam Trap Maintenance',
+    shortTitle: 'Repair faulty steam traps and implement a steam trap program.',
     choiceInfoText: [
-        'The facility deployed a steam trap maintenance program which helped them reduce energy use and help operate their steam system more efiiciently. ',
+        'Your plant held an energy treasure hunt and found that 35% of your steam traps were faulty.',
+	 'You can repair these traps and institute a steam trap maintenance program which helped them reduce energy use and help operate their steam system more efficiently. ',
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1019,11 +1051,11 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
         totalRebates: absolute(5_000),
     },
     utilityRebateValue: 5000,
-    title: 'Compressed Air system Improvement',
-    shortTitle: 'Replacing old inefficienct compressor with new more efficient compressor can help increase reliability and reduce energy waste.',
+    title: 'Replace old compressors',
+    shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
     choiceInfoText: [
-        'The project consisted of replacing three inefficient compressors with two new, more efficient compressors and heat of compression dryers. The new configuration allowed the plant to run with fewer compressors and provided some redundancy. The redundancy will allow the plant to avoid downtime and continue operating through periods of unexpected equipment malfunctions. Due to the installed redundancy, the plant expects to gain additional cost savings from increased runtime and from eliminating the need for short-term rental compressors.',
-        'The heat of compression dryers added to the drying capacity of the system and replaced refrigerated dryers, providing improved moisture control. Improved moisture control yielded some process benefits that aided the financial justification of the project. In conjunction with the compressor installation, the company replaced an older cooling tower to gain greater efficiency. An updated central compressor control system was installed to control all compressors, dryers and cooling towers. The new control system now manages all of the components of the compressed air system to maximize efficiency under varying demands and conditions.',
+        'Your compressor system is three, older, inefficient compressors that operate in different combinations to achieve the required air capacity.',
+	    'These can collectively be replaced with two new, more efficient compressors and heat of compression dryers. This new configuration will allow the plant to run on fewer compressors and provides some redundancy. The heat of compression dryers added to the drying capacity of the system and replaced refrigerated dryers, providing improved moisture control.',
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1079,10 +1111,10 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
     statsActualAppliers: {
         electricityUseKWh: absolute(-900_000),
     },
-    title: 'Chilled Water System and Monitoring System ',
-    shortTitle: 'The facility identified their chilled water system as a Significant Energy Use (SEU) pursuing ISO 50001 certification. The chilled water system accounted for 15% of the plant’s total electrical consumption. The upgrades consisted of installing an online, real-time dashboard platform to monitor the four main areas of the system. This online dashboard tracks year-to-date and month-to-date system efficiency (kW/ton) of the project, and allows multiple persons to view the progress of upgrades.',
+    title: 'Chilled Water System Improvements after Advanced Energy Monitoring System ',
+    shortTitle: 'Implement several changes to the chilled water system identified by the advanced energy monitoring system',
     choiceInfoText: [
-        'Installation of submetering helped the plant reduce 40,800 MMBtu in energy savings during the first year that the upgrades went into place. Originally, the chilled water system efficiency was rated and measured at 1 kW/ton; however, after the upgrades, the system efficiency improved to 0.65 kW/ton. This change represented a 35% improvement in system efficiency and resulted in a 3.4% reduction in site electricity consumption.  Overall, these savings translated to a 29% reduction in system-level operating costs.',
+        'Your facility identified their chilled water system as a Significant Energy Use (SEU) while installing the advanced energy monitoring system. Since then, you have identified several specific projects to improve the operations of the system such as modifying VFD controls, adjust water flows to maximize temperatures based on outside weather, adjust cooling tower fans, and more.',
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1142,16 +1174,18 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
         electricityUseKWh: absolute(-150_000),
     },
     title: 'Treasure Hunt - Lower compressed air system pressure',
-    shortTitle: 'Lowering compressd air pressure results in energy savings',
+    shortTitle: 'Gradually lower compressed air pressure to reduce compressor load.',
     choiceInfoText: [
-        'The company did a treasure hunt and discovered that the supply pressure for compressed air was about 10psig higher than what is required for the equipments downstream. They decided to reduce the supply pressure by 4 psig.',
+        'Your plant held an energy treasure hunt and discovered that the supply pressure for compressed air was 10psig higher than what is required for the equipment downstream.',
+	    'Over a few weeks, they can lower the pressure a few psi at a time while monitoring equipment performance and productivity.',
+	    'Lowering the compressor pressure can have an immediate impact on energy use with very little associated cost. ',
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
     choiceInfoImgObjectFit: 'contain',
     recapDescription: 'Insert flavor text here!',
     caseStudy: {
-        title: 'COMPRESSED AIR',
+        title: 'COMPRESSED AIR - Technology Focus Area',
         url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/compressed-air',
         text: 'Compressed air provides a safe and reliable source of pneumatic pressure for a wide range of industrial processes. However, with over 80% of its input energy being lost as heat, air compressors are naturally inefficient. Energy-Efficient process design should opt for alternatives wherever possible and isolate compressed air usage to only processes that mandate it.'
     },
@@ -1174,17 +1208,18 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
         totalRebates: absolute(10_000),
     },
     utilityRebateValue: 10000,
-    title: 'Lighting',
-    shortTitle: 'Improve Lighting Systems',
+    title: 'Treasure Hunt - Lighting Upgrade',
+    shortTitle: 'Install LED lighting in main production building',
     choiceInfoText: [
-        'Install LED lighting in the main building.'
+        'Your plant held an energy treasure hunt and found that the older lighting in the main production building could be replaced with LED lighting.',
+	    'While you are hoping to get a rebate for the fixture cost, it is not known if you qualify at this point. '
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
     choiceInfoImgObjectFit: 'contain',
     recapDescription: 'Insert flavor text here!',
     caseStudy: {
-        title: 'LIGHTING',
+        title: 'LIGHTING - Technology Focus Area',
         url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/lighting',
         text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors it can be higher.'
     },
@@ -1203,10 +1238,11 @@ Projects[Pages.startShutOff] = new ProjectControl({
     statsActualAppliers: {
         electricityUseKWh: absolute(-225_000),
     },
-    title: 'Start Shut-off Program',
-    shortTitle: 'Start program to shut-off equipment when not in use.',
+    title: 'Treasure Hunt - Implement Shut-off Program',
+    shortTitle: 'Design and implement a program to shut off equipment when not in use',
     choiceInfoText: [
-        'Treasure Hunts often find low-to-no cost projects for facilities. A very common project is to shut of equipemnt when not in use. A systematic program to identify equipment, create turn on and shut down procedures, and enforce shutdown can save electricity with very little cost.'
+        'Your plant held an energy treasure hunt and found several equipment that could be shut off during weekends or low production times.',
+	    'You can develop a systematic program to identify equipment to be turned off, create turn on and shut down procedures, and enforce shutdowns which can save electricity with very little cost.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1236,17 +1272,18 @@ Projects[Pages.installVFDs1] = new ProjectControl({
         totalRebates: absolute(5_000),
     },
     utilityRebateValue: 5000,
-    title: 'Install VFDs',
-    shortTitle: '1 Install VFDs on motors with high use variablity.',
+    title: 'Install VFDs on small motors',
+    shortTitle: 'Install VFDs on small motors with high use variability',
     choiceInfoText: [
-        'Intall VFDs in two motors with high use variablity.'
+        'Thanks to the Advanced Energy Monitoring System, your plant has identified several motors with high use variability that would benefit from VFDs.',
+	    'You can install VFDs on a few smaller motors for this project.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
     choiceInfoImgObjectFit: 'contain',
     recapDescription: 'Insert flavor text here!',
     caseStudy: {
-        title: 'MOTORS',
+        title: 'MOTORS - Technology Focus Area',
         url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
         text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
     },
@@ -1270,17 +1307,18 @@ Projects[Pages.installVFDs2] = new ProjectControl({
         totalRebates: absolute(5_000),
     },
     utilityRebateValue: 5000,
-    title: 'Install VFDs',
-    shortTitle: '2 Install VFDs on motors with high use variablity.',
+    title: 'Install VFDs on mid-sized motors',
+    shortTitle: 'Install VFDs on mid-sized motors with high use variability',
     choiceInfoText: [
-        'Intall VFDs in two motors with high use variablity.'
+        'Thanks to the Advanced Energy Monitoring System, your plant has identified several motors with high use variability that would benefit from VFDs.',
+	    'You can install VFDs on a few moderately sized motors for this project.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
     choiceInfoImgObjectFit: 'contain',
     recapDescription: 'Insert flavor text here!',
     caseStudy: {
-        title: 'MOTORS',
+        title: 'MOTORS - Technology Focus Area',
         url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
         text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
     },
@@ -1304,17 +1342,18 @@ Projects[Pages.installVFDs3] = new ProjectControl({
         totalRebates: absolute(5_000),
     },
     utilityRebateValue: 5000,
-    title: 'Install VFDs',
-    shortTitle: '3 Install VFDs on motors with high use variablity.',
+    title: 'Install VFDs on large motors',
+    shortTitle: 'Install VFDs on large motors with high use variability',
     choiceInfoText: [
-        'Intall VFDs in two motors with high use variablity.'
+        'Thanks to the Advanced Energy Monitoring System, your plant has identified several motors with high use variability that would benefit from VFDs.',
+	    'You can install VFD on a large motor for this project.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
     choiceInfoImgObjectFit: 'contain',
     recapDescription: 'Insert flavor text here!',
     caseStudy: {
-        title: 'MOTORS',
+        title: 'MOTORS - Technology Focus Area',
         url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
         text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
     },
@@ -1334,10 +1373,10 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
     statsActualAppliers: {
         electricityUseKWh: absolute(-75_000),
     },
-    title: 'Reduce Fan Speeds',
-    shortTitle: 'Run interior fans at a slightly lower speed.',
+    title: 'Treasure Hunt - Reduce fan speeds',
+    shortTitle: 'Run interior fans at slightly lower speeds',
     choiceInfoText: [
-        'Treasure Hunts often find low-to-no cost projects for facilities. A very common project is to reduce fan speeds.'
+        'Your plant held an energy treasure hunt and found several fans that can be run at slightly lower speeds without substantially changing airflow.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1363,10 +1402,11 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
     statsActualAppliers: {
         electricityUseKWh: absolute(-150_000),
     },
-    title: 'Lighting Occupancy Sensors',
-    shortTitle: 'Turn off lights in unoccupied areas of facility',
+    title: 'Treasure Hunt - Lighting Occupancy Sensors',
+    shortTitle: 'Install occupancy sensors to turn off lights in unoccupied areas of facility.',
     choiceInfoText: [
-        'Treasure Hunts often find low-to-no cost projects for facilities. A very common project is to turn off lights in unoccupied areas of the facility.'
+        'Your plant held an energy treasure hunt and found several areas where lights are not turned off when no one is in the area.',
+	    'Installing occupancy sensors in these areas would automatically turn off the lights when the area is unoccupied and turn them on when work has resumed.'
     ],
     choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
     choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1420,9 +1460,9 @@ Projects[Pages.midSolar] = new ProjectControl({
 	statsActualAppliers: {
 		// absoluteCarbonSavings: absolute(1_717_000);
 	},
-	title: 'Mid Solar',
-	shortTitle: 'Enter a PPPA with your local utility to build a 2MW rooftop solar array. YOU MUST RENEW THIS PROJECT ANNUALLY.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing your rooftop to your utility for solar panels and receiving the electricity as a lease to own agreement (NEED TO GET THE NAMING CONVENTIONS CORRECT). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system without interfering with your existing roof infrastructure. Working with upper management, you work out a deal where half of the project costs come from your budget and the other half from a corporate budget. You will be paying for this project for the next 10 years, so YOU MUST RENEW THIS PROJECT ANNUALLY.'],
+	title: 'Mid-sized Solar PPPA',
+	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. YOU MUST SELECT THIS PROJECT ANNUALLY.',
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so YOU MUST SELECT THIS PROJECT ANNUALLY. '],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
