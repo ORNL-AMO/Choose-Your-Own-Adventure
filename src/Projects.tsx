@@ -1141,7 +1141,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
     statsActualAppliers: {
         electricityUseKWh: absolute(-150_000),
     },
-    title: 'Lowering Compressor Pressure',
+    title: 'Treasure Hunt - Lower compressed air system pressure',
     shortTitle: 'Lowering compressd air pressure results in energy savings',
     choiceInfoText: [
         'The company did a treasure hunt and discovered that the supply pressure for compressed air was about 10psig higher than what is required for the equipments downstream. They decided to reduce the supply pressure by 4 psig.',
