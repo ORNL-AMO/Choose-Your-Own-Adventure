@@ -23,6 +23,7 @@ import {
 	ThemeProvider,
 	ListItemText,
 	ListItemIcon,
+	Link,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -275,28 +276,14 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<CardContent>
 									{thisProject.caseStudy && (
 										<>
-											<p style={{color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
-												Case Study - {thisProject.caseStudy.title}
-											</p>
+											<Link href={thisProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
+												<p style={{color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
+													Case Study - {thisProject.caseStudy.title}
+												</p>
+											</Link>
 										</>
 									)}
 								</CardContent>
-								{thisProject.caseStudy && (
-									<CardActions>
-										<Button
-											variant='outlined'
-											href={thisProject.caseStudy.url}
-											target='_blank'
-											size='large'
-											sx={{
-												fontSize: '18px',
-												textDecorationLine: 'underline',
-											}}
-										>
-											Read case study
-										</Button>
-									</CardActions>
-								)}
 							</Grid>
 							<Grid item xs={12} md={6} className='year-recap-charts'>
 								{gaugeCharts}
