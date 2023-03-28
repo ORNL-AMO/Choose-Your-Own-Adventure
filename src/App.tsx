@@ -409,10 +409,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setPage(nextPage);
 	}
 
-	handleChangeScopeTabs(newValue: number){
-		if(newValue == 0){
+	handleChangeScopeTabs(selectedScopeIndex: number){
+		if(selectedScopeIndex == 0){
 			this.setPage(Pages.scope1Projects);
-		} else if(newValue == 1){
+		} else if(selectedScopeIndex == 1){
 			this.setPage(Pages.scope2Projects);
 		}
 	}
@@ -587,7 +587,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/>
 								<ScopeTabs
-									handleChangeScopeTabs={(newValue) => this.handleChangeScopeTabs(newValue)} 
+									handleChangeScopeTabs={(selectedScopeIndex) => this.handleChangeScopeTabs(selectedScopeIndex)} 
 								/>
 							</>
 								: <></>}

@@ -39,12 +39,12 @@ function a11yProps(index: number) {
     };
 }
 
-export default function BasicTabs(props: ScopeTabsProps) {
+export default function BasicTabs(props: ScopeTabsControlProps) {
     const [value, setValue] = React.useState(0);
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        props.handleChangeScopeTabs(newValue);
+    const handleChange = (event: React.SyntheticEvent, selectedScopeIndex: number) => {
+        setValue(selectedScopeIndex);
+        props.handleChangeScopeTabs(selectedScopeIndex);
     };
 
     return (
@@ -54,7 +54,8 @@ export default function BasicTabs(props: ScopeTabsProps) {
                     value={value}
                     onChange={handleChange}
                     aria-label='basic tabs example'
-                    centered variant='fullWidth'
+                    centered 
+                    variant='fullWidth'
                 >
                     <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Scope 1' {...a11yProps(0)} />
                     <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Scope 2' {...a11yProps(1)} />
@@ -73,9 +74,5 @@ export default function BasicTabs(props: ScopeTabsProps) {
 }
 
 export interface ScopeTabsControlProps {
-    handleChangeScopeTabs: (newValue: number) => void;
-}
-
-export interface ScopeTabsProps extends ScopeTabsControlProps {
-
+    handleChangeScopeTabs: (selectedScopeIndex: number) => void;
 }
