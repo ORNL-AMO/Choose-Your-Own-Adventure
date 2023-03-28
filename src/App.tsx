@@ -409,14 +409,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setPage(nextPage);
 	}
 
-	handleChangeScopeTabs(selectedScopeIndex: number){
-		if(selectedScopeIndex == 0){
-			this.setPage(Pages.scope1Projects);
-		} else if(selectedScopeIndex == 1){
-			this.setPage(Pages.scope2Projects);
-		}
-	}
-
 	/**
 	 * Update state from previous selections and results when navigating back
 	 * Only updates current stats ('trackedStats'), not those in yearRangeInitialStats
@@ -587,7 +579,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/>
 								<ScopeTabs
-									handleChangeScopeTabs={(selectedScopeIndex) => this.handleChangeScopeTabs(selectedScopeIndex)} 
+									handleChangeScopeTabs={(selectedScope) => this.setPage(selectedScope)} 
 								/>
 							</>
 								: <></>}

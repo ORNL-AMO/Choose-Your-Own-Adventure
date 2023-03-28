@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import type { ControlCallbacks } from './controls';
 import { color } from '@mui/system';
+import Pages from '../Pages';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -44,7 +45,11 @@ export default function BasicTabs(props: ScopeTabsControlProps) {
 
     const handleChange = (event: React.SyntheticEvent, selectedScopeIndex: number) => {
         setValue(selectedScopeIndex);
-        props.handleChangeScopeTabs(selectedScopeIndex);
+        if(selectedScopeIndex == 0){
+			props.handleChangeScopeTabs(Pages.scope1Projects);
+		} else if(selectedScopeIndex == 1){
+			props.handleChangeScopeTabs(Pages.scope2Projects);
+		}
     };
 
     return (
@@ -74,5 +79,5 @@ export default function BasicTabs(props: ScopeTabsControlProps) {
 }
 
 export interface ScopeTabsControlProps {
-    handleChangeScopeTabs: (selectedScopeIndex: number) => void;
+    handleChangeScopeTabs: (selectedScope: symbol) => void;
 }
