@@ -549,11 +549,11 @@ export class ProjectControl implements ProjectControlParams {
 				}
 
 				
-				let projectImplementationLimit = 5;
-				let overLimitMsg = 'Due to manpower limitations, you cannot select more than 5 projects per year';
+				let projectImplementationLimit = 4;
+				let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
 				if (state.gameSettings.totalIterations === 5) {
-					projectImplementationLimit = 10;
-					overLimitMsg = 'Due to manpower limitations, you cannot select more than 10 projects per budget period';
+					projectImplementationLimit = 6;
+					overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 				}
 				if (implementedProjects.length >= projectImplementationLimit) {
 					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);

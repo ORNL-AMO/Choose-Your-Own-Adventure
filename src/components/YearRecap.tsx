@@ -142,7 +142,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		});
 		
 		let nextYearFinancesAvailable = this.props.financesAvailable;
-		let costPerCarbonSavings = 0;
 		let yearEndNetCost = 0;
 
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
@@ -336,15 +335,21 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			minimumFractionDigits: 0, 
 			maximumFractionDigits: 0, 
 		});
-		// * budgetSpent / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
-		costPerCarbonSavings += yearEndNetCost / mutableStats.carbonEmissionsSavings;
+		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
+		const costPerCarbonSavings = totalNetCost / mutableStats.carbonEmissionsSavings;
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
-		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings? noDecimalsFormatter.format(costPerCarbonSavings) : '0';
+		
+		const totalNetCostFormatted: string = noDecimalsFormatter.format(totalNetCost);
+		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings? Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 2, 
+			maximumFractionDigits: 2, 
+		}).format(costPerCarbonSavings) : '0';
 
 		return (
 			<>
@@ -380,7 +385,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					{this.props.totalIterations == 10 &&
 						<Typography variant='h3'>Year {this.props.year} Recap</Typography>
 					}
-
 
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<List dense={true}>
@@ -421,7 +425,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs.</span>
+										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.</span>
 									}
 								/>
 							</ListItem>
