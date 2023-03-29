@@ -118,7 +118,6 @@ export function calculateEmissions(stats: TrackedStats): number {
 }
 
 export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats: TrackedStats) {
-	console.log('starting emissions', defaultTrackedStats.carbonEmissions)
 	let newEmissions;
 
 	if (newStats.absoluteCarbonSavings) {
@@ -134,10 +133,7 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 		newEmissions = calculateEmissions(newStats);
 	}
 
-	console.log('new emissions', newEmissions)
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
-	
-	console.log('carbon savings percent (ratio)', carbonSavingsPercent)
 	// * % CO2 saved * total initial emissions;
 	newStats.carbonSavingsPerKg = carbonSavingsPercent * newEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;

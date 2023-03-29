@@ -33,7 +33,7 @@ const Pages = {
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
 	solarPanelsCarPortMaintenance: Symbol('solar-panels-car-port-maintenance'),
 	solarRooftop: Symbol('solar-rooftop'),
-	solarFieldOnsite: Symbol('solar-field-onsite'),
+	// solarFieldOnSite: Symbol('solar-field-on-site'),
 	airHandingUnitUpgrades: Symbol('air-handing-unit-upgrades'),
 	advancedEnergyMonitoring: Symbol('advanced-energy-monitoring'),
 	condensingEconomizerInstallation: Symbol('condensing-economizer-installation'),

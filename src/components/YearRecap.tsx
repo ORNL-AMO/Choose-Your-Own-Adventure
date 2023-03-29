@@ -28,7 +28,7 @@ import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
 import { emptyTrackedStats, statsGaugeProperties, calculateYearSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
-import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
+import type { CompletedProject, NumberApplier, GameSettings, RenewalProject } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -60,8 +60,17 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		const projectRecaps: JSX.Element[] = [];
 		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
+		let projectsRequireRenewal = [...this.props.projectsRequireRenewal];
+
+		// * add to implementedProjects for display
+		projectsRequireRenewal.forEach(project => {
+			if (project.yearsImplemented.includes(mutableStats.year)) {
+				implementedProjects.push(Projects[project.page]);
+			}
+		})
 
 		let totalUtilityRebates = 0;
+		// todo 22 renewalRequired should only get rebates once
 		let rebateProjects = implementedProjects.filter(project => {
 			let rebateValue = Number(project.utilityRebateValue);
 			if (rebateValue) {
@@ -143,22 +152,28 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
 		// * with current projects modifiers, not the cumulative stats for the year
-		for (let i in this.props.implementedProjects) {
-			let projectKey = this.props.implementedProjects[i];
+		for (let i in implementedProjects) {
+			// let projectKey = this.props.implementedProjects[i];
+			// const thisProject = Projects[projectKey];
 			
-			const thisProject = Projects[projectKey];
+			const thisProject = implementedProjects[i];
+			const projectKey = thisProject.pageId;
 			if (!thisProject)
 				throw new Error(
 					`Project for page ${projectKey.description} not defined`
 				);
 
 			let gaugeCharts: JSX.Element[] = [];
+			const renewalProject = projectsRequireRenewal.find(project => project.page === thisProject.pageId);
+			let skipRenewalSavings = false;
+			if (renewalProject) {
+				skipRenewalSavings = renewalProject.yearStarted !== mutableStats.year;
+			}
 			for (let key in thisProject.statsActualAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
 				let oldValue = mutableStats[key];
-				let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined; 
-				console.log(key, thisApplier.isAbsolute)
-				let newValue = thisApplier.applyValue(oldValue, yearMultiplier);
+				let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined;
+				let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 				let difference = newValue - oldValue;
 				mutableStats[key] = newValue;
 				let thisGaugeProps = statsGaugeProperties[key];
@@ -187,137 +202,144 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						);
 					}
 				}
+
 				
 				// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
 				// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
-			for (let key in thisProject.statsRecapAppliers) {
-				let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
-				let oldValue = mutableStats[key];
-				console.log(key, thisApplier.isAbsolute)
-				let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined; 
-				let newValue = thisApplier.applyValue(oldValue, yearMultiplier);
-				let difference = newValue - oldValue;
-				mutableStats[key] = newValue;
-				hiddenStatDiff[key] = difference;
-			}
-			
-			let prevCarbonSavings = mutableStats.carbonSavingsPercent;
-			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats); 
-			thisProject.applyCost(mutableStats); 
-			const totalYearEndRebates = thisProject.getYearEndRebates();
-			const projectNetCost = thisProject.getYearEndNetCost();
-			yearEndNetCost += projectNetCost;
-			const totalYearEndExtraCosts = thisProject.getHiddenCost();
-			nextYearFinancesAvailable -= totalYearEndExtraCosts;
-			nextYearFinancesAvailable += totalYearEndRebates;
-			gaugeCharts.push(
-				<GaugeChart
-				key={'carbonSavings'}
-				width={250}
-					value1={prevCarbonSavings}
-					color1='#888888'
-					value2={mutableStats.carbonSavingsPercent}
-					color2='#000000'
-					text={
-						withSign(
-							(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
-							1
-						) + '%'
-					}
-					backgroundColor={'#88888820'}
-					label='Carbon savings'
-					ticks={[
-						{
-							label: toPercent(mutableStats.carbonSavingsPercent),
-							value: mutableStats.carbonSavingsPercent,
-						},
-						{
-							label: '50%',
-							value: 0.5,
-						},
-					]}
-				/>
-			);
-			projectRecaps.push(
-				<ListItem key={projectKey.description}>
-					<Card sx={{ width: '100%' }}>
-						<Grid
-							container
-							spacing={2}
-							justifyContent='center'
-							alignItems='center'
-						>
-							<Grid item xs={12} md={6}>
-								<CardHeader
-									avatar={
-										<Avatar color={thisProject.recapAvatar.backgroundColor}>
-											{thisProject.recapAvatar.icon}
-										</Avatar>
-									}
-									title={thisProject.title}
-									subheader={thisProject.shortTitle}
-								/>
-								<CardContent>
-									{thisProject.recapDescription}
-									{thisProject.caseStudy && (
-										<>
-											<p className='emphasis'>
-												Case Study - {thisProject.caseStudy.title}
-											</p>
-											<p
-												dangerouslySetInnerHTML={parseSpecialText(
-													thisProject.caseStudy.text
-												)}
-												className='noMarginBottom'
-											/>
-										</>
-									)}
-								</CardContent>
+				for (let key in thisProject.statsRecapAppliers) {
+					let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
+					let oldValue = mutableStats[key];
+					let yearMultiplier = thisApplier.isAbsolute ? mutableStats.gameYears : undefined;
+					let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
+					let difference = newValue - oldValue;
+					mutableStats[key] = newValue;
+					hiddenStatDiff[key] = difference;
+				}
+
+				let prevCarbonSavings = mutableStats.carbonSavingsPercent;
+				mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats);
+				thisProject.applyCost(mutableStats);
+				const totalYearEndRebates = thisProject.getYearEndRebates();
+				const projectNetCost = thisProject.getYearEndNetCost();
+				yearEndNetCost += projectNetCost;
+				const totalYearEndExtraCosts = thisProject.getHiddenCost();
+				nextYearFinancesAvailable -= totalYearEndExtraCosts;
+				nextYearFinancesAvailable += totalYearEndRebates;
+
+				// chart should display previous savings of 6.5 and current year diff of 0
+				gaugeCharts.push(
+					<GaugeChart
+						key={'carbonSavings'}
+						width={250}
+						value1={prevCarbonSavings}
+						color1='#888888'
+						value2={mutableStats.carbonSavingsPercent}
+						color2='#000000'
+						text={
+							withSign(
+								(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
+								1
+							) + '%'
+						}
+						backgroundColor={'#88888820'}
+						label='Carbon savings'
+						ticks={[
+							{
+								label: toPercent(mutableStats.carbonSavingsPercent),
+								value: mutableStats.carbonSavingsPercent,
+							},
+							{
+								label: '50%',
+								value: 0.5,
+							},
+						]}
+					/>
+				);
+				projectRecaps.push(
+					<ListItem key={projectKey.description}>
+						<Card sx={{ width: '100%' }}>
+							<Grid
+								container
+								spacing={2}
+								justifyContent='center'
+								alignItems='center'
+							>
+								<Grid item xs={12} md={6}>
+									<CardHeader
+										avatar={
+											<Avatar color={thisProject.recapAvatar.backgroundColor}>
+												{thisProject.recapAvatar.icon}
+											</Avatar>
+										}
+										title={thisProject.title}
+										subheader={thisProject.shortTitle}
+									/>
+									<CardContent>
+										{thisProject.recapDescription}
+										{thisProject.caseStudy && (
+											<>
+												<p className='emphasis'>
+													Case Study - {thisProject.caseStudy.title}
+												</p>
+												<p
+													dangerouslySetInnerHTML={parseSpecialText(
+														thisProject.caseStudy.text
+													)}
+													className='noMarginBottom'
+												/>
+											</>
+										)}
+									</CardContent>
+								</Grid>
+								<Grid item xs={12} md={6} className='year-recap-charts'>
+									{gaugeCharts}
+									<div style={{ width: '100%', textAlign: 'center' }}>
+										<Typography variant='body1'>
+											<>
+												Initial project cost:{' '}
+												<Emphasis money>
+													${thisProject.cost.toLocaleString('en-US')}
+												</Emphasis>
+												{' '}
+												&nbsp; Rebates:{' '}
+												<Emphasis money>
+													${totalYearEndRebates.toLocaleString('en-US')}
+												</Emphasis>
+												{' '}
+												&nbsp; Extra costs:{' '}
+												<Emphasis money>
+													${totalYearEndExtraCosts.toLocaleString('en-US')}
+												</Emphasis>
+											</>
+										</Typography>
+										<Typography variant='body1'>
+											Net cost:{' '}
+											<Emphasis money>
+												${projectNetCost.toLocaleString('en-US')}
+											</Emphasis>
+										</Typography>
+									</div>
+								</Grid>
 							</Grid>
-							<Grid item xs={12} md={6} className='year-recap-charts'>
-								{gaugeCharts}
-								<div style={{ width: '100%', textAlign: 'center' }}>
-									<Typography variant='body1'>
-										<>
-											Initial project cost:{' '}
-											<Emphasis money>
-												${thisProject.cost.toLocaleString('en-US')}
-											</Emphasis>
-											{' '}
-											&nbsp; Rebates:{' '}
-											<Emphasis money>
-												${totalYearEndRebates.toLocaleString('en-US')}
-											</Emphasis>
-											{' '}
-											&nbsp; Extra costs:{' '}
-											<Emphasis money>
-												${totalYearEndExtraCosts.toLocaleString('en-US')}
-											</Emphasis>
-										</>
-									</Typography>
-									<Typography variant='body1'>
-										Net cost:{' '}
-										<Emphasis money>
-											${projectNetCost.toLocaleString('en-US')}
-										</Emphasis>
-									</Typography>
-								</div>
-							</Grid>
-						</Grid>
-						{thisProject.caseStudy && (
-							<CardActions>
-								<Button
-									variant='text'
-									href={thisProject.caseStudy.url}
-									target='_blank'
-								>
-									Read case study
-								</Button>
-							</CardActions>
-						)}
-					</Card>
-				</ListItem>
-			);
+							{thisProject.caseStudy && (
+								<CardActions>
+									<Button
+										variant='text'
+										href={thisProject.caseStudy.url}
+										target='_blank'
+									>
+										Read case study
+									</Button>
+								</CardActions>
+							)}
+						</Card>
+					</ListItem>
+				);
+
+
+
+
+			// }
 		}
 
 		// Sanity check! The current year "real" stats are spread directly into this.props
@@ -516,6 +538,7 @@ export interface YearRecapProps
 		GameSettings {
 	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
+	projectsRequireRenewal: RenewalProject[];
 	yearRangeInitialStats: TrackedStats[];
 	defaultTrackedStats : TrackedStats;
 	/**
