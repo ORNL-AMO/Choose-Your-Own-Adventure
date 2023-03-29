@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
 import Image from 'mui-image';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
@@ -30,9 +30,19 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [totalYearIterations, setTotalIterations] = React.useState(props.totalIterations);
+    const [allowCarryover, setCarryoverOption ] = React.useState('yes');    
+    const [allowEnergyCarryover, setEnergyCarryoverOption ] = React.useState('One Year');
 
-    const handleChange = (event: SelectChangeEvent<number>) => {
+    const handleIntervalChange = (event: SelectChangeEvent<number>) => {
         setTotalIterations(event.target.value as number);
+    }
+
+    const handleCarryoverChange = (event: SelectChangeEvent<string>) => {
+        setCarryoverOption(event.target.value as string);
+    }
+
+    const handleEnergyCarryoverChange = (event: SelectChangeEvent<string>) => {
+        setEnergyCarryoverOption(event.target.value as string);
     }
 
     return (
@@ -47,21 +57,53 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogTitle>
 
                 <DialogContent>
-                    <DialogContentText id='alert-dialog-slide-description' gutterBottom>
-                        You have the option to play through in 1 OR 2 year intervals.
-                    </DialogContentText>
-                    <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
-                    <Select
-                        labelId='selectYearInterval'
-                        id='selectedInterval'
-                        value={totalYearIterations}
-                        label='totalIterations'
-                        onChange={handleChange}
-                    >
-                        <MenuItem value={10}> 1 year intervals </MenuItem>
-                        <MenuItem value={5}> 2 year intervals</MenuItem>
+                    <Box m={2}>
+                        <DialogContentText id='alert-dialog-slide-description' gutterBottom>
+                            You have the option to play through in 1 OR 2 year intervals.
+                        </DialogContentText>
+                        <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
+                        <Select
+                            labelId='selectYearInterval'
+                            id='selectYearInterval'
+                            value={totalYearIterations}
+                            label='totalIterations'
+                            onChange={handleIntervalChange}
+                        >
+                            <MenuItem value={10}> 1 year intervals </MenuItem>
+                            <MenuItem value={5}> 2 year intervals</MenuItem>
 
-                    </Select>
+                        </Select>                        
+                    </Box>
+                    <Divider variant='middle'/>
+                    <Box m={2}>
+                        <InputLabel id='allowCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next years budget?</InputLabel>
+                        <Select
+                            labelId='allowCarryover'
+                            id='allowCarryover'
+                            value={allowCarryover}
+                            label='carryoverOption'
+                            onChange={handleCarryoverChange}
+                            disabled
+                        >
+                            <MenuItem value={'yes'}> Yes </MenuItem>
+                            <MenuItem value={'no'}> No </MenuItem>
+                        </Select>
+                    </Box>
+                    <Divider variant='middle'/>
+                    <Box m={2}>
+                        <InputLabel id='allowEnergyCarryover'>Would you like to add energy cost savings to next years budget?</InputLabel>
+                        <Select
+                            labelId='allowEnergyCarryover'
+                            id='allowEnergyCarryover'
+                            value={allowEnergyCarryover}
+                            label='energyCarryoverOption'
+                            onChange={handleEnergyCarryoverChange}
+                            disabled
+                        >
+                            <MenuItem value={'One Year'}> One Year </MenuItem>
+                            <MenuItem value={'Two Year'}> Two Year </MenuItem>
+                        </Select>
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button
