@@ -987,8 +987,8 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 		electricityUseKWh: absolute(-537_000),
 	},
 	title: 'Carport Solar - Maintenance',
-	shortTitle: 'Continue receiving energy from your solar generation. YOU CAN SELECT THIS ANNUALLY.',
-	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. YOU MUST SELECT THIS PROJECT EVERY YEAR to continue recieving the energy credits.'],
+	shortTitle: 'Continue receiving energy from your solar generation.{YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue recieving the energy credits.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
@@ -1025,10 +1025,10 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	//        }
 	//    }],
 	title: 'Mid-sized solar with storage via PACE loan',
-	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. YOU MUST SELECT THIS PROJECT ANNUALLY.',
+	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: [
 		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have you have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
-		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST SELECT THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
+		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
 	],
 	choiceInfoImg: 'images/solar-panels.png',
 	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
@@ -1632,7 +1632,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-1_200_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}',
+	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
@@ -1657,7 +1657,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-2_400_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}',
+	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
@@ -1682,7 +1682,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-3_600_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}',
+	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
@@ -1708,8 +1708,8 @@ Projects[Pages.midSolar] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
 	title: 'Mid-sized Solar PPPA',
-	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. YOU MUST SELECT THIS PROJECT ANNUALLY.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so YOU MUST SELECT THIS PROJECT ANNUALLY. '],
+	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
@@ -1733,8 +1733,8 @@ Projects[Pages.largeWind] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},
 	title: 'Large Wind PPPA',
-	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. YOU MUST SELECT THIS PROJECT ANNUALLY.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15 year contract to source a large portion of your electricity use. You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST SELECT THIS PROJECT ANNUALLY}.  '],
+	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15 year contract to source a large portion of your electricity use. You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
