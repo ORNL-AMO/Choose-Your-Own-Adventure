@@ -358,6 +358,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		if (totalNetCost > 0) {
 			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
 		}
+		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
 
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
 		projectsRequireRenewal.forEach((project: RenewalProject) => {
@@ -373,6 +374,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
+		const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
@@ -419,6 +421,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<List dense={true}>
+						<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant='h5'>
+											Your company has reduced CO<sub>2</sub> Emissions by{' '}
+											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+										</Typography>
+									}
+								/>
+							</ListItem>
 							<ListItem >
 								<ListItemIcon>
 									<InfoIcon />
@@ -467,7 +482,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO2</Emphasis>{' '}</span>
+										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub></Emphasis>{' '}</span>
 									}
 								/>
 							</ListItem>
