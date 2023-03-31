@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, CardHeader, Divider, Button } from '@mui/material';
+import { Box, Typography, Grid, CardHeader, Divider, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { parseSpecialText, resolveToValue } from '../functions-and-types';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
@@ -28,7 +28,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 				let disabled = resolveToValue(choice.disabled, false);
 				let paperStyle = { 
 					opacity: disabled ? 0.8 : 1,
-					paddingBottom: '1rem'		
+					paddingBottom: '1rem',					
+					color: '#000000'	
 				};
 				let headerStyle;
 				let choiceButtons: ButtonGroupButton[] | undefined = choice.buttons;
@@ -93,42 +94,44 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			</Grid>);
 		});
 		
-		const isProjectPage = props.resolveToValue(props.title).includes('Scope 1');
+		const isProjectPage1 = props.resolveToValue(props.title).includes('Scope 1');
+		const isProjectPage2 = props.resolveToValue(props.title).includes('Scope 2');
+		
 		return (
 			<Box m={2}>
 				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))} />
-				<br/>
-				{isProjectPage && 
-				<Stack direction='row'
+				<br />
+				{(isProjectPage1 || isProjectPage2) &&
+					<Stack direction='row'
 						justifyContent='end'
 						alignItems='center'
 						spacing={2}>
-				<Button
-					size='medium'
-					variant='outlined'
-					disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 1}
-					onClick={() => {
-						if (props.handleClearProjectsClick) {
-							props.resolveToValue(props.handleClearProjectsClick());
-						}
-					}}
-					style={{ margin: '10px' }}>
-					Clear Comparisons
-				</Button>
-				<Button
-					size='medium'
-					variant='contained'
-					disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 2}
-					onClick={() => {
-						if (props.selectedProjectsForComparison && props.selectedProjectsForComparison.length >= 2 && props.handleCompareProjectsClick) {
-							props.resolveToValue(props.handleCompareProjectsClick());
-						}
-					}}
-					style={{ margin: '10px' }}>
-					Compare Selected Projects
-				</Button>
-				</Stack>}
-
+						<Button
+							size='medium'
+							variant='outlined'
+							disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 1}
+							onClick={() => {
+								if (props.handleClearProjectsClick) {
+									props.resolveToValue(props.handleClearProjectsClick());
+								}
+							}}
+							style={{ margin: '10px' }}>
+							Clear Comparisons
+						</Button>
+						<Button
+							size='medium'
+							variant='contained'
+							disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 2}
+							onClick={() => {
+								if (props.selectedProjectsForComparison && props.selectedProjectsForComparison.length >= 2 && props.handleCompareProjectsClick) {
+									props.resolveToValue(props.handleCompareProjectsClick());
+								}
+							}}
+							style={{ margin: '10px' }}>
+							Compare Selected Projects
+						</Button>
+					</Stack>
+				}
 				<Grid container spacing={2}>
 					{gridItems}
 				</Grid>

@@ -23,6 +23,7 @@ import {
 	ThemeProvider,
 	ListItemText,
 	ListItemIcon,
+	Link,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -149,7 +150,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		});
 		
 		let nextYearFinancesAvailable = this.props.financesAvailable;
-		let costPerCarbonSavings = 0;
 		let yearEndNetCost = 0;
 
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
@@ -233,7 +233,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							this.props.projectsRequireRenewal[renewalProjectIndex].yearlyFinancialSavings = calculateYearSavings(thisYearStart, mutableStats);
 						}
 					}
-
 				} else {
 					projectNetCost = thisProject.getYearEndNetCost();
 				}
@@ -258,100 +257,94 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								1
 							) + '%'
 						}
-						backgroundColor={'#88888820'}
-						label='Carbon savings'
-						ticks={[
-							{
-								label: toPercent(mutableStats.carbonSavingsPercent),
-								value: mutableStats.carbonSavingsPercent,
-							},
-							{
-								label: '50%',
-								value: 0.5,
-							},
-						]}
-					/>
-				);
-				projectRecaps.push(
-					<ListItem key={projectKey.description}>
-						<Card sx={{ width: '100%' }}>
-							<Grid
-								container
-								spacing={2}
-								justifyContent='center'
-								alignItems='center'
-							>
-								<Grid item xs={12} md={6}>
-									<CardHeader
-										avatar={
-											<Avatar color={thisProject.recapAvatar.backgroundColor}>
-												{thisProject.recapAvatar.icon}
-											</Avatar>
-										}
-										title={thisProject.title}
-										subheader={thisProject.shortTitle}
-									/>
-									<CardContent>
-										{thisProject.recapDescription}
-										{thisProject.caseStudy && (
-											<>
-												<p className='emphasis'>
+					backgroundColor={'#88888820'}
+					label='Carbon savings'
+					ticks={[
+						{
+							label: toPercent(mutableStats.carbonSavingsPercent),
+							value: mutableStats.carbonSavingsPercent,
+						},
+						{
+							label: '50%',
+							value: 0.5,
+						},
+					]}
+				/>
+			);
+			let headerStyle = {
+				'& .MuiCardHeader-title': {
+					textAlign: 'left',
+					fontSize: '30px',
+					fontWeight: 'bold'
+				},
+				'& .MuiCardHeader-subheader': {
+					textAlign: 'left',
+					fontSize: '18px',
+					fontWeight: '400',
+					color: '#000000',
+				},
+			};
+
+			projectRecaps.push(
+				<ListItem key={projectKey.description}>
+					<Card sx={{ width: '100%' }}>
+						<Grid
+							container
+							spacing={2}
+							justifyContent='center'
+							alignItems='center'
+						>
+							<Grid item xs={12} md={6}>
+								<CardHeader
+									title={thisProject.title}
+									subheader={thisProject.shortTitle}
+									sx={headerStyle}
+								/>
+								<CardContent>
+									{thisProject.caseStudy && (
+										<>
+											<Link href={thisProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
+												<p style={{color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
 													Case Study - {thisProject.caseStudy.title}
 												</p>
-												<p
-													dangerouslySetInnerHTML={parseSpecialText(
-														thisProject.caseStudy.text
-													)}
-													className='noMarginBottom'
-												/>
-											</>
-										)}
-									</CardContent>
-								</Grid>
-								<Grid item xs={12} md={6} className='year-recap-charts'>
-									{gaugeCharts}
-									<div style={{ width: '100%', textAlign: 'center' }}>
-										<Typography variant='body1'>
-											<>
-												Initial project cost:{' '}
-												<Emphasis money>
-													${initialProjectCost.toLocaleString('en-US')}
-												</Emphasis>
-												{' '}
-												&nbsp; Rebates:{' '}
-												<Emphasis money>
-													${totalYearEndRebates.toLocaleString('en-US')}
-												</Emphasis>
-												{' '}
-												&nbsp; Extra costs:{' '}
-												<Emphasis money>
-													${totalYearEndExtraCosts.toLocaleString('en-US')}
-												</Emphasis>
-											</>
-										</Typography>
-										<Typography variant='body1'>
-											Net cost:{' '}
-											<Emphasis money>
-												${projectNetCost.toLocaleString('en-US')}
-											</Emphasis>
-										</Typography>
-									</div>
-								</Grid>
+											</Link>
+										</>
+									)}
+								</CardContent>
 							</Grid>
-							{thisProject.caseStudy && (
-								<CardActions>
-									<Button
-										variant='text'
-										href={thisProject.caseStudy.url}
-										target='_blank'
-									>
-										Read case study
-									</Button>
-								</CardActions>
-							)}
-						</Card>
-					</ListItem>
-				);
+							<Grid item xs={12} md={6} className='year-recap-charts'>
+								{gaugeCharts}
+								<div style={{ width: '100%', textAlign: 'center' }}>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
+										<>
+											Initial project cost:{' '}
+											<Emphasis money>
+												${initialProjectCost.toLocaleString('en-US')}
+											</Emphasis>
+											{' '}
+											&nbsp; Rebates:{' '}
+											<Emphasis money>
+												${totalYearEndRebates.toLocaleString('en-US')}
+											</Emphasis>
+											{' '}
+											&nbsp; Extra costs:{' '}
+											<Emphasis money>
+												${totalYearEndExtraCosts.toLocaleString('en-US')}
+											</Emphasis>
+										</>
+									</Typography>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
+										Net cost:{' '}
+										<Emphasis money>
+											${projectNetCost.toLocaleString('en-US')}
+										</Emphasis>
+									</Typography>
+								</div>
+							</Grid>
+						</Grid>
+					</Card>
+				</ListItem>
+			);
 		}
 
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
@@ -359,8 +352,16 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			maximumFractionDigits: 0, 
 		});
 
-		// * budgetSpent / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
-		costPerCarbonSavings += yearEndNetCost / mutableStats.carbonSavingsPerKg;
+		// old
+		// // * budgetSpent / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+		// costPerCarbonSavings += yearEndNetCost / mutableStats.carbonSavingsPerKg;
+		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+
+		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
+		let costPerCarbonSavings = 0;
+		if (totalNetCost > 0) {
+			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
+		}
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
 		projectsRequireRenewal.forEach((project: RenewalProject) => {
 			if (project.yearlyFinancialSavings 
@@ -378,6 +379,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
+		const totalNetCostFormatted: string = noDecimalsFormatter.format(totalNetCost);
 		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings !== undefined? Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0, 
 			maximumFractionDigits: 2, 
@@ -385,6 +387,31 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		return (
 			<>
+			<Divider/>
+			<MobileStepper
+					variant='progress'
+					steps={this.props.totalIterations}
+					position='static'
+					activeStep={this.props.year - 1}
+					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+					sx={{ padding: '.75rem' }}
+					backButton={<Box sx={{ width: 180 }}></Box>}
+					nextButton={
+						<Button
+							variant='outlined'
+							size='medium'
+							onClick={() => this.props.handleYearRecap(mutableStats)}
+							endIcon={rightArrow()}
+						>
+							{this.props.totalIterations == 5 &&								
+								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+							}
+							{this.props.totalIterations == 10 &&								
+								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+							}
+						</Button>
+					}
+				/>
 				<Box m={2}>
 					{this.props.totalIterations == 5 &&
 						<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
@@ -392,7 +419,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					{this.props.totalIterations == 10 &&
 						<Typography variant='h3'>Year {this.props.year} Recap</Typography>
 					}
-
 
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<List dense={true}>
@@ -433,7 +459,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs.</span>
+										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.</span>
 									}
 								/>
 							</ListItem>
@@ -495,31 +521,33 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								</Table>
 							</TableContainer>
 						</Box>
+						<MobileStepper
+							variant='progress'
+							steps={this.props.totalIterations}
+							position='static'
+							activeStep={this.props.year - 1}
+							LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+							sx={{ padding: '.75rem' }}
+							backButton={<Box sx={{ width: 180 }}></Box>}
+							nextButton={
+								<Button
+									variant='outlined'
+									size='medium'
+									onClick={() => this.props.handleYearRecap(mutableStats)}
+									endIcon={rightArrow()}
+								>
+									{this.props.totalIterations == 5 &&								
+										<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
+									}
+									{this.props.totalIterations == 10 &&								
+										<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
+									}
+								</Button>
+							}
+						/>
 					</>
 					}
 				</Box>
-				<MobileStepper
-					variant='progress'
-					steps={this.props.totalIterations}
-					position='static'
-					activeStep={this.props.year - 1}
-					backButton={<Box sx={{ width: 180 }}></Box>}
-					nextButton={
-						<Button
-							sx={{ width: 180 }}
-							variant='text'
-							onClick={() => this.props.handleYearRecap(mutableStats)}
-							endIcon={rightArrow()}
-						>
-							{this.props.totalIterations == 5 &&								
-								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
-							}
-							{this.props.totalIterations == 10 &&								
-								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
-							}
-						</Button>
-					}
-				/>
 			</>
 		);
 	}

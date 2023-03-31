@@ -30,6 +30,7 @@ import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 import { CompareDialog } from './components/CompareDialog';
 import { SelectGameSettings } from './components/SelectGameSettings';
+import ScopeTabs from './components/ScopeTabs';
 
 export type AppState = {
 	currentPage: symbol;
@@ -400,8 +401,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	handleDashboardOnBack() {
 		// * default back page
-		let nextPage: symbol = Pages.selectScope;
-		if (this.state.currentPage == Pages.selectScope) {
+		let nextPage: symbol = this.state.currentPage;
+		if (this.state.currentPage == Pages.scope1Projects || this.state.currentPage == Pages.scope2Projects ) {
 			let year: number = this.state.trackedStats.year;
 			if (year == 1) {
 				nextPage = Pages.start;
@@ -507,7 +508,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		} else if (newYearTrackedStats.year === this.state.gameSettings.totalIterations + 1) {
 			this.setPage(Pages.loseScreen);
 		} else {
-			this.setPage(Pages.selectScope);
+			this.setPage(Pages.scope1Projects);
 		}
 
 	}
@@ -549,7 +550,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			defaultTrackedStats : updatingInitialTrackedStats
 		});
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
-		this.setPage(Pages.selectScope);
+		this.setPage(Pages.scope1Projects);
 	}
 	
 	
@@ -571,11 +572,13 @@ export class App extends React.PureComponent<unknown, AppState> {
 							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
 								<>
 									<Box sx={{ flexGrow: 1 }}>
-										<AppBar position='relative' sx={{bgcolor: 'transparent'}}>
+										<AppBar position='relative' 
+										sx={{bgcolor: 'white', boxShadow: 'none', paddingBottom: '.5rem'}}
+										>
 										<Toolbar>
 											<Typography variant='h4' fontWeight='800'
 												textAlign='left' pl={2} component='div'
-												sx={{ flexGrow: 1 }}
+												// sx={{ flexGrow: 1 }}
 												className='bp-font-color'>
 												Choose Your Own Solution
 											</Typography>
@@ -583,7 +586,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 													size='small'
 													variant='contained'
 													onClick={this.handleDashboardOnRestart}
-													style={{ margin: '10px' }}>
+													style={{ margin: '10px', marginLeft: '2rem' }}>
 													New Game
 												</Button>
 											</Toolbar>
@@ -592,6 +595,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 								</>
 								: <></>}
 							{this.state.showDashboard ?
+							<>
 								<Dashboard
 									{...this.state.trackedStats}
 									{...controlCallbacks}
@@ -600,6 +604,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/>
+								<ScopeTabs
+									handleChangeScopeTabs={(selectedScope) => this.setPage(selectedScope)} 
+								/>
+							</>
 								: <></>}
 							{(this.state.currentPageProps && this.state.componentClass) ?
 								<CurrentPage
