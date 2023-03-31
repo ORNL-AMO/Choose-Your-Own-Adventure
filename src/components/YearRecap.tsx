@@ -28,11 +28,8 @@ import {
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
-import { emptyTrackedStats } from '../trackedStats';
-import { calculateYearSavings } from '../trackedStats';
-import { setCarbonEmissionsAndSavings } from '../trackedStats';
-import { statsGaugeProperties } from '../trackedStats';
-import type { CompletedProject, NumberApplier, GameSettings } from '../Projects';
+import { emptyTrackedStats, statsGaugeProperties, calculateYearSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
+import type { CompletedProject, NumberApplier, GameSettings, RenewalProject } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -64,8 +61,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		const projectRecaps: JSX.Element[] = [];
 		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
+		// * 22 need to create new array - the original will be modified
+		let projectsRequireRenewal = this.props.projectsRequireRenewal.map(project => { return {...project}});
+
+		// * adding to implemented projects to show display values
+		projectsRequireRenewal.forEach(project => {
+			if (project.yearsImplemented.includes(mutableStats.year)) {
+				implementedProjects.push(Projects[project.page]);
+			}
+		});
 
 		let totalUtilityRebates = 0;
+		// todo 22 renewalRequired some rebates may happen multiple times
+		// todo 22 surprises (negative) only happen once
 		let rebateProjects = implementedProjects.filter(project => {
 			let rebateValue = Number(project.utilityRebateValue);
 			if (rebateValue) {
@@ -146,33 +154,31 @@ export class YearRecap extends React.Component<YearRecapProps> {
 
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
 		// * with current projects modifiers, not the cumulative stats for the year
-		for (let i in this.props.implementedProjects) {
-			let projectKey = this.props.implementedProjects[i];
-			
-			const thisProject = Projects[projectKey];
+		for (let i in implementedProjects) {
+			const thisProject = implementedProjects[i];
+			const projectKey = thisProject.pageId;
 			if (!thisProject)
 				throw new Error(
 					`Project for page ${projectKey.description} not defined`
 				);
 
 			let gaugeCharts: JSX.Element[] = [];
-			// Go through the project's "actual" stats appliers and create a gauge chart for each one
+			const renewalProject = projectsRequireRenewal.find(project => project.page === thisProject.pageId);
+			let skipRenewalSavings = false;
+			if (renewalProject) {
+				skipRenewalSavings = renewalProject.yearStarted !== mutableStats.year;
+			}
 			for (let key in thisProject.statsActualAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
-				let thisGaugeProps = statsGaugeProperties[key];
-				if (!thisGaugeProps) {
-					console.log(
-						`No dashboardStatsGaugeProperties for ${key} (check Dashboard.tsx)`
-					);
-					continue;
-				}
 				let oldValue = mutableStats[key];
-				let newValue = thisApplier.applyValue(oldValue);
+				let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined;
+				let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 				let difference = newValue - oldValue;
 				mutableStats[key] = newValue;
-
-				gaugeCharts.push(
-					<GaugeChart
+				let thisGaugeProps = statsGaugeProperties[key];
+				if (thisGaugeProps) {
+					gaugeCharts.push(
+						<GaugeChart
 						key={key}
 						width={250}
 						backgroundColor={'#88888820'}
@@ -191,44 +197,66 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								value: clampRatio(newValue, thisGaugeProps.maxValue),
 							},
 						]}
-					/>
-				);
-			}
-			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
-			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
-			for (let key in thisProject.statsRecapAppliers) {
-				let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
-				let oldValue = mutableStats[key];
-				let newValue = thisApplier.applyValue(oldValue);
-				let difference = newValue - oldValue;
-				mutableStats[key] = newValue;
-				hiddenStatDiff[key] = difference;
-			}
-			
-			let prevCarbonSavings = mutableStats.carbonSavingsPercent;
-			mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats ); // update carbonEmissions and carbonSavings
-			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
-
-			const totalYearEndRebates = thisProject.getYearEndRebates();
-			const projectNetCost = thisProject.getYearEndNetCost();
-			yearEndNetCost += projectNetCost;
-			const totalYearEndExtraCosts = thisProject.getHiddenCost();
-			nextYearFinancesAvailable -= totalYearEndExtraCosts;
-			nextYearFinancesAvailable += totalYearEndRebates;
-			gaugeCharts.push(
-				<GaugeChart
-					key={'carbonSavings'}
-					width={250}
-					value1={prevCarbonSavings}
-					color1='#888888'
-					value2={mutableStats.carbonSavingsPercent}
-					color2='#000000'
-					text={
-						withSign(
-							(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
-							1
-						) + '%'
+						/>
+						);
 					}
+				}
+
+				
+				// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
+				// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
+				for (let key in thisProject.statsRecapAppliers) {
+					let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
+					let oldValue = mutableStats[key];
+					let yearMultiplier = thisApplier.isAbsolute ? mutableStats.gameYears : undefined;
+					let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
+					let difference = newValue - oldValue;
+					mutableStats[key] = newValue;
+					hiddenStatDiff[key] = difference;
+				}
+
+				let prevCarbonSavings = mutableStats.carbonSavingsPercent;
+				mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats);
+				thisProject.applyCost(mutableStats);
+				const totalYearEndRebates = thisProject.getYearEndRebates();
+				
+				let projectNetCost = 0;
+				if (thisProject.renewalRequired) {
+					projectNetCost = thisProject.getYearEndNetCost(mutableStats.gameYears);
+					const renewalProjectIndex = this.props.projectsRequireRenewal.findIndex(project => project.page === thisProject.pageId);
+					// * Need to assign/save individualized project savings to be applied in each renewal year recap - later years don't change savings state, only display values
+					// * accurate for absolute savings appliers only
+					if (renewalProjectIndex >= 0) {
+						if (this.props.projectsRequireRenewal[renewalProjectIndex].yearStarted === thisYearStart.year) {
+							// todo 22 no other visible sane way to update this - should probably be done in componentDidMount / useEffect
+							// * 22 changes state/props projectsRequireRenewal state directly
+							this.props.projectsRequireRenewal[renewalProjectIndex].yearlyFinancialSavings = calculateYearSavings(thisYearStart, mutableStats);
+						}
+					}
+				} else {
+					projectNetCost = thisProject.getYearEndNetCost();
+				}
+				const initialProjectCost = thisProject.cost * mutableStats.gameYears;
+				yearEndNetCost += projectNetCost;
+				const totalYearEndExtraCosts = thisProject.getHiddenCost();
+				nextYearFinancesAvailable -= totalYearEndExtraCosts;
+				nextYearFinancesAvailable += totalYearEndRebates;
+				mutableStats.financesAvailable = nextYearFinancesAvailable;
+
+				gaugeCharts.push(
+					<GaugeChart
+						key={'carbonSavings'}
+						width={250}
+						value1={prevCarbonSavings}
+						color1='#888888'
+						value2={mutableStats.carbonSavingsPercent}
+						color2='#000000'
+						text={
+							withSign(
+								(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
+								1
+							) + '%'
+						}
 					backgroundColor={'#88888820'}
 					label='Carbon savings'
 					ticks={[
@@ -291,7 +319,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 										<>
 											Initial project cost:{' '}
 											<Emphasis money>
-												${thisProject.cost.toLocaleString('en-US')}
+												${initialProjectCost.toLocaleString('en-US')}
 											</Emphasis>
 											{' '}
 											&nbsp; Rebates:{' '}
@@ -319,35 +347,38 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			);
 		}
 
-		// Sanity check! The current year "real" stats are spread directly into this.props
-		// for (let key in mutableStats) {
-		// 	if(key !== 'year') {
-		// 		if (typeof this.props[key] !== 'undefined') {
-		// 			if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
-		// 				console.error(
-		// 					`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
-		// 				);
-		// 			}
-		// 		}
-		// 	}
-		// }
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0, 
 			maximumFractionDigits: 0, 
 		});
+
 		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
-		const costPerCarbonSavings = totalNetCost / mutableStats.carbonEmissionsSavings;
+		let costPerCarbonSavings = 0;
+		if (totalNetCost > 0) {
+			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
+		}
+
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
+		projectsRequireRenewal.forEach((project: RenewalProject) => {
+			if (project.yearlyFinancialSavings 
+				&& project.yearsImplemented.includes(thisYearStart.year) 
+				&& thisYearStart.year !== 1) {	
+				savings.electricity += project.yearlyFinancialSavings.electricity;
+				savings.naturalGas += project.yearlyFinancialSavings.naturalGas;
+				// * 22 we need to display financesAvailable on this page so savings added here instead of onProceed like regular projects
+				mutableStats.financesAvailable += savings.naturalGas + savings.electricity;
+			}
+		});
+		
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
-		
 		const totalNetCostFormatted: string = noDecimalsFormatter.format(totalNetCost);
-		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings? Intl.NumberFormat('en-US', {
-			minimumFractionDigits: 2, 
+		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings !== undefined? Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0, 
 			maximumFractionDigits: 2, 
 		}).format(costPerCarbonSavings) : '0';
 
@@ -544,6 +575,7 @@ export interface YearRecapProps
 		GameSettings {
 	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
+	projectsRequireRenewal: RenewalProject[];
 	yearRangeInitialStats: TrackedStats[];
 	defaultTrackedStats : TrackedStats;
 	/**
