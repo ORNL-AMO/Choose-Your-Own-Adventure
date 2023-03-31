@@ -119,17 +119,10 @@ export function calculateEmissions(stats: TrackedStats): number {
 
 export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats: TrackedStats) {
 	let newEmissions;
-
 	if (newStats.absoluteCarbonSavings) {
-		// If doing this, we have newStats.carbonEmissions mutated with the past calculated emissions BUT also the already applied absoluteCarbonSavings
-		// newStats.carbonEmissions = newStats.carbonEmissions + newStats.absoluteCarbonSavings;
-	
 		// WARNING - calculation assumes that projects with absoluteCarbonSavings will never have other emissions modifiers (nat gas, electricity)
 		 newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
-		// todo 81 replace with below if absoluteCarbonSavings will never have other modifiers/value change
-		// yearTotalEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
 	} else {
-		// newStats = calculateEmissions(newStats);
 		newEmissions = calculateEmissions(newStats);
 	}
 

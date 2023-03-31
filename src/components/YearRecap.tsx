@@ -352,16 +352,13 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			maximumFractionDigits: 0, 
 		});
 
-		// old
-		// // * budgetSpent / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
-		// costPerCarbonSavings += yearEndNetCost / mutableStats.carbonSavingsPerKg;
 		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
-
 		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
 		let costPerCarbonSavings = 0;
 		if (totalNetCost > 0) {
 			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
 		}
+
 		const savings = calculateYearSavings(thisYearStart, mutableStats);
 		projectsRequireRenewal.forEach((project: RenewalProject) => {
 			if (project.yearlyFinancialSavings 
