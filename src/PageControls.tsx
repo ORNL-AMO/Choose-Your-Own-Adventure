@@ -162,21 +162,23 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
                 Projects[Pages.chilledWaterMonitoringSystem].getProjectChoiceControl(),         
                 Projects[Pages.installVFDs1].getProjectChoiceControl(),         
                 Projects[Pages.installVFDs2].getProjectChoiceControl(),         
-                Projects[Pages.installVFDs3].getProjectChoiceControl(),         
+                Projects[Pages.installVFDs3].getProjectChoiceControl()      
                 // Projects[Pages.lightingUpgrades].getProjectChoiceControl(),  
                 // Projects[Pages.compressedAirSystemOptimization].getProjectChoiceControl(),           
                 // Projects[Pages.refrigerationUpgrade].getProjectChoiceControl(),          
             ]
-        }, {
+        },
+         {
             title: 'Bundled RECs (Renewable Energy Credits)',
             choices: [
                 Projects[Pages.solarPanelsCarPort].getProjectChoiceControl(),
                 Projects[Pages.solarPanelsCarPortMaintenance].getProjectChoiceControl(),
                 Projects[Pages.midSolar].getProjectChoiceControl(),
                 Projects[Pages.solarRooftop].getProjectChoiceControl(),
-                Projects[Pages.solarFieldOnsite].getProjectChoiceControl(),
+                // Projects[Pages.solarFieldOnSite].getProjectChoiceControl(),
             ]
-        }, {
+        }, 
+        {
             title: 'Un-bundled RECs',
             choices: [
                 Projects[Pages.largeWind].getProjectChoiceControl(),
