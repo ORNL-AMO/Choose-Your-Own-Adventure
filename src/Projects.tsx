@@ -226,6 +226,8 @@ declare interface ProjectControlParams {
 	 */
 	yearSelected?: number;
 	projectDialogInfo?: DialogControlProps;
+	hasSingleYearAppliers?: boolean;
+	relatedProjectSymbols?: symbol[];
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -253,6 +255,8 @@ export class ProjectControl implements ProjectControlParams {
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
 	projectDialogInfo: DialogControlProps;
+	hasSingleYearAppliers?: boolean;
+	relatedProjectSymbols?: symbol[] | undefined;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -290,6 +294,8 @@ export class ProjectControl implements ProjectControlParams {
 		this.cost = params.cost;
 		this.yearSelected = params.yearSelected;
 		this.projectDialogInfo = { title: '', text: '' };
+		this.hasSingleYearAppliers = params.hasSingleYearAppliers;
+		this.relatedProjectSymbols = params.relatedProjectSymbols;
 	}
 
     /**
@@ -300,7 +306,10 @@ export class ProjectControl implements ProjectControlParams {
         for (let key in this.statsActualAppliers) {
             let thisApplier = this.statsActualAppliers[key];
             if (!thisApplier) return;
-            let yearMultiplier = thisApplier.isAbsolute ? mutableStats.gameYears : undefined;
+			let yearMultiplier = 1;
+			if (thisApplier.isAbsolute && !this.hasSingleYearAppliers) {
+				yearMultiplier = mutableStats.gameYears;
+			}
             mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
         }
         // Now, apply the change to finances
@@ -328,15 +337,20 @@ export class ProjectControl implements ProjectControlParams {
      * Un-applies this project's stat changes by mutating the provided TrackedStats object.
      * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
      */
-    unApplyStatChanges(mutableStats: TrackedStats) {
+    unApplyStatChanges(mutableStats: TrackedStats, shouldUnapplyCosts: boolean = true) {
         for (let key in this.statsActualAppliers) {
             let thisApplier = this.statsActualAppliers[key];
             if (!thisApplier) return;
-            let yearMultiplier = thisApplier.isAbsolute ? mutableStats.gameYears : undefined;
+
+			let yearMultiplier = 1;
+			if (thisApplier.isAbsolute && !this.hasSingleYearAppliers) {
+				yearMultiplier = mutableStats.gameYears;
+			}
             mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
         }
-        // Now, apply the change to finances
-        this.unApplyCost(mutableStats);
+		if (shouldUnapplyCosts) {
+			this.unApplyCost(mutableStats);
+		}
     }
 
     /**
@@ -493,23 +507,46 @@ export class ProjectControl implements ProjectControlParams {
         addImplementProjectButton(comparisonDialogButtons);
         this.projectDialogInfo.comparisonDialogButtons = comparisonDialogButtons;
 
-        return {
+
+		// todo 88 visible is set directly onto the project ref from the display button, should default to visible() if exists
+        let projectControlChoice: Choice = {
             title: this.title,
             text: this.shortTitle,
             choiceStats: choiceStats,
             buttons: choiceCardButtons,
             visible: function (state) {
-                if (state.projectsRequireRenewal.some(project => project.page === self.pageId)) {
+				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
+					// todo 88 bit of a bandaid until re-working visible()
+					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
+				} else if (state.projectsRequireRenewal.some(project => project.page === self.pageId)) {
                     return true;
-                }
-                if (state.completedProjects.some(project => project.page === self.pageId)) {
+                } else if (state.completedProjects.some(project => project.page === self.pageId)) {
                     return false;
-                }
-                else return this.resolveToValue(self.visible, true);
+                } else {
+					// todo 88 this block should be before all others for projects with visible() defined,
+					// except visible is resolved and assigned to itself so it falls through and ignores defaults
+					// keep original else block here and adding if bandaids for dependant projects above
+					return this.resolveToValue(self.visible, true);
+				} 
+               
             },
             key: this.pageId.description,
             disabled: this.disabled,
         };
+
+
+		return projectControlChoice;
+
+		function getSolarCarportMaintenanceVisible(state) {
+			const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
+			// hide if maintenance has been implemented and user navigates back to year carport implemented 
+			const carportImplementedYear = state.implementedProjects.find(project => project === Pages.solarPanelsCarPort);
+			const maintenanceImplemented = state.projectsRequireRenewal.some(project => {
+				return project.page === Pages.solarPanelsCarPortMaintenance;
+			})
+			// if going to previous year, project can be in both completed and implemented
+			return isCarportCompleted || (maintenanceImplemented && !carportImplementedYear);
+		}
 
         function addCompareProjectButton(buttons: ButtonGroupButton[]) {
             const isSelectedForCompare = (props) => {
@@ -630,6 +667,22 @@ export class ProjectControl implements ProjectControlParams {
 
                 implementedProjects.splice(implementedProjects.indexOf(self.pageId), 1);
 
+
+				// * 88 check if associated maintenance project is implemented, remove then reset stats
+
+				let projectsRequireRenewal: RenewalProject[] = [...this.state.projectsRequireRenewal];
+				if (self.relatedProjectSymbols) {
+					const dependantChildProjectIndex = projectsRequireRenewal.findIndex(project => self.relatedProjectSymbols && self.relatedProjectSymbols.includes(project.page));	
+					if (dependantChildProjectIndex >= 0) {
+						let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
+						removeRenewalProject(projectsRequireRenewal, dependantChildProjectIndex, newTrackedStats, yearRangeInitialStats, true);
+
+						nextState.projectsRequireRenewal = projectsRequireRenewal;
+						nextState.yearRangeInitialStats = yearRangeInitialStats;
+					}
+				}
+
+
                 for (let i = 0; i < implementedProjects.length; i++) {
                     let pageId = implementedProjects[i];
                     Projects[pageId].applyStatChanges(newTrackedStats);
@@ -671,41 +724,10 @@ export class ProjectControl implements ProjectControlParams {
                 implementedInCurrentYear = projectsRequireRenewal[existingRenewalProjectIndex].yearsImplemented.includes(newTrackedStats.year);
             } 
 
-            const currentYearEndIndex = state.yearRangeInitialStats.findIndex(stats => stats.year === newTrackedStats.year);
-
             if (implementedInCurrentYear) {
                 // * 22 removes stats AND costs from current year
-                for (let i = projectsRequireRenewal.length - 1; i >= 0; i--) {
-                    const project = projectsRequireRenewal[i];
-                    if (project.yearsImplemented.includes(newTrackedStats.year)) {
-                        Projects[project.page].unApplyStatChanges(newTrackedStats);
-                    }
-                }
-                
-                const removeProjectIndex: number = projectsRequireRenewal.findIndex(project => project.page === self.pageId);
-                const removeProject = projectsRequireRenewal[removeProjectIndex];
-                if (removeProject) {
-                    if (removeProject.yearStarted === newTrackedStats.year) {
-                        projectsRequireRenewal.splice(removeProjectIndex, 1);
-                    } else {
-                            const implementedYear = removeProject.yearsImplemented.findIndex(year => year === newTrackedStats.year);
-                            removeProject.yearsImplemented.splice(implementedYear, 1);
-                    }
+				removeRenewalProject(projectsRequireRenewal, existingRenewalProjectIndex, newTrackedStats, yearRangeInitialStats);
 
-                }
-
-                for (let i = 0; i < projectsRequireRenewal.length; i++) {
-                    const project = projectsRequireRenewal[i];
-                    if (project.yearsImplemented.includes(newTrackedStats.year)) {
-                        Projects[project.page].applyStatChanges(newTrackedStats);
-                    }
-                }
-
-                // * 22 update current stat year (necessary because we apply renewal at year recap of previous year) 
-                if (currentYearEndIndex !== 0) {
-                    yearRangeInitialStats = [...state.yearRangeInitialStats];
-                    yearRangeInitialStats.splice(currentYearEndIndex, 1, newTrackedStats);
-                }
 
             } else if (!implementedInCurrentYear) {
                 if (self.cost > state.trackedStats.financesAvailable) {
@@ -742,6 +764,42 @@ export class ProjectControl implements ProjectControlParams {
             nextState.yearRangeInitialStats = yearRangeInitialStats;
             return state.currentPage;
         }
+
+		/**
+         * Remove implementation year are whole project
+         */
+		function removeRenewalProject(projectsRequireRenewal: RenewalProject[], removeProjectIndex: number, newTrackedStats: TrackedStats, yearRangeInitialStats: TrackedStats[], isFullRemoval = false) {
+			for (let i = projectsRequireRenewal.length - 1; i >= 0; i--) {
+				const project = projectsRequireRenewal[i];
+				if (project.yearsImplemented.includes(newTrackedStats.year)) {
+					Projects[project.page].unApplyStatChanges(newTrackedStats);
+				}
+			}
+			
+			const removeProject = projectsRequireRenewal[removeProjectIndex];
+			if (removeProject) {
+				if (isFullRemoval || removeProject.yearStarted === newTrackedStats.year) {
+					projectsRequireRenewal.splice(removeProjectIndex, 1);
+				} else {
+						const implementedYear = removeProject.yearsImplemented.findIndex(year => year === newTrackedStats.year);
+						removeProject.yearsImplemented.splice(implementedYear, 1);
+				}
+
+			}
+
+			for (let i = 0; i < projectsRequireRenewal.length; i++) {
+				const project = projectsRequireRenewal[i];
+				if (project.yearsImplemented.includes(newTrackedStats.year)) {
+					Projects[project.page].applyStatChanges(newTrackedStats);
+				}
+			}
+
+			// * 22 update current stat year (necessary because we apply renewal at year recap of previous year) 
+            const currentYearEndIndex = yearRangeInitialStats.findIndex(stats => stats.year === newTrackedStats.year);
+			if (currentYearEndIndex !== 0) {
+				yearRangeInitialStats.splice(currentYearEndIndex, 1, newTrackedStats);
+			}
+		}
     }
 }
 
@@ -936,6 +994,8 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	cost: 150_000,
+	hasSingleYearAppliers: true,
+	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
 	},
@@ -975,6 +1035,10 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	visible: state => {
+		const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
+		return !isCarportCompleted;
+	}
 });
 Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPortMaintenance,

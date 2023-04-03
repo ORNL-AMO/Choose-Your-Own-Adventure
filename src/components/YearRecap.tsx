@@ -171,7 +171,10 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			for (let key in thisProject.statsActualAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
 				let oldValue = mutableStats[key];
-				let yearMultiplier = thisApplier.isAbsolute? mutableStats.gameYears : undefined;
+				let yearMultiplier = 1;
+				if (thisApplier.isAbsolute && !thisProject.hasSingleYearAppliers) {
+					yearMultiplier = mutableStats.gameYears;
+				}
 				let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 				let difference = newValue - oldValue;
 				mutableStats[key] = newValue;
@@ -208,7 +211,10 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				for (let key in thisProject.statsRecapAppliers) {
 					let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
 					let oldValue = mutableStats[key];
-					let yearMultiplier = thisApplier.isAbsolute ? mutableStats.gameYears : undefined;
+					let yearMultiplier = 1;
+					if (thisApplier.isAbsolute && !thisProject.hasSingleYearAppliers) {
+						yearMultiplier = mutableStats.gameYears;
+					}
 					let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 					let difference = newValue - oldValue;
 					mutableStats[key] = newValue;
@@ -236,7 +242,11 @@ export class YearRecap extends React.Component<YearRecapProps> {
 				} else {
 					projectNetCost = thisProject.getYearEndNetCost();
 				}
-				const initialProjectCost = thisProject.cost * mutableStats.gameYears;
+				let yearMultiplier = 1;
+				if (!thisProject.hasSingleYearAppliers) {
+					yearMultiplier = mutableStats.gameYears;
+				}
+				const initialProjectCost = thisProject.cost * yearMultiplier;
 				yearEndNetCost += projectNetCost;
 				const totalYearEndExtraCosts = thisProject.getHiddenCost();
 				nextYearFinancesAvailable -= totalYearEndExtraCosts;
@@ -355,7 +365,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
 		let costPerCarbonSavings = 0;
-		if (totalNetCost > 0) {
+		if (totalNetCost > 0 && mutableStats.carbonSavingsPerKg > 0) {
 			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
 		}
 		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
