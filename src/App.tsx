@@ -466,9 +466,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let implementedProjects: symbol[] = [...this.state.implementedProjects];
 		let projectsRequireRenewal: RenewalProject[] = [...this.state.projectsRequireRenewal];
 
-		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		let savings: { naturalGas: number; electricity: number; } = calculateYearSavings(thisYearStart, currentYearStats);
 		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + savings.electricity + savings.naturalGas;
+		console.log('settings budget', this.state.gameSettings.budget);
+		console.log('financies available', currentYearStats.financesAvailable);
+		console.log('savings.electricity', savings.electricity);
+		console.log('savings.naturalGas', savings.naturalGas);
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		newYearTrackedStats.totalBudget = newBudget;
 		newYearTrackedStats.financesAvailable = newBudget;
@@ -476,6 +479,17 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.moneySpent = 0;
 		newYearTrackedStats.year = currentYearStats.year + 1;
 		newYearTrackedStats.yearInterval = currentYearStats.yearInterval + 2;
+		
+		// Add this year's savings to the budget, INCLUDING unused budget from last year
+		implementedProjects.forEach(projectSymbol => {
+			if (Projects[projectSymbol].hasSingleYearAppliers) {
+				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, false);
+			}
+		})
+		console.log('total new year budget', newBudget);
+		
+		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
+		
 
 		// * if project was renewed our current year, apply to next
 		projectsRequireRenewal.map(project => {

@@ -175,13 +175,13 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
                 Projects[Pages.solarPanelsCarPortMaintenance].getProjectChoiceControl(),
                 Projects[Pages.midSolar].getProjectChoiceControl(),
                 Projects[Pages.solarRooftop].getProjectChoiceControl(),
+                Projects[Pages.largeWind].getProjectChoiceControl(),
                 // Projects[Pages.solarFieldOnSite].getProjectChoiceControl(),
             ]
         }, 
         {
             title: 'Un-bundled RECs',
             choices: [
-                Projects[Pages.largeWind].getProjectChoiceControl(),
                 Projects[Pages.smallVPPA].getProjectChoiceControl(),
                 Projects[Pages.midVPPA].getProjectChoiceControl(),
                 Projects[Pages.largeVPPA].getProjectChoiceControl(),
