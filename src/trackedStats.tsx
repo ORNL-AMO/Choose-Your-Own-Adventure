@@ -43,6 +43,7 @@ export interface TrackedStats {
 	 * Emissions savings in kg coming from projects with absolute/static savings
 	 */
 	absoluteCarbonSavings: number;
+	costPerCarbonSavings: number;
 	moneySpent: number;
 	/**
 	 * Total money spent, across the whole run.
@@ -76,6 +77,7 @@ export const initialTrackedStats: TrackedStats = {
 	carbonEmissions: -1, // auto calculated in the next line
 	carbonSavingsPerKg: 0, 
 	absoluteCarbonSavings: 0,
+	costPerCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
@@ -101,6 +103,7 @@ export const emptyTrackedStats: TrackedStats = {
 	carbonSavingsPerKg: 0,
 	carbonEmissions: 0,
 	absoluteCarbonSavings: 0,
+	costPerCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,

@@ -123,7 +123,6 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
                 Projects[Pages.airHandingUnitUpgrades].getProjectChoiceControl(),                               
                 Projects[Pages.processHeatingUpgrades].getProjectChoiceControl(),
                 Projects[Pages.wasteHeatRecovery].getProjectChoiceControl(),
-                Projects[Pages.electricBoiler].getProjectChoiceControl(),            
                 // Projects[Pages.digitalTwinAnalysis].getProjectChoiceControl(),
                 // Projects[Pages.condensingEconomizerInstallation].getProjectChoiceControl(),      
             ]
@@ -212,20 +211,24 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
     ]
 });
 PageControls[Pages.winScreen] = newInfoDialogControl({
-    title: 'CONGRATULATIONS!',
-    text: (state) => `You succeeded at the goal. You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years!`,
-    img: 'images/confetti.png',
-    buttons: [
-        {
-            text: 'Play again',
-            variant: 'text',
-            onClick: (state) => {
-                location.href = String(location.href); // Reload the page
-                
-                return state.currentPage; // The page returned doesn't really matter
-            }
-        }
-    ]
+	title: 'CONGRATULATIONS!',
+	text: (state) => `You succeeded at the goal!
+						You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years!						
+						You reduced CO2 Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toFixed(2)} kg CO2}!
+						You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO2}!
+						You spent a total of {$${state.trackedStats.totalMoneySpent}} and completed {${state.completedProjects.length}} projects!`,
+	img: 'images/confetti.png',
+	buttons: [
+		{
+			text: 'Play again',
+			variant: 'text',
+			onClick: (state) => {
+				location.href = String(location.href); // Reload the page
+
+				return state.currentPage; // The page returned doesn't really matter
+			}
+		}
+	]
 });
 PageControls[Pages.loseScreen] = newInfoDialogControl({
     title: 'Sorry...',
