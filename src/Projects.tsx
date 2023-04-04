@@ -690,7 +690,16 @@ export class ProjectControl implements ProjectControlParams {
             }
             // IF PROJECT IS NOT ALREADY SELECTED
             else {
-                // Figure out if this project can be afforded
+                let projectImplementationLimit = 4;
+				let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
+				if (state.gameSettings.totalIterations === 5) {
+					projectImplementationLimit = 6;
+					overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
+				}
+				if (implementedProjects.length >= projectImplementationLimit) {
+					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
+				}
+				
                 if (self.cost > state.trackedStats.financesAvailable) {
                     this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
                     return state.currentPage;
@@ -731,6 +740,8 @@ export class ProjectControl implements ProjectControlParams {
 
             } else if (!implementedInCurrentYear) {
                 if (self.cost > state.trackedStats.financesAvailable) {
+					console.log('project cost', self.cost)
+					console.log('state.trackedStats.financesAvailable', state.trackedStats.financesAvailable)
                     this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
                     return state.currentPage;
                 }
