@@ -698,6 +698,7 @@ export class ProjectControl implements ProjectControlParams {
 				}
 				if (implementedProjects.length >= projectImplementationLimit) {
 					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
+					return state.currentPage;
 				}
 				
                 if (self.cost > state.trackedStats.financesAvailable) {
