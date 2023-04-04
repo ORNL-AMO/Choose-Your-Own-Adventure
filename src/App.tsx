@@ -475,7 +475,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		newYearTrackedStats.totalBudget = newBudget;
 		newYearTrackedStats.financesAvailable = newBudget;
-		newYearTrackedStats.totalMoneySpent += newYearTrackedStats.moneySpent;
 		newYearTrackedStats.moneySpent = 0;
 		newYearTrackedStats.year = currentYearStats.year + 1;
 		newYearTrackedStats.yearInterval = currentYearStats.yearInterval + 2;
