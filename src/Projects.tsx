@@ -702,6 +702,9 @@ export class ProjectControl implements ProjectControlParams {
                     newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
                 }
                 nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+				if (nextState.selectedProjectsForComparison.length === 0) {
+					nextState.isCompareDialogOpen = false;
+				}
             }
 
             newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);

@@ -42,6 +42,7 @@ import {
 import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
 import InfoIcon from '@mui/icons-material/Info'
+import { ButtonGroupButton } from './Buttons';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -363,10 +364,10 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		});
 
 		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
-		const totalNetCost = thisYearStart.totalMoneySpent + yearEndNetCost;
+		mutableStats.totalMoneySpent = thisYearStart.totalMoneySpent + yearEndNetCost;
 		let costPerCarbonSavings = 0;
-		if (totalNetCost > 0 && mutableStats.carbonSavingsPerKg > 0) {
-			costPerCarbonSavings = totalNetCost / mutableStats.carbonSavingsPerKg;
+		if (mutableStats.totalMoneySpent > 0 && mutableStats.carbonSavingsPerKg > 0) {
+			costPerCarbonSavings = mutableStats.totalMoneySpent / mutableStats.carbonSavingsPerKg;
 		}
 		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
 
@@ -388,12 +389,13 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		
 		const nextYearFinancesAvailableFormatted: string = noDecimalsFormatter.format(nextYearFinancesAvailable);
 		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
-		const totalNetCostFormatted: string = noDecimalsFormatter.format(totalNetCost);
+		const totalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.totalMoneySpent);
 		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings !== undefined? Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0, 
 			maximumFractionDigits: 2, 
 		}).format(costPerCarbonSavings) : '0';
 
+		
 		return (
 			<>
 			<Divider/>
@@ -405,21 +407,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
 					sx={{ padding: '.75rem' }}
 					backButton={<Box sx={{ width: 180 }}></Box>}
-					nextButton={
-						<Button
-							variant='outlined'
-							size='medium'
-							onClick={() => this.props.handleYearRecap(mutableStats)}
-							endIcon={rightArrow()}
-						>
-							{this.props.totalIterations == 5 &&								
-								<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
-							}
-							{this.props.totalIterations == 10 &&								
-								<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
-							}
-						</Button>
-					}
+					nextButton={getNextButton(this.props, mutableStats)}
 				/>
 				<Box m={2}>
 					{this.props.totalIterations == 5 &&
@@ -451,7 +439,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primary={
 										<Typography variant='h5'>
-											This year, your company saved{' '}
+											This budget period, your company saved{' '}
 											<Emphasis>${naturalGasSavingsFormatted}</Emphasis>{' '}
 											on natural gas and{' '}
 											<Emphasis>${electricitySavingsFormatted}</Emphasis>{' '}
@@ -467,7 +455,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primary={
 										<Typography sx={{ fontSize: '20px' }} >
-											This will be added to your budget for next year, as well as the{' '}
+											This will be added to your budget for the next period, as well as the{' '}
 											<Emphasis>${nextYearFinancesAvailableFormatted}</Emphasis> of your budget
 											that was not yet spent.
 										</Typography>
@@ -551,21 +539,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
 							sx={{ padding: '.75rem' }}
 							backButton={<Box sx={{ width: 180 }}></Box>}
-							nextButton={
-								<Button
-									variant='outlined'
-									size='medium'
-									onClick={() => this.props.handleYearRecap(mutableStats)}
-									endIcon={rightArrow()}
-								>
-									{this.props.totalIterations == 5 &&								
-										<Typography variant='button'>Proceed to years {this.props.yearInterval + 2} and {this.props.yearInterval + 3}</Typography>
-									}
-									{this.props.totalIterations == 10 &&								
-										<Typography variant='button'>Proceed to year {this.props.year + 1}</Typography>
-									}
-								</Button>
-							}
+							nextButton={getNextButton(this.props, mutableStats)}
 						/>
 					</>
 					}
@@ -573,6 +547,24 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			</>
 		);
 	}
+
+}
+
+function getNextButton(props: YearRecapProps, mutableStats: TrackedStats) {
+	let nextbuttonText = `Proceed to year ${props.year + 1}`;
+	// end of game
+	if (props.totalIterations === props.year) {
+		nextbuttonText = 'View Score';
+	} else if (props.totalIterations === 5) {
+		nextbuttonText = `Proceed to years ${props.yearInterval + 2} and ${props.yearInterval + 3}`;
+	} 
+	return <Button
+		variant='outlined'
+		size='medium'
+		onClick={() => props.handleYearRecap(mutableStats)}
+		endIcon={rightArrow()}>
+		<Typography variant='button'>{nextbuttonText}</Typography>
+	</Button>
 }
 
 /**
