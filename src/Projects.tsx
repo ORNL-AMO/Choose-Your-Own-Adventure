@@ -423,26 +423,31 @@ export class ProjectControl implements ProjectControlParams {
         let infoDialogStatCards: DialogCardContent[] = [];
         let choiceStats: ButtonGroupButton[] = [];
 
+		let perYearAddOn: string = '';
+		if(this.renewalRequired == true){
+			perYearAddOn = 'per year';
+		}
+
         infoDialogStatCards.push({
-            text: `Total project cost: {$${(this.cost).toLocaleString('en-US')}}`,
+            text: `Total project cost: {$${(this.cost).toLocaleString('en-US')} ${perYearAddOn}}`,
             color: theme.palette.secondary.dark,
         });
 
         if (this.statsInfoAppliers.naturalGasMMBTU) {
             infoDialogStatCards.push({
-                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)}}`,
+                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
                 color: theme.palette.primary.light,
             });
         }
         if (this.statsInfoAppliers.electricityUseKWh) {
             infoDialogStatCards.push({
-                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)}}`,
+                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
                 color: theme.palette.warning.light,
             });
         }
         if (this.statsInfoAppliers.absoluteCarbonSavings) {
             infoDialogStatCards.push({
-                text: `Carbon Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)}}`,
+                text: `Carbon Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub> ${perYearAddOn}}`,
                 color: theme.palette.primary.main,
             });
         }
