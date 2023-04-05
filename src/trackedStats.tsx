@@ -131,7 +131,7 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
 	// * % CO2 saved * total initial emissions;
-	newStats.carbonSavingsPerKg = carbonSavingsPercent * newEmissions;
+	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }

@@ -244,7 +244,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					projectNetCost = thisProject.getYearEndNetCost();
 				}
 				let yearMultiplier = 1;
-				if (!thisProject.hasSingleYearAppliers) {
+				if (thisProject.renewalRequired && !thisProject.hasSingleYearAppliers) {
 					yearMultiplier = mutableStats.gameYears;
 				}
 				const initialProjectCost = thisProject.cost * yearMultiplier;
