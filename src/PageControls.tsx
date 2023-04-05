@@ -41,7 +41,7 @@ PageControls[Pages.start] = newStartPageControl({
 });
 PageControls[Pages.introduction] = newInfoDialogControl({
     text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate carbon reduction goal:`,
-    cardText: '{50%} carbon reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2 year intervals}',
+    cardText: '{50%} carbon reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
     title: 'Introduction',
     img: 'images/manufacturing.png',
     imgAlt: 'A robotic arm working on a car.',
