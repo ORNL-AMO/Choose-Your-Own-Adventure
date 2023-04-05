@@ -59,7 +59,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 <DialogContent>
                     <Box m={2}>
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
-                            You have the option to play through in 1 OR 2 year intervals.
+                            You have the option to play through in 1 OR 2-year intervals.
                         </DialogContentText>
                         <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
                         <Select
@@ -69,14 +69,14 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                             label='totalIterations'
                             onChange={handleIntervalChange}
                         >
-                            <MenuItem value={10}> 1 year intervals </MenuItem>
-                            <MenuItem value={5}> 2 year intervals</MenuItem>
+                            <MenuItem value={10}> 1-year intervals </MenuItem>
+                            <MenuItem value={5}> 2-year intervals</MenuItem>
 
                         </Select>                        
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='allowCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next years budget?</InputLabel>
+                        <InputLabel id='allowCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
                         <Select
                             labelId='allowCarryover'
                             id='allowCarryover'
@@ -91,7 +91,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='allowEnergyCarryover'>Would you like to add energy cost savings to next years budget?</InputLabel>
+                        <InputLabel id='allowEnergyCarryover'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
                         <Select
                             labelId='allowEnergyCarryover'
                             id='allowEnergyCarryover'

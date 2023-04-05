@@ -924,9 +924,9 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		naturalGasMMBTU: absolute(-3000),
 	},
 	title: 'Paint Booth Upgrades',
-	shortTitle: 'Explore upgrades for entire paint process system',
+	shortTitle: 'Explore upgrades for the entire paint process system',
 	choiceInfoText: [
-		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps and fans, as well as steam for hot water.',
+		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps, and fans, as well as steam for hot water.',
 		'You can invest in a new, upgraded paint process that is more {energy efficient}, {eliminates} steam to heat water, {re-circulates} air, and uses {lower temperatures}.'
 	],
 	choiceInfoImg: 'images/car-manufacturing.png',
@@ -1010,10 +1010,10 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 		electricityUseKWh: absolute(200_000),
 		naturalGasMMBTU: absolute(-20_000),
 	},
-	title: 'Fossel Fuel to Electric Boiler',
-	shortTitle: 'Replace old fossil fuel boiler with an electric boiler',
+	title: 'Fossil Fuel to Electric Boiler',
+	shortTitle: 'Replace the old fossil fuel boiler with an electric boiler',
 	choiceInfoText: [
-		'The smaller of your two boilers is {older} and near ready for replacement.  You can replace that boiler with an {electric boiler} providing the same steam pressure, temperature and rate. ',
+		'The smaller of your two boilers is {older} and near ready for replacement.  You can replace that boiler with an {electric boiler} providing the same steam pressure, temperature, and rate. ',
 		'As the boiler needs replacing soon, corporate has agreed to pay for half of this project out of capital funds, leaving you with about half the total installed cost.'
 	],
 	recapDescription: 'Insert flavor text here!',
@@ -1046,9 +1046,9 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	title: 'Small Carport Solar Installation',
 	shortTitle: 'Install solar panels on new facility carport',
 	choiceInfoText: [
-		`You decided to look into installing a small covered carport with a solar electricity generation system. Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and using 
-		parking in the carport as an incentive to well performing or energy saving employees. You decide to pay for the carport outright and not via a power purchase agreement.
-	    You will recieve {CREDITs} to your budget for the energy generated (and not purchased).`
+		`You decided to look into installing a small covered carport with a solar electricity generation system. Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use 
+		parking in the carport as an incentive to well-performing or energy-saving employees. You decide to pay for the carport outright and not via a power purchase agreement.
+	    You will receive {CREDITs} to your budget for the energy generated (and not purchased).`
 	],
 	choiceInfoImg: 'images/solar-panels.png',
 	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
@@ -1079,8 +1079,8 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 		electricityUseKWh: absolute(-537_000),
 	},
 	title: 'Carport Solar - Maintenance',
-	shortTitle: 'Continue receiving energy from your solar generation.{YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue recieving the energy credits.'],
+	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue receiving the energy credits.'],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
@@ -1119,7 +1119,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	title: 'Mid-sized solar with storage via PACE loan',
 	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: [
-		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have you have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
+		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
 		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
 	],
 	choiceInfoImg: 'images/solar-panels.png',
@@ -1152,7 +1152,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	title: 'Install automated controls for Air Handing Units',
 	shortTitle: 'Install automated AHU controls to manage airflow without requiring the plant operator to manage the settings.',
 	choiceInfoText: [
-		'Your facilities has 20 AHUs that deliver over 1.2 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality.',
+		'Your facilities have 20 AHUs that deliver over 1.2 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality.',
 		'Upgrading the controls system will lower the speed of the AHU motors once set points are met, enabling the temperature and humidity to be maintained while running the motors at a lower kilowatt (kW) load.',
 		'Additionally, the controls include CO2 sensors to monitor air quality and adjust outdoor air ventilation accordingly. '
 	],
@@ -1182,7 +1182,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 		// electricityUseKWh: relative(-0.03),
 		// naturalGasMMBTU: relative(-0.03),
 	},
-	title: 'Advanced Energy monitoring with Wireless Submetering',
+	title: 'Advanced Energy Monitoring with Wireless Submetering',
 	shortTitle: 'Installing submeters and an energy monitoring system will allow for the identification of future projects.',
 	choiceInfoText: [
 		`Your plant has {no monitoring} of its electrical and natural gas load beyond their monthly utility bills. However, installing submeters at every electrical and natural gas load in the plant is not economical or necessary. It was determined that you only need enough submeters installed so that the modeled energy consumption mimics the site’s actual energy curve. 
@@ -1248,7 +1248,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 	shortTitle: 'Install a combustion controller to monitor and optimize the fuel-to-air ratio to maximize the efficiency of the combustion process. ',
 	choiceInfoText: [
 		`Your larger boiler is older, but still well within its expected lifetime. Adding a combustion controller to monitor the fuel-to-air ratio and allow you to optimize excess oxygen to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation.
-	    In addition, the flue gas recirculation fan can be installed to improve performance by lowering the maximum flame temperature to the minimum required level and reduces nitrogen oxide emissions by lowering the average oxygen content of the air. Together this will also minimize O&M costs, and extend the useful lifetime of the boiler.`
+	    In addition, the flue gas recirculation fan can be installed to improve performance by lowering the maximum flame temperature to the minimum required level and reducing nitrogen oxide emissions by lowering the average oxygen content of the air. Together this will also minimize O&M costs, and extend the useful lifetime of the boiler.`
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1343,7 +1343,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
 		'Your compressor system is three, older, inefficient compressors that operate in different combinations to achieve the required air capacity.',
-		'These can collectively be replaced with two new, more efficient compressors and heat of compression dryers. This new configuration will allow the plant to run on fewer compressors and provides some redundancy. The heat of compression dryers added to the drying capacity of the system and replaced refrigerated dryers, providing improved moisture control.',
+		'These can collectively be replaced with two new, more efficient compressors and heat compression dryers. This new configuration will allow the plant to run on fewer compressors and provides some redundancy. The heat of compression dryers added to the drying capacity of the system and replaced refrigerated dryers, providing improved moisture control.',
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1403,7 +1403,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	shortTitle: 'Implement several changes to the chilled water system identified by the advanced energy monitoring system',
 	choiceInfoText: [
 		'Your facility identified their {chilled water system} as a Significant Energy Use (SEU) while installing the {advanced energy monitoring system}.',
-		'Since then, you have identified {several} specific projects to improve the operations of the system such as modifying VFD controls, adjust water flows to maximize temperatures based on outside weather, adjust cooling tower fans, and more.',
+		'Since then, you have identified {several} specific projects to improve the operations of the system such as modifying VFD controls, adjusting water flows to maximize temperatures based on outside weather, adjusting cooling tower fans, and more.',
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1467,7 +1467,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	choiceInfoText: [
 		'Your plant held an {energy treasure hunt} and discovered that the supply pressure for compressed air was {10psig higher} than what is required for the equipment downstream.',
 		'Over a few weeks, they can lower the pressure a few psi at a time while monitoring equipment performance and productivity.',
-		'Lowering the compressor pressure can have an immediate impact on energy use with very little associated cost. ',
+		'Lowering the compressor pressure can have an immediate impact on energy use with a very little associated cost. ',
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -1510,7 +1510,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	caseStudy: {
 		title: 'LIGHTING - Technology Focus Area',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/lighting',
-		text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors it can be higher.'
+		text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors, it can be higher.'
 	},
 	energySavingsPreviewButton: {
 		text: '1.5%',
@@ -1530,7 +1530,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 	title: 'Treasure Hunt - Implement Shut-off Program',
 	shortTitle: 'Design and implement a program to shut off equipment when not in use',
 	choiceInfoText: [
-		'Your plant held an {energy treasure hunt} and found several equipment that could be shut off during weekends or low production times.',
+		'Your plant held an {energy treasure hunt} and found several equipments that could be shut off during weekends or low production times.',
 		'You can develop a {systematic program} to identify equipment to be turned off, create turn on and shut down procedures, and enforce shutdowns which can save electricity with very little cost.'
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
@@ -1540,7 +1540,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 	caseStudy: {
 		title: 'ENERGY TREASURE HUNTS',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
-		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
+		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
 		text: '0.75%',
@@ -1674,7 +1674,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	caseStudy: {
 		title: 'ENERGY TREASURE HUNTS',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
-		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
+		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
 		text: '0.25%',
@@ -1692,7 +1692,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		electricityUseKWh: absolute(-150_000),
 	},
 	title: 'Treasure Hunt - Lighting Occupancy Sensors',
-	shortTitle: 'Install occupancy sensors to turn off lights in unoccupied areas of facility.',
+	shortTitle: 'Install occupancy sensors to turn off lights in unoccupied areas of the facility.',
 	choiceInfoText: [
 		'Your plant held an {energy treasure hunt} and found several areas where lights are not turned off when no one is in the area.',
 		'Installing occupancy sensors in these areas would automatically turn off the lights when the area is unoccupied and turn them on when work has resumed.'
@@ -1704,7 +1704,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	caseStudy: {
 		title: 'ENERGY TREASURE HUNTS',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
-		text: 'One of the best tools at an energy managers disposal is whats known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
+		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
 	energySavingsPreviewButton: {
 		text: '0.50%',
@@ -1801,7 +1801,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	},
 	title: 'Mid-sized Solar PPPA',
 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
@@ -1826,7 +1826,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	},
 	title: 'Large Wind PPPA',
 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15 year contract to source a large portion of your electricity use. You will continuing paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
+	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15-year contract to source a large portion of your electricity use. You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
 	choiceInfoImg: '',
 	choiceInfoImgAlt: '',
 	choiceInfoImgObjectFit: 'contain',
