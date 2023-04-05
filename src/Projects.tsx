@@ -470,7 +470,7 @@ export class ProjectControl implements ProjectControlParams {
                         let isProjectImplemented: boolean = state.implementedProjects.includes(self.pageId);
                         if (self.renewalRequired) {
                             isProjectImplemented = state.projectsRequireRenewal.some((project: RenewalProject) => {
-                                if (project.page === self.pageId && project.yearsImplemented.includes(state.trackedStats.year)) {
+							     if (project.page === self.pageId && project.yearsImplemented.includes(state.trackedStats.year)) {
                                     return true
                                 }
                                 return false;
@@ -690,21 +690,9 @@ export class ProjectControl implements ProjectControlParams {
             }
             // IF PROJECT IS NOT ALREADY SELECTED
             else {
-                let projectImplementationLimit = 4;
-				let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
-				if (state.gameSettings.totalIterations === 5) {
-					projectImplementationLimit = 6;
-					overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
-				}
-				if (implementedProjects.length >= projectImplementationLimit) {
-					this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
+                if (!checkCanImplementProject.apply(this, [state])) {
 					return state.currentPage;
 				}
-				
-                if (self.cost > state.trackedStats.financesAvailable) {
-                    this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
-                    return state.currentPage;
-                }
 
                 implementedProjects.push(self.pageId);
                 self.applyStatChanges(newTrackedStats);
@@ -720,6 +708,31 @@ export class ProjectControl implements ProjectControlParams {
 
             return state.currentPage; // no page change
         }
+
+		function checkCanImplementProject(this: App, state: AppState): boolean {
+			let canImplement = true;
+			let projectImplementationLimit = 4;
+			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
+			if (state.gameSettings.totalIterations === 5) {
+				projectImplementationLimit = 6;
+				overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
+			}
+			const renewableProjectCount: number = state.projectsRequireRenewal.map(project => {
+				return project.yearStarted === state.trackedStats.year;
+			}).length;
+
+			const currentProjectCount = renewableProjectCount + state.implementedProjects.length;
+			if (currentProjectCount >= projectImplementationLimit) {
+				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
+				canImplement = false;
+			}
+
+			if (self.cost > state.trackedStats.financesAvailable) {
+				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
+				canImplement = false;
+			}
+			return canImplement;
+		}
 
 
         function toggleRenewalRequiredProject(this: App, state: AppState, nextState: NextAppState) {
@@ -737,15 +750,10 @@ export class ProjectControl implements ProjectControlParams {
             if (implementedInCurrentYear) {
                 // * 22 removes stats AND costs from current year
 				removeRenewalProject(projectsRequireRenewal, existingRenewalProjectIndex, newTrackedStats, yearRangeInitialStats);
-
-
             } else if (!implementedInCurrentYear) {
-                if (self.cost > state.trackedStats.financesAvailable) {
-					console.log('project cost', self.cost)
-					console.log('state.trackedStats.financesAvailable', state.trackedStats.financesAvailable)
-                    this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
-                    return state.currentPage;
-                }
+				if (!checkCanImplementProject.apply(this, [state])) {
+					return state.currentPage;
+				}
 
                 if (existingRenewalProjectIndex >= 0) {
                     projectsRequireRenewal[existingRenewalProjectIndex].yearsImplemented.push(newTrackedStats.year);
