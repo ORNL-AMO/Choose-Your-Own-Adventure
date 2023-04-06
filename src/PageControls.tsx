@@ -212,16 +212,13 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 });
 PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
-	text: (state) => `You succeeded at the goal!
-						You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years!						
-						You reduced CO2 Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toFixed(2)} kg CO2}!
-						You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO2}!
-						You spent a total of {$${state.trackedStats.totalMoneySpent}} and completed {${state.completedProjects.length}} projects!`,
+    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub> Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>}! \n You spent a total of {$${state.trackedStats.totalMoneySpent.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
 	img: 'images/confetti.png',
 	buttons: [
 		{
 			text: 'Play again',
 			variant: 'text',
+            size: 'large',
 			onClick: (state) => {
 				location.href = String(location.href); // Reload the page
 
