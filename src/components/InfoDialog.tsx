@@ -136,7 +136,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			</>}
 
 			{props.title === 'CONGRATULATIONS!' &&
-				<DialogTitle sx={{ fontSize: '30px', textAlign: 'center' }} className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+				<DialogTitle sx={{ fontSize: '42px', textAlign: 'center' }} className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
 			}
 			{props.title !== 'CONGRATULATIONS!' &&
 				<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
