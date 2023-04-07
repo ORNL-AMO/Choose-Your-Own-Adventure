@@ -226,7 +226,7 @@ declare interface ProjectControlParams {
 	 */
 	yearSelected?: number;
 	projectDialogInfo?: DialogControlProps;
-	hasSingleYearAppliers?: boolean;
+	hasImplementationYearAppliers?: boolean;
 	relatedProjectSymbols?: symbol[];
 }
 
@@ -255,7 +255,7 @@ export class ProjectControl implements ProjectControlParams {
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
 	projectDialogInfo: DialogControlProps;
-	hasSingleYearAppliers?: boolean;
+	hasImplementationYearAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
 
 	/**
@@ -294,7 +294,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.cost = params.cost;
 		this.yearSelected = params.yearSelected;
 		this.projectDialogInfo = { title: '', text: '' };
-		this.hasSingleYearAppliers = params.hasSingleYearAppliers;
+		this.hasImplementationYearAppliers = params.hasImplementationYearAppliers;
 		this.relatedProjectSymbols = params.relatedProjectSymbols;
 	}
 
@@ -307,7 +307,7 @@ export class ProjectControl implements ProjectControlParams {
             let thisApplier = this.statsActualAppliers[key];
             if (!thisApplier) return;
 			let yearMultiplier = 1;
-			if (thisApplier.isAbsolute && !this.hasSingleYearAppliers) {
+			if (thisApplier.isAbsolute) {
 				yearMultiplier = mutableStats.gameYears;
 			}
             mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
@@ -343,7 +343,7 @@ export class ProjectControl implements ProjectControlParams {
             if (!thisApplier) return;
 
 			let yearMultiplier = 1;
-			if (thisApplier.isAbsolute && !this.hasSingleYearAppliers) {
+			if (thisApplier.isAbsolute) {
 				yearMultiplier = mutableStats.gameYears;
 			}
             mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
@@ -725,20 +725,31 @@ export class ProjectControl implements ProjectControlParams {
 				projectImplementationLimit = 6;
 				overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			}
-			const renewableProjectCount: number = state.projectsRequireRenewal.map(project => {
+
+			const startedRenewableProjects = state.projectsRequireRenewal.filter(project => {
 				return project.yearStarted === state.trackedStats.year;
 			}).length;
 
-			const currentProjectCount = renewableProjectCount + state.implementedProjects.length;
+			const currentProjectCount = startedRenewableProjects + state.implementedProjects.length;
+			const projectCounts = `year ${state.trackedStats.year} - reg projects: ${state.implementedProjects.length}, started renewables: ${startedRenewableProjects}`;
+			console.log(projectCounts);
 			if (currentProjectCount >= projectImplementationLimit) {
 				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
 				canImplement = false;
 			}
-
-			if (self.cost > state.trackedStats.financesAvailable) {
+			
+			console.log('cost', self.cost);
+			console.log('financesAvailable', state.trackedStats.financesAvailable);
+			let projectCost = self.cost;
+			// * renewal project self.costs are applied with gameYears multiplier elsewhere
+			if (self.renewalRequired) {
+				projectCost *= state.trackedStats.gameYears;
+			}
+			if (projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
 			}
+			console.log('canImplement', canImplement);
 			return canImplement;
 		}
 
@@ -1022,7 +1033,7 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	cost: 150_000,
-	hasSingleYearAppliers: true,
+	hasImplementationYearAppliers: true,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
