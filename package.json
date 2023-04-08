@@ -1,5 +1,5 @@
 {
-  "name": "choose-your-adventure",
+  "name": "choose-your-own-solution",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -41,7 +41,7 @@
   },
   "build": {
     "extends": null,
-    "appId": "com.electron.choose-your-adventure",
+    "appId": "com.electron.choose-your-own-solution",
     "productName": "Choose Your Own Solution",
     "files": [
       "dist/**/*",
@@ -51,6 +51,18 @@
     ],
     "directories": {
       "output": "../output/"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/desktop-logo512.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/desktop-logo512.ico",
+      "installerHeaderIcon": "public/desktop-logo512.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     }
   },
   "eslintConfig": {
