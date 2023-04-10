@@ -1027,6 +1027,9 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 		'The smaller of your two boilers is {older} and near ready for replacement.  You can replace that boiler with an {electric boiler} providing the same steam pressure, temperature, and rate. ',
 		'As the boiler needs replacing soon, corporate has agreed to pay for half of this project out of capital funds, leaving you with about half the total installed cost.'
 	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	// add case study
 });
@@ -1092,9 +1095,9 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	title: 'Carport Solar - Maintenance',
 	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue receiving the energy credits.'],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/solar-panels.png',
+	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
@@ -1133,8 +1136,9 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
 		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
 	],
-	choiceInfoImg: 'images/solar-panels.png',
-	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
+	choiceInfoImg: 'images/solar-field.jpg',
+	choiceInfoImgAlt: 'Solar panels field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
 		title: 'Financing Carbon Projects Factsheet',
@@ -1160,15 +1164,15 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		electricityUseKWh: absolute(-1_165_000),
 		naturalGasMMBTU: absolute(-3600),
 	},
-	title: 'Install automated controls for Air Handing Units',
+	title: 'Install automated controls for Air Handling Units',
 	shortTitle: 'Install automated AHU controls to manage airflow without requiring the plant operator to manage the settings.',
 	choiceInfoText: [
 		'Your facilities have 20 AHUs that deliver over 1.2 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality.',
 		'Upgrading the controls system will lower the speed of the AHU motors once set points are met, enabling the temperature and humidity to be maintained while running the motors at a lower kilowatt (kW) load.',
 		'Additionally, the controls include CO2 sensors to monitor air quality and adjust outdoor air ventilation accordingly. '
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/air-handling-units.jpg',
+	choiceInfoImgAlt: 'air handling unit',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1200,8 +1204,8 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 		This project would first determine which loads the plant would benefit from determining the energy consumption of.
 	    The loads resulting in savings greater than the cost of a sensor were chosen as metering points. Sites for {50 sensors} were identified, covering over 75% of the facility load. While this project has {no direct energy savings}, it will allow for other projects to be identified. `
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/advanced-sensors.png',
+	choiceInfoImgAlt: 'advanced sensors',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1261,8 +1265,8 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		`Your larger boiler is older, but still well within its expected lifetime. Adding a combustion controller to monitor the fuel-to-air ratio and allow you to optimize excess oxygen to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation.
 	    In addition, the flue gas recirculation fan can be installed to improve performance by lowering the maximum flame temperature to the minimum required level and reducing nitrogen oxide emissions by lowering the average oxygen content of the air. Together this will also minimize O&M costs, and extend the useful lifetime of the boiler.`
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/boiler-monitoring.png',
+	choiceInfoImgAlt: 'boiler monitoring.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1291,8 +1295,8 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		'Your plant held an {energy treasure hunt} and found that 35% of your steam traps were faulty.',
 		'You can repair these traps and {institute a steam trap maintenance program} to reduce energy use and help operate the steam system more efficiently. ',
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/steam-traps.jpg',
+	choiceInfoImgAlt: 'steam trap',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1321,8 +1325,8 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		'Your plant held an {energy treasure hunt} and found several exterior steam lines that are uninsulated.',
 		'Adding {insultation} can be a cheap way to improve steam system efficiency and reliability.',
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/steam-pipe-insulation.jpg',
+	choiceInfoImgAlt: 'steam pipe insulation',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1356,8 +1360,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		'Your compressor system is three, older, inefficient compressors that operate in different combinations to achieve the required air capacity.',
 		'These can collectively be replaced with two new, more efficient compressors and heat compression dryers. This new configuration will allow the plant to run on fewer compressors and provides some redundancy. The heat of compression dryers added to the drying capacity of the system and replaced refrigerated dryers, providing improved moisture control.',
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/compressors.jpg',
+	choiceInfoImgAlt: 'air compressors',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1416,8 +1420,8 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 		'Your facility identified their {chilled water system} as a Significant Energy Use (SEU) while installing the {advanced energy monitoring system}.',
 		'Since then, you have identified {several} specific projects to improve the operations of the system such as modifying VFD controls, adjusting water flows to maximize temperatures based on outside weather, adjusting cooling tower fans, and more.',
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/chiller-systems-in-plant.png',
+	choiceInfoImgAlt: 'chiller system.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1480,8 +1484,8 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 		'Over a few weeks, they can lower the pressure a few psi at a time while monitoring equipment performance and productivity.',
 		'Lowering the compressor pressure can have an immediate impact on energy use with a very little associated cost. ',
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/compressed-air.jpg',
+	choiceInfoImgAlt: 'air compressor',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1514,8 +1518,8 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		'Your plant held an {energy treasure hunt} and found that the older lighting in the main production building could be replaced with LED lighting.',
 		'While you are hoping to get a rebate for the fixture cost, it is not known if you qualify at this point. '
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/lighting-upgrade.jpg',
+	choiceInfoImgAlt: 'warehouse celling lights.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1544,8 +1548,8 @@ Projects[Pages.startShutOff] = new ProjectControl({
 		'Your plant held an {energy treasure hunt} and found several equipments that could be shut off during weekends or low production times.',
 		'You can develop a {systematic program} to identify equipment to be turned off, create turn on and shut down procedures, and enforce shutdowns which can save electricity with very little cost.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/vfds.jpg',
+	choiceInfoImgAlt: 'Motor belt.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1578,8 +1582,8 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
 		'You can install VFDs on a few smaller motors for this project.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/vfds.jpg',
+	choiceInfoImgAlt: 'Motor belt.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1613,8 +1617,8 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
 		'You can install VFDs on a few moderately sized motors for this project.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/vfds.jpg',
+	choiceInfoImgAlt: 'Motor belt.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1648,8 +1652,8 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
 		'You can install VFD on a large motor for this project.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/vfds.jpg',
+	choiceInfoImgAlt: 'Motor belt.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1678,8 +1682,8 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	choiceInfoText: [
 		'Your plant held an {energy treasure hunt} and found several fans that can be run at slightly lower speeds without substantially changing airflow.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/fans.jpg',
+	choiceInfoImgAlt: 'two big fans.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1708,8 +1712,8 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		'Your plant held an {energy treasure hunt} and found several areas where lights are not turned off when no one is in the area.',
 		'Installing occupancy sensors in these areas would automatically turn off the lights when the area is unoccupied and turn them on when work has resumed.'
 	],
-	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImg: 'images/lighting-upgrade.jpg',
+	choiceInfoImgAlt: 'warehouse celling lights.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
@@ -1737,9 +1741,9 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
@@ -1762,9 +1766,9 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
@@ -1787,9 +1791,9 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
@@ -1813,9 +1817,9 @@ Projects[Pages.midSolar] = new ProjectControl({
 	title: 'Mid-sized Solar PPPA',
 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/solar-field.jpg',
+	choiceInfoImgAlt: 'Solar panels field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
@@ -1838,9 +1842,9 @@ Projects[Pages.largeWind] = new ProjectControl({
 	title: 'Large Wind PPPA',
 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15-year contract to source a large portion of your electricity use. You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
-	choiceInfoImg: '',
-	choiceInfoImgAlt: '',
-	choiceInfoImgObjectFit: 'contain',
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewButton: {
