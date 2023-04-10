@@ -1014,11 +1014,11 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	cost: 500_000,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(4_100_000),
+		electricityUseKWh: absolute(200_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(4_100_000),
+		electricityUseKWh: absolute(200_000),
 		naturalGasMMBTU: absolute(-20_000),
 	},
 	title: 'Fossil Fuel to Electric Boiler',
@@ -1032,14 +1032,14 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 });
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
-	cost: 150_000,
+	cost: 157_000,
 	hasImplementationYearAppliers: true,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(-425_000),
+		electricityUseKWh: absolute(-537_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-425_000),
+		electricityUseKWh: absolute(-537_000),
 	},
 	statsRecapAppliers: {
 		financesAvailable: absolute(-30_000),
@@ -1058,7 +1058,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	shortTitle: 'Install solar panels on new facility carport',
 	choiceInfoText: [
 		`You decided to look into installing a small covered carport with a solar electricity generation system. Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use 
-		parking in the carport as an incentive to well-performing or energy-saving employees. You decide to pay for the carport outright and not via a power purchase agreement, so you {must fund the maintenance} of the panels from this budget.
+		parking in the carport as an incentive to well-performing or energy-saving employees. You decide to pay for the carport outright and not via a power purchase agreement.
 	    You will receive {CREDITs} to your budget for the energy generated (and not purchased).`
 	],
 	choiceInfoImg: 'images/solar-panels.png',
@@ -1084,10 +1084,10 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	renewalRequired: true,
 	cost: 10_000,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(-425_000),
+		electricityUseKWh: absolute(-537_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-425_000),
+		electricityUseKWh: absolute(-537_000),
 	},
 	title: 'Carport Solar - Maintenance',
 	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
@@ -1109,10 +1109,10 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	renewalRequired: true,
 	cost: 375_000,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(-4_250_000),
+		electricityUseKWh: absolute(-5_365_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-4_250_000),
+		electricityUseKWh: absolute(-5_365_000),
 	},
 	//   statsRecapAppliers: {
 	//       financesAvailable: absolute(-30_000),
@@ -1127,7 +1127,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	//           color: 'rgb(255 135 33)',
 	//        }
 	//    }],
-	title: 'Mid-Sized Solar with Storage via PACE loan',
+	title: 'Mid-sized solar with storage via PACE loan',
 	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: [
 		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
@@ -1160,7 +1160,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		electricityUseKWh: absolute(-1_165_000),
 		naturalGasMMBTU: absolute(-3600),
 	},
-	title: 'Install Automated Controls for Air Handing Units',
+	title: 'Install automated controls for Air Handing Units',
 	shortTitle: 'Install automated AHU controls to manage airflow without requiring the plant operator to manage the settings.',
 	choiceInfoText: [
 		'Your facilities have 20 AHUs that deliver over 1.2 million cubic feet per minute of conditioned air to maintain temperature, humidity, and air quality.',
@@ -1255,7 +1255,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 	statsActualAppliers: {
 		naturalGasMMBTU: absolute(-9600),
 	},
-	title: 'Installing Boiler Monitors and Control',
+	title: 'Installing boiler monitors and control',
 	shortTitle: 'Install a combustion controller to monitor and optimize the fuel-to-air ratio to maximize the efficiency of the combustion process. ',
 	choiceInfoText: [
 		`Your larger boiler is older, but still well within its expected lifetime. Adding a combustion controller to monitor the fuel-to-air ratio and allow you to optimize excess oxygen to maximize the efficiency of the combustion process while maintaining safe and stable boiler operation.
@@ -1350,7 +1350,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
-	title: 'Replace Old Compressors',
+	title: 'Replace old compressors',
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
 		'Your compressor system is three, older, inefficient compressors that operate in different combinations to achieve the required air capacity.',
@@ -1473,7 +1473,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
-	title: 'Treasure Hunt - Lower Compressed Air System Pressure',
+	title: 'Treasure Hunt - Lower compressed air system pressure',
 	shortTitle: 'Gradually lower compressed air pressure to reduce compressor load.',
 	choiceInfoText: [
 		'Your plant held an {energy treasure hunt} and discovered that the supply pressure for compressed air was {10psig higher} than what is required for the equipment downstream.',
@@ -1572,7 +1572,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
-	title: 'Install VFDs on Small Motors',
+	title: 'Install VFDs on small motors',
 	shortTitle: 'Install VFDs on small motors with high use variability',
 	choiceInfoText: [
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
@@ -1607,7 +1607,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
-	title: 'Install VFDs on Mid-Sized Motors',
+	title: 'Install VFDs on mid-sized motors',
 	shortTitle: 'Install VFDs on mid-sized motors with high use variability',
 	choiceInfoText: [
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
@@ -1642,7 +1642,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		totalRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
-	title: 'Install VFDs on Large Motors',
+	title: 'Install VFDs on large motors',
 	shortTitle: 'Install VFDs on large motors with high use variability',
 	choiceInfoText: [
 		'Thanks to the {Advanced Energy Monitoring System}, your plant has identified several motors with {high use variability} that would benefit from VFDs.',
@@ -1673,7 +1673,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: absolute(-75_000),
 	},
-	title: 'Treasure Hunt - Reduce Fan Speeds',
+	title: 'Treasure Hunt - Reduce fan speeds',
 	shortTitle: 'Run interior fans at slightly lower speeds',
 	choiceInfoText: [
 		'Your plant held an {energy treasure hunt} and found several fans that can be run at slightly lower speeds without substantially changing airflow.'
@@ -1734,7 +1734,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-1_200_000)
 	},
-	title: 'Invest in Wind VPPA',
+	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
@@ -1759,7 +1759,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-2_400_000)
 	},
-	title: 'Invest in Wind VPPA',
+	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
@@ -1784,7 +1784,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-3_600_000)
 	},
-	title: 'Invest in Wind VPPA',
+	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
 	choiceInfoImg: '',
@@ -1805,12 +1805,12 @@ Projects[Pages.midSolar] = new ProjectControl({
 	renewalRequired: true,
 	cost: 100_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-1_440_000)
+		absoluteCarbonSavings: absolute(-1_717_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-1_440_000)
+		absoluteCarbonSavings: absolute(-1_717_000)
 	},
-	title: 'Mid-Sized Solar PPPA',
+	title: 'Mid-sized Solar PPPA',
 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
 	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
 	choiceInfoImg: '',
@@ -1830,10 +1830,10 @@ Projects[Pages.largeWind] = new ProjectControl({
 	renewalRequired: true,
 	cost: 269_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-4_800_000)
+		absoluteCarbonSavings: absolute(-4_292_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-4_800_000)
+		absoluteCarbonSavings: absolute(-4_292_000)
 	},
 	title: 'Large Wind PPPA',
 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
