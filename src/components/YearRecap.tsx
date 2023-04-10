@@ -320,10 +320,11 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							<Grid item xs={12} md={6}>
 								<CardHeader
 									title={thisProject.title}
-									subheader={thisProject.shortTitle}
+									// subheader={thisProject.shortTitle}
 									sx={headerStyle}
-								/>
+								/>							
 								<CardContent>
+									<Typography variant='body1' sx={{textAlign: 'left',	fontSize: '18px', fontWeight: '400',color: '#000000',}} dangerouslySetInnerHTML={parseSpecialText(thisProject.shortTitle)} />
 									{thisProject.caseStudy && (
 										<>
 											<Link href={thisProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
