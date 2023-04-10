@@ -1,6 +1,7 @@
 import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
 import { styled, useTheme } from '@mui/material/styles';
+import type { Breakpoint } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
@@ -27,7 +28,14 @@ export const InfoCard = styled(Paper)(({ theme }) => ({
  */
 function InfoDialogFunc (props: InfoDialogProps) {
 	const theme = useTheme();
-	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	let fullScreen = useMediaQuery(theme.breakpoints.down('sm'));	
+
+	let imgHeight = '260';
+	if( props.title === 'CONGRATULATIONS!' ){
+		fullScreen = true;
+		imgHeight = '390';
+	}
+	
 	
 	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
 	useEffect(() => {
@@ -88,7 +96,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			{props.img && <>
 				<CardMedia
 					component='img'
-					height='260'
+					height= {imgHeight}
 					image={props.img}
 					alt={props.imgAlt}
 					title={props.imgAlt}
@@ -126,10 +134,22 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					</div>
 				}
 			</>}
-			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+
+			{props.title === 'CONGRATULATIONS!' &&
+				<DialogTitle sx={{ fontSize: '42px', textAlign: 'center' }} className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+			}
+			{props.title !== 'CONGRATULATIONS!' &&
+				<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+			}
 			<DialogContent>
-				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
-				</DialogContentText>
+				{props.title === 'CONGRATULATIONS!' &&
+					<DialogContentText sx={{ fontSize: '28px', textAlign: 'center' }} id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
+					</DialogContentText>
+				}
+				{props.title !== 'CONGRATULATIONS!' &&
+					<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
+					</DialogContentText>
+				}
 				{infoCards}
 			</DialogContent>
 			<DialogActions>

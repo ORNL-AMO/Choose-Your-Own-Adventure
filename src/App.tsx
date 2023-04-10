@@ -466,10 +466,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let implementedProjects: symbol[] = [...this.state.implementedProjects];
 		let projectsRequireRenewal: RenewalProject[] = [...this.state.projectsRequireRenewal];
 
+		// * has accurate renewalprojects savings only in first year of implementation
 		let savings: { naturalGas: number; electricity: number; } = calculateYearSavings(thisYearStart, currentYearStats);
 		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + savings.electricity + savings.naturalGas;
 		console.log('settings budget', this.state.gameSettings.budget);
-		console.log('financies available', currentYearStats.financesAvailable);
+		console.log('finances available', currentYearStats.financesAvailable);
 		console.log('savings.electricity', savings.electricity);
 		console.log('savings.naturalGas', savings.naturalGas);
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
@@ -479,17 +480,17 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.year = currentYearStats.year + 1;
 		newYearTrackedStats.yearInterval = currentYearStats.yearInterval + 2;
 		
-		// Add this year's savings to the budget, INCLUDING unused budget from last year
 		implementedProjects.forEach(projectSymbol => {
-			if (Projects[projectSymbol].hasSingleYearAppliers) {
+			if (Projects[projectSymbol].hasImplementationYearAppliers) {
 				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, false);
 			}
 		})
-		console.log('total new year budget', newBudget);
+		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
+		
 		
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
 		
-
+		
 		// * if project was renewed our current year, apply to next
 		projectsRequireRenewal.map(project => {
 			Projects[project.page].applyCost(newYearTrackedStats);
@@ -504,9 +505,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 				return newCompletedProjects.push({ selectedYear: currentYearStats.year, page: implementedProjectSymbol });
 			}
 		});
-
+		
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
-
+		console.log('new year range initial stats', newYearRangeInitialStats);
+		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
 		this.setState({
 			completedProjects: newCompletedProjects,
 			implementedProjects: [],
