@@ -1032,8 +1032,8 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 });
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
-	cost: 157_000,
-	hasSingleYearAppliers: true,
+	cost: 150_000,
+	hasImplementationYearAppliers: true,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-425_000),
