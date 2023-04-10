@@ -39,6 +39,10 @@ export type AppState = {
 	dialog: DialogStateProps,
 	currentPageProps?: AnyDict; // todo
 	componentClass?: Component;
+	/**
+	 * Year / years
+	 */
+	completedYears: number,
 	trackedStats: TrackedStats;
 	// * initial stats for each year range. Currently looks like the first year never changes, though
 	// * subsequent years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
@@ -67,6 +71,7 @@ export interface NextAppState {
 	currentPage?: symbol;
 	currentOnBack?: PageCallback;
 	companyName?: string;
+	completedYears?: number,
 	dialog?: DialogStateProps,
 	currentPageProps?: AnyDict;
 	componentClass?: Component;
@@ -163,12 +168,15 @@ export class App extends React.PureComponent<unknown, AppState> {
 	constructor(props: unknown) {
 		super(props);
 
-		let startPage = Pages.start; let showDashboardAtStart = false;
-		// startPage = Pages.selectScope; showDashboardAtStart = true; // temporary, for debugging
-		// startPage = Pages.yearRecap; showDashboardAtStart = false; // also temporary
+		this.state = this.getInitialAppState()
+		// @ts-ignore - for debugging 
+		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
+	}
 
-		// For info on state, see https://reactjs.org/docs/state-and-lifecycle.html
-		this.state = {
+	getInitialAppState() {
+		let startPage = Pages.start; 
+		let showDashboardAtStart = false;
+		return {
 			currentPage: startPage,
 			companyName: 'Auto-Man, Inc.',
 			dialog: {
@@ -177,6 +185,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				text: '',
 				cardText: undefined
 			},
+			completedYears: 0,
 			currentPageProps: PageControls[startPage].controlProps,
 			componentClass: PageControls[startPage].componentClass,
 			trackedStats: { ...initialTrackedStats },
@@ -200,14 +209,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 			},
 			defaultTrackedStats : { ...initialTrackedStats }
 		};
-
-		// @ts-ignore - for debugging 
-		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
-
-		// window.onbeforeunload = () => 'Are you sure you want to exit?'; TODO enable later
-
-		// todo
-		// addEventListener('popstate', this.handleHistoryPopState.bind(this));
 	}
 
 	getThisPageControl() {
@@ -405,6 +406,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		if (this.state.currentPage == Pages.scope1Projects || this.state.currentPage == Pages.scope2Projects ) {
 			let year: number = this.state.trackedStats.year;
 			if (year == 1) {
+				this.setState(this.getInitialAppState());
 				nextPage = Pages.start;
 			}
 			else {
@@ -413,6 +415,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 		}
 		this.setPage(nextPage);
 	}
+
+	isBackButtonDisabled() {
+		if (this.state.trackedStats.year === 1) {
+			return false;
+		}
+		return this.state.completedYears === this.state.trackedStats.year;
+	}
+	
 
 	/**
 	 * Update state from previous selections and results when navigating back
@@ -509,8 +519,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 		console.log('new year range initial stats', newYearRangeInitialStats);
 		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
+		const completedYears = this.state.completedYears < this.state.trackedStats.year? this.state.completedYears + 1 : this.state.completedYears; 
 		this.setState({
 			completedProjects: newCompletedProjects,
+			completedYears: completedYears,
 			implementedProjects: [],
 			projectsRequireRenewal: projectsRequireRenewal,
 			selectedProjectsForComparison: [],
@@ -616,6 +628,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									{...controlCallbacks}
 									{...this.state.gameSettings}
 									onBack={() => this.handleDashboardOnBack()}
+									btnBackDisabled={this.isBackButtonDisabled()}
 									onProceed={() => this.handleDashboardOnProceed()}
 									btnProceedDisabled={this.state.componentClass === YearRecap}
 								/>
