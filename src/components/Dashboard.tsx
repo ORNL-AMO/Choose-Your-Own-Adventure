@@ -65,7 +65,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 						<Button size='medium'
 							variant='outlined'
 							onClick={this.props.onBack}
-							disabled={!this.props.onBack}>
+							disabled={this.props.btnBackDisabled}>
 							{leftArrow()}
 							Back
 						</Button>
@@ -232,8 +232,6 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
 	onBack?: () => void;
 	onProceed: () => void;
-	/**
-	 * Whether the PROCEED Button is disabled.
-	 */
+	btnBackDisabled: boolean;
 	btnProceedDisabled: boolean;
 }
