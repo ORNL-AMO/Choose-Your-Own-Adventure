@@ -193,7 +193,7 @@ export default function GaugeChart({
 					textAnchor='middle'
 					y={8}
 					fontSize='0.9rem'
-					fontWeight={200}
+					fontWeight={500}
 					className='i'
 				>
 					{label}

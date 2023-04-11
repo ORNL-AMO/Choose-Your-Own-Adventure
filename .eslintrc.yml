@@ -19,6 +19,8 @@ rules:
   prefer-const: off
   no-prototype-builtins: off
   no-debugger: warn
+  no-unused-vars: off
+  no-mixed-spaces-and-tabs: warn
   jsx-quotes:
     - error
     - prefer-single
@@ -26,8 +28,10 @@ rules:
     - error
     - single
   '@typescript-eslint/no-empty-interface': warn
+  '@typescript-eslint/no-unused-vars': off
   '@typescript-eslint/ban-ts-comment': warn
   '@typescript-eslint/consistent-type-imports': error
+  '@typescript-eslint/no-inferrable-types': warn
   'react/prop-types': warn
   '@typescript-eslint/no-this-alias':
     - off # temp
@@ -36,5 +40,5 @@ rules:
       allowedNames: 
         - self
   semi:
-    - error
+    - warn
     - always

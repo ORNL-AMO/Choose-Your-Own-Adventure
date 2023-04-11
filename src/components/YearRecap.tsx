@@ -21,16 +21,15 @@ import {
 	TableBody,
 	Paper,
 	ThemeProvider,
+	ListItemText,
+	ListItemIcon,
+	Link,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats } from '../trackedStats';
-import { emptyTrackedStats } from '../trackedStats';
-import { calculateYearSavings } from '../trackedStats';
-import { calculateAutoStats } from '../trackedStats';
-import { statsGaugeProperties } from '../trackedStats';
-import FactoryIcon from '@mui/icons-material/Factory';
-import type { CompletedProject, NumberApplier } from '../Projects';
+import { emptyTrackedStats, statsGaugeProperties, calculateYearSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
+import type { CompletedProject, NumberApplier, GameSettings, RenewalProject } from '../Projects';
 import Projects from '../Projects';
 import {
 	clampRatio,
@@ -41,53 +40,159 @@ import {
 	withSign,
 } from '../functions-and-types';
 import GaugeChart from './GaugeChart';
-import { theme, darkTheme } from './theme';
+import { darkTheme } from './theme';
+import InfoIcon from '@mui/icons-material/Info'
+import { ButtonGroupButton } from './Buttons';
 
 export class YearRecap extends React.Component<YearRecapProps> {
+
 	render() {
-		const thisYearStart = this.props.yearlyTrackedStats[this.props.year - 1];
-		if (!thisYearStart) {
+		const budgetPeriodInitialStats = this.props.yearRangeInitialStats[this.props.year - 1];
+		if (!budgetPeriodInitialStats) {
 			throw new Error(
-				`Could not find stats for the start of year ${this.props.year} (index ${
-					this.props.year - 1
+				`Could not find stats for the start of year ${this.props.year} (index ${this.props.year - 1
 				})`
 			);
 		}
 
 		// As we loop through the projects, we'll mutate this object and provide gauge charts for how the stats changed
-		let mutableStats: TrackedStats = { ...thisYearStart };
+		let mutableStats: TrackedStats = { ...budgetPeriodInitialStats };
 		// Since hidden surprises will change stats, we need to keep track of the hidden changes for our sanity check later
 		let hiddenStatDiff: TrackedStats = { ...emptyTrackedStats };
-		
+
 		const projectRecaps: JSX.Element[] = [];
+		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
+		// * 22 need to create new array - the original will be modified
+		let projectsRequireRenewal = this.props.projectsRequireRenewal.map(project => { return {...project}});
+
+		// * adding to implemented projects to show display values
+		projectsRequireRenewal.forEach(project => {
+			if (project.yearsImplemented.includes(mutableStats.year)) {
+				implementedProjects.push(Projects[project.page]);
+			}
+		});
+
+		let totalUtilityRebates = 0;
+		// todo 22 renewalRequired some rebates may happen multiple times
+		// todo 22 surprises (negative) only happen once
+		let rebateProjects = implementedProjects.filter(project => {
+			let rebateValue = Number(project.utilityRebateValue);
+			if (rebateValue) {
+				totalUtilityRebates += rebateValue;
+				return project;
+			}
+		});
+		if (totalUtilityRebates) {
+			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. You will receive a $\{${totalUtilityRebates.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
+			projectRecaps.push(
+				<ListItem key={`${utilityRebateText}_surprise_`}>
+					<ThemeProvider theme={darkTheme}>
+						<Card className='year-recap-rebate-surprise' sx={{ width: '100%' }}>
+							<CardHeader
+								avatar={
+									<Avatar
+										sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
+									>
+										{rebateProjects[0].rebateAvatar.icon}
+									</Avatar>
+								}
+								title='Congratulations!'
+								subheader='Utility Rebates Earned'
+							/>
+							<CardContent>
+								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
+									{rebateProjects.map((project, idx) => {
+									return <List dense={true} key={project.shortTitle + idx}>
+										<ListItem>
+											<ListItemText
+												primary={project.title}
+												secondary={project.shortTitle}
+											/>
+										</ListItem>
+									</List>} // eslint-disable-line 
+								)}
+							</CardContent>
+						</Card>
+					</ThemeProvider>
+				</ListItem>
+			);
+		}
+
+
+		implementedProjects.forEach(project => {
+			if (project.recapSurprises) {
+				projectRecaps.push(
+					...project.recapSurprises.map((projectSurprise, idx) => {
+						return (
+							<ListItem key={`${project.pageId.description}_surprise_${idx}`}>
+								<ThemeProvider theme={darkTheme}>
+									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
+										<CardHeader
+											avatar={
+												<Avatar 
+													sx={{bgcolor: projectSurprise.avatar.backgroundColor, color: projectSurprise.avatar.color}}
+												>
+													{projectSurprise.avatar.icon}
+												</Avatar>
+											}
+											title={project.title}
+											subheader={project.shortTitle}
+										/>
+										<CardContent>
+											<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(projectSurprise.text)}/>
+										</CardContent>
+									</Card>
+								</ThemeProvider>
+							</ListItem>
+						);
+					})
+				);
+			}
+		});
 		
-		for (let i in this.props.selectedProjects) {
-			let projectKey = this.props.selectedProjects[i];
-			
-			const thisProject = Projects[projectKey];
+		let unspentBudget = this.props.financesAvailable;
+		let yearEndNetCost = 0;
+
+		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
+		// * with current projects modifiers, not the cumulative stats for the year
+		for (let i in implementedProjects) {
+			// * renewal project savings calculation need stats that are mutated only at project scope (instead of mutatedStats which tracks all projects)
+			const projectIndividualizedStats: TrackedStats = { ...budgetPeriodInitialStats };
+
+			const thisProject = implementedProjects[i];
+			const projectKey = thisProject.pageId;
 			if (!thisProject)
 				throw new Error(
 					`Project for page ${projectKey.description} not defined`
 				);
 
 			let gaugeCharts: JSX.Element[] = [];
-			// Go through the project's "actual" stats appliers and create a gauge chart for each one
+			const renewalProject = projectsRequireRenewal.find(project => project.page === thisProject.pageId);
+			let skipRenewalSavings = false;
+			if (renewalProject) {
+				skipRenewalSavings = renewalProject.yearStarted !== mutableStats.year;
+			}
 			for (let key in thisProject.statsActualAppliers) {
 				let thisApplier: NumberApplier = thisProject.statsActualAppliers[key];
-				let thisGaugeProps = statsGaugeProperties[key];
-				if (!thisGaugeProps) {
-					console.log(
-						`No dashboardStatsGaugeProperties for ${key} (check Dashboard.tsx)`
-					);
-					continue;
+				let yearMultiplier = 1;
+				if (thisApplier.isAbsolute) {
+					yearMultiplier = mutableStats.gameYears;
 				}
+				
 				let oldValue = mutableStats[key];
-				let newValue = thisApplier.applyValue(oldValue);
+				let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 				let difference = newValue - oldValue;
 				mutableStats[key] = newValue;
+				
+				// todo 88 method
+				let oldProjectValue = projectIndividualizedStats[key];
+				let newProjectValue = skipRenewalSavings? oldProjectValue : thisApplier.applyValue(oldProjectValue, yearMultiplier);
+				projectIndividualizedStats[key] = newProjectValue;
 
-				gaugeCharts.push(
-					<GaugeChart
+				let thisGaugeProps = statsGaugeProperties[key];
+				if (thisGaugeProps) {
+					gaugeCharts.push(
+						<GaugeChart
 						key={key}
 						width={250}
 						backgroundColor={'#88888820'}
@@ -106,44 +211,81 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								value: clampRatio(newValue, thisGaugeProps.maxValue),
 							},
 						]}
-					/>
-				);
-			}
-			// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
-			// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
-			for (let key in thisProject.statsHiddenAppliers) {
-				let thisApplier: NumberApplier = thisProject.statsHiddenAppliers[key];
-				let oldValue = mutableStats[key];
-				let newValue = thisApplier.applyValue(oldValue);
-				let difference = newValue - oldValue;
-				mutableStats[key] = newValue;
-				hiddenStatDiff[key] = difference;
-			}
-			
-			let prevCarbonSavings = mutableStats.carbonSavings;
-			mutableStats = calculateAutoStats(mutableStats); // update carbonEmissions and carbonSavings
-			thisProject.applyCost(mutableStats); // update financesAvailable, totalBudget, and moneySpent
-
-			gaugeCharts.push(
-				<GaugeChart
-					key={'carbonSavings'}
-					width={250}
-					value1={prevCarbonSavings}
-					color1='#888888'
-					value2={mutableStats.carbonSavings}
-					color2='#000000'
-					text={
-						withSign(
-							(mutableStats.carbonSavings - prevCarbonSavings) * 100,
-							1
-						) + '%'
+						/>
+						);
 					}
+				}
+
+				
+				// Go through the project's "hidden" stat appliers... but don't create a gauge chart for them.
+				// 	Could do it in one loop and create gauge charts for the sum of actual plus hidden stats, in the future...
+				for (let key in thisProject.statsRecapAppliers) {
+					let thisApplier: NumberApplier = thisProject.statsRecapAppliers[key];
+					let oldValue = mutableStats[key];
+					let yearMultiplier = 1;
+					if (thisApplier.isAbsolute) {
+						yearMultiplier = mutableStats.gameYears;
+					}
+					let newValue = skipRenewalSavings? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
+					let difference = newValue - oldValue;
+					mutableStats[key] = newValue;
+					hiddenStatDiff[key] = difference;
+				}
+
+				let prevCarbonSavings = mutableStats.carbonSavingsPercent;
+				mutableStats = setCarbonEmissionsAndSavings(mutableStats, this.props.defaultTrackedStats);
+				thisProject.applyCost(mutableStats);
+				const totalYearEndRebates = thisProject.getYearEndRebates();
+				
+				let projectNetCost = 0;
+				if (thisProject.renewalRequired) {
+					projectNetCost = thisProject.getYearEndNetCost(mutableStats.gameYears);
+					const renewalProjectIndex = this.props.projectsRequireRenewal.findIndex(project => project.page === thisProject.pageId);
+	
+					// * Need to assign/save individualized project savings to be applied in each renewal year recap - later years don't change savings state, only display values 
+					if (renewalProjectIndex >= 0) {
+						if (this.props.projectsRequireRenewal[renewalProjectIndex].yearStarted === budgetPeriodInitialStats.year) {
+							// * WARNING changes state/props projectsRequireRenewal state directly
+							// todo 22 / 88 no other visible sane way to update this - should probably be done in componentDidMount / useEffect
+							this.props.projectsRequireRenewal[renewalProjectIndex].yearlyFinancialSavings = calculateYearSavings(budgetPeriodInitialStats, projectIndividualizedStats);
+							console.log(`${String(this.props.projectsRequireRenewal[renewalProjectIndex].page)} budget period savings, ${this.props.projectsRequireRenewal[renewalProjectIndex].yearlyFinancialSavings?.electricity}`);
+						}
+					}
+
+				} else {
+					projectNetCost = thisProject.getYearEndNetCost();
+				}
+				let yearMultiplier = 1;
+				if (thisProject.renewalRequired) {
+					yearMultiplier = mutableStats.gameYears;
+				}
+				const initialProjectCost = thisProject.cost * yearMultiplier;
+				yearEndNetCost += projectNetCost;
+				const totalYearEndExtraCosts = thisProject.getHiddenCost();
+				unspentBudget -= totalYearEndExtraCosts;
+				unspentBudget += totalYearEndRebates;
+				mutableStats.financesAvailable = unspentBudget;
+
+				gaugeCharts.push(
+					<GaugeChart
+						key={'carbonSavings'}
+						width={250}
+						value1={prevCarbonSavings}
+						color1='#888888'
+						value2={mutableStats.carbonSavingsPercent}
+						color2='#000000'
+						text={
+							withSign(
+								(mutableStats.carbonSavingsPercent - prevCarbonSavings) * 100,
+								1
+							) + '%'
+						}
 					backgroundColor={'#88888820'}
 					label='Carbon savings'
 					ticks={[
 						{
-							label: toPercent(mutableStats.carbonSavings),
-							value: mutableStats.carbonSavings,
+							label: toPercent(mutableStats.carbonSavingsPercent),
+							value: mutableStats.carbonSavingsPercent,
 						},
 						{
 							label: '50%',
@@ -152,7 +294,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					]}
 				/>
 			);
-			// todo hidden, no idea how i'm gonna imp that
+			let headerStyle = {
+				'& .MuiCardHeader-title': {
+					textAlign: 'left',
+					fontSize: '30px',
+					fontWeight: 'bold'
+				},
+				'& .MuiCardHeader-subheader': {
+					textAlign: 'left',
+					fontSize: '18px',
+					fontWeight: '400',
+					color: '#000000',
+				},
+			};
 
 			projectRecaps.push(
 				<ListItem key={projectKey.description}>
@@ -165,27 +319,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						>
 							<Grid item xs={12} md={6}>
 								<CardHeader
-									avatar={
-										<Avatar color={thisProject.recapAvatar.backgroundColor}>
-											{thisProject.recapAvatar.icon}
-										</Avatar>
-									}
 									title={thisProject.title}
-									subheader={thisProject.shortTitle}
-								/>
+									// subheader={thisProject.shortTitle}
+									sx={headerStyle}
+								/>							
 								<CardContent>
-									{thisProject.recapDescription}
+									<Typography variant='body1' sx={{textAlign: 'left',	fontSize: '18px', fontWeight: '400',color: '#000000',}} dangerouslySetInnerHTML={parseSpecialText(thisProject.shortTitle)} />
 									{thisProject.caseStudy && (
 										<>
-											<p className='emphasis'>
-												Case Study - {thisProject.caseStudy.title}
-											</p>
-											<p
-												dangerouslySetInnerHTML={parseSpecialText(
-													thisProject.caseStudy.text
-												)}
-												className='noMarginBottom'
-											/>
+											<Link href={thisProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
+												<p style={{color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
+													Case Study - {thisProject.caseStudy.title}
+												</p>
+											</Link>
 										</>
 									)}
 								</CardContent>
@@ -193,124 +339,174 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							<Grid item xs={12} md={6} className='year-recap-charts'>
 								{gaugeCharts}
 								<div style={{ width: '100%', textAlign: 'center' }}>
-									<Typography variant='body1'>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
 										<>
 											Initial project cost:{' '}
 											<Emphasis money>
-												${thisProject.cost.toLocaleString('en-US')}
+												${initialProjectCost.toLocaleString('en-US')}
 											</Emphasis>
 											{' '}
 											&nbsp; Rebates:{' '}
 											<Emphasis money>
-												${thisProject.getRebates().toLocaleString('en-US')}
+												${totalYearEndRebates.toLocaleString('en-US')}
 											</Emphasis>
 											{' '}
 											&nbsp; Extra costs:{' '}
 											<Emphasis money>
-												${thisProject.getHiddenCost().toLocaleString('en-US')}
+												${totalYearEndExtraCosts.toLocaleString('en-US')}
 											</Emphasis>
-											{/* Hidden costs... uncomment this if you want it to not show up for projects without hidden costs */}
-											{/* {thisProject.getHiddenCost() && 
-												<>
-													{' '}&nbsp; Extra costs:{' '}
-													<Emphasis money>
-														${thisProject.getHiddenCost().toLocaleString('en-US')}
-													</Emphasis>
-												</>
-											} */}
 										</>
 									</Typography>
-									<Typography variant='body1'>
+									<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
 										Net cost:{' '}
 										<Emphasis money>
-											${thisProject.getNetCost().toLocaleString('en-US')}
+											${projectNetCost.toLocaleString('en-US')}
 										</Emphasis>
 									</Typography>
 								</div>
 							</Grid>
 						</Grid>
-						{thisProject.caseStudy && (
-							<CardActions>
-								<Button
-									variant='text'
-									href={thisProject.caseStudy.url}
-									target='_blank'
-								>
-									Read case study
-								</Button>
-							</CardActions>
-						)}
 					</Card>
 				</ListItem>
 			);
-			
-			// Hidden surprises underneath the project recap
-			if (thisProject.hiddenSurprises) {
-				// add to projectRecaps...
-				projectRecaps.push(
-					// ...for each hiddenSurprise
-					...thisProject.hiddenSurprises.map((surprise, idx) => {
-						return (
-							<ListItem key={`${projectKey.description}_surprise_${idx}`}>
-								{/* Using darkTheme for the text */}
-								<ThemeProvider theme={darkTheme}>
-									{/* Using SCSS for this one to be more easily editable, as well as making emphasized text not blue */}
-									<Card className='year-recap-hidden-surprise' sx={{width: '100%'}}>
-										<CardHeader
-											avatar={
-												<Avatar 
-													sx={{bgcolor: surprise.avatar.backgroundColor, color: surprise.avatar.color}}
-												>
-													{surprise.avatar.icon}
-												</Avatar>
-											}
-											title={surprise.title}
-											subheader={thisProject.shortTitle}
-										/>
-										<CardContent>
-											<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)}/>
-										</CardContent>
-									</Card>
-								</ThemeProvider>
-							</ListItem>
-						);
-					})
-				);
-			}
 		}
 
-		// Sanity check! The current year "real" stats are spread directly into this.props
-		// for (let key in mutableStats) {
-		// 	if(key !== 'year') {
-		// 		if (typeof this.props[key] !== 'undefined') {
-		// 			if ((this.props[key] + hiddenStatDiff[key]) !== mutableStats[key]) {
-		// 				console.error(
-		// 					`Uh oh! Stat ${key} does not match. In props: ${this.props[key]}, in mutableStats: ${mutableStats[key]}, in hiddenStatDiff: ${hiddenStatDiff[key]}`
-		// 				);
-		// 			}
-		// 		}
-		// 	}
-		// }
+		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0, 
+			maximumFractionDigits: 0, 
+		});
 
-		let savings = calculateYearSavings(thisYearStart, mutableStats);
+		// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
+		mutableStats.totalMoneySpent = budgetPeriodInitialStats.totalMoneySpent + yearEndNetCost;
+		let costPerCarbonSavings = 0;
+		if (mutableStats.totalMoneySpent > 0 && mutableStats.carbonSavingsPerKg > 0) {
+			costPerCarbonSavings = mutableStats.totalMoneySpent / mutableStats.carbonSavingsPerKg;
+		}
+		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
 
+		const savings = calculateYearSavings(budgetPeriodInitialStats, mutableStats);
+		console.log('budget period savings', savings);
+		projectsRequireRenewal.forEach((project: RenewalProject) => {
+			// * on first year of renewal project implementation :
+			// * YearRecap displays savings accurately, subsequent years don't - so we're appending to savings
+			// * onProceed accurately adds savings, so don't add savings to financesAvailable 
+			if (project.yearlyFinancialSavings && project.yearsImplemented.includes(budgetPeriodInitialStats.year) 
+				&& project.yearStarted !== budgetPeriodInitialStats.year
+				&& budgetPeriodInitialStats.year !== 1) {
+					console.log(`${String(project.page)} renewable savings added', ${project.yearlyFinancialSavings.electricity}`);
+					savings.electricity += project.yearlyFinancialSavings.electricity;
+					savings.naturalGas += project.yearlyFinancialSavings.naturalGas;
+
+					// * only update financesAvailable with renewable savings (other savings applied at recap)
+					mutableStats.financesAvailable += project.yearlyFinancialSavings.electricity;
+					mutableStats.financesAvailable += project.yearlyFinancialSavings.naturalGas;
+				}
+			});
+		
+		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(savings.naturalGas);
+		const electricitySavingsFormatted: string = noDecimalsFormatter.format(savings.electricity);
+		const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
+		
+		const unspentBudgetFormatted: string = noDecimalsFormatter.format(unspentBudget);
+		const yearEndNetCostFormatted: string = noDecimalsFormatter.format(yearEndNetCost);
+		const totalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.totalMoneySpent);
+		const costPerCarbonSavingsFormatted: string = costPerCarbonSavings !== undefined? Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0, 
+			maximumFractionDigits: 2, 
+		}).format(costPerCarbonSavings) : '0';
+
+		
 		return (
 			<>
+			<Divider/>
+			<MobileStepper
+					variant='progress'
+					steps={this.props.totalIterations}
+					position='static'
+					activeStep={this.props.year - 1}
+					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+					sx={{ padding: '.75rem' }}
+					backButton={<Box sx={{ width: 180 }}></Box>}
+					nextButton={getNextButton(this.props, mutableStats)}
+				/>
 				<Box m={2}>
-					<Typography variant='h3'>Year {this.props.year} Recap</Typography>
-					<Typography variant='h5'>
-						This year, your company saved{' '}
-						<Emphasis>${savings.naturalGas.toLocaleString('en-US')}</Emphasis>{' '}
-						on natural gas and{' '}
-						<Emphasis>${savings.electricity.toLocaleString('en-US')}</Emphasis>{' '}
-						on electricity!
-					</Typography>
-					<Typography variant='body1'>
-						This will be added to your budget for next year, as well as the{' '}
-						<Emphasis>${this.props.financesAvailable}</Emphasis> of your budget
-						that was not yet spent.
-					</Typography>
-					{/* <Divider/> */}
+					{this.props.totalIterations == 5 &&
+						<Typography variant='h3'>Years {this.props.yearInterval} and {this.props.yearInterval + 1} Recap</Typography>
+					}
+					{this.props.totalIterations == 10 &&
+						<Typography variant='h3'>Year {this.props.year} Recap</Typography>
+					}
+
+					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
+						<List dense={true}>
+						<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant='h5'>
+											Your company has reduced CO<sub>2</sub> Emissions by{' '}
+											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant='h5'>
+											This budget period, your company saved{' '}
+											<Emphasis>${naturalGasSavingsFormatted}</Emphasis>{' '}
+											on natural gas and{' '}
+											<Emphasis>${electricitySavingsFormatted}</Emphasis>{' '}
+											on electricity!
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography sx={{ fontSize: '20px' }} >
+											This will be added to your budget for the next period, as well as the{' '}
+											<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
+											that was not yet spent.
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primaryTypographyProps={{ fontSize: '20px' }}
+									primary={
+										<span>You spent{' '}<Emphasis>${yearEndNetCostFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.</span>
+									}
+								/>
+							</ListItem>
+							<ListItem>
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primaryTypographyProps={{ fontSize: '20px' }}
+									primary={
+										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub></Emphasis>{' '}</span>
+									}
+								/>
+							</ListItem>
+						</List>
+					</Box>
+
 					<Typography variant='body1' marginTop={2}>
 						These are the projects you have selected for this year. Make sure to
 						check out the case studies, where real companies have applied these
@@ -355,29 +551,40 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								</Table>
 							</TableContainer>
 						</Box>
+						<MobileStepper
+							variant='progress'
+							steps={this.props.totalIterations}
+							position='static'
+							activeStep={this.props.year - 1}
+							LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
+							sx={{ padding: '.75rem' }}
+							backButton={<Box sx={{ width: 180 }}></Box>}
+							nextButton={getNextButton(this.props, mutableStats)}
+						/>
 					</>
 					}
 				</Box>
-				<MobileStepper
-					variant='progress'
-					steps={10}
-					position='static'
-					activeStep={this.props.year}
-					backButton={<Box sx={{ width: 180 }}></Box>}
-					nextButton={
-						<Button
-							sx={{ width: 180 }}
-							variant='text'
-							onClick={() => this.props.handleYearRecap(mutableStats)}
-							endIcon={rightArrow()}
-						>
-							Proceed to year {this.props.year + 1}
-						</Button>
-					}
-				/>
 			</>
 		);
 	}
+
+}
+
+function getNextButton(props: YearRecapProps, mutableStats: TrackedStats) {
+	let nextbuttonText = `Proceed to year ${props.year + 1}`;
+	// end of game
+	if (props.totalIterations === props.year) {
+		nextbuttonText = 'View Score';
+	} else if (props.totalIterations === 5) {
+		nextbuttonText = `Proceed to years ${props.yearInterval + 2} and ${props.yearInterval + 3}`;
+	} 
+	return <Button
+		variant='outlined'
+		size='medium'
+		onClick={() => props.handleYearRecap(mutableStats)}
+		endIcon={rightArrow()}>
+		<Typography variant='button'>{nextbuttonText}</Typography>
+	</Button>
 }
 
 /**
@@ -396,15 +603,18 @@ export function newYearRecapControl(
 	};
 }
 
-export interface YearRecapControlProps {}
+export interface YearRecapControlProps {} // eslint-disable-line 
 
 export interface YearRecapProps
 	extends YearRecapControlProps,
 		ControlCallbacks,
-		TrackedStats {
-	selectedProjects: symbol[];
+		TrackedStats,
+		GameSettings {
+	implementedProjects: symbol[];
 	completedProjects: CompletedProject[];
-	yearlyTrackedStats: TrackedStats[];
+	projectsRequireRenewal: RenewalProject[];
+	yearRangeInitialStats: TrackedStats[];
+	defaultTrackedStats : TrackedStats;
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */

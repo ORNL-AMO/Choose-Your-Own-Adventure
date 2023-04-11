@@ -1,10 +1,12 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, CardHeader, Divider, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { parseSpecialText, resolveToValue } from '../functions-and-types';
 import React from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
 import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
+import { Stack } from '@mui/system';
+import type { SelectedProject } from '../Projects';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -17,27 +19,68 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 		let gridWidth = 12 / numGroups;
 		
 		const gridItems = props.groups.map((group, idx) => {
-			
 			const choices = group.choices
 			.filter(choice => {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
-				
+				// todo 25 eventually implement success border
+				// let implemented = resolveToValue(choice.implemented, false);
 				let disabled = resolveToValue(choice.disabled, false);
-				
+				let paperStyle = { 
+					opacity: disabled ? 0.8 : 1,
+					paddingBottom: '1rem',					
+					color: '#000000'	
+				};
+				let headerStyle;
+				let choiceButtons: ButtonGroupButton[] | undefined = choice.buttons;
+				if (props.isProjectGroupChoice) {
+					headerStyle = {
+						'& .MuiCardHeader-title': {
+							textAlign: 'left',
+							fontSize: '1.25rem'
+						},
+					};
+
+					// if (choice.buttons) {
+					// 	// todo 25 still display but make disabled
+					// 	choiceButtons = choice.buttons.filter(button => {
+					// 		const shouldDisplay = props.resolveToValue(button.shouldDisplay, false);
+					// 		return shouldDisplay;
+					// 	});
+					// }
+				}
 				return (<Grid item xs={12} key={choice.key || idx}>
-					<PaperGridItem 
-						sx={{opacity: disabled ? 0.8 : 1}} // if disabled, lower opacity
+					<PaperGridItem
+						// className={implemented? 'implementedChoiceBorder' : undefined}
+						sx={paperStyle} // if disabled, lower opacity
 					>
-						<Typography variant='h4'>{props.resolveToValue(choice.title)}</Typography>
-							<Typography variant='body1' p={2} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}/>
-							<ButtonGroup 
-								buttons={choice.buttons} 
-								disabled={disabled}
-								doPageCallback={props.doPageCallback} 
-								summonInfoDialog={props.summonInfoDialog}
-								resolveToValue={props.resolveToValue}
-							/>
+						<CardHeader
+							action={
+									<ButtonGroup
+										buttons={choice.choiceStats}
+										disabled={disabled}
+										doPageCallback={props.doPageCallback}
+										summonInfoDialog={props.summonInfoDialog}
+										resolveToValue={props.resolveToValue}
+										isProjectGroupChoice={props.isProjectGroupChoice}
+									/>
+							}
+							title={props.resolveToValue(choice.title)}
+							sx={headerStyle}
+						/>
+
+						<Typography variant='body1' p={2} pt={0} dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(choice.text))}  
+							textAlign={props.isProjectGroupChoice? 'left': 'center'}
+						/>
+						<ButtonGroup
+							buttons={choiceButtons}
+							disabled={disabled}
+							doPageCallback={props.doPageCallback}
+							summonInfoDialog={props.summonInfoDialog}
+							resolveToValue={props.resolveToValue}
+							doAppStateCallback={props.doAppStateCallback}
+							isProjectGroupChoice={props.isProjectGroupChoice}
+						/>
 					</PaperGridItem>
 				</Grid>);
 			});
@@ -51,10 +94,44 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			</Grid>);
 		});
 		
+		const isProjectPage1 = props.resolveToValue(props.title).includes('Scope 1');
+		const isProjectPage2 = props.resolveToValue(props.title).includes('Scope 2');
+		
 		return (
 			<Box m={2}>
-				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}/>
-				<br/>
+				<Typography variant='h5' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))} />
+				<br />
+				{(isProjectPage1 || isProjectPage2) &&
+					<Stack direction='row'
+						justifyContent='end'
+						alignItems='center'
+						spacing={2}>
+						<Button
+							size='medium'
+							variant='outlined'
+							disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 1}
+							onClick={() => {
+								if (props.handleClearProjectsClick) {
+									props.resolveToValue(props.handleClearProjectsClick());
+								}
+							}}
+							style={{ margin: '10px' }}>
+							Clear Comparisons
+						</Button>
+						<Button
+							size='medium'
+							variant='contained'
+							disabled={props.selectedProjectsForComparison && props.selectedProjectsForComparison.length < 2}
+							onClick={() => {
+								if (props.selectedProjectsForComparison && props.selectedProjectsForComparison.length >= 2 && props.handleCompareProjectsClick) {
+									props.resolveToValue(props.handleCompareProjectsClick());
+								}
+							}}
+							style={{ margin: '10px' }}>
+							Compare Selected Projects
+						</Button>
+					</Stack>
+				}
 				<Grid container spacing={2}>
 					{gridItems}
 				</Grid>
@@ -89,6 +166,9 @@ export interface Choice {
 	 */
 	text: Resolvable<string>;
 	disabled?: Resolvable<boolean>;
+	implemented?: Resolvable<boolean>;
+	// Quick/small stats to include in card headers or elsewhere 
+	choiceStats?: ButtonGroupButton[]
 	/**
 	 * Buttons to appear at the bottom of the choice.
 	 */
@@ -118,9 +198,15 @@ export interface GroupedChoicesControlProps {
 	/**
 	 * Title of the entire GroupedChoices page.
 	 */
+	allowImplementProjects?: symbol[]
+	selectedProjectsForComparison?: SelectedProject[];
+	handleClearProjectsClick?: () => void;
+	handleCompareProjectsClick?: () => void;
 	title: Resolvable<string>;
 	groups: GroupedChoicesGroup[];
+	isProjectGroupChoice?: boolean;
 	hideDashboard: boolean|'initial';
 }
 
-export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { }
+export interface GroupedChoicesProps extends GroupedChoicesControlProps, ControlCallbacks { 
+}

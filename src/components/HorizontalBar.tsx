@@ -187,7 +187,7 @@ function HorizontalBarWithTooltip (props: BarStackHorizontalProps) {
 					width: '100%',
 					display: 'flex',
 					justifyContent: 'center',
-					fontSize: '14px',
+					fontSize: '16px',
 				}}
 			>
 				<LegendOrdinal scale={colorScale} direction='row' labelMargin='0 15px 0 0' />

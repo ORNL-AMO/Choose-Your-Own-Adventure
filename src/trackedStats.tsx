@@ -36,39 +36,54 @@ export interface TrackedStats {
 	
 	totalBudget: number;
 	financesAvailable: number;
-	carbonSavings: number;
+	carbonSavingsPercent: number;
 	carbonEmissions: number;
+	carbonSavingsPerKg: number;
+	/**
+	 * Emissions savings in kg coming from projects with absolute/static savings
+	 */
+	absoluteCarbonSavings: number;
+	costPerCarbonSavings: number;
 	moneySpent: number;
 	/**
 	 * Total money spent, across the whole run.
 	 */
 	totalMoneySpent: number;
 	/**
-	 * current year, 1 through 10.
+	 * tracking year, 1 through 5.
 	 */
 	year: number;
+	/**
+	 * year to display for two year intervals
+	 */
+	yearInterval: number;
+	gameYears: number;
 }
 
 /**
  * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 2_000, 
+	naturalGasMMBTU: 4_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	
-	electricityUseKWh: 2_000_000, 
+	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
-	
-	financesAvailable: 75_000,
-	totalBudget: 75_000,
-	carbonSavings: 0,
+	carbonSavingsPercent: 0,
+	financesAvailable: 150_000,
+	totalBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
+	carbonSavingsPerKg: 0, 
+	absoluteCarbonSavings: 0,
+	costPerCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 1,
+	yearInterval: 1,
+	gameYears: 1
 };
 
 /**
@@ -84,31 +99,40 @@ export const emptyTrackedStats: TrackedStats = {
 	
 	financesAvailable: 0,
 	totalBudget: 0,
-	carbonSavings: 0,
+	carbonSavingsPercent: 0,
+	carbonSavingsPerKg: 0,
 	carbonEmissions: 0,
+	absoluteCarbonSavings: 0,
+	costPerCarbonSavings: 0,
 	moneySpent: 0,
 	totalMoneySpent: 0,
 	totalRebates: 0,
 	year: 0,
+	yearInterval: 0,
+	gameYears: 1
 };
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
-function calculateEmissions(stats: TrackedStats): number {
+export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
 	let elecEmissions = stats.electricityUseKWh * stats.electricityEmissionsPerKWh;
 	return ngEmissions + elecEmissions;
 }
 
-/**
- * Mutates the provided newStats object with the new auto-calculated stat changes. Currently automatically handled:
- * 	- carbonSavings
- * 	- carbonEmissions
- */
-export function calculateAutoStats(newStats: TrackedStats) {
-	newStats.carbonEmissions = calculateEmissions(newStats);
-	let newSavings = (initialTrackedStats.carbonEmissions - newStats.carbonEmissions) / (initialTrackedStats.carbonEmissions); // might be wrong
-	newStats.carbonSavings = newSavings;
+export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrackedStats: TrackedStats) {
+	let newEmissions;
+	if (newStats.absoluteCarbonSavings) {
+		// WARNING - calculation assumes that projects with absoluteCarbonSavings will never have other emissions modifiers (nat gas, electricity)
+		 newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
+	} else {
+		newEmissions = calculateEmissions(newStats);
+	}
+
+	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
+	// * % CO2 saved * total initial emissions;
+	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
+	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }
 

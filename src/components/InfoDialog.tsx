@@ -1,7 +1,8 @@
 import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
 import { styled, useTheme } from '@mui/material/styles';
-import React from 'react';
+import type { Breakpoint } from '@mui/material/styles';
+import React, { useEffect } from 'react';
 import type { ButtonGroupButton } from './Buttons';
 import { ButtonGroup } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -20,15 +21,37 @@ export const InfoCard = styled(Paper)(({ theme }) => ({
 	paddingRight: theme.spacing(0.5),
 }));
 
+
 /**
  * Using a sub-function because `useMediaQuery` requires React hooks, which are only allowed in function-style React components, 
  * but InfoDialog is using a class declaration so we can tell it when it should/should not re-render.
  */
 function InfoDialogFunc (props: InfoDialogProps) {
 	const theme = useTheme();
-	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+	let fullScreen = useMediaQuery(theme.breakpoints.down('sm'));	
+
+	let imgHeight = '260';
+	if( props.title === 'CONGRATULATIONS!' ){
+		fullScreen = true;
+		imgHeight = '390';
+	}
 	
-	// Optional objectFit parameter
+	
+	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
+	useEffect(() => {
+		// timeout delay button display until dialog open - less page jump
+		const timeout = setTimeout(() => {
+			if (props.handleProjectInfoViewed && props.doAppStateCallback) {
+				props.doAppStateCallback(props.handleProjectInfoViewed);
+			}
+		}, 100);
+
+		return () => {
+			// ensure state cleared before next effect
+			clearTimeout(timeout);
+		};
+	});
+
 	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
 	
 	function handleClose() {
@@ -44,7 +67,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	if (props.cardText) {
 		cardContents = [{
 			text: props.resolveToValue(props.cardText),
-			color: theme.palette.primary.light,
+			color: '#000000',
 		}];
 	}
 	else if (props.cards) {
@@ -54,7 +77,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		<InfoCard 
 			key={idx}
 			variant='outlined' 
-			sx={{borderColor: cardContent.color, color: cardContent.color}}
+			sx={{borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold'}}
 			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
 		/>
 	);
@@ -66,11 +89,14 @@ function InfoDialogFunc (props: InfoDialogProps) {
 			keepMounted
 			onClose={handleClose}
 			aria-describedby='alert-dialog-slide-description'
+			sx={{
+				backdropFilter: 'blur(10px)'
+			}}
 		>
 			{props.img && <>
 				<CardMedia
 					component='img'
-					height='260'
+					height= {imgHeight}
 					image={props.img}
 					alt={props.imgAlt}
 					title={props.imgAlt}
@@ -108,16 +134,29 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					</div>
 				}
 			</>}
-			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+
+			{props.title === 'CONGRATULATIONS!' &&
+				<DialogTitle sx={{ fontSize: '42px', textAlign: 'center' }} className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+			}
+			{props.title !== 'CONGRATULATIONS!' &&
+				<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
+			}
 			<DialogContent>
-				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
-				</DialogContentText>
+				{props.title === 'CONGRATULATIONS!' &&
+					<DialogContentText sx={{ fontSize: '28px', textAlign: 'center' }} id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
+					</DialogContentText>
+				}
+				{props.title !== 'CONGRATULATIONS!' &&
+					<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
+					</DialogContentText>
+				}
 				{infoCards}
 			</DialogContent>
 			<DialogActions>
 				<ButtonGroup 
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback} 
+					doAppStateCallback={props.doAppStateCallback} 
 					summonInfoDialog={props.summonInfoDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
@@ -175,6 +214,9 @@ export declare interface DialogControlProps {
 	imgObjectFit?: 'cover'|'contain';
 	imgAlt?: string;
 	buttons?: ButtonGroupButton[];
+	comparisonDialogButtons?: ButtonGroupButton[];
+	handleProjectInfoViewed?: AppStateCallback;
+	handleRemoveSelectedCompare?: PageCallback;
 }
 
 /**
@@ -192,6 +234,8 @@ export function fillDialogProps(obj: AnyDict): DialogStateProps {
 		allowClose: obj.allowClose || false,
 		imgObjectFit: obj.imgObjectFit || undefined,
 		buttons: obj.buttons || undefined,
+		comparisonDialogButtons: obj.comparisonDialogButtons || undefined,
+		handleProjectInfoViewed: obj.handleProjectInfoViewed
 	};
 }
 
