@@ -43,6 +43,7 @@ import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
 import InfoIcon from '@mui/icons-material/Info'
 import { ButtonGroupButton } from './Buttons';
+import YearRecapCharts from './YearRecapCharts';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -415,6 +416,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			maximumFractionDigits: 2, 
 		}).format(costPerCarbonSavings) : '0';
 
+		let trackedStatsBarGraph = {...this.props.yearRangeInitialStats};
+		trackedStatsBarGraph.push(mutableStats);
+
 		
 		return (
 			<>
@@ -506,6 +510,9 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							</ListItem>
 						</List>
 					</Box>
+
+					
+					<YearRecapCharts yearRangeInitialStats={trackedStatsBarGraph} width={500} height={500}/>
 
 					<Typography variant='body1' marginTop={2}>
 						These are the projects you have selected for this year. Make sure to
