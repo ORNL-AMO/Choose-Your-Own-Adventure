@@ -24,6 +24,22 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3HGPY51FT0"></script>
+    <script>
+      if('%NODE_ENV%' === 'production') {
+        console.log('production');
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-3HGPY51FT0');        
+      } else {
+        console.log('develop');
+        //don't set ga config        
+      }
+    </script>
+
     <title>Choose Your Own Solution</title>
   </head>
   <body>
