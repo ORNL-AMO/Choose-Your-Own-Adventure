@@ -416,8 +416,30 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			maximumFractionDigits: 2, 
 		}).format(costPerCarbonSavings) : '0';
 
-		let trackedStatsBarGraph = {...this.props.yearRangeInitialStats};
-		trackedStatsBarGraph.push(mutableStats);
+		let carbonSavingsPercentBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			carbonSavingsPercentBarGraphData.push(year.carbonSavingsPercent * 100);
+		});
+		carbonSavingsPercentBarGraphData.push(mutableStats.carbonSavingsPercent * 100);
+
+		let naturalGasPercentBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			naturalGasPercentBarGraphData.push(year.naturalGasMMBTU / 10000);
+		});
+		naturalGasPercentBarGraphData.push(mutableStats.naturalGasMMBTU / 10000);
+
+		let electricitySavingsPercentBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			electricitySavingsPercentBarGraphData.push(year.electricityUseKWh / 1000000);
+		});
+		electricitySavingsPercentBarGraphData.push(mutableStats.electricityUseKWh / 1000000);
+
+		let totalMoneySpentBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			totalMoneySpentBarGraphData.push(year.totalMoneySpent / 10000);
+		});
+		totalMoneySpentBarGraphData.push(mutableStats.totalMoneySpent / 10000);
+
 
 		
 		return (
@@ -510,9 +532,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							</ListItem>
 						</List>
 					</Box>
-
+				
 					
-					<YearRecapCharts yearRangeInitialStats={trackedStatsBarGraph} width={500} height={500}/>
 
 					<Typography variant='body1' marginTop={2}>
 						These are the projects you have selected for this year. Make sure to
@@ -570,6 +591,11 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						/>
 					</>
 					}
+					<YearRecapCharts barGraphData={carbonSavingsPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Carbon Savings (%)'} unitLable={'%'}/>
+					<YearRecapCharts barGraphData={totalMoneySpentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Total Money Spent ($)'} unitLable={'10K $'}/>
+					<YearRecapCharts barGraphData={naturalGasPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (MMBtu)'} unitLable={'10K MMBtu'}/>
+					<YearRecapCharts barGraphData={electricitySavingsPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (kWh)'} unitLable={'M kWh'}/>
+
 				</Box>
 			</>
 		);
