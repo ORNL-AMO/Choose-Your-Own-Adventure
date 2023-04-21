@@ -28,10 +28,16 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3HGPY51FT0"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-3HGPY51FT0');
+      if('%NODE_ENV%' === 'production') {
+        console.log('production');
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-3HGPY51FT0');        
+      } else {
+        console.log('develop');
+        //don't set ga config        
+      }
     </script>
 
     <title>Choose Your Own Solution</title>
