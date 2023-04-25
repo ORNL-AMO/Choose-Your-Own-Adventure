@@ -421,24 +421,57 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			carbonSavingsPercentBarGraphData.push(year.carbonSavingsPercent * 100);
 		});
 		carbonSavingsPercentBarGraphData.push(mutableStats.carbonSavingsPercent * 100);
+		let predictionCarbon: number;
+		if(this.props.totalIterations === 10) {				
+			predictionCarbon = 5;
+		} else {		
+			predictionCarbon = 10;				
+		}
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			carbonSavingsPercentBarGraphData.push((predictionCarbon * (i + 1)));
+		}
 
-		let naturalGasPercentBarGraphData: number[] = [];
+		let naturalGasBarGraphData: number[] = [];
 		this.props.yearRangeInitialStats.forEach(year =>{
-			naturalGasPercentBarGraphData.push(year.naturalGasMMBTU / 10000);
+			naturalGasBarGraphData.push(year.naturalGasMMBTU / 10000);
 		});
-		naturalGasPercentBarGraphData.push(mutableStats.naturalGasMMBTU / 10000);
+		naturalGasBarGraphData.push(mutableStats.naturalGasMMBTU / 10000);
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			naturalGasBarGraphData.push(mutableStats.naturalGasMMBTU / 10000);
+		}
 
-		let electricitySavingsPercentBarGraphData: number[] = [];
+		let electricitySavingsBarGraphData: number[] = [];
 		this.props.yearRangeInitialStats.forEach(year =>{
-			electricitySavingsPercentBarGraphData.push(year.electricityUseKWh / 1000000);
+			electricitySavingsBarGraphData.push(year.electricityUseKWh / 1000000);
 		});
-		electricitySavingsPercentBarGraphData.push(mutableStats.electricityUseKWh / 1000000);
+		electricitySavingsBarGraphData.push(mutableStats.electricityUseKWh / 1000000);
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			electricitySavingsBarGraphData.push(mutableStats.electricityUseKWh / 1000000);
+		}
 
 		let totalMoneySpentBarGraphData: number[] = [];
 		this.props.yearRangeInitialStats.forEach(year =>{
 			totalMoneySpentBarGraphData.push(year.totalMoneySpent / 10000);
 		});
 		totalMoneySpentBarGraphData.push(mutableStats.totalMoneySpent / 10000);
+		let predictionMoneySpent: number = mutableStats.totalMoneySpent;
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			if(this.props.totalIterations === 10) {				
+				predictionMoneySpent += 75000;
+			} else {		
+				predictionMoneySpent += 150000;				
+			}
+			totalMoneySpentBarGraphData.push(predictionMoneySpent / 10000);
+		}
+
+		let costPerCarbonSavingsBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			costPerCarbonSavingsBarGraphData.push(year.costPerCarbonSavings);
+		});
+		costPerCarbonSavingsBarGraphData.push(mutableStats.costPerCarbonSavings);
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			costPerCarbonSavingsBarGraphData.push(mutableStats.costPerCarbonSavings);
+		}
 
 
 		
@@ -541,6 +574,13 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						ideas!
 					</Typography>
 					<List>{projectRecaps}</List>
+					
+					<YearRecapCharts barGraphData={carbonSavingsPercentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Carbon Savings (%)'} unitLable={'%'} currentYear={this.props.year} domainYaxis={100}/>
+					<YearRecapCharts barGraphData={totalMoneySpentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.year} domainYaxis={300}/>
+					<YearRecapCharts barGraphData={costPerCarbonSavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.year} domainYaxis={1}/>
+					<YearRecapCharts barGraphData={naturalGasBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100}/>
+					<YearRecapCharts barGraphData={electricitySavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.year} domainYaxis={100}/>
+
 					{/* Completed projects: Only display if there have been completed projects */}
 					{this.props.completedProjects.length > 0 && <>
 						<Divider/>
@@ -591,10 +631,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						/>
 					</>
 					}
-					<YearRecapCharts barGraphData={carbonSavingsPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Carbon Savings (%)'} unitLable={'%'}/>
-					<YearRecapCharts barGraphData={totalMoneySpentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Total Money Spent ($)'} unitLable={'10K $'}/>
-					<YearRecapCharts barGraphData={naturalGasPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (MMBtu)'} unitLable={'10K MMBtu'}/>
-					<YearRecapCharts barGraphData={electricitySavingsPercentBarGraphData} width={1000} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (kWh)'} unitLable={'M kWh'}/>
 
 				</Box>
 			</>

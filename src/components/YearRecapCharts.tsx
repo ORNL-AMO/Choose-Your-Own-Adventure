@@ -23,30 +23,45 @@ export type BarsProps = {
     totalIterations: number;
     graphTitle: string;
     unitLable: string;
+    currentYear: number;
+    domainYaxis: number;
     events?: boolean;
 };
 
 export default function Example(props: BarsProps) {
+    //'#1D428A' 96b1e9 d5e0f6
     let graphDataAndLables: BarData[] = [];
-    let yearCount: number = 0;
+    let yearCount: number = 0;    
+    let twoYearIntervalsCount: number = 0;
     props.barGraphData.forEach(data => {
         let dataLable: string;
+        let fillColor: string;
         if (yearCount !== 0) {
             if (props.totalIterations == 5) {
                 dataLable = 'Years ' + yearCount + ' and ' + (yearCount + 1);
+                fillColor = '#1D428A';
+                if (twoYearIntervalsCount > props.currentYear) {
+                    fillColor = '#abc1ed'
+                }
+                twoYearIntervalsCount++;
                 yearCount = yearCount + 2;
             } else {
                 dataLable = 'Year ' + yearCount;
+                fillColor = '#1D428A';
+                if (yearCount > props.currentYear) {
+                    fillColor = '#abc1ed'
+                }
                 yearCount = yearCount + 1;
             }
             graphDataAndLables.push({
                 data: data,
-                dataLables: dataLable
+                dataLables: dataLable,
+                fillColor: fillColor
             });
         } else {
+            twoYearIntervalsCount++;
             yearCount++;
         }
-        console.log('Bar data ' + data);
     });
 
 
@@ -70,7 +85,7 @@ export default function Example(props: BarsProps) {
             scaleLinear<number>({
                 range: [yMax, 0],
                 round: true,
-                domain: [0, 100],
+                domain: [0, props.domainYaxis],
             }),
         [yMax],
     );
@@ -80,7 +95,7 @@ export default function Example(props: BarsProps) {
 
     return props.width < 10 ? null : (
         <svg width={props.width} height={props.height}>
-            <rect x={0} y={0} width={props.width} height={props.height} fill='#c0d0f2' rx={14} />
+            <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
             <Group top={verticalMargin / 2}>
                 {graphDataAndLables.map((d) => {
                     const data = d.dataLables;
@@ -96,7 +111,7 @@ export default function Example(props: BarsProps) {
                                 y={barY}
                                 width={barWidth}
                                 height={barHeight}
-                                fill='#1D428A'
+                                fill={d.fillColor}
                                 onClick={() => {
                                     if (props.events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
                                 }}
@@ -108,8 +123,7 @@ export default function Example(props: BarsProps) {
                     );
                 })}
             </Group>
-            {/* <GridRows scale={yScale} width={xMax} height={yMax} stroke='#e0e0e0' /> */}
-            <AxisTop 
+            <AxisTop
                 top={70}
                 scale={xScale}
                 hideTicks
@@ -160,4 +174,5 @@ export default function Example(props: BarsProps) {
 interface BarData {
     data: number;
     dataLables: string;
+    fillColor: string;
 }
