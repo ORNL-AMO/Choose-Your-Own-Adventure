@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react';
 import { Bar } from '@visx/shape';
 import { Group } from '@visx/group';
-import { GradientTealBlue } from '@visx/gradient';
 import letterFrequency from '@visx/mock-data/lib/mocks/letterFrequency';
 import type { LetterFrequency } from '@visx/mock-data/lib/mocks/letterFrequency';
 import { scaleBand, scaleLinear } from '@visx/scale';
-import type { TrackedStats } from '../trackedStats';
 import { AxisBottom, AxisLeft, AxisTop } from '@visx/axis';
-import { GridRows, GridColumns } from '@visx/grid';
+import { Pattern as CustomPattern, PatternLines } from '@visx/pattern';
 
 const data = letterFrequency.slice(5);
 const verticalMargin = 120;
@@ -41,7 +39,7 @@ export default function Example(props: BarsProps) {
                 dataLable = 'Years ' + yearCount + ' and ' + (yearCount + 1);
                 fillColor = '#1D428A';
                 if (twoYearIntervalsCount > props.currentYear) {
-                    fillColor = '#abc1ed'
+                    fillColor = 'url(#bar-hash)'
                 }
                 twoYearIntervalsCount++;
                 yearCount = yearCount + 2;
@@ -49,7 +47,7 @@ export default function Example(props: BarsProps) {
                 dataLable = 'Year ' + yearCount;
                 fillColor = '#1D428A';
                 if (yearCount > props.currentYear) {
-                    fillColor = '#abc1ed'
+                    fillColor ='url(#bar-hash)'
                 }
                 yearCount = yearCount + 1;
             }
@@ -95,6 +93,14 @@ export default function Example(props: BarsProps) {
 
     return props.width < 10 ? null : (
         <svg width={props.width} height={props.height}>
+            <PatternLines
+                id='bar-hash'
+                height={6}
+                width={6}
+                stroke='#abc1ed'
+                strokeWidth={1}
+                orientation={['diagonal']}
+            />
             <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
             <Group top={verticalMargin / 2}>
                 {graphDataAndLables.map((d) => {
