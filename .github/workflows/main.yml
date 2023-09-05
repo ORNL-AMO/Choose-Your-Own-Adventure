@@ -1,0 +1,9 @@
+name: CI/CD
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  web:
+    uses: ./.github/workflows/web.yml
