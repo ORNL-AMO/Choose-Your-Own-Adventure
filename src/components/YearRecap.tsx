@@ -449,6 +449,15 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			electricitySavingsBarGraphData.push(mutableStats.electricityUseKWh / 1000000);
 		}
 
+		let hydrogenBarGraphData: number[] = [];
+		this.props.yearRangeInitialStats.forEach(year =>{
+			hydrogenBarGraphData.push(year.hydrogenMMBTU / 10000);
+		});
+		hydrogenBarGraphData.push(mutableStats.hydrogenMMBTU / 10000);
+		for (let i = this.props.year; i < this.props.totalIterations; i++){
+			hydrogenBarGraphData.push(mutableStats.hydrogenMMBTU / 10000);
+		}
+
 		let totalMoneySpentBarGraphData: number[] = [];
 		this.props.yearRangeInitialStats.forEach(year =>{
 			totalMoneySpentBarGraphData.push(year.totalMoneySpent / 10000);
@@ -580,7 +589,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					<YearRecapCharts barGraphData={costPerCarbonSavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.year} domainYaxis={1}/>
 					<YearRecapCharts barGraphData={naturalGasBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100}/>
 					<YearRecapCharts barGraphData={electricitySavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.year} domainYaxis={100}/>
-
+					<YearRecapCharts barGraphData={hydrogenBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100}/>
+					
 					{/* Completed projects: Only display if there have been completed projects */}
 					{this.props.completedProjects.length > 0 && <>
 						<Divider/>

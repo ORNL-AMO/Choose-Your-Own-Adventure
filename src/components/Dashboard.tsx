@@ -32,21 +32,25 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
 		});
-		  
+		
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
 		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
 		
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
 		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
+		const hydrogenEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU);
 
 		const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
 		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000);
+		const emissionsFromHydrogenFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU * this.props.hydrogenMMBTU / 1000);
 
 		const electricityCost = noDecimalsFormatter.format(this.props.electricityCostPerKWh * this.props.electricityUseKWh);
 		const naturalGasCost = noDecimalsFormatter.format(this.props.naturalGasCostPerMMBTU * this.props.naturalGasMMBTU); 
+		const hydrogenCost = noDecimalsFormatter.format(this.props.hydrogenCostPerMMBTU * this.props.hydrogenMMBTU); 
 
 		const naturalGasFormatted: string = noDecimalsFormatter.format(this.props.naturalGasMMBTU);
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
+		const hydrogenFormatted: string = noDecimalsFormatter.format(this.props.hydrogenMMBTU);
 
 		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
 
@@ -159,6 +163,24 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									label: shortenNumber(statsGaugeProperties.electricityUseKWh.maxValue)
 								}]}
 							/>
+							<GaugeChart
+								width={CHART_SIZE}
+								value1={clampRatio(
+									this.props.hydrogenMMBTU,
+									statsGaugeProperties.hydrogenMMBTU.maxValue,
+								)}
+								text={hydrogenFormatted}
+								label='Hydrogen (MMBTU)'
+								textFontSize={0.85}
+								color1={theme.palette.primary.light}
+								ticks={[{
+									value: .5,
+									label: shortenNumber(statsGaugeProperties.hydrogenMMBTU.maxValue * 0.5),
+								}, {
+									value: 1,
+									label: shortenNumber(statsGaugeProperties.hydrogenMMBTU.maxValue),
+								}]}
+							/>
 							<HorizontalBarWithTooltip
 								width={400} height={145}
 								data={[{
@@ -172,7 +194,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
 						<Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 16 }} pt={3}>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography id='dashboardText'>
+								<Typography id='dashboardText'>
 									Natural gas emission rate: {
 										naturalGasEmissionRateFormatted
 									} kg/MMBTU
@@ -191,12 +213,12 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography id='dashboardText'>
+								<Typography id='dashboardText'>
 									Natural gas cost: ${naturalGasCost}
 								</Typography>
 							</Grid>
 							<Grid item xs={2} sm={4} md={4}>
-							<Typography id='dashboardText'>
+								<Typography id='dashboardText'>
 									Electricity emission rate: {
 										electricityEmissionRateFormatted
 									} kg/kWh
@@ -217,6 +239,31 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							<Grid item xs={2} sm={4} md={4}>
 								<Typography id='dashboardText'>
 									Electricity cost: ${electricityCost}
+								</Typography>
+							</Grid>
+
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography id='dashboardText'>
+									Hydrogen emission rate: {
+										hydrogenEmissionRateFormatted
+									} kg/MMBTU
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography id='dashboardText'>
+									Emissions from Hydrogen: {
+										emissionsFromHydrogenFormatted
+									} metric tons
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography id='dashboardText'>
+									Hydrogen: ${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU
+								</Typography>
+							</Grid>
+							<Grid item xs={2} sm={4} md={4}>
+								<Typography id='dashboardText'>
+									Hydrogen cost: ${hydrogenCost}
 								</Typography>
 							</Grid>
 						</Grid>

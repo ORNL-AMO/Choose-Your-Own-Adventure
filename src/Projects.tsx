@@ -128,6 +128,7 @@ export interface GameSettings {
 	budget: number,
 	naturalGasUse: number,
 	electricityUse: number,
+	hydrogenUse: number,
 }
 
 /**
