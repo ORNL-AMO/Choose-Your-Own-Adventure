@@ -29,6 +29,20 @@ export interface TrackedStats {
 	 * Emissions of electricity production, per MMBTU.
 	 */
 	electricityEmissionsPerKWh: number;
+
+	/**
+	 * Hydrogen, in millions of British Thermal Units (MMBTU, for reasons)
+	 */
+	hydrogenMMBTU: number;
+	/**
+	 * Cost of Hydrogen, per MMBTU.
+	 */
+	hydrogenCostPerMMBTU: number;
+	/**
+	 * Emissions of Hydrogen, per MMBTU.
+	 */
+	hydrogenEmissionsPerMMBTU: number;
+
 	/**
 	 * Keeps track of rebates from projects.
 	 */
@@ -67,10 +81,12 @@ export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 4_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
-	
 	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
+	hydrogenMMBTU: 2_000,
+	hydrogenCostPerMMBTU: 40,
+	hydrogenEmissionsPerMMBTU: 0,
 	carbonSavingsPercent: 0,
 	financesAvailable: 150_000,
 	totalBudget: 150_000,
@@ -96,7 +112,9 @@ export const emptyTrackedStats: TrackedStats = {
 	electricityUseKWh: 0, 
 	electricityCostPerKWh: 0,
 	electricityEmissionsPerKWh: 0,
-	
+	hydrogenMMBTU: 0,
+	hydrogenCostPerMMBTU: 0,
+	hydrogenEmissionsPerMMBTU: 0,
 	financesAvailable: 0,
 	totalBudget: 0,
 	carbonSavingsPercent: 0,
@@ -124,7 +142,7 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	let newEmissions;
 	if (newStats.absoluteCarbonSavings) {
 		// WARNING - calculation assumes that projects with absoluteCarbonSavings will never have other emissions modifiers (nat gas, electricity)
-		 newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
+		newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
 	} else {
 		newEmissions = calculateEmissions(newStats);
 	}
@@ -142,10 +160,15 @@ export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedSt
 	
 	let oldElecCost = oldStats.electricityCostPerKWh * oldStats.electricityUseKWh;
 	let newElecCost = newStats.electricityCostPerKWh * newStats.electricityUseKWh;
+
+	
+	let oldHCost = oldStats.hydrogenCostPerMMBTU * oldStats.hydrogenMMBTU;
+	let newHCost = newStats.hydrogenCostPerMMBTU * newStats.hydrogenMMBTU;
 	
 	return {
 		naturalGas: oldNgCost - newNgCost,
 		electricity: oldElecCost - newElecCost,
+		hydrogen: oldHCost - newHCost
 	};
 }
 
@@ -178,6 +201,12 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		color: '#c0a020',
 		textFontSize: 0.85,
 		maxValue: 2_000_000,
+	},
+	hydrogenMMBTU: {
+		label: 'Hydrogen use (MMBTU)',
+		color: theme.palette.primary.light,
+		textFontSize: 0.85,
+		maxValue: 2_000,
 	},
 	carbonSavings: {
 		label: 'Carbon savings',

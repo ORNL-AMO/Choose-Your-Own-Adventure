@@ -206,6 +206,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				budget: 150_000,
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
+				hydrogenUse: 2_000
 			},
 			defaultTrackedStats : { ...initialTrackedStats }
 		};
@@ -544,16 +545,19 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let budget = 0;
 		let naturalGas = 0;
 		let electricity = 0;
+		let hydrogen = 0;
 		let gameYears = 1;
 		if(totalYearIterations == 5) {
 			budget = 150_000;
 			naturalGas = 240_000;
 			electricity = 60_000_000;
+			hydrogen = 120_000;
 			gameYears = 2;
 		}
 		if ( totalYearIterations == 10) {
 			budget = 75_000;
 			naturalGas = 120_000;
+			hydrogen = 6_000;
 			electricity = 30_000_000;
 		}
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
@@ -561,6 +565,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		updatingInitialTrackedStats.financesAvailable = budget;
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
+		updatingInitialTrackedStats.hydrogenMMBTU = hydrogen;
 		updatingInitialTrackedStats.gameYears = gameYears;
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
 		this.setState({
@@ -573,6 +578,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				budget: budget,
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
+				hydrogenUse: hydrogen
 			},
 			defaultTrackedStats : updatingInitialTrackedStats
 		});
