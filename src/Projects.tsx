@@ -31,7 +31,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 export const Scope1Projects = [
 	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
 	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler
+	Pages.electricBoiler, Pages.hydrogenFuel
 	//Pages.digitalTwinAnalysis, 
 	//Pages.hydrogenPoweredForklifts, 
 	//Pages.condensingEconomizerInstallation, 
@@ -437,13 +437,19 @@ export class ProjectControl implements ProjectControlParams {
         if (this.statsInfoAppliers.naturalGasMMBTU) {
             infoDialogStatCards.push({
                 text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
-                color: theme.palette.primary.light,
+                color: theme.palette.primary.dark,
             });
         }
         if (this.statsInfoAppliers.electricityUseKWh) {
             infoDialogStatCards.push({
                 text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
                 color: theme.palette.warning.light,
+            });
+        }
+		if (this.statsInfoAppliers.hydrogenMMBTU) {
+            infoDialogStatCards.push({
+                text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+                color: theme.palette.primary.light,
             });
         }
         if (this.statsInfoAppliers.absoluteCarbonSavings) {
@@ -1011,6 +1017,31 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 //  },
 //  utilityRebateValue: 5000,
 // });
+
+Projects[Pages.hydrogenFuel] = new ProjectControl({
+	pageId: Pages.hydrogenFuel,
+	cost: 5_000,
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		naturalGasMMBTU: absolute(-1_000),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		naturalGasMMBTU: absolute(-1_000),
+	},
+	title: 'Hydrogen Fuel Test Project',
+	shortTitle: 'Hydrogen Fuel Test Project',
+	choiceInfoText: [
+		'Hydrogen Fuel Test Project',
+	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
+
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	cost: 500_000,

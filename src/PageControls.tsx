@@ -137,7 +137,8 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
         {
             title: 'Invest in electrification',
             choices: [
-                Projects[Pages.electricBoiler].getProjectChoiceControl(),   
+                Projects[Pages.electricBoiler].getProjectChoiceControl(),  
+                Projects[Pages.hydrogenFuel].getProjectChoiceControl(), 
             ]
         }
     ],
