@@ -1,4 +1,5 @@
-import { createTheme, Paper, styled } from '@mui/material';
+import { createTheme, Paper, styled, TableRow } from '@mui/material';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 
 // see: https://mui.com/material-ui/customization/theming/ and https://mui.com/material-ui/customization/default-theme/#main-content
 export const theme = createTheme({
@@ -37,4 +38,28 @@ export const PaperGridItem = styled(Paper)(({ theme }) => ({
 	padding: theme.spacing(1),
 	textAlign: 'center',
 	color: theme.palette.text.secondary,
+}));
+
+
+
+export const StyledTableCell = styled(TableCell)(({ theme }) => ({
+	[`&.${tableCellClasses.head}`]: {
+		backgroundColor: theme.palette.primary.light,
+		color: theme.palette.common.white,
+		fontSize: 14,
+	},
+	[`&.${tableCellClasses.body}`]: {
+		fontSize: 14,
+		color: theme.palette.primary.main,
+	},
+}));
+
+export const StyledTableRow = styled(TableRow)(({ theme }) => ({
+	'&:nth-of-type(odd)': {
+		backgroundColor: theme.palette.action.hover,
+	},
+	// hide last border
+	'&:last-child td, &:last-child th': {
+		border: 0,
+	},
 }));
