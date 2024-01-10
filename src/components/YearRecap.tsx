@@ -584,12 +584,12 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					</Typography>
 					<List>{projectRecaps}</List>
 					
-					<YearRecapCharts barGraphData={carbonSavingsPercentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Carbon Savings (%)'} unitLable={'%'} currentYear={this.props.year} domainYaxis={100}/>
-					<YearRecapCharts barGraphData={totalMoneySpentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.year} domainYaxis={300}/>
-					<YearRecapCharts barGraphData={costPerCarbonSavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.year} domainYaxis={1}/>
-					<YearRecapCharts barGraphData={naturalGasBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100}/>
-					<YearRecapCharts barGraphData={electricitySavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.year} domainYaxis={100}/>
-					<YearRecapCharts barGraphData={hydrogenBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100}/>
+					<YearRecapCharts barGraphData={carbonSavingsPercentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Carbon Savings (%)'} unitLable={'%'} currentYear={this.props.year} domainYaxis={100} id={'carbon'}/>
+					<YearRecapCharts barGraphData={totalMoneySpentBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.year} domainYaxis={300} id={'money'}/>
+					<YearRecapCharts barGraphData={costPerCarbonSavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.year} domainYaxis={1} id={'cost'}/>
+					<YearRecapCharts barGraphData={naturalGasBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100} id={'naturalGas'}/>
+					<YearRecapCharts barGraphData={electricitySavingsBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.year} domainYaxis={100} id={'electricity'}/>
+					<YearRecapCharts barGraphData={hydrogenBarGraphData} width={1200} height={500} totalIterations={this.props.totalIterations} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.year} domainYaxis={100} id={'hydrogen'}/>
 					
 					{/* Completed projects: Only display if there have been completed projects */}
 					{this.props.completedProjects.length > 0 && <>

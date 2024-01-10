@@ -24,6 +24,7 @@ export type BarsProps = {
     currentYear: number;
     domainYaxis: number;
     events?: boolean;
+    id: string;
 };
 
 export default function Example(props: BarsProps) {
@@ -101,7 +102,7 @@ export default function Example(props: BarsProps) {
                 strokeWidth={1}
                 orientation={['diagonal']}
             />
-            <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
+            <rect x={0} y={0} width={props.width} height={props.height} key={props.id} fill='#eaeffb' rx={14} />
             <Group top={verticalMargin / 2}>
                 {graphDataAndLables.map((d) => {
                     const data = d.dataLables;
