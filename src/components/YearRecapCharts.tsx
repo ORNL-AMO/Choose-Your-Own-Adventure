@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { Bar } from '@visx/shape';
 import { Group } from '@visx/group';
 import letterFrequency from '@visx/mock-data/lib/mocks/letterFrequency';
@@ -102,7 +102,7 @@ export default function Example(props: BarsProps) {
                 strokeWidth={1}
                 orientation={['diagonal']}
             />
-            <rect x={0} y={0} width={props.width} height={props.height} key={props.id} fill='#eaeffb' rx={14} />
+            <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
             <Group top={verticalMargin / 2}>
                 {graphDataAndLables.map((d) => {
                     const data = d.dataLables;
@@ -111,7 +111,7 @@ export default function Example(props: BarsProps) {
                     const barX = xScale(data);
                     const barY = yMax - barHeight;
                     return (
-                        <>
+                        <Fragment key={`bar-${data}`}>
                             <Bar
                                 key={`bar-${data}`}
                                 x={barX}
@@ -126,7 +126,8 @@ export default function Example(props: BarsProps) {
                             <text x={barX} y={barY - 5} fontSize={12}>
                                 {d.data.toFixed(2)} {props.unitLable}
                             </text>
-                        </>
+
+                        </Fragment>
                     );
                 })}
             </Group>
