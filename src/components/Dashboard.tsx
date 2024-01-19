@@ -6,18 +6,24 @@ import {
 	MobileStepper,
 	Paper,
 	styled,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TableRow,
 	Typography,
 } from '@mui/material';
 import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
 import React from 'react';
 import GaugeChart from './GaugeChart';
-import { theme } from './theme';
+import { StyledTableCell, StyledTableRow, theme } from './theme';
 import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
 import type { GameSettings } from '../Projects';
+import { Table } from '@mui/material';
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
@@ -189,86 +195,58 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									'Money spent': this.props.moneySpent,
 								}]}
 							/>
-						</Grid>
-
-
-						<Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 16 }} pt={3}>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas emission rate: {
-										naturalGasEmissionRateFormatted
-									} kg/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from natural gas: {
-										emissionsFromNaturalGasFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas cost: ${naturalGasCost}
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity emission rate: {
-										electricityEmissionRateFormatted
-									} kg/kWh
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from electricity: {
-										emissionsFromElectricityFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity cost: ${electricityCost}
-								</Typography>
-							</Grid>
-
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen emission rate: {
-										hydrogenEmissionRateFormatted
-									} kg/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from Hydrogen: {
-										emissionsFromHydrogenFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen: ${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen cost: ${hydrogenCost}
-								</Typography>
-							</Grid>
-						</Grid>
-
+						</Grid>		
 					</Grid>
+					<TableContainer component={Paper} sx={{ marginTop: 3, maxWidth: 1000 }}>
+						<Table sx={{ minWidth: 650, maxWidth: 1000 }} size='small' aria-label='simple table'>
+							<TableHead>
+								<TableRow>
+									<StyledTableCell align='center'> </StyledTableCell>
+									<StyledTableCell align='center'>Natural Gas</StyledTableCell>
+									<StyledTableCell align='center'>Electricity</StyledTableCell>
+									<StyledTableCell align='center'>Hydrogen</StyledTableCell>
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								<StyledTableRow
+									key={'naturalGas'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'> {'Emission Rate'}</StyledTableCell>
+									<StyledTableCell align='center'>{naturalGasEmissionRateFormatted} kg/MMBTU</StyledTableCell>
+									<StyledTableCell align='center'>{electricityEmissionRateFormatted} kg/kWh</StyledTableCell>											
+									<StyledTableCell align='center'>{hydrogenEmissionRateFormatted} kg/MMBTU</StyledTableCell> 
+								</StyledTableRow>
+								<StyledTableRow
+									key={'electricity'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Emissions from Utility'}</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromNaturalGasFormatted} metric tons</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromElectricityFormatted} metric tons</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromHydrogenFormatted} metric tons</StyledTableCell>
+								</StyledTableRow>
+								<StyledTableRow
+									key={'hydrogen'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Utility Cost per unit'}</StyledTableCell>
+									<StyledTableCell align='center'>${this.props.naturalGasCostPerMMBTU.toFixed(2)}/kWh</StyledTableCell>
+									<StyledTableCell align='center'>${this.props.electricityCostPerKWh.toFixed(2)}/kWh</StyledTableCell>									
+									<StyledTableCell align='center'>${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
+								</StyledTableRow>
+								<StyledTableRow
+									key={'hydrogen'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Total Cost'}</StyledTableCell>
+									<StyledTableCell align='center'>${naturalGasCost}</StyledTableCell>
+									<StyledTableCell align='center'>${electricityCost}</StyledTableCell>		
+									<StyledTableCell align='center'>${hydrogenCost}</StyledTableCell>
+								</StyledTableRow>
+							</TableBody>
+						</Table>
+					</TableContainer>
 				</Box>
 				<Divider variant='middle' />
 			</>
