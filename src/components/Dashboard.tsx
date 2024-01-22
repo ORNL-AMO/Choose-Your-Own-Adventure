@@ -25,6 +25,14 @@ import { statsGaugeProperties } from '../trackedStats';
 import type { GameSettings } from '../Projects';
 import { Table } from '@mui/material';
 
+export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
+	onBack?: () => void;
+	onProceed: () => void;
+	btnBackDisabled: boolean;
+	btnProceedDisabled: boolean;
+}
+
+
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
 	render() {
@@ -40,7 +48,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		});
 		
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
-		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
+		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 		
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
 		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
@@ -58,17 +66,16 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
 		const hydrogenFormatted: string = noDecimalsFormatter.format(this.props.hydrogenMMBTU);
 
-		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
-
+		const financesFormatted = Number(this.props.financesAvailable.toFixed(0));
 
 		return (
 			<>
 			<Divider/>
 				<MobileStepper
 					variant='progress'
-					steps={this.props.totalIterations}
+					steps={this.props.totalGameYears}
 					position='static'
-					activeStep={this.props.year - 1}
+					activeStep={this.props.currentGameYear - 1}
 					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
 					sx={{ padding: '.75rem' }}
 					backButton={
@@ -90,35 +97,36 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							endIcon={rightArrow()}
 							buttonDisabled={this.props.btnProceedDisabled}
 						>
-							{this.props.totalIterations == 5 &&
+							{this.props.totalGameYears == 5 &&
 								<div
 									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
-									Commit to your selected projects and proceed to Years {this.props.yearInterval} and {this.props.yearInterval + 1}.
+									Commit to your selected projects and proceed to Years {this.props.gameYearDisplayOffset} and {this.props.gameYearDisplayOffset + 1}.
 								</div>
 							}
-							{this.props.totalIterations == 10 &&
+							{this.props.totalGameYears == 10 &&
 								<div
 									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
-									Commit to your selected projects and proceed to Year {this.props.year}.
+									Commit to your selected projects and proceed to Year {this.props.currentGameYear}.
 								</div>
 							}
 						</BasicPopover>
 					}
 				/>
+				
 				<Box m={2}>
 					{/* todo timer for each year */}
-					{this.props.totalIterations == 5 &&
+					{this.props.totalGameYears == 5 &&
 						<Typography variant='h6'>
-							Years {this.props.yearInterval} and {this.props.yearInterval + 1} of 10
+							Years {this.props.gameYearDisplayOffset} and {this.props.gameYearDisplayOffset + 1} of 10
 						</Typography>
 					}
-					{this.props.totalIterations == 10 &&
+					{this.props.totalGameYears == 10 &&
 						<Typography variant='h6'>
-							Year {this.props.year} of 10
+							Year {this.props.currentGameYear} of 10
 						</Typography>
 					}
 					<Grid container spacing={2}>
@@ -192,7 +200,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								data={[{
 									// Finances available can be negative UP TO the amount of rebates.... may be changed later
 									'Finances available': Math.max(financesFormatted, 0),
-									'Money spent': this.props.moneySpent,
+									'Money spent': this.props.implementationSpending,
 								}]}
 							/>
 						</Grid>		
@@ -236,7 +244,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									<StyledTableCell align='center'>${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
 								</StyledTableRow>
 								<StyledTableRow
-									key={'hydrogen'}
+									key={'totalCosts'}
 									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 								>
 									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Total Cost'}</StyledTableCell>
@@ -252,11 +260,4 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			</>
 		);
 	}
-}
-
-export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
-	onBack?: () => void;
-	onProceed: () => void;
-	btnBackDisabled: boolean;
-	btnProceedDisabled: boolean;
 }

@@ -56,12 +56,12 @@ PageControls[Pages.selectGameSettings] = newSelectGameSettingsControl({});
 PageControls[Pages.selectScope] = newGroupedChoicesControl({
     title: function (state, nextState) {
         // Year 1
-        if (state.trackedStats.year === 1) {
+        if (state.trackedStats.currentGameYear === 1) {
             return 'To begin, you will need to decide which types of projects to pursue. {Would you like to...}';
         }
         // Subsequent years
         else {
-            return `Welcome back. Choose the projects you wish to pursue for Year ${state.trackedStats.year}.`;
+            return `Welcome back. Choose the projects you wish to pursue for Year ${state.trackedStats.currentGameYear}.`;
         }
     },
     groups: [
@@ -213,7 +213,7 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 });
 PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
-    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub> Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>}! \n You spent a total of {$${state.trackedStats.totalMoneySpent.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
+    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub> Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
 	img: 'images/confetti.png',
 	buttons: [
 		{
@@ -253,19 +253,19 @@ export function notImplemented(pageBack?: symbol) {
     });
 }
 /**
- * Toggle whether a certain symbol is included in app.state.implementedProjects.
+ * Toggle whether a certain symbol is included in app.state.implementedProjectsIds.
  */
 export function toggleSelectedPage(page: symbol, state: AppState, nextState: AnyDict) {
-    let implementedProjects = state.implementedProjects.slice();
+    let implementedProjectsIds = state.implementedProjectsIds.slice();
     // IF ALREADY SELECTED
-    if (implementedProjects.includes(page)) {
-        implementedProjects.splice(implementedProjects.indexOf(page), 1);
+    if (implementedProjectsIds.includes(page)) {
+        implementedProjectsIds.splice(implementedProjectsIds.indexOf(page), 1);
     }
     // IF NOT ALREADY SELECTED
     else {
-        implementedProjects.push(page);
+        implementedProjectsIds.push(page);
     }
-    nextState.implementedProjects = implementedProjects;
+    nextState.implementedProjectsIds = implementedProjectsIds;
 }
 export function co2SavingsButton(percent: number): ButtonGroupButton {
     return {

@@ -198,7 +198,7 @@ export interface GroupedChoicesControlProps {
 	/**
 	 * Title of the entire GroupedChoices page.
 	 */
-	allowImplementProjects?: symbol[]
+	availableProjectIds?: symbol[]
 	selectedProjectsForComparison?: SelectedProject[];
 	handleClearProjectsClick?: () => void;
 	handleCompareProjectsClick?: () => void;
