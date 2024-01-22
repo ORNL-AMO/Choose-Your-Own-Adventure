@@ -29,21 +29,21 @@ export const SettingsCard = styled(Paper)(({ theme }) => ({
 export function SelectGameSettings(props: SelectGameSettingsProps) {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const [totalYearIterations, setTotalIterations] = React.useState(props.totalIterations);
+    const [gameYearInterval, setGameYearInterval] = React.useState(props.gameYearInterval);
     const [allowCarryover, setCarryoverOption ] = React.useState('yes');    
     const [allowEnergyCarryover, setEnergyCarryoverOption ] = React.useState('One Year');
 
     const handleIntervalChange = (event: SelectChangeEvent<number>) => {
-        setTotalIterations(event.target.value as number);
-    }
+        setGameYearInterval(event.target.value as number);
+    };
 
     const handleCarryoverChange = (event: SelectChangeEvent<string>) => {
         setCarryoverOption(event.target.value as string);
-    }
+    };
 
     const handleEnergyCarryoverChange = (event: SelectChangeEvent<string>) => {
         setEnergyCarryoverOption(event.target.value as string);
-    }
+    };
 
     return (
         <>
@@ -61,16 +61,16 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
                             You have the option to play through in 1 OR 2-year intervals.
                         </DialogContentText>
-                        <InputLabel id='selectYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
+                        <InputLabel id='selectGameYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
                         <Select
-                            labelId='selectYearInterval'
-                            id='selectYearInterval'
-                            value={totalYearIterations}
-                            label='totalIterations'
+                            labelId='selectGameYearInterval'
+                            id='selectGameYearInterval'
+                            value={gameYearInterval}
+                            label='gameYearInterval'
                             onChange={handleIntervalChange}
                         >
-                            <MenuItem value={10}> 1-year intervals </MenuItem>
-                            <MenuItem value={5}> 2-year intervals</MenuItem>
+                            <MenuItem value={1}> 1-year intervals </MenuItem>
+                            <MenuItem value={2}> 2-year intervals</MenuItem>
 
                         </Select>                        
                     </Box>
@@ -113,7 +113,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Button>
                     <Button
                         size='small'
-                        onClick={() => props.onProceed(totalYearIterations)} >
+                        onClick={() => props.onProceed(gameYearInterval)} >
                         Start Playing
                     </Button>
                 </DialogActions>
@@ -144,6 +144,6 @@ export declare interface SelectGameSettingsControlProps {
 }
 
 export interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks, GameSettings {
-    onProceed: (totalYearIterations: number) => void;
+    onProceed: (gameYearInterval: number) => void;
     doPageCallback: (callback?: PageCallback) => void;
 }

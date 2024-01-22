@@ -140,7 +140,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 						props.doPageCallback(button.onClick);
 					}
 					else if (button.infoDialog) {
-						// todo 25 set allowImplementProjects should probably happen here instead of <InfoDialog/> useEfffect
+						// todo 25 set availableProjectIds should probably happen here instead of <InfoDialog/> useEfffect
 						props.summonInfoDialog(button.infoDialog);
 					}
 				}}

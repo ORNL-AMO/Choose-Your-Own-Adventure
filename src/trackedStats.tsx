@@ -1,7 +1,9 @@
 import { theme } from './components/theme';
 
 /**
- * Stats that are tracked throughout gameplay.
+ * Stats that are tracked throughout gameplay. 
+ * 
+ * 
  */
 export interface TrackedStats {
 	/**
@@ -44,34 +46,67 @@ export interface TrackedStats {
 	hydrogenEmissionsPerMMBTU: number;
 
 	/**
-	 * Keeps track of rebates from projects.
+	 * Serves as rebate applier for statsRecapAppliers
 	 */
-	totalRebates: number;
-	
-	totalBudget: number;
+	yearRebates?: number;
+	/**
+	 * Budget for the year
+	 */
+	yearBudget: number;
+	/**
+	 * Available finances at any time 
+	 */
 	financesAvailable: number;
+	/**
+	 * 
+	 */
 	carbonSavingsPercent: number;
+	/**
+	 * 
+	 */
 	carbonEmissions: number;
+	/**
+	 * 
+	 */
 	carbonSavingsPerKg: number;
 	/**
 	 * Emissions savings in kg coming from projects with absolute/static savings
 	 */
 	absoluteCarbonSavings: number;
+	/**
+	 * Cost per carbon kg savings
+	 */
 	costPerCarbonSavings: number;
-	moneySpent: number;
 	/**
-	 * Total money spent, across the whole run.
+	 * Year Costs applied IN-YEAR from project implementation. Does NOT include hidden costs or rebates
 	 */
-	totalMoneySpent: number;
+	implementationSpending: number;
 	/**
-	 * tracking year, 1 through 5.
+	 * Year Hidden costs applied at Year Recap 
 	 */
-	year: number;
+	hiddenSpending: number;
 	/**
-	 * year to display for two year intervals
+	 * End of year total spending, adusted for hidden costs and  rebates
 	 */
-	yearInterval: number;
-	gameYears: number;
+	yearEndTotalSpending: number;
+	/**
+	 * Current year of game
+	 */
+	currentGameYear: number;
+	/**
+	 * When in shortened game: apply value to curent year for display
+	 */
+	gameYearDisplayOffset: number;
+	/**
+	 * Game years are playable in increments of 1 or 2
+	 */
+	gameYearInterval: number;
+}
+
+export interface YearCostSavings {
+	naturalGas: number,
+	electricity: number,
+	hydrogen: number
 }
 
 /**
@@ -89,45 +124,17 @@ export const initialTrackedStats: TrackedStats = {
 	hydrogenEmissionsPerMMBTU: 0,
 	carbonSavingsPercent: 0,
 	financesAvailable: 150_000,
-	totalBudget: 150_000,
+	yearBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
 	carbonSavingsPerKg: 0, 
 	absoluteCarbonSavings: 0,
 	costPerCarbonSavings: 0,
-	moneySpent: 0,
-	totalMoneySpent: 0,
-	totalRebates: 0,
-	year: 1,
-	yearInterval: 1,
-	gameYears: 1
-};
-
-/**
- * A new TrackedStats object where everything is zero.
- */
-export const emptyTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 0, 
-	naturalGasCostPerMMBTU: 0,
-	naturalGasEmissionsPerMMBTU: 0,
-	electricityUseKWh: 0, 
-	electricityCostPerKWh: 0,
-	electricityEmissionsPerKWh: 0,
-	hydrogenMMBTU: 0,
-	hydrogenCostPerMMBTU: 0,
-	hydrogenEmissionsPerMMBTU: 0,
-	financesAvailable: 0,
-	totalBudget: 0,
-	carbonSavingsPercent: 0,
-	carbonSavingsPerKg: 0,
-	carbonEmissions: 0,
-	absoluteCarbonSavings: 0,
-	costPerCarbonSavings: 0,
-	moneySpent: 0,
-	totalMoneySpent: 0,
-	totalRebates: 0,
-	year: 0,
-	yearInterval: 0,
-	gameYears: 1
+	implementationSpending: 0,
+	hiddenSpending: 0,
+	yearEndTotalSpending: 0,
+	currentGameYear: 1,
+	gameYearDisplayOffset: 1,
+	gameYearInterval: 1
 };
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
@@ -154,7 +161,7 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	return newStats;
 }
 
-export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedStats) {
+export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {
 	let oldNgCost = oldStats.naturalGasCostPerMMBTU * oldStats.naturalGasMMBTU;
 	let newNgCost = newStats.naturalGasCostPerMMBTU * newStats.naturalGasMMBTU;
 	
@@ -171,6 +178,7 @@ export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedSt
 		hydrogen: oldHCost - newHCost
 	};
 }
+
 
 /**
  * exclusively for dashboardStatsGaugeProperties
