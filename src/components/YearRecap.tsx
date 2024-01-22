@@ -45,11 +45,7 @@ import YearRecapCharts from './YearRecapCharts';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
-	// todo render is being triggered twice
 	render() {
-
-		debugger;
-		// this.props.year what does this represent? current year
 		// * initialCurrentYearStats - READ ONLY stats 
 		const initialCurrentYearStats = this.props.yearRangeInitialStats[this.props.currentGameYear - 1];
 		// * mutableStats - mutates as we calculate current year recap
@@ -66,7 +62,6 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
 		const unspentBudgetFormatted: string = noDecimalsFormatter.format(recapResults.unspentBudget);
 		const yearEndTotalSpendingFormatted: string = noDecimalsFormatter.format(recapResults.yearEndTotalSpending);
-		debugger;
 		// formatting new value? or existing
 		const totalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.yearEndTotalSpending);
 		const costPerCarbonSavingsFormatted: string = mutableStats.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {

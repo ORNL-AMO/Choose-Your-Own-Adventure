@@ -414,8 +414,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 	 */
 	setupNewYearOnProceed(currentYearStats: TrackedStats) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
-		// what do these look like
-		debugger;
 		let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 

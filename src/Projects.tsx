@@ -414,7 +414,6 @@ export class ProjectControl implements ProjectControlParams {
 		let cost = this.cost;
 		let rebates = this.getYearEndRebates();
 		let hiddenCosts = this.getHiddenCost();
-		debugger;
 		if (gameYears !== undefined) {
 			cost = gameYears * cost;
 			rebates = gameYears * rebates;
