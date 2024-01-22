@@ -2,6 +2,10 @@
   "name": "choose-your-own-solution",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.10.0",
+    "npm": "10.2.3"
+  },
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
