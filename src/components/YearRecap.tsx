@@ -101,7 +101,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primary={
 										<Typography variant='h5'>
-											Your company has reduced CO<sub>2</sub> Emissions by{' '}
+											Your company has reduced CO<sub>2</sub>e Emissions by{' '}
 											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
 										</Typography>
 									}
@@ -155,7 +155,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub></Emphasis>{' '}</span>
+										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub>e</Emphasis>{' '}</span>
 									}
 								/>
 							</ListItem>
@@ -170,7 +170,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					
 					<List>{recapResults.projectRecapCards}</List>
 
-					<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Carbon Savings (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'}/>
+					<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'}/>
 					<YearRecapCharts barGraphData={barGraphData.totalSpending} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} />
 					<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'}/>
 					<YearRecapCharts barGraphData={barGraphData.naturalGas} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'}/>
@@ -646,7 +646,7 @@ function addCarbonSavingsGauge(mutableStats: TrackedStats,
 					) + '%'
 				}
 				backgroundColor={'#88888820'}
-				label='Carbon savings'
+				label='GHG Reduction'
 				ticks={[
 					{
 						label: toPercent(newCarbonSavingsPercent),
