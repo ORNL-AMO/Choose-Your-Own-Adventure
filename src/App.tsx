@@ -168,7 +168,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	constructor(props: unknown) {
 		super(props);
 
-		this.state = this.getInitialAppState()
+		this.state = this.getInitialAppState();
 		// @ts-ignore - for debugging 
 		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
 	}
@@ -495,7 +495,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			if (Projects[projectSymbol].hasImplementationYearAppliers) {
 				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, false);
 			}
-		})
+		});
 		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
 		
 		

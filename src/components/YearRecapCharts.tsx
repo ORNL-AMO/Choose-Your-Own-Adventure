@@ -29,8 +29,8 @@ export type BarsProps = {
 export default function Example(props: BarsProps) {
     //'#1D428A' 96b1e9 d5e0f6
     let graphDataAndLables: BarData[] = [];
-    let yearCount: number = 0;    
-    let twoYearIntervalsCount: number = 0;
+    let yearCount = 0;    
+    let twoYearIntervalsCount = 0;
     props.barGraphData.forEach(data => {
         let dataLable: string;
         let fillColor: string;
@@ -39,7 +39,7 @@ export default function Example(props: BarsProps) {
                 dataLable = 'Years ' + yearCount + ' and ' + (yearCount + 1);
                 fillColor = '#1D428A';
                 if (twoYearIntervalsCount > props.currentYear) {
-                    fillColor = 'url(#bar-hash)'
+                    fillColor = 'url(#bar-hash)';
                 }
                 twoYearIntervalsCount++;
                 yearCount = yearCount + 2;
@@ -47,7 +47,7 @@ export default function Example(props: BarsProps) {
                 dataLable = 'Year ' + yearCount;
                 fillColor = '#1D428A';
                 if (yearCount > props.currentYear) {
-                    fillColor ='url(#bar-hash)'
+                    fillColor ='url(#bar-hash)';
                 }
                 yearCount = yearCount + 1;
             }

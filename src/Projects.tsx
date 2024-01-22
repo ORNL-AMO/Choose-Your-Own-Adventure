@@ -35,7 +35,7 @@ export const Scope1Projects = [
 	//Pages.digitalTwinAnalysis, 
 	//Pages.hydrogenPoweredForklifts, 
 	//Pages.condensingEconomizerInstallation, 
-]
+];
 /**
  * List of Page symbols for projects that are in the SCOPE 2 list.
  */
@@ -338,7 +338,7 @@ export class ProjectControl implements ProjectControlParams {
      * Un-applies this project's stat changes by mutating the provided TrackedStats object.
      * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
      */
-    unApplyStatChanges(mutableStats: TrackedStats, shouldUnapplyCosts: boolean = true) {
+    unApplyStatChanges(mutableStats: TrackedStats, shouldUnapplyCosts = true) {
         for (let key in this.statsActualAppliers) {
             let thisApplier = this.statsActualAppliers[key];
             if (!thisApplier) return;
@@ -424,7 +424,7 @@ export class ProjectControl implements ProjectControlParams {
         let infoDialogStatCards: DialogCardContent[] = [];
         let choiceStats: ButtonGroupButton[] = [];
 
-		let perYearAddOn: string = '';
+		let perYearAddOn = '';
 		if(this.renewalRequired == true){
 			perYearAddOn = 'per year';
 		}
@@ -475,12 +475,12 @@ export class ProjectControl implements ProjectControlParams {
                     onClick: function (state, nextState) {
                         let isProjectImplemented: boolean = state.implementedProjects.includes(self.pageId);
                         if (self.renewalRequired) {
-                            isProjectImplemented = state.projectsRequireRenewal.some((project: RenewalProject) => {
-							     if (project.page === self.pageId && project.yearsImplemented.includes(state.trackedStats.year)) {
-                                    return true
-                                }
-                                return false;
-                            });
+							isProjectImplemented = state.projectsRequireRenewal.some((project: RenewalProject) => {
+								if (project.page === self.pageId && project.yearsImplemented.includes(state.trackedStats.year)) {
+									return true;
+								}
+								return false;
+							});
                             if (isProjectImplemented) {
                                 return state.currentPage;
                             }
@@ -549,7 +549,7 @@ export class ProjectControl implements ProjectControlParams {
 			const carportImplementedYear = state.implementedProjects.find(project => project === Pages.solarPanelsCarPort);
 			const maintenanceImplemented = state.projectsRequireRenewal.some(project => {
 				return project.page === Pages.solarPanelsCarPortMaintenance;
-			})
+			});
 			// if going to previous year, project can be in both completed and implemented
 			return isCarportCompleted || (maintenanceImplemented && !carportImplementedYear);
 		}
@@ -587,7 +587,7 @@ export class ProjectControl implements ProjectControlParams {
                 if (self.renewalRequired) {
                     return props.projectsRequireRenewal.some((project: RenewalProject) => {
                         if (project.page === self.pageId && project.yearsImplemented.includes(props.trackedStats.year)) {
-                            return true
+                            return true;
                         }
                         return false;
                     });

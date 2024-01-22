@@ -41,7 +41,7 @@ import {
 } from '../functions-and-types';
 import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
-import InfoIcon from '@mui/icons-material/Info'
+import InfoIcon from '@mui/icons-material/Info';
 import { ButtonGroupButton } from './Buttons';
 import YearRecapCharts from './YearRecapCharts';
 
@@ -64,7 +64,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const projectRecaps: JSX.Element[] = [];
 		let implementedProjects = [...this.props.implementedProjects].map(project => Projects[project]);
 		// * 22 need to create new array - the original will be modified
-		let projectsRequireRenewal = this.props.projectsRequireRenewal.map(project => { return {...project}});
+		let projectsRequireRenewal = this.props.projectsRequireRenewal.map(project => { 
+			return {...project};});
 
 		// * adding to implemented projects to show display values
 		projectsRequireRenewal.forEach(project => {

@@ -16,7 +16,7 @@ export interface TrackedStats {
 	 * Emissions of natural gas, per MMBTU.
 	 */
 	naturalGasEmissionsPerMMBTU: number;
-	
+
 	/**
 	 * Amount of electricity used, in kilowatt-hours (kWh).
 	 */
@@ -47,7 +47,7 @@ export interface TrackedStats {
 	 * Keeps track of rebates from projects.
 	 */
 	totalRebates: number;
-	
+
 	totalBudget: number;
 	financesAvailable: number;
 	carbonSavingsPercent: number;
@@ -78,10 +78,10 @@ export interface TrackedStats {
  * The initial state of TrackedStats
  */
 export const initialTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 4_000, 
+	naturalGasMMBTU: 4_000,
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
-	electricityUseKWh: 4_000_000, 
+	electricityUseKWh: 4_000_000,
 	electricityCostPerKWh: 0.10,
 	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	hydrogenMMBTU: 2_000,
@@ -91,7 +91,7 @@ export const initialTrackedStats: TrackedStats = {
 	financesAvailable: 150_000,
 	totalBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
-	carbonSavingsPerKg: 0, 
+	carbonSavingsPerKg: 0,
 	absoluteCarbonSavings: 0,
 	costPerCarbonSavings: 0,
 	moneySpent: 0,
@@ -106,10 +106,10 @@ export const initialTrackedStats: TrackedStats = {
  * A new TrackedStats object where everything is zero.
  */
 export const emptyTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 0, 
+	naturalGasMMBTU: 0,
 	naturalGasCostPerMMBTU: 0,
 	naturalGasEmissionsPerMMBTU: 0,
-	electricityUseKWh: 0, 
+	electricityUseKWh: 0,
 	electricityCostPerKWh: 0,
 	electricityEmissionsPerKWh: 0,
 	hydrogenMMBTU: 0,
@@ -157,14 +157,14 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedStats) {
 	let oldNgCost = oldStats.naturalGasCostPerMMBTU * oldStats.naturalGasMMBTU;
 	let newNgCost = newStats.naturalGasCostPerMMBTU * newStats.naturalGasMMBTU;
-	
+
 	let oldElecCost = oldStats.electricityCostPerKWh * oldStats.electricityUseKWh;
 	let newElecCost = newStats.electricityCostPerKWh * newStats.electricityUseKWh;
 
-	
+
 	let oldHCost = oldStats.hydrogenCostPerMMBTU * oldStats.hydrogenMMBTU;
 	let newHCost = newStats.hydrogenCostPerMMBTU * newStats.hydrogenMMBTU;
-	
+
 	return {
 		naturalGas: oldNgCost - newNgCost,
 		electricity: oldElecCost - newElecCost,

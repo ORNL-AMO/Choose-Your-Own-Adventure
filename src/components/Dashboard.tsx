@@ -32,10 +32,10 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
 		});
-		
+
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
-		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
-		
+		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
+
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
 		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
 		const hydrogenEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU);
@@ -52,7 +52,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
 		const hydrogenFormatted: string = noDecimalsFormatter.format(this.props.hydrogenMMBTU);
 
-		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
+		const financesFormatted = Number(this.props.financesAvailable.toFixed(0));
 
 
 		return (

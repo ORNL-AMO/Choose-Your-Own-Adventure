@@ -35,15 +35,15 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
 
     const handleIntervalChange = (event: SelectChangeEvent<number>) => {
         setTotalIterations(event.target.value as number);
-    }
+    };
 
     const handleCarryoverChange = (event: SelectChangeEvent<string>) => {
         setCarryoverOption(event.target.value as string);
-    }
+    };
 
     const handleEnergyCarryoverChange = (event: SelectChangeEvent<string>) => {
         setEnergyCarryoverOption(event.target.value as string);
-    }
+    };
 
     return (
         <>
