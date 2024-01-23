@@ -217,7 +217,7 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		maxValue: 2_000,
 	},
 	carbonSavings: {
-		label: 'Carbon savings',
+		label: 'GHG Reduction',
 		color: '#000000',
 		textFontSize: 1,
 		maxValue: 1,

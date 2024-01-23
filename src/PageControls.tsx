@@ -40,8 +40,8 @@ PageControls[Pages.start] = newStartPageControl({
     ]
 });
 PageControls[Pages.introduction] = newInfoDialogControl({
-    text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate carbon reduction goal:`,
-    cardText: '{50%} carbon reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
+    text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate GHG reduction goal:`,
+    cardText: '{50%}  GHG reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
     title: 'Introduction',
     img: 'images/manufacturing.png',
     imgAlt: 'A robotic arm working on a car.',
@@ -193,7 +193,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
 PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
     title: '{SELECTED}: WASTE HEAT RECOVERY',
-    cardText: 'You have achieved {3.5%} carbon emissions reduction and spent {$60,000} dollars.',
+    cardText: 'You have achieved {3.5%} GHG emissions reduction and spent {$60,000} dollars.',
     text: [
         '[Waupaca Foundry: Cupola Waste Heat Recovery Upgrade Drives Deeper Energy Savings](https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings)',
         'Nice choice! In 2010, {Waupaca Foundry} implemented heat recovery system upgrades in their Plant 23, which lead to upgrades in other plants as well. Combined savings have led to a reduction in natural gas usage by {1,200,000 therms} per year and {72,000 tons} of annual CO2 reduction.',
@@ -204,7 +204,7 @@ PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
 });
 PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
     title: '{SELECTED}: DIGITAL TWIN ANALYSIS',
-    cardText: 'You have achieved {2%} carbon emissions reduction and spent {$90,000} dollars.',
+    cardText: 'You have achieved {2%} GHG emissions reduction and spent {$90,000} dollars.',
     text: '[Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management](https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant)\n\nGood choice! Ford Motor Company used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a 50% reduction in campus office space energy and water use compared to their older system.',
     img: 'images/ford.png',
     buttons: [
@@ -213,7 +213,7 @@ PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
 });
 PageControls[Pages.winScreen] = newInfoDialogControl({
 	title: 'CONGRATULATIONS!',
-    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub> Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
+    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub>e Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>e}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>e}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
 	img: 'images/confetti.png',
 	buttons: [
 		{
@@ -272,7 +272,7 @@ export function co2SavingsButton(percent: number): ButtonGroupButton {
         text: percent.toFixed(1) + '%',
         variant: 'text',
         startIcon: <Co2Icon/>,
-        // infoPopup: <Typography variant='body1'>This project would provide {percent}% in CO<sub>2</sub> savings.</Typography>
+        // infoPopup: <Typography variant='body1'>This project would provide {percent}% in CO<sub>2</sub>e savings.</Typography>
     };
 }
 // todo: investigate whether making this a callback improves page load time (by not resolving all the react components at the start)

@@ -462,7 +462,7 @@ export class ProjectControl implements ProjectControlParams {
         }
         if (this.statsInfoAppliers.absoluteCarbonSavings) {
             infoDialogStatCards.push({
-                text: `Carbon Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub> ${perYearAddOn}}`,
+                text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
                 color: theme.palette.primary.main,
             });
         }
@@ -1251,7 +1251,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	caseStudy: {
 		title: 'SAINT-GOBAIN CORPORATION: ADVANCED ENERGY MONITORING WITH WIRELESS SUBMETERING',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-advanced-energy-monitoring-wireless-submetering',
-		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing carbon emissions and lowering energy intensity.'
+		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing GHG emissions and lowering energy intensity.'
 	},
 	energySavingsPreviewButton: {
 		text: '0.0%',

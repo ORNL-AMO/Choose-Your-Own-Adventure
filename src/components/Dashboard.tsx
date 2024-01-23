@@ -136,7 +136,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								width={CHART_SIZE}
 								value1={clampRatio(this.props.carbonSavingsPercent, 1)}
 								text={carbonSavingsFormatted}
-								label='Carbon Savings'
+								label='GHG Reduction'
 								textFontSize={0.85}
 								color1={theme.palette.primary.dark}
 								ticks={[{
