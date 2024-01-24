@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RenewableProject} from '../Projects';
+import type { RenewableProject, UserSettings} from '../Projects';
 import type { CompletedProject, SelectedProject, GameSettings} from '../Projects';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 import type { TrackedStats } from '../trackedStats';
@@ -25,7 +25,7 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	gameSettings: GameSettings;	
 	defaultTrackedStats :TrackedStats;
 	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats) => void;
-	handleGameSettingsOnProceed: (totalGameYears: number) => void;
+	handleGameSettingsOnProceed: (userSettings: UserSettings) => void;
 }
 
 export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
