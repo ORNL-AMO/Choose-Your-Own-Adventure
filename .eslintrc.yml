@@ -39,6 +39,3 @@ rules:
       allowDestructuring: false
       allowedNames: 
         - self
-  semi:
-    - warn
-    - always
