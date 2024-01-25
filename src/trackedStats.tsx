@@ -179,23 +179,6 @@ export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStat
 	};
 }
 
-/**
- * User has obtained savings milestone A and can receive a Capital Funds Reward to implement a free project
- */
-export function getHasCapitalRewardMilestoneA(stats: TrackedStats): boolean {
-	const capitalFundsMilestone = .15;
-	return stats.carbonSavingsPercent >= capitalFundsMilestone;
-}
-
-/**
- * User has obtained savings milestone B and can receive a Capital Funds Reward to implement a free project
- */
-export function getHasCapitalRewardMilestoneB(stats: TrackedStats): boolean {
-	const capitalFundsMilestone = .35;
-	return stats.carbonSavingsPercent >= capitalFundsMilestone;
-}
-
-
 
 /**
  * exclusively for dashboardStatsGaugeProperties

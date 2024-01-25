@@ -83,9 +83,11 @@ declare interface RecapAvatar {
 /**
  * Hidden surprise to appear on the year recap page.
  */
-declare interface RecapSurprise {
+export interface RecapSurprise {
 	title: string;
 	text: string | string[];
+	subHeader?: string,
+	className?: string,
 	avatar: {
 		icon: JSX.Element,
 		backgroundColor: string,
@@ -502,12 +504,12 @@ export class ProjectControl implements ProjectControlParams {
                     onClick: function (state, nextState) {
                         let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
                         if (self.isRenewable) {
-                            isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-							     if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-                                    return true
-                                }
-                                return false;
-                            });
+							isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+									return true
+								}
+								return false;
+							});
                             if (isProjectImplemented) {
                                 return state.currentPage;
                             }
@@ -1109,6 +1111,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	recapSurprises: [{
 		title: 'Uh oh - Bad Asphalt!',
 		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
+		className: 'year-recap-negative-surprise',
 		avatar: {
 			icon: <TrafficConeIcon />,
 			backgroundColor: 'rgba(54,31,6,0.6)',
