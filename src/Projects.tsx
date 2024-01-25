@@ -83,9 +83,11 @@ declare interface RecapAvatar {
 /**
  * Hidden surprise to appear on the year recap page.
  */
-declare interface RecapSurprise {
+export interface RecapSurprise {
 	title: string;
 	text: string | string[];
+	subHeader?: string,
+	className?: string,
 	avatar: {
 		icon: JSX.Element,
 		backgroundColor: string,
@@ -160,7 +162,10 @@ declare interface ProjectControlParams {
 	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
 	*/
 	isRenewable?: boolean;
-
+	/**
+	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
+	*/
+	isCapitalFundsEligible?: boolean;
 	/**
 	 * Numbers that appear on the INFO CARD, before checking the checkbox.
 	 */
@@ -251,6 +256,7 @@ export class ProjectControl implements ProjectControlParams {
 
 	pageId: symbol;
 	isRenewable?: boolean;
+	isCapitalFundsEligible?: boolean;
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
@@ -282,6 +288,7 @@ export class ProjectControl implements ProjectControlParams {
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
+		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
@@ -414,7 +421,7 @@ export class ProjectControl implements ProjectControlParams {
     getHiddenCost(): number {
         return (this.statsRecapAppliers && this.statsRecapAppliers.hiddenSpending) ? this.statsRecapAppliers.hiddenSpending.modifier : 0;
     }
-
+	
     /**
      * Returns the net cost of this project, including rebates (and in future, surprise hitches)
      */
@@ -497,12 +504,12 @@ export class ProjectControl implements ProjectControlParams {
                     onClick: function (state, nextState) {
                         let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
                         if (self.isRenewable) {
-                            isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-							     if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-                                    return true
-                                }
-                                return false;
-                            });
+							isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+									return true
+								}
+								return false;
+							});
                             if (isProjectImplemented) {
                                 return state.currentPage;
                             }
@@ -872,6 +879,7 @@ export class ProjectControl implements ProjectControlParams {
 Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// Page symbol associated with the project. MUST BE THE SAME AS WHAT APPEARS IN Projects[...]
 	pageId: Pages.wasteHeatRecovery,
+	isCapitalFundsEligible: true,
 	// project cost, in dollars
 	cost: 210_000,
 	// Stats that appear in the CARDS inside the INFO DIALOG. These should mirror ActualAppliers 
@@ -948,6 +956,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 // });
 Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
+	isCapitalFundsEligible: true,
 	cost: 80_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-300_000),
@@ -1036,6 +1045,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 
 Projects[Pages.hydrogenFuel] = new ProjectControl({
 	pageId: Pages.hydrogenFuel,
+	isCapitalFundsEligible: true,
 	cost: 5_000,
 	statsInfoAppliers: {
 		hydrogenMMBTU: absolute(1_000),
@@ -1060,6 +1070,7 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
+	isCapitalFundsEligible: true,
 	cost: 500_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(200_000),
@@ -1083,6 +1094,7 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 });
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
+	isCapitalFundsEligible: true,
 	cost: 157_000,
 	hasImplementationYearAppliers: true,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
@@ -1099,6 +1111,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	recapSurprises: [{
 		title: 'Uh oh - Bad Asphalt!',
 		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
+		className: 'year-recap-negative-surprise',
 		avatar: {
 			icon: <TrafficConeIcon />,
 			backgroundColor: 'rgba(54,31,6,0.6)',
@@ -1132,6 +1145,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 });
 Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPortMaintenance,
+	isCapitalFundsEligible: true,
 	isRenewable: true,
 	cost: 10_000,
 	statsInfoAppliers: {
@@ -1157,6 +1171,7 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
+	isCapitalFundsEligible: true,
 	isRenewable: true,
 	cost: 375_000,
 	statsInfoAppliers: {
@@ -1203,6 +1218,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 //Empty Projects Scope 1 yr1-yr5
 Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	pageId: Pages.airHandingUnitUpgrades,
+	isCapitalFundsEligible: true,
 	cost: 175_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_165_000),
@@ -1236,6 +1252,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 });
 Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
+	isCapitalFundsEligible: true,
 	cost: 60_000,
 	statsInfoAppliers: {
 		// electricityUseKWh: absolute(-0.03),
@@ -1300,6 +1317,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 // });
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
+	isCapitalFundsEligible: true,
 	cost: 100_000,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-9600),
@@ -1330,6 +1348,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 });
 Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
+	isCapitalFundsEligible: true,
 	cost: 15_000,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-1800),
@@ -1360,6 +1379,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 });
 Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
+	isCapitalFundsEligible: true,
 	cost: 7_000,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-900),
@@ -1391,6 +1411,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 //Empty Projects Scope 2 yr6-yr10
 Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	pageId: Pages.compressedAirSystemImprovemnt,
+	isCapitalFundsEligible: true,
 	cost: 210_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-2_250_000),
@@ -1455,6 +1476,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 // });
 Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	pageId: Pages.chilledWaterMonitoringSystem,
+	isCapitalFundsEligible: true,
 	cost: 40_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-900_000),
@@ -1518,6 +1540,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 // });
 Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	pageId: Pages.loweringCompressorPressure,
+	isCapitalFundsEligible: true,
 	cost: 3_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
@@ -1549,6 +1572,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 });
 Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
+	isCapitalFundsEligible: true,
 	cost: 50_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
@@ -1583,6 +1607,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 });
 Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
+	isCapitalFundsEligible: true,
 	cost: 5_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-225_000),
@@ -1613,6 +1638,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 });
 Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
+	isCapitalFundsEligible: true,
 	cost: 30_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
@@ -1648,6 +1674,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 });
 Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
+	isCapitalFundsEligible: true,
 	cost: 40_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-600_000),
@@ -1683,6 +1710,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 });
 Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
+	isCapitalFundsEligible: true,
 	cost: 100_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_050_000),
@@ -1718,6 +1746,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 });
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
+	isCapitalFundsEligible: true,
 	cost: 1_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-75_000),
@@ -1747,6 +1776,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 });
 Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
+	isCapitalFundsEligible: true,
 	cost: 3_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
@@ -1778,6 +1808,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 
 Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	cost: 75_000,
 	statsInfoAppliers: {
@@ -1803,6 +1834,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 
 Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	cost: 150_000,
 	statsInfoAppliers: {
@@ -1828,6 +1860,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 
 Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	cost: 225_000,
 	statsInfoAppliers: {
@@ -1854,6 +1887,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
+	isCapitalFundsEligible: true,
 	isRenewable: true,
 	cost: 100_000,
 	statsInfoAppliers: {
@@ -1879,6 +1913,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
+	isCapitalFundsEligible: true,
 	isRenewable: true,
 	cost: 269_000,
 	statsInfoAppliers: {

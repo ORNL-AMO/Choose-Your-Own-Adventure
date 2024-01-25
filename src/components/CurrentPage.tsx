@@ -10,6 +10,7 @@ import { StartPage } from './StartPage';
 import type { StartPageProps } from './StartPage';
 import { YearRecap } from './YearRecap';
 import type { PageControlProps, ControlCallbacks } from './controls';
+import type { CapitalFundingState } from '../capitalFunding';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
@@ -19,13 +20,14 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	selectedProjectsForComparison: SelectedProject[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
+	capitalFundingState: CapitalFundingState;
 	handleCompareProjectsClick: () => void;
 	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
 	gameSettings: GameSettings;	
 	defaultTrackedStats :TrackedStats;
-	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats) => void;
 	handleGameSettingsOnProceed: (userSettings: UserSettings) => void;
+	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats, capitalFundingState: CapitalFundingState) => void;
 }
 
 export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
@@ -71,8 +73,9 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
-					{...this.props.gameSettings}					
-					defaultTrackedStats ={this.props.defaultTrackedStats }
+					{...this.props.gameSettings}
+					capitalFundingState={this.props.capitalFundingState}					
+					defaultTrackedStats={this.props.defaultTrackedStats }
 					implementedProjectsIds={this.props.implementedProjectsIds}
 					implementedRenewableProjects={this.props.implementedRenewableProjects}
 					completedProjects={this.props.completedProjects}

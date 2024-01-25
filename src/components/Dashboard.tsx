@@ -205,8 +205,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							/>
 						</Grid>		
 					</Grid>
-					<TableContainer component={Paper} sx={{ marginTop: 3, maxWidth: 1000 }}>
-						<Table sx={{ minWidth: 650, maxWidth: 1000 }} size='small' aria-label='simple table'>
+					<TableContainer component={Paper} sx={{ marginTop: 3}}>
+						<Table sx={{ minWidth: 650 }} size='small' aria-label='simple table'>
 							<TableHead>
 								<TableRow>
 									<StyledTableCell align='center'> </StyledTableCell>

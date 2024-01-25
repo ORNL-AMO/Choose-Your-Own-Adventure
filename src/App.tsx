@@ -27,6 +27,7 @@ import { YearRecap } from './components/YearRecap';
 import { CompareDialog } from './components/CompareDialog';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
+import { CapitalFundingState } from './capitalFunding';
 
 
 export type AppState = {
@@ -49,6 +50,10 @@ export type AppState = {
 	 * years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
 	 */
 	yearRangeInitialStats: TrackedStats[];
+	/**
+	 * Track status of capital funding rewards
+	 */
+	capitalFundingState: CapitalFundingState;
 	showDashboard: boolean;
 	/**
 	 * Projects that have been selected to implement
@@ -86,6 +91,7 @@ export interface NextAppState {
 	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
 	implementedProjectsIds?: symbol[];
+	capitalFundingState: CapitalFundingState;
 	completedProjects?: CompletedProject[];
 	availableProjectIds?: symbol[];
 	implementedRenewableProjects?: RenewableProject[];
@@ -121,6 +127,18 @@ export class App extends React.PureComponent<unknown, AppState> {
 			currentPageProps: PageControls[startPage].controlProps,
 			componentClass: PageControls[startPage].componentClass,
 			trackedStats: { ...initialTrackedStats },
+			capitalFundingState: {
+				roundA: {
+					isEarned: false,
+					isUsed: false,
+					usedOnProjectId: Symbol('start'),
+				},
+				roundB: {
+					isEarned: false,
+					isUsed: false,
+					usedOnProjectId: Symbol('start'),
+				}
+			},
 			yearRangeInitialStats: [
 				{ ...initialTrackedStats } // This one stays constant
 			],
@@ -413,10 +431,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 	/**
 	 * Start new year/budget period
 	 */
-	setupNewYearOnProceed(currentYearStats: TrackedStats) {
+	setupNewYearOnProceed(currentYearStats: TrackedStats, capitalFundingState: CapitalFundingState) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
 
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
@@ -469,6 +488,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			selectedProjectsForComparison: [],
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
+			capitalFundingState: newCapitalFundingState
 		});
 
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
@@ -586,6 +606,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									{...controlCallbacks}
 									gameSettings={this.state.gameSettings}
 									trackedStats={this.state.trackedStats}
+									capitalFundingState={this.state.capitalFundingState}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
 									defaultTrackedStats ={this.state.defaultTrackedStats }
@@ -598,8 +619,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 									handleCompareProjectsClick={() => this.handleCompareDialogDisplay(true)}
 									// handleCompareProjectsClick={() => this.openCompareDialog}
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
-									handleNewYearSetupOnProceed={(yearFinalStats) => this.setupNewYearOnProceed(yearFinalStats)}
 									handleGameSettingsOnProceed={(userSettings) => this.handleGameSettingsOnProceed(userSettings)}
+									handleNewYearSetupOnProceed={(yearFinalStats, capitalFundingState) => this.setupNewYearOnProceed(yearFinalStats, capitalFundingState)}
 								/>
 								: <></>}
 						</Box>
