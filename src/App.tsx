@@ -16,7 +16,7 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import Projects, { Scope1Projects, Scope2Projects } from './Projects';
-import type { RenewableProject} from './Projects';
+import type { RenewableProject, UserSettings} from './Projects';
 import type { CompletedProject, SelectedProject, GameSettings} from './Projects';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
@@ -139,7 +139,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 				budget: 150_000,
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
-				hydrogenUse: 2_000
+				hydrogenUse: 2_000,
+				financingStartYear: 3
 			},
 			defaultTrackedStats : { ...initialTrackedStats }
 		};
@@ -480,7 +481,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	}
 
-	handleGameSettingsOnProceed(gameYearInterval: number){
+	handleGameSettingsOnProceed(userSettings: UserSettings){
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
 		let budget = 75_000;
 		let naturalGas = 120_000;
@@ -488,7 +489,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let electricity = 30_000_000;
 		let totalGameYears = 10;
 
-		if(gameYearInterval == 2) {
+		if(userSettings.gameYearInterval == 2) {
 			budget = 150_000;
 			naturalGas = 240_000;
 			electricity = 60_000_000;
@@ -500,7 +501,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
 		updatingInitialTrackedStats.hydrogenMMBTU = hydrogen;
-		updatingInitialTrackedStats.gameYearInterval = gameYearInterval;
+		updatingInitialTrackedStats.gameYearInterval = userSettings.gameYearInterval;
 
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
 		this.setState({
@@ -510,7 +511,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			],
 			gameSettings: {
 				totalGameYears: totalGameYears,
-				gameYearInterval: gameYearInterval,
+				gameYearInterval: userSettings.gameYearInterval,
+				financingStartYear: userSettings.financingStartYear,
 				budget: budget,
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
@@ -597,7 +599,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									// handleCompareProjectsClick={() => this.openCompareDialog}
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleNewYearSetupOnProceed={(yearFinalStats) => this.setupNewYearOnProceed(yearFinalStats)}
-									handleGameSettingsOnProceed={(totalGameYears) => this.handleGameSettingsOnProceed(totalGameYears)}
+									handleGameSettingsOnProceed={(userSettings) => this.handleGameSettingsOnProceed(userSettings)}
 								/>
 								: <></>}
 						</Box>

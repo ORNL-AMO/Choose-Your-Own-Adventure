@@ -131,9 +131,17 @@ export interface GameSettings {
 	gameYearInterval: number,
 	totalGameYears: number,
 	budget: number,
+	financingStartYear: number,
 	naturalGasUse: number,
 	electricityUse: number,
 	hydrogenUse: number,
+}
+
+export interface UserSettings {
+	gameYearInterval: number,
+	financingStartYear: number,
+	energyCarryoverYears: number,
+	allowBudgetCarryover: string
 }
 
 /**
