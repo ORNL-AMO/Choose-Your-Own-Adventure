@@ -237,6 +237,9 @@ declare interface ProjectControlParams {
 	 */
 	hasImplementationYearAppliers?: boolean;
 	relatedProjectSymbols?: symbol[];
+	renewableOrEnergyEfficiency: string;
+	financingOpption: string;
+	yearsToPayOff: number;
 }
 
 export class ProjectControl implements ProjectControlParams {
@@ -266,6 +269,9 @@ export class ProjectControl implements ProjectControlParams {
 	projectDialogInfo: DialogControlProps;
 	hasImplementationYearAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
+	renewableOrEnergyEfficiency: string;
+	financingOpption: string;
+	yearsToPayOff: number;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -305,6 +311,9 @@ export class ProjectControl implements ProjectControlParams {
 		this.projectDialogInfo = { title: '', text: '' };
 		this.hasImplementationYearAppliers = params.hasImplementationYearAppliers;
 		this.relatedProjectSymbols = params.relatedProjectSymbols;
+		this.renewableOrEnergyEfficiency = params.renewableOrEnergyEfficiency;
+		this.financingOpption = params.financingOpption;
+		this.yearsToPayOff = params.yearsToPayOff;
 	}
 
     /**
@@ -903,6 +912,9 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'Loan',
+	yearsToPayOff: 4,
 	// SEE BELOW: EXAMPLE FOR CONDITIONAL PROJECT VISIBILITY - you can also do something like state.completedProjects.includes(Pages.myOtherProject)
 	// visible: function (state: AppState) {
 	//  return state.trackedStats.year >= 2;
@@ -968,6 +980,9 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 4,
 });
 // Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 //  pageId: Pages.hydrogenPoweredForklifts,
@@ -1047,6 +1062,9 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	// add case study
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 4,
 });
 
 
@@ -1071,6 +1089,9 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	choiceInfoImgAlt: 'electric boiler',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 4,
 	// add case study
 });
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
@@ -1120,7 +1141,10 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	visible: state => {
 		const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
 		return !isCarportCompleted;
-	}
+	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPortMaintenance,
@@ -1145,6 +1169,9 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: ' ',
+	yearsToPayOff: 4,
 });
 
 Projects[Pages.solarRooftop] = new ProjectControl({
@@ -1190,6 +1217,9 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'Loan',
+	yearsToPayOff: 10,
 });
 
 //Empty Projects Scope 1 yr1-yr5
@@ -1225,6 +1255,9 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
@@ -1258,6 +1291,9 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 // Projects[Pages.condensingEconomizerInstallation] = new ProjectControl({
 //  pageId: Pages.condensingEconomizerInstallation,
@@ -1319,6 +1355,9 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
@@ -1349,6 +1388,9 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
@@ -1379,6 +1421,9 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 //Empty Projects Scope 2 yr6-yr10
 Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
@@ -1414,6 +1459,9 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 // Projects[Pages.compressedAirSystemOptimization] = new ProjectControl({
 //  pageId: Pages.compressedAirSystemOptimization,
@@ -1474,7 +1522,10 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring),
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 // Projects[Pages.refrigerationUpgrade] = new ProjectControl({
 //  pageId: Pages.refrigerationUpgrade,
@@ -1538,6 +1589,9 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
@@ -1572,6 +1626,9 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 4,
 });
 Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
@@ -1602,6 +1659,9 @@ Projects[Pages.startShutOff] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
@@ -1636,7 +1696,10 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring),
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 4,
 });
 Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
@@ -1671,7 +1734,10 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring),
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 4,
 });
 Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
@@ -1706,7 +1772,10 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
-	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring)
+	visible: state => state.completedProjects.some(project => project.page === Pages.advancedEnergyMonitoring),
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 4,
 });
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
@@ -1736,6 +1805,9 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
@@ -1766,6 +1838,9 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	renewableOrEnergyEfficiency: 'Energy Efficiency',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 
 Projects[Pages.smallVPPA] = new ProjectControl({
@@ -1791,6 +1866,9 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 
 Projects[Pages.midVPPA] = new ProjectControl({
@@ -1816,6 +1894,9 @@ Projects[Pages.midVPPA] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 
 Projects[Pages.largeVPPA] = new ProjectControl({
@@ -1841,6 +1922,9 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'NA',
+	yearsToPayOff: 1,
 });
 
 
@@ -1867,6 +1951,9 @@ Projects[Pages.midSolar] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'XaaS',
+	yearsToPayOff: 10,
 });
 
 Projects[Pages.largeWind] = new ProjectControl({
@@ -1892,6 +1979,9 @@ Projects[Pages.largeWind] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	renewableOrEnergyEfficiency: 'Renewable',
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 10,
 });
 
 /**
