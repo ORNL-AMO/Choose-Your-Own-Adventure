@@ -3,28 +3,15 @@ import {
 	Button, AppBar, IconButton, List, Slide,
 	Toolbar, Typography, Stack, Card, CardContent, CardActions, useMediaQuery
 } from '@mui/material';
-import { parseSpecialText } from '../functions-and-types';
+import { parseSpecialText } from '../../functions-and-types';
 import { useTheme } from '@mui/material/styles';
 import React, { PureComponent, useEffect } from 'react';
 import type { TransitionProps } from '@mui/material/transitions';
-import { fillDialogProps, InfoCard } from './InfoDialog';
-import type { DialogStateProps } from './InfoDialog';
-import type { InfoDialogProps } from './InfoDialog';
-import type { DialogCardContent } from './InfoDialog';
 import CloseIcon from '@mui/icons-material/Close';
-import type { SelectedProject } from '../Projects';
-import type { ControlCallbacks } from './controls';
-import { ButtonGroup, ButtonGroupButton, deselectButton } from './Buttons';
-
-
-const Transition = React.forwardRef(function Transition(
-	props: TransitionProps & {
-		children: React.ReactElement;
-	},
-	ref: React.Ref<unknown>,
-) {
-	return <Slide direction='up' ref={ref} {...props} />;
-});
+import type { SelectedProject } from '../../ProjectControl';
+import type { ControlCallbacks } from '../controls';
+import { ButtonGroup } from '../Buttons';
+import { DialogCardContent, DialogStateProps, InfoCard } from './dialog-functions-and-types';
 
 /**
  * Full screen dialog with actions header - Currently always mounted.
@@ -37,14 +24,6 @@ export class CompareDialog extends PureComponent<CompareDialogProps> {
 	}
 }
 
-export declare interface CompareDialogProps extends ControlCallbacks {
-	isOpen: boolean;
-	selectedProjectsForComparison: SelectedProject[];
-	onClose: () => void;
-	onClearSelectedProjects: () => void;
-}
-
-
 function CompareDialogFunc(props: CompareDialogProps) {
 	useEffect(() => {
 		if (props.isOpen) {
@@ -53,7 +32,7 @@ function CompareDialogFunc(props: CompareDialogProps) {
 				if (props.selectedProjectsForComparison.length > 0) {
 					props.selectedProjectsForComparison.forEach(project => {
 						if (props.doAppStateCallback) {
-							props.doAppStateCallback(project.infoDialog.handleProjectInfoViewed);
+							props.doAppStateCallback(project.projectDialog.handleProjectInfoViewed);
 						}
 					});
 				}
@@ -133,14 +112,13 @@ function CompareDialogFunc(props: CompareDialogProps) {
 
 function getProjectDialogCards(props: CompareDialogProps, theme) {
 	return props.selectedProjectsForComparison.map((project: SelectedProject, idx) => {
-		if (project.infoDialog.comparisonDialogButtons) {
+		if (project.projectDialog.comparisonDialogButtons) {
 			// No project in compare dialog should be disabled (ugly accessing index, until app handles buttons differently)
-			project.infoDialog.comparisonDialogButtons[1].disabled = () => false;
+			project.projectDialog.comparisonDialogButtons[1].disabled = () => false;
 		}
 
-		const objectFit = (project.infoDialog.imgObjectFit) ? project.infoDialog.imgObjectFit : 'cover';
+		const objectFit = (project.projectDialog.imgObjectFit) ? project.projectDialog.imgObjectFit : 'cover';
 		const projectStatCards = getProjectStatCards(project, props, theme);
-		// todo 25 use theme to set cardStyle width smaller for xl breakpoint
 		const cardStyle = { 
 			width: props.selectedProjectsForComparison.length == 2? .50 : .33, 
 			marginLeft: '.5rem', 
@@ -149,13 +127,13 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 		};
 		return (
 			<Card key={project.page.description} sx={cardStyle}>
-				{project.infoDialog.img && <>
+				{project.projectDialog.img && <>
 					<CardMedia
 						component='img'
 						height='260'
-						image={project.infoDialog.img}
-						alt={project.infoDialog.imgAlt}
-						title={project.infoDialog.imgAlt}
+						image={project.projectDialog.img}
+						alt={project.projectDialog.imgAlt}
+						title={project.projectDialog.imgAlt}
 						sx={{
 							objectFit: objectFit,
 							position: 'relative',
@@ -175,9 +153,9 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 							<CardMedia
 								component='img'
 								height='260'
-								image={project.infoDialog.img}
-								alt={project.infoDialog.imgAlt}
-								title={project.infoDialog.imgAlt}
+								image={project.projectDialog.img}
+								alt={project.projectDialog.imgAlt}
+								title={project.projectDialog.imgAlt}
 								sx={{
 									objectFit: 'cover',
 									position: 'absolute',
@@ -191,14 +169,14 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 						</div>
 					}
 				</>}
-				{!project.infoDialog.img && 
+				{!project.projectDialog.img && 
 					<>
 					<CardMedia
 						component='img'
 						height='260'
-						image={project.infoDialog.img}
-						alt={project.infoDialog.imgAlt}
-						title={project.infoDialog.imgAlt}
+						image={project.projectDialog.img}
+						alt={project.projectDialog.imgAlt}
+						title={project.projectDialog.imgAlt}
 						sx={{
 							objectFit: objectFit,
 							position: 'relative',
@@ -210,10 +188,10 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 				<CardContent>
 					{/* Setting some static heights below to display all cards similarly */}
 					<Typography gutterBottom variant='h5' component='div' className='semi-emphasis'
-						dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.infoDialog.title))}>
+						dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.projectDialog.title))}>
 					</Typography>
 					<Typography variant='body2' color='#000000' component='div' height={150} sx={{overflowY: 'auto'}}
-						gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.infoDialog.text))}>
+						gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(project.projectDialog.text))}>
 					</Typography>
 					<div style={{height: 225}}>
 						{projectStatCards}
@@ -221,9 +199,9 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 				</CardContent>
 				<CardActions style={{ justifyContent: 'flex-end' }}>
 					<ButtonGroup
-						buttons={project.infoDialog.comparisonDialogButtons}
+						buttons={project.projectDialog.comparisonDialogButtons}
 						doPageCallback={props.doPageCallback}
-						summonInfoDialog={props.summonInfoDialog}
+						displayDialog={props.displayDialog}
 						resolveToValue={props.resolveToValue}
 						doAppStateCallback={props.doAppStateCallback}
 					/>
@@ -235,16 +213,16 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 }
 
 function getProjectStatCards(project, props: CompareDialogProps, theme) {
-	if (project.infoDialog.cardText && project.infoDialog.cards) throw new Error('InfoDialog: props.cardText and props.cards are mutually exclusive. Use one or the other.');
 	let cardContents: DialogCardContent[] = [];
-	if (project.infoDialog.cardText) {
-		cardContents = [{
-			text: props.resolveToValue(project.infoDialog.cardText),
-			color: theme.palette.primary.light,
-		}];
-	}
-	else if (project.infoDialog.cards) {
-		cardContents = props.resolveToValue(project.infoDialog.cards);
+	// todo should be no longer needed
+	// if (project.projectDialog.cardText) {
+	// 	cardContents = [{
+	// 		text: props.resolveToValue(project.projectDialog.cardText),
+	// 		color: theme.palette.primary.light,
+	// 	}];
+	// }
+	if (project.projectDialog.cards) {
+		cardContents = props.resolveToValue(project.projectDialog.cards);
 	}
 	return cardContents.map((cardContent, idx) =>
 		<InfoCard
@@ -254,4 +232,23 @@ function getProjectStatCards(project, props: CompareDialogProps, theme) {
 			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
 		/>
 	);
+}
+
+
+const Transition = React.forwardRef(function Transition(
+	props: TransitionProps & {
+		children: React.ReactElement;
+	},
+	ref: React.Ref<unknown>,
+) {
+	return <Slide direction='up' ref={ref} {...props} />;
+});
+
+
+export declare interface CompareDialogProps extends DialogStateProps, ControlCallbacks {
+	selectedProjectsForComparison: SelectedProject[];
+	// comparisonDialogButtons?: ButtonGroupButton[];
+	handleRemoveSelectedCompare?: PageCallback;
+	onClose: () => void;
+	onClearSelectedProjects: () => void;
 }

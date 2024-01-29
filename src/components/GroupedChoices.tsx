@@ -6,7 +6,7 @@ import { ButtonGroup } from './Buttons';
 import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Stack } from '@mui/system';
-import type { SelectedProject } from '../Projects';
+import type { SelectedProject } from '../ProjectControl';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -57,10 +57,10 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 						<CardHeader
 							action={
 									<ButtonGroup
-										buttons={choice.choiceStats}
+										buttons={choice.energySavingsPreviewIcons}
 										disabled={disabled}
 										doPageCallback={props.doPageCallback}
-										summonInfoDialog={props.summonInfoDialog}
+										displayDialog={props.displayDialog}
 										resolveToValue={props.resolveToValue}
 										isProjectGroupChoice={props.isProjectGroupChoice}
 									/>
@@ -76,7 +76,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							buttons={choiceButtons}
 							disabled={disabled}
 							doPageCallback={props.doPageCallback}
-							summonInfoDialog={props.summonInfoDialog}
+							displayDialog={props.displayDialog}
 							resolveToValue={props.resolveToValue}
 							doAppStateCallback={props.doAppStateCallback}
 							isProjectGroupChoice={props.isProjectGroupChoice}
@@ -168,7 +168,7 @@ export interface Choice {
 	disabled?: Resolvable<boolean>;
 	implemented?: Resolvable<boolean>;
 	// Quick/small stats to include in card headers or elsewhere 
-	choiceStats?: ButtonGroupButton[]
+	energySavingsPreviewIcons?: ButtonGroupButton[]
 	/**
 	 * Buttons to appear at the bottom of the choice.
 	 */

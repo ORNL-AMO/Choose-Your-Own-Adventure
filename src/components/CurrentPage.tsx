@@ -1,6 +1,6 @@
 import React from 'react';
-import type { RenewableProject, UserSettings} from '../Projects';
-import type { CompletedProject, SelectedProject, GameSettings} from '../Projects';
+import type { RenewableProject, UserSettings} from '../ProjectControl';
+import type { CompletedProject, SelectedProject, GameSettings} from '../ProjectControl';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 import type { TrackedStats } from '../trackedStats';
 import { GroupedChoices } from './GroupedChoices';
@@ -10,6 +10,7 @@ import { StartPage } from './StartPage';
 import type { StartPageProps } from './StartPage';
 import { YearRecap } from './YearRecap';
 import type { PageControlProps, ControlCallbacks } from './controls';
+import type { CapitalFundingState } from '../capitalFunding';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
@@ -19,13 +20,14 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	selectedProjectsForComparison: SelectedProject[];
 	completedProjects: CompletedProject[];
 	trackedStats: TrackedStats;
+	capitalFundingState: CapitalFundingState;
 	handleCompareProjectsClick: () => void;
 	handleClearProjectsClick: () => void;
 	yearRangeInitialStats: TrackedStats[];
 	gameSettings: GameSettings;	
 	defaultTrackedStats :TrackedStats;
-	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats) => void;
 	handleGameSettingsOnProceed: (userSettings: UserSettings) => void;
+	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats, capitalFundingState: CapitalFundingState) => void;
 }
 
 export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
@@ -33,7 +35,7 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: this.props.doPageCallback,
 			doAppStateCallback: this.props.doAppStateCallback,
-			summonInfoDialog: this.props.summonInfoDialog,
+			displayDialog: this.props.displayDialog,
 			resolveToValue: this.props.resolveToValue,
 		};
 
@@ -71,8 +73,9 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 				return <YearRecap
 					{...this.props.trackedStats}
 					{...controlCallbacks}
-					{...this.props.gameSettings}					
-					defaultTrackedStats ={this.props.defaultTrackedStats }
+					{...this.props.gameSettings}
+					capitalFundingState={this.props.capitalFundingState}					
+					defaultTrackedStats={this.props.defaultTrackedStats }
 					implementedProjectsIds={this.props.implementedProjectsIds}
 					implementedRenewableProjects={this.props.implementedRenewableProjects}
 					completedProjects={this.props.completedProjects}

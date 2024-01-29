@@ -15,40 +15,45 @@ import { initialTrackedStats, setCarbonEmissionsAndSavings } from './trackedStat
 import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
-import Projects, { Scope1Projects, Scope2Projects } from './Projects';
-import type { RenewableProject, UserSettings} from './Projects';
-import type { CompletedProject, SelectedProject, GameSettings} from './Projects';
+import { Scope1Projects, Scope2Projects } from './ProjectControl';
+import type { RenewableProject, UserSettings} from './ProjectControl';
+import type { CompletedProject, SelectedProject, GameSettings} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
-import type { DialogControlProps, DialogStateProps } from './components/InfoDialog';
-import { fillDialogProps, InfoDialog } from './components/InfoDialog';
 import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
-import { CompareDialog } from './components/CompareDialog';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
+import { CapitalFundingState } from './capitalFunding';
+import { DialogStateProps } from './components/Dialogs/dialog-functions-and-types';
+import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
+import { CompareDialog } from './components/Dialogs/CompareDialog';
+import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog, isProjectDialogControlProps } from './components/Dialogs/ProjectDialog';
+import Projects from './Projects';
 
 
 export type AppState = {
 	currentPage: symbol;
 	currentOnBack?: PageCallback; // onBack handler of current page
 	companyName: string;
-	dialog: DialogStateProps,
-	currentPageProps?: AnyDict; // todo
+	// todo must we keep these always mounted
+	infoDialog: InfoDialogStateProps,
+	projectDialog: ProjectDialogStateProps,
+	currentPageProps?: AnyDict;
 	componentClass?: Component;
-	/**
-	 * Year / years
-	 */
 	completedYears: number,
 	trackedStats: TrackedStats;
 	// * initial stats for each year range. Currently looks like the first year never changes, though
 	// * subsequent years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
-	// todo
 	/**
 	 * Initial stats for each year range. The first year never changes. Subsequent 
 	 * years are modified by any projects/stats applied. Each new yearRange is added at YearRecap
 	 */
 	yearRangeInitialStats: TrackedStats[];
+	/**
+	 * Track status of capital funding rewards
+	 */
+	capitalFundingState: CapitalFundingState;
 	showDashboard: boolean;
 	/**
 	 * Projects that have been selected to implement
@@ -66,7 +71,9 @@ export type AppState = {
 	selectedProjectsForComparison: SelectedProject[];
 	lastScrollY: number;
 	snackbarOpen: boolean;
+	isInfoDialogOpen: boolean;
 	isCompareDialogOpen: boolean;
+	isProjectDialogOpen: boolean;
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
@@ -80,12 +87,14 @@ export interface NextAppState {
 	currentOnBack?: PageCallback;
 	companyName?: string;
 	completedYears?: number,
-	dialog?: DialogStateProps,
+	infoDialog?: InfoDialogStateProps,
+	projectDialog?: ProjectDialogStateProps,
 	currentPageProps?: AnyDict;
 	componentClass?: Component;
 	trackedStats?: TrackedStats;
 	showDashboard?: boolean;
 	implementedProjectsIds?: symbol[];
+	capitalFundingState: CapitalFundingState;
 	completedProjects?: CompletedProject[];
 	availableProjectIds?: symbol[];
 	implementedRenewableProjects?: RenewableProject[];
@@ -93,7 +102,9 @@ export interface NextAppState {
 	yearRangeInitialStats?: TrackedStats[];
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
+	isInfoDialogOpen?: boolean;
 	isCompareDialogOpen?: boolean;
+	isProjectDialogOpen?: boolean;
 }
 
 export class App extends React.PureComponent<unknown, AppState> {
@@ -105,22 +116,30 @@ export class App extends React.PureComponent<unknown, AppState> {
 		window.app = this; window.Pages = Pages; window.PageControls = PageControls;
 	}
 
-	getInitialAppState() {
+	getInitialAppState(): AppState {
 		let startPage = Pages.start; 
 		let showDashboardAtStart = false;
 		return {
 			currentPage: startPage,
 			companyName: 'Auto-Man, Inc.',
-			dialog: {
-				open: false,
-				title: '',
-				text: '',
-				cardText: undefined
-			},
+			infoDialog: getEmptyInfoDialogState(),
+			projectDialog: getEmptyProjectDialog(),
 			completedYears: 0,
 			currentPageProps: PageControls[startPage].controlProps,
 			componentClass: PageControls[startPage].componentClass,
 			trackedStats: { ...initialTrackedStats },
+			capitalFundingState: {
+				roundA: {
+					isEarned: false,
+					isUsed: false,
+					usedOnProjectId: Symbol('start'),
+				},
+				roundB: {
+					isEarned: false,
+					isUsed: false,
+					usedOnProjectId: Symbol('start'),
+				}
+			},
 			yearRangeInitialStats: [
 				{ ...initialTrackedStats } // This one stays constant
 			],
@@ -132,7 +151,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
+			isInfoDialogOpen: false,
 			isCompareDialogOpen: false,
+			isProjectDialogOpen: false,
 			gameSettings: {
 				totalGameYears: 10,
 				gameYearInterval: 1,
@@ -146,13 +167,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		};
 	}
 
-	getThisPageControl() {
-		let thisPageControl = PageControls[this.state.currentPage];
-		if (!thisPageControl)
-			throw new PageError(`Page controls not defined for the symbol ${this.state.currentPage.description}`);
-		return thisPageControl;
-	}
-
 	setPage(page: symbol) {
 		let thisPageControl = PageControls[page];
 		if (!thisPageControl)
@@ -163,21 +177,13 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let controlOnBack = thisPageControl.onBack;
 		let hideDashboard = thisPageControl.hideDashboard;
 
-		let dialog, currentPageProps;
-
-		if (componentClass === InfoDialog) {
-			dialog = fillDialogProps(controlProps);
-			dialog.open = true;
-		} else {
-			// this happens, for example, when you do app.setPage(app.state.currentPage) after an info dialog 
-			//	has been summoned via summonInfoDialog
-			dialog = cloneAndModify(this.state.dialog, { open: false });
-			currentPageProps = controlProps;
-		}
-
+		const {infoDialog, isInfoDialogOpen, projectDialog, isProjectDialogOpen, currentPageProps} = this.checkDialogDisplay(componentClass, controlProps);
 		this.setState({
 			currentPage: page,
-			dialog,
+			infoDialog,
+			isInfoDialogOpen,
+			projectDialog,
+			isProjectDialogOpen,
 			componentClass,
 			currentPageProps: currentPageProps,
 			currentOnBack: controlOnBack,
@@ -189,6 +195,40 @@ export class App extends React.PureComponent<unknown, AppState> {
 		}
 		this.saveScrollY();
 	}
+
+	/**
+	 * Set page as an info dialog, otherwise handle open info or project dialog close
+	 */
+	checkDialogDisplay(componentClass: Component, controlProps: AnyDict) {
+		let infoDialog: InfoDialogStateProps = getEmptyInfoDialogState();
+		let isInfoDialogOpen = false;
+		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
+		let isProjectDialogOpen = false;
+		let currentPageProps;
+
+		if (componentClass === InfoDialog) {
+			infoDialog = fillInfoDialogProps(controlProps);
+			infoDialog.isOpen = true;
+			isInfoDialogOpen = true;
+		} 
+		else {
+			// * If navigating back to project menu or other from a dialog, close dialog
+			infoDialog = cloneAndModify(this.state.infoDialog, { isOpen: false });
+			projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
+			isInfoDialogOpen = false;
+			isProjectDialogOpen = false;
+			currentPageProps = controlProps;
+		}
+
+		return {
+			infoDialog, 
+			isInfoDialogOpen,
+			projectDialog,
+			isProjectDialogOpen, 
+			currentPageProps
+		}
+	}
+
 
 	saveScrollY() {
 		// Only save window.scrollY before loading the new page IF it's nonzero
@@ -221,7 +261,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	/**
-	 * Hnalde state changes without setting page (i.e. when in dialog avoid closing dialog)
+	 * Handdle state changes without setting page (i.e. when in dialog avoid closing dialog)
 	 */
 	handleAppStateCallback(appStateCallback?: AppStateCallback) {
 		let newStateParams: Pick<AppState, never> = {};
@@ -233,23 +273,47 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	/**
-	 * Summon an info dialog with the specified dialog props. Does not change the current page.
+	 * Display an info or project dialog with the specified dialog props. Does not change the current page.
 	 */
-	summonInfoDialog(props: DialogControlProps) {
-		let dialog = fillDialogProps(props);
-		dialog.open = true;
+	displayDialog(props: InfoDialogControlProps) {
+		let infoDialog: InfoDialogStateProps = getEmptyInfoDialogState();
+		let isInfoDialogOpen = false;
+		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
+		let isProjectDialogOpen = false;
+
+		if (isProjectDialogControlProps) {
+			projectDialog = fillProjectDialogProps(props);
+			projectDialog.isOpen = true;
+			isProjectDialogOpen = true;
+		} else {
+			infoDialog = fillInfoDialogProps(props);
+			infoDialog.isOpen = true;
+			isInfoDialogOpen = true;
+		}
+		
 		setTimeout(() => {
-			this.setState({ dialog });
+			this.setState({ 
+				infoDialog, 
+				isInfoDialogOpen,
+				projectDialog,
+				isProjectDialogOpen 
+			 });
 			this.saveScrollY();
 		}, 50);
 	}
 
-	/**
-	 * Close the dialog.
-	 */
 	handleDialogClose() {
-		let dialog = cloneAndModify(this.state.dialog, {open: false});
-		this.setState({dialog});
+		let infoDialog = cloneAndModify(this.state.infoDialog, {isOpen: false});
+		let projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
+		let isInfoDialogOpen = false;
+		let isProjectDialogOpen = false;
+
+		this.setState({
+			infoDialog, 
+			projectDialog,
+			isInfoDialogOpen,
+			isProjectDialogOpen
+		});
 	}
 
 	handleCompareDialogDisplay(isCompareDialogOpen: boolean) {
@@ -284,13 +348,18 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	componentDidUpdate(prevProps: AnyDict, prevState: AppState) {
-		// Ignore scroll height reset after dialog close
-		const isDialogStateClosedEvent = (prevState.dialog.open && !this.state.dialog.open) ||  (prevState.isCompareDialogOpen && !this.state.isCompareDialogOpen);
+		this.ignoreScrollHeightOnDialogClose(prevProps, prevState)
+	}
+
+	ignoreScrollHeightOnDialogClose(prevProps: AnyDict, prevState: AppState) {
+		let infoDialogClosed: boolean = (prevState.infoDialog.isOpen && !this.state.infoDialog.isOpen);
+		let projectdialogClosed: boolean = (prevState.projectDialog.isOpen && !this.state.projectDialog.isOpen);
+		let compareDialogClosed: boolean = (prevState.isCompareDialogOpen && !this.state.isCompareDialogOpen)
+		const isDialogStateClosedEvent = infoDialogClosed || projectdialogClosed || compareDialogClosed;
 		if (isDialogStateClosedEvent) {
 			scrollTo(0, this.state.lastScrollY);
 		}
 	}
-
 	startNewGame() {
 		location.href = String(location.href);
 		this.setPage(Pages.start);
@@ -301,13 +370,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setPage(Pages.yearRecap);
 	}
 
-	// todo this is no longer working in first year?
 	checkHasImplementedAllScopes() {
 		let someScope1 = Scope1Projects.some((page) => this.state.implementedProjectsIds.includes(page));
 		let someScope2 = Scope2Projects.some((page) => this.state.implementedProjectsIds.includes(page));
 
 		if (!someScope1 || !someScope2) {
-			let warningDialogProps: DialogControlProps = {
+			let warningDialogProps: InfoDialogControlProps = {
 				title: 'Hold up!',
 				text: '',
 				buttons: [
@@ -326,11 +394,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 			if (!someScope1) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
-				this.summonInfoDialog(warningDialogProps);
+				this.displayDialog(warningDialogProps);
 			}
 			else if (!someScope2) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
-				this.summonInfoDialog(warningDialogProps);
+				this.displayDialog(warningDialogProps);
 			}
 			return;
 		}
@@ -362,8 +430,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 	isProceedButtonDisabled() {
 		return this.state.componentClass === YearRecap;
 	}
-
-	
 
 	/**
 	 * Update state from previous selections and results when navigating back
@@ -413,10 +479,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 	/**
 	 * Start new year/budget period
 	 */
-	setupNewYearOnProceed(currentYearStats: TrackedStats) {
+	setupNewYearOnProceed(currentYearStats: TrackedStats, capitalFundingState: CapitalFundingState) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
 
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
@@ -469,6 +536,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			selectedProjectsForComparison: [],
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
+			capitalFundingState: newCapitalFundingState
 		});
 
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
@@ -531,9 +599,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: (callback) => this.handlePageCallback(callback),
 			doAppStateCallback: (callback) => this.handleAppStateCallback(callback),
-			summonInfoDialog: (props) => this.summonInfoDialog(props),
+			// todo differnt dialog methods
+			displayDialog: (props) => this.displayDialog(props),
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
 		};
+
 
 		return (
 			<>
@@ -586,6 +656,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									{...controlCallbacks}
 									gameSettings={this.state.gameSettings}
 									trackedStats={this.state.trackedStats}
+									capitalFundingState={this.state.capitalFundingState}
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
 									defaultTrackedStats ={this.state.defaultTrackedStats }
@@ -596,26 +667,35 @@ export class App extends React.PureComponent<unknown, AppState> {
 									completedProjects={this.state.completedProjects}
 									handleClearProjectsClick={() => this.handleClearSelectedProjects}
 									handleCompareProjectsClick={() => this.handleCompareDialogDisplay(true)}
-									// handleCompareProjectsClick={() => this.openCompareDialog}
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
-									handleNewYearSetupOnProceed={(yearFinalStats) => this.setupNewYearOnProceed(yearFinalStats)}
 									handleGameSettingsOnProceed={(userSettings) => this.handleGameSettingsOnProceed(userSettings)}
+									handleNewYearSetupOnProceed={(yearFinalStats, capitalFundingState) => this.setupNewYearOnProceed(yearFinalStats, capitalFundingState)}
 								/>
 								: <></>}
 						</Box>
+
 						{/* InfoDialog is always "mounted" so MUI can smoothly animate its opacity */}
 						<InfoDialog
-							{...this.state.dialog}
+							{...this.state.infoDialog}
 							{...controlCallbacks}
+							isOpen={this.state.isInfoDialogOpen}
 							onClose={() => this.handleDialogClose()}
 						/>
+						<ProjectDialog
+							{...this.state.projectDialog}
+							{...controlCallbacks}
+							isOpen={this.state.isProjectDialogOpen}
+							onClose={() => this.handleDialogClose()}
+							/>
 						<CompareDialog
+							{...this.state.infoDialog}
 							{...controlCallbacks}
 							isOpen={this.state.isCompareDialogOpen}
 							selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 							onClearSelectedProjects={() => this.handleClearSelectedProjects()}
 							onClose={() => this.handleCompareDialogDisplay(false)}
 						/>
+
 						<Snackbar
 							open={this.state.snackbarOpen}
 							autoHideDuration={6000}

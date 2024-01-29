@@ -1,26 +1,21 @@
 import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
-import { parseSpecialText, PureComponentIgnoreFuncs } from '../functions-and-types';
-import { styled, useTheme } from '@mui/material/styles';
-import type { Breakpoint } from '@mui/material/styles';
+import { parseSpecialText, PureComponentIgnoreFuncs } from '../../functions-and-types';
+import { useTheme } from '@mui/material/styles';
 import React, { useEffect } from 'react';
-import type { ButtonGroupButton } from './Buttons';
-import { ButtonGroup } from './Buttons';
-import type { ControlCallbacks, PageControl } from './controls';
+import { ButtonGroup } from '../Buttons';
+import { DialogCardContent, DialogControlProps, DialogStateProps, InfoCard } from './dialog-functions-and-types';
+import { ControlCallbacks, PageControl } from '../controls';
 
-export const InfoCard = styled(Paper)(({ theme }) => ({
-	...theme.typography.body2,
-	textAlign: 'center',
-	color: theme.palette.text.secondary,
-	borderColor: theme.palette.primary.light,
-	lineHeight: 2,
-	marginTop: theme.spacing(2),
-	marginBottom: theme.spacing(2),
-	paddingTop: theme.spacing(2),
-	paddingBottom: theme.spacing(2),
-	paddingLeft: theme.spacing(0.5),
-	paddingRight: theme.spacing(0.5),
-}));
-
+/**
+ * Dialog pop-up that shows general information, standalone app page dialogs.
+ */
+export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
+	render() {
+		return (
+			<InfoDialogFunc {...this.props}/>
+		);
+	}
+}
 
 /**
  * Using a sub-function because `useMediaQuery` requires React hooks, which are only allowed in function-style React components, 
@@ -35,11 +30,17 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		fullScreen = true;
 		imgHeight = '390';
 	}
+	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
 	
+	function handleClose() {
+		// Run onClose handler ONLY if allowClose is set to true
+		if (props.allowClose === true) {
+			props.onClose();
+		}
+	}
 	
-	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
 	useEffect(() => {
-		// timeout delay button display until dialog open - less page jump
+		// avoid page jump - delay button display until dialog open
 		const timeout = setTimeout(() => {
 			if (props.handleProjectInfoViewed && props.doAppStateCallback) {
 				props.doAppStateCallback(props.handleProjectInfoViewed);
@@ -52,40 +53,15 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		};
 	});
 
-	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
-	
-	function handleClose() {
-		// Run onClose handler ONLY if allowClose is set to true
-		if (props.allowClose === true) {
-			props.onClose();
-		}
-	}
-	
-	// Info cards with border
-	if (props.cardText && props.cards) throw new Error('InfoDialog: props.cardText and props.cards are mutually exclusive. Use one or the other.');
-	let cardContents: DialogCardContent[] = [];
-	if (props.cardText) {
-		cardContents = [{
+	let cardContents: DialogCardContent[] = [{
 			text: props.resolveToValue(props.cardText),
 			color: '#000000',
 		}];
-	}
-	else if (props.cards) {
-		cardContents = props.resolveToValue(props.cards);
-	}
-	const infoCards = cardContents.map((cardContent, idx) => 
-		<InfoCard 
-			key={idx}
-			variant='outlined' 
-			sx={{borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold'}}
-			dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
-		/>
-	);
-	
+
 	return (
 		<Dialog
 			fullScreen={fullScreen}
-			open={props.open}
+			open={props.isOpen}
 			keepMounted
 			onClose={handleClose}
 			aria-describedby='alert-dialog-slide-description'
@@ -107,8 +83,8 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					}}
 				/>
 				{/* Blurred background IF objectFit is 'contain' */}
+				{/* below div is a container that clips the edges of the blurred image */}
 				{objectFit === 'contain' && 
-					// This div is a container that clips the edges of the blurred image
 					<div style={{
 						position: 'absolute',
 						height: 260,
@@ -150,14 +126,22 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
 					</DialogContentText>
 				}
-				{infoCards}
+				{cardContents.map((cardContent, idx) => {
+						return <InfoCard
+							key={idx}
+							variant='outlined'
+							sx={{ borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold' }}
+							dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
+						/>
+				})}
 			</DialogContent>
+
 			<DialogActions>
 				<ButtonGroup 
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback} 
 					doAppStateCallback={props.doAppStateCallback} 
-					summonInfoDialog={props.summonInfoDialog}
+					displayDialog={props.displayDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
 				/>
@@ -166,23 +150,53 @@ function InfoDialogFunc (props: InfoDialogProps) {
 	);
 }
 
+
+export declare interface InfoDialogProps extends InfoDialogStateProps, ControlCallbacks { 
+	onClose: () => void;
+}
+
 /**
- * Dialog pop-up that shows information.
+ * Represent dialog properties managed by App.tsx/state 
  */
-export class InfoDialog extends PureComponentIgnoreFuncs <InfoDialogProps> {
-	render() {
-		return (
-			<InfoDialogFunc {...this.props}/>
-		);
+export declare interface InfoDialogStateProps extends InfoDialogControlProps {
+	isOpen: boolean
+}
+
+
+export declare interface InfoDialogControlProps extends DialogControlProps {
+	cardText?: Resolvable<string>;
+}
+
+/**
+ * Returns a new DialogStateProps object with the specified optional properties, while falling back to defaults for those not specified.
+ */
+export function fillInfoDialogProps(obj: AnyDict): InfoDialogStateProps {
+	return {
+		isOpen: obj.isOpen || false,
+		cardText: obj.cardText || '',
+		title: obj.title || '',
+		text: obj.text || '',
+		img: obj.img || '',
+		imgAlt: obj.imgAlt || '',
+		allowClose: obj.allowClose || false,
+		imgObjectFit: obj.imgObjectFit || undefined,
+		buttons: obj.buttons || undefined,
+		handleProjectInfoViewed: obj.handleProjectInfoViewed
+	};
+}
+
+export function getEmptyInfoDialogState() {
+	return {
+		isOpen: false,
+		title: '',
+		text: '',
 	}
 }
 
 /**
- * TS wrapper for an InfoDialog component control. 
- * Use this when definining a PageControl for code autocompletion and props checking.
- * 	**Back handling is done by buttons, not onBack**
+ *  return PageControl for a standalone app dialog page
  */
-export function newInfoDialogControl(props: DialogControlProps): PageControl {
+export function newAppPageDialogControl(props: InfoDialogControlProps): PageControl {
 	return {
 		componentClass: InfoDialog,
 		controlProps: props,
@@ -190,65 +204,5 @@ export function newInfoDialogControl(props: DialogControlProps): PageControl {
 	};
 }
 
-export declare interface DialogCardContent {
-	text: string;
-	color: string;
-}
 
-/**
- * Control properties specified by the scripter (in pages.tsx).
- */
-export declare interface DialogControlProps {
-	title: Resolvable<string>;
-	text: Resolvable<string|string[]>;
-	/**
-	 * Shorthand for cards: [{text: <text>, color: theme.palette.primary.light}] - mutually exclusive with cards
-	 */
-	cardText?: Resolvable<string>;
-	/**
-	 * Mutually exclusive with cardText
-	 */
-	cards?: Resolvable<DialogCardContent[]>;
-	allowClose?: boolean;
-	img?: string;
-	imgObjectFit?: 'cover'|'contain';
-	imgAlt?: string;
-	buttons?: ButtonGroupButton[];
-	comparisonDialogButtons?: ButtonGroupButton[];
-	handleProjectInfoViewed?: AppStateCallback;
-	handleRemoveSelectedCompare?: PageCallback;
-}
 
-/**
- * Returns a new DialogStateProps object with the specified optional properties, while falling back to defaults for those not specified.
- */
-export function fillDialogProps(obj: AnyDict): DialogStateProps {
-	return {
-		open: obj.open || false,
-		title: obj.title || '',
-		text: obj.text || '',
-		cardText: obj.cardText || undefined,
-		cards: obj.cards || undefined,
-		img: obj.img || '',
-		imgAlt: obj.imgAlt || '',
-		allowClose: obj.allowClose || false,
-		imgObjectFit: obj.imgObjectFit || undefined,
-		buttons: obj.buttons || undefined,
-		comparisonDialogButtons: obj.comparisonDialogButtons || undefined,
-		handleProjectInfoViewed: obj.handleProjectInfoViewed
-	};
-}
-
-/**
- * Dialog properties stored in app state.
- */
-export declare interface DialogStateProps extends DialogControlProps {
-	open: boolean;
-}
-
-/**
- * Properties sent to the InfoDialog control.
- */
-export declare interface InfoDialogProps extends DialogStateProps, ControlCallbacks { 
-	onClose: () => void;
-}

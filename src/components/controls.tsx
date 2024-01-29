@@ -24,7 +24,7 @@ export function Emphasis(props: EmphasisProps) {
 export interface ControlCallbacks {
 	doPageCallback: (callback?: PageCallback) => void;
 	doAppStateCallback?: (callback?: AppStateCallback) => void;
-	summonInfoDialog: (props) => void;
+	displayDialog: (props) => void;
 	resolveToValue: <T> (value: Resolvable<T>, whenUndefined?: T) => T;
 }
 

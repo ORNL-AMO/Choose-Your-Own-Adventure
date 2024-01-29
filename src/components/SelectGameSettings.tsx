@@ -3,7 +3,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
-import type { GameSettings, UserSettings } from '../Projects';
+import type { GameSettings, UserSettings } from '../ProjectControl';
 import Pages from '../Pages';
 
 export const SettingsCard = styled(Paper)(({ theme }) => ({
@@ -152,10 +152,6 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
 
 }
 
-/**
- * TS wrapper for a StartPage component control. 
- * Use this when definining a PageControl for code autocompletion and props checking.
- */
 export function newSelectGameSettingsControl(props: SelectGameSettingsControlProps): PageControl {
     return {
         componentClass: SelectGameSettings,

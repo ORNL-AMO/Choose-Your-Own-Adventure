@@ -24,7 +24,7 @@ export function StartPage(props: StartPageProps) {
 			<ButtonGroup 
 				buttons={props.buttons} 
 				doPageCallback={props.doPageCallback} 
-				summonInfoDialog={props.summonInfoDialog}
+				displayDialog={props.displayDialog}
 				resolveToValue={props.resolveToValue}
 			/>
 		</React.Fragment>

@@ -20,6 +20,7 @@ rules:
   no-prototype-builtins: off
   no-debugger: warn
   no-unused-vars: off
+  no-mixed-spaces-and-tabs: warn
   jsx-quotes:
     - error
     - prefer-single
