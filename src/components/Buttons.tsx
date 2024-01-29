@@ -6,9 +6,9 @@ import React from 'react';
 import BasicPopover from './BasicPopover';
 import { resolveToValue } from '../functions-and-types';
 import type { ControlCallbacks } from './controls';
-import type { DialogControlProps, DialogStateProps } from './InfoDialog';
-import { fillDialogProps } from './InfoDialog';
 import type App from '../App';
+import { DialogControlProps, DialogStateProps } from './Dialogs/dialog-functions-and-types';
+import { fillProjectDialogProps } from './Dialogs/ProjectDialog';
 
 /**
  * Button control for use inside a ButtonGroup component's `buttons` prop.
@@ -25,6 +25,10 @@ export declare interface ButtonGroupButton {
 	 * Contents to appear in an InfoDialog. Mutually exclusive with infoPopup and onClick.
 	 */
 	infoDialog?: DialogStateProps; 
+	/**
+	 * Contents to appear in an projectDialog.
+	 */
+	projectDialog?: DialogStateProps; 
 	/**
 	 * PageCallback to run on click. Mutually exclusive with infoPopup and infoDialog.
 	 */
@@ -52,7 +56,6 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 	 * Whether the entire group of buttons appears disabled.
 	 */
 	disabled?: Resolvable<boolean>;
-	summonInfoDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
 	/**
 	 * Whether to use a MUI Stack component to space the buttons, or just include the array of buttons "raw".
@@ -67,7 +70,6 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 export function ButtonGroup(props: ButtonGroupProps) {
 	
 	if (!props.buttons) return <></>;
-	
 	const buttons = props.buttons.map((button, idx) => getButtonComponent(props, button, idx));
 	if (props.useMUIStack === false) 
 		return <>{buttons}</>;
@@ -87,6 +89,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
 	}
 
+	// todo 142 remove this and related. use distinct different components or better language if we need mutual exlusivity
 	if (
 		(button.infoPopup && (button.infoDialog || button.onClick)) ||
 		(button.infoDialog && (button.infoPopup || button.onClick)) ||
@@ -139,9 +142,9 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 					if (button.onClick) {
 						props.doPageCallback(button.onClick);
 					}
-					else if (button.infoDialog) {
+					else if (button.projectDialog) {
 						// todo 25 set availableProjectIds should probably happen here instead of <InfoDialog/> useEfffect
-						props.summonInfoDialog(button.infoDialog);
+						props.displayProjectDialog(button.projectDialog);
 					}
 				}}
 			>
@@ -257,14 +260,14 @@ export function iconButtonWithPopupText(text: string, icon: React.ReactNode, pop
  * @param dialogProps Dialog control props
  * @returns Button control for use inside a ButtonGroup
  */
-export function infoButtonWithDialog(dialogProps: DialogControlProps, disabled?: Resolvable<boolean>): ButtonGroupButton {
+export function infoButtonWithProjectDialog(dialogProps: DialogControlProps, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	if (!dialogProps.buttons) dialogProps.buttons = [closeDialogButton()];
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
 	return {
 		text: 'Info',
 		variant: 'outlined',
 		startIcon: <QuestionMarkIcon/>,
-		infoDialog: fillDialogProps(dialogProps),
+		projectDialog: fillProjectDialogProps(dialogProps),
 		disabled,
 		shouldDisplay: true
 	};

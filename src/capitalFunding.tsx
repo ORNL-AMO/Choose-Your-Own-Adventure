@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RecapSurprise } from './Projects';
+import type { RecapSurprise } from './ProjectControl';
 import type { TrackedStats } from './trackedStats';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 

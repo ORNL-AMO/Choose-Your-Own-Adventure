@@ -1,6 +1,6 @@
 import React from 'react';
-import type { RenewableProject, UserSettings} from '../Projects';
-import type { CompletedProject, SelectedProject, GameSettings} from '../Projects';
+import type { RenewableProject, UserSettings} from '../ProjectControl';
+import type { CompletedProject, SelectedProject, GameSettings} from '../ProjectControl';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 import type { TrackedStats } from '../trackedStats';
 import { GroupedChoices } from './GroupedChoices';
@@ -35,7 +35,7 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: this.props.doPageCallback,
 			doAppStateCallback: this.props.doAppStateCallback,
-			summonInfoDialog: this.props.summonInfoDialog,
+			displayProjectDialog: this.props.displayProjectDialog,
 			resolveToValue: this.props.resolveToValue,
 		};
 
