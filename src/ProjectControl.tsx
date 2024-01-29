@@ -45,6 +45,9 @@ export class ProjectControl implements ProjectControlParams {
 	projectDialogControl: ProjectDialogControlProps;
 	hasImplementationYearAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
+	isEnergyEfficiency: boolean;
+	financingOpption: string;
+	yearsToPayOff: number;
 
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
@@ -85,6 +88,9 @@ export class ProjectControl implements ProjectControlParams {
 		this.projectDialogControl = getEmptyProjectDialog();
 		this.hasImplementationYearAppliers = params.hasImplementationYearAppliers;
 		this.relatedProjectSymbols = params.relatedProjectSymbols;
+		this.isEnergyEfficiency = params.isEnergyEfficiency;
+		this.financingOpption = params.financingOpption;
+		this.yearsToPayOff = params.yearsToPayOff;
 	}
 
     /**
@@ -780,9 +786,21 @@ declare interface ProjectControlParams {
 	*/
 	isRenewable?: boolean;
 	/**
+	 * Project that only gets energy $ savings for 1 year
+	*/
+	isEnergyEfficiency?: boolean;
+	/**
 	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
 	*/
 	isCapitalFundsEligible?: boolean;
+	/**
+	 * Xaas, Loan, or Green Bond
+	*/
+	financingOpption: string;
+	/**
+	 * Number of years until financing paid off: options are 1 (no financing), 4 (EE financing), 10 (RE financing)
+	*/
+	yearsToPayOff: number;
 	/**
 	 * Numbers that appear on the INFO CARD, before checking the checkbox.
 	 */
