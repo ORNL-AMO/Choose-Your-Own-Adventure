@@ -22,7 +22,7 @@ import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import type { GameSettings } from '../Projects';
+import type { GameSettings } from '../ProjectControl';
 import { Table } from '@mui/material';
 
 export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
@@ -205,8 +205,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							/>
 						</Grid>		
 					</Grid>
-					<TableContainer component={Paper} sx={{ marginTop: 3, maxWidth: 1000 }}>
-						<Table sx={{ minWidth: 650, maxWidth: 1000 }} size='small' aria-label='simple table'>
+					<TableContainer component={Paper} sx={{ marginTop: 3}}>
+						<Table sx={{ minWidth: 650 }} size='small' aria-label='simple table'>
 							<TableHead>
 								<TableRow>
 									<StyledTableCell align='center'> </StyledTableCell>

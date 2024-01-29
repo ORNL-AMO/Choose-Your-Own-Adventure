@@ -28,8 +28,7 @@ import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats, YearCostSavings } from '../trackedStats';
 import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
-import type { CompletedProject, NumberApplier, GameSettings, RenewableProject, ProjectControl } from '../Projects';
-import Projects from '../Projects';
+import type { CompletedProject, NumberApplier, GameSettings, RenewableProject, ProjectControl, RecapSurprise } from '../ProjectControl';
 import {
 	clampRatio,
 	parseSpecialText,
@@ -42,6 +41,8 @@ import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
 import InfoIcon from '@mui/icons-material/Info';
 import YearRecapCharts from './YearRecapCharts';
+import { getCapitalFundingSurprise, type CapitalFundingState, setCapitalFundingMilestone } from '../capitalFunding';
+import Projects from '../Projects';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -50,8 +51,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const initialCurrentYearStats = this.props.yearRangeInitialStats[this.props.currentGameYear - 1];
 		// * mutableStats - mutates as we calculate current year recap
 		let mutableStats: TrackedStats = { ...initialCurrentYearStats };
-		let recapResults: YearRecapResults = buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats);
-		
+		let mutableCapitalFundingState: CapitalFundingState = { ...this.props.capitalFundingState };
+		let recapResults: YearRecapResults = buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats, mutableCapitalFundingState);
 		
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
@@ -82,7 +83,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					LinearProgressProps={{ sx: { height: '16px', width: '50%' } }}
 					sx={{ padding: '.75rem' }}
 					backButton={<Box sx={{ width: 180 }}></Box>}
-					nextButton={getNextButton(this.props, mutableStats)}
+					nextButton={getNextButton(this.props, mutableStats, mutableCapitalFundingState)}
 				/>
 				<Box m={2}>
 					{this.props.totalGameYears == 5 &&
@@ -221,7 +222,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 							LinearProgressProps={{ sx: { height: '16px', width: '50%' } }}
 							sx={{ padding: '.75rem' }}
 							backButton={<Box sx={{ width: 180 }}></Box>}
-							nextButton={getNextButton(this.props, mutableStats)}
+							nextButton={getNextButton(this.props, mutableStats, mutableCapitalFundingState)}
 						/>
 					</>
 					}
@@ -236,7 +237,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 /**
 * Returns YearRecapResults and cards, mutates mutableStats and props
 */
-function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStats: TrackedStats, mutableStats: TrackedStats): YearRecapResults {
+function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStats: TrackedStats, mutableStats: TrackedStats, mutableCapitalFundingState: CapitalFundingState): YearRecapResults {
 	let recapResults: YearRecapResults = {
 		projectRecapCards: [],
 		unspentBudget: props.financesAvailable,
@@ -309,7 +310,8 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 			totalProjectExtraCosts);
 	});
 
-
+	// let mutableCapitalFundingState: CapitalFundingState = { ...props.capitalFundingState };
+	addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 	// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 	setCostPerCarbonSavings(mutableStats);
@@ -465,34 +467,58 @@ function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRec
 	implementedProjects.forEach(project => {
 		if (project.recapSurprises) {
 			projectRecapCards.push(
-				...project.recapSurprises.map((projectSurprise, idx) => {
+				...project.recapSurprises.map((projectSurprise, index) => {
 					return (
-						<ListItem key={`${project.pageId.description}_surprise_${idx}`}>
-							<ThemeProvider theme={darkTheme}>
-								<Card className='year-recap-hidden-surprise' sx={{ width: '100%' }}>
-									<CardHeader
-										avatar={
-											<Avatar
-											sx={{ bgcolor: projectSurprise.avatar.backgroundColor, color: projectSurprise.avatar.color }}
-											>
-												{projectSurprise.avatar.icon}
-											</Avatar>
-										}
-										title={project.title}
-										subheader={project.shortTitle}
-										/>
-									<CardContent>
-										<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(projectSurprise.text)} />
-									</CardContent>
-								</Card>
-							</ThemeProvider>
-						</ListItem>
+						getSurpriseEventCard(projectSurprise, project.title, project.shortTitle, index)
 					);
 				})
 				);
 		}
 	});
 }
+
+
+/**
+* Add card for negative/positive surprises.
+*/
+function getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader: string | undefined, index?: number): JSX.Element {
+	let keyId = index !== undefined? index : title;
+	return <ListItem key={`year-recap-surprise_${keyId}`}>
+		<ThemeProvider theme={darkTheme}>
+			<Card className={surprise.className} sx={{ width: '100%' }}>
+				<CardHeader
+					avatar={
+						<Avatar
+							sx={{ bgcolor: surprise.avatar.backgroundColor, color: surprise.avatar.color }}
+						>
+							{surprise.avatar.icon}
+						</Avatar>
+					}
+					title={title}
+					subheader={subHeader}
+				/>
+				<CardContent>
+					<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)} />
+				</CardContent>
+			</Card>
+		</ThemeProvider>
+	</ListItem>
+}
+
+/**
+* Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
+*/
+function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) { 
+	let savingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
+	if (savingsMilestone) {
+		let percentFormattedMilestone = toPercent(savingsMilestone);
+		let surprise: RecapSurprise = getCapitalFundingSurprise(percentFormattedMilestone);
+		let capitalFundingRewardCard = getSurpriseEventCard(surprise, surprise.title, surprise.subHeader)
+		projectRecapCards.unshift(capitalFundingRewardCard);
+	}
+
+}
+
 
 /**
 * Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
@@ -513,7 +539,7 @@ function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapC
 	projectRecapCards.push(
 		<ListItem key={`${utilityRebateText}_surprise_`}>
 			<ThemeProvider theme={darkTheme}>
-				<Card className='year-recap-rebate-surprise' sx={{ width: '100%' }}>
+				<Card className='year-recap-positive-surprise' sx={{ width: '100%' }}>
 					<CardHeader
 						avatar={
 							<Avatar
@@ -737,7 +763,7 @@ function getBarGraphData(props: YearRecapProps, mutableStats: TrackedStats): Bar
 }
 
 
-function getNextButton(props: YearRecapProps, mutableStats: TrackedStats) {
+function getNextButton(props: YearRecapProps, mutableStats: TrackedStats, capitalFundingState: CapitalFundingState) {
 	let nextbuttonText = `Proceed to year ${props.currentGameYear + 1}`;
 	// end of game
 	if (props.totalGameYears === props.currentGameYear) {
@@ -748,7 +774,7 @@ function getNextButton(props: YearRecapProps, mutableStats: TrackedStats) {
 	return <Button
 		variant='outlined'
 		size='medium'
-		onClick={() => props.handleNewYearSetup(mutableStats)}
+		onClick={() => props.handleNewYearSetup(mutableStats, capitalFundingState)}
 		endIcon={rightArrow()}>
 		<Typography variant='button'>{nextbuttonText}</Typography>
 	</Button>
@@ -776,6 +802,7 @@ export interface YearRecapProps
 	ControlCallbacks,
 	TrackedStats,
 	GameSettings {
+	capitalFundingState: CapitalFundingState,
 	implementedProjectsIds: symbol[];
 	completedProjects: CompletedProject[];
 	implementedRenewableProjects: RenewableProject[];
@@ -784,7 +811,7 @@ export interface YearRecapProps
 	/**
 	 * @param yearFinalStats The final stats for the year, including hidden surprises.
 	 */
-	handleNewYearSetup: (yearFinalStats: TrackedStats) => void;
+	handleNewYearSetup: (yearFinalStats: TrackedStats, capitalFundingState: CapitalFundingState) => void;
 }
 
 export interface YearRecapResults {
@@ -802,3 +829,4 @@ export interface BarGraphData {
 	hydrogen: number[],
 	totalSpending: number[],
 }
+

@@ -1,25 +1,22 @@
+import React from 'react';
 import type { OverridableComponent } from '@mui/material/OverridableComponent';
 import type { SvgIconTypeMap} from '@mui/material';
-import type { ButtonGroupButton } from './components/Buttons';
 import type { PageControl} from './components/controls';
-import type { AppState } from './App';import React from 'react';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactoryIcon from '@mui/icons-material/Factory';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
-import Co2Icon from '@mui/icons-material/Co2';
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { backButton, continueButton, selectButton, infoButtonWithPopup } from './components/Buttons';
 import Pages from './Pages';
-import Projects from './Projects';
-import { theme } from './components/theme';
 import { newStartPageControl } from './components/StartPage';
 import { newYearRecapControl } from './components/YearRecap';
 import { newGroupedChoicesControl } from './components/GroupedChoices';
-import { newInfoDialogControl } from './components/InfoDialog';
 import { newSelectGameSettingsControl } from './components/SelectGameSettings';
+import { newAppPageDialogControl } from './components/Dialogs/InfoDialog';
+import Projects from './Projects';
 declare interface PageControls {
     [key: symbol]: PageControl;
 }
@@ -27,6 +24,7 @@ declare interface PageControls {
  * PageControls is a DICTIONARY object containing page controls. The key for this object is a symbol, specifically from the `Pages` object in `pages.tsx`.
  */
 export const PageControls: PageControls = { };
+
 PageControls[Pages.start] = newStartPageControl({
     buttons: [
         {
@@ -39,20 +37,59 @@ PageControls[Pages.start] = newStartPageControl({
         }
     ]
 });
-PageControls[Pages.introduction] = newInfoDialogControl({
+
+PageControls[Pages.introduction] = newAppPageDialogControl({
     text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators, public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more sustainable model of growth.\nAs a sustainability manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate GHG reduction goal:`,
     cardText: '{50%}  GHG reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
     title: 'Introduction',
     img: 'images/manufacturing.png',
     imgAlt: 'A robotic arm working on a car.',
     buttons: [
+        // todo 142 don't need a back button to go back to a splash page
         backButton(Pages.start),
         continueButton(function (state, nextState) {
             return Pages.selectGameSettings;
         }),
     ]
 });
+
 PageControls[Pages.selectGameSettings] = newSelectGameSettingsControl({});
+
+PageControls[Pages.winScreen] = newAppPageDialogControl({
+	title: 'CONGRATULATIONS!',
+    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub>e Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>e}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>e}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
+	img: 'images/confetti.png',
+	buttons: [
+		{
+			text: 'Play again',
+			variant: 'text',
+            size: 'large',
+			onClick: (state) => {
+				location.href = String(location.href); // Reload the page
+
+				return state.currentPage; // The page returned doesn't really matter
+			}
+		}
+	]
+});
+
+PageControls[Pages.loseScreen] = newAppPageDialogControl({
+    title: 'Sorry...',
+    text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years. Try again?`,
+    buttons: [
+        {
+            text: 'Try again',
+            variant: 'text',
+            onClick: (state) => {
+                location.href = String(location.href); // Reload the page
+                
+                return state.currentPage; // The page returned doesn't really matter
+            }
+        }
+    ]
+});
+
+
 PageControls[Pages.selectScope] = newGroupedChoicesControl({
     title: function (state, nextState) {
         // Year 1
@@ -109,6 +146,7 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
     nextState.showDashboard = false;
     return Pages.introduction;
 });
+
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
     title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.`,
     isProjectGroupChoice: true,
@@ -190,91 +228,10 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
     ],
     hideDashboard: false,
 }, Pages.selectScope);
-PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
-PageControls[Pages.wasteHeatRecovery] = newInfoDialogControl({
-    title: '{SELECTED}: WASTE HEAT RECOVERY',
-    cardText: 'You have achieved {3.5%} GHG emissions reduction and spent {$60,000} dollars.',
-    text: [
-        '[Waupaca Foundry: Cupola Waste Heat Recovery Upgrade Drives Deeper Energy Savings](https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings)',
-        'Nice choice! In 2010, {Waupaca Foundry} implemented heat recovery system upgrades in their Plant 23, which lead to upgrades in other plants as well. Combined savings have led to a reduction in natural gas usage by {1,200,000 therms} per year and {72,000 tons} of annual CO2 reduction.',
-    ],
-    buttons: [
-        continueButton(Pages.scope1Projects),
-    ]
-});
-PageControls[Pages.digitalTwinAnalysis] = newInfoDialogControl({
-    title: '{SELECTED}: DIGITAL TWIN ANALYSIS',
-    cardText: 'You have achieved {2%} GHG emissions reduction and spent {$90,000} dollars.',
-    text: '[Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management](https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant)\n\nGood choice! Ford Motor Company used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a 50% reduction in campus office space energy and water use compared to their older system.',
-    img: 'images/ford.png',
-    buttons: [
-        continueButton(Pages.scope1Projects),
-    ]
-});
-PageControls[Pages.winScreen] = newInfoDialogControl({
-	title: 'CONGRATULATIONS!',
-    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub>e Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>e}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>e}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
-	img: 'images/confetti.png',
-	buttons: [
-		{
-			text: 'Play again',
-			variant: 'text',
-            size: 'large',
-			onClick: (state) => {
-				location.href = String(location.href); // Reload the page
 
-				return state.currentPage; // The page returned doesn't really matter
-			}
-		}
-	]
-});
-PageControls[Pages.loseScreen] = newInfoDialogControl({
-    title: 'Sorry...',
-    text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years. Try again?`,
-    buttons: [
-        {
-            text: 'Try again',
-            variant: 'text',
-            onClick: (state) => {
-                location.href = String(location.href); // Reload the page
-                
-                return state.currentPage; // The page returned doesn't really matter
-            }
-        }
-    ]
-});
-export function notImplemented(pageBack?: symbol) {
-    return newInfoDialogControl({
-        title: 'Not implemented',
-        text: 'Sorry, this page has not been implemented yet.',
-        buttons: [
-            backButton(pageBack || Pages.selectScope),
-        ]
-    });
-}
-/**
- * Toggle whether a certain symbol is included in app.state.implementedProjectsIds.
- */
-export function toggleSelectedPage(page: symbol, state: AppState, nextState: AnyDict) {
-    let implementedProjectsIds = state.implementedProjectsIds.slice();
-    // IF ALREADY SELECTED
-    if (implementedProjectsIds.includes(page)) {
-        implementedProjectsIds.splice(implementedProjectsIds.indexOf(page), 1);
-    }
-    // IF NOT ALREADY SELECTED
-    else {
-        implementedProjectsIds.push(page);
-    }
-    nextState.implementedProjectsIds = implementedProjectsIds;
-}
-export function co2SavingsButton(percent: number): ButtonGroupButton {
-    return {
-        text: percent.toFixed(1) + '%',
-        variant: 'text',
-        startIcon: <Co2Icon/>,
-        // infoPopup: <Typography variant='body1'>This project would provide {percent}% in CO<sub>2</sub>e savings.</Typography>
-    };
-}
+PageControls[Pages.yearRecap] = newYearRecapControl({}, Pages.selectScope);
+
+
 // todo: investigate whether making this a callback improves page load time (by not resolving all the react components at the start)
 export function infoPopupWithIcons(title: string, bodyText: string, icons: Array<OverridableComponent<SvgIconTypeMap>>) {
     
@@ -297,16 +254,4 @@ export function infoPopupWithIcons(title: string, bodyText: string, icons: Array
             </Box>
         </div>
     );
-}
-export function projectCostAndCO2ReductionCards(projectCost: number, co2Reduction: number) {
-    return [
-        {
-            text: `Total project cost: {$${projectCost.toLocaleString('en-US')}}`,
-            color: theme.palette.secondary.dark, // todo change
-        },
-        {
-            text: `CO_{2} reduction: {${co2Reduction.toFixed(1)}%}`,
-            color: theme.palette.primary.light, //todo change
-        }
-    ];
 }

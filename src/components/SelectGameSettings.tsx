@@ -1,12 +1,9 @@
 import React from 'react';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
-import Image from 'mui-image';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
-import { ButtonGroup } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
-import { parseSpecialText } from '../functions-and-types';
-import type { GameSettings } from '../Projects';
+import type { GameSettings, UserSettings } from '../ProjectControl';
 import Pages from '../Pages';
 
 export const SettingsCard = styled(Paper)(({ theme }) => ({
@@ -30,19 +27,24 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [gameYearInterval, setGameYearInterval] = React.useState(props.gameYearInterval);
-    const [allowCarryover, setCarryoverOption ] = React.useState('yes');    
-    const [allowEnergyCarryover, setEnergyCarryoverOption ] = React.useState('One Year');
+    const [financingStartYear, setFinancingStartYear] = React.useState(getFinancingStartYear());
+    const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('yes');    
+    const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
 
     const handleIntervalChange = (event: SelectChangeEvent<number>) => {
         setGameYearInterval(event.target.value as number);
     };
 
-    const handleCarryoverChange = (event: SelectChangeEvent<string>) => {
-        setCarryoverOption(event.target.value as string);
+    const handleFinancingStartYear = (event: SelectChangeEvent<number>) => {
+        setFinancingStartYear(event.target.value as number);
     };
 
-    const handleEnergyCarryoverChange = (event: SelectChangeEvent<string>) => {
-        setEnergyCarryoverOption(event.target.value as string);
+    const handleCarryoverChange = (event: SelectChangeEvent<string>) => {
+        setBudgetCarryoverOption(event.target.value as string);
+    };
+
+    const handleEnergyCarryoverChange = (event: SelectChangeEvent<number>) => {
+        setEnergyCarryoverOption(event.target.value as number);
     };
 
     return (
@@ -76,11 +78,30 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='allowCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
+                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
+                            Choose the year in which project financing options should be introduced:</InputLabel>
                         <Select
-                            labelId='allowCarryover'
-                            id='allowCarryover'
-                            value={allowCarryover}
+                            labelId='selectFinancingStartYear'
+                            id='selectFinancingStartYear'
+                            value={financingStartYear}
+                            label='financingStartYear'
+                            onChange={handleFinancingStartYear}
+                        >
+                            <MenuItem value={1}> First Year </MenuItem>
+                            <MenuItem value={2}> Second Year</MenuItem>
+                            <MenuItem value={3}> Third Year</MenuItem>
+                            <MenuItem value={4}> Fourth Year</MenuItem>
+                            <MenuItem value={5}> Fifth Year</MenuItem>
+                            {/* // TODO 150 check game interval for more options */}
+                        </Select>                        
+                    </Box>
+                    <Divider variant='middle'/>
+                    <Box m={2}>
+                        <InputLabel id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
+                        <Select
+                            labelId='selectAllowBudgetCarryover'
+                            id='selectAllowBudgetCarryover'
+                            value={allowBudgetCarryover}
                             label='carryoverOption'
                             onChange={handleCarryoverChange}
                             disabled
@@ -91,17 +112,17 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='allowEnergyCarryover'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
+                        <InputLabel id='selectEnergyCarryoverYears'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
                         <Select
-                            labelId='allowEnergyCarryover'
-                            id='allowEnergyCarryover'
-                            value={allowEnergyCarryover}
+                            labelId='selectEnergyCarryoverYears'
+                            id='selectEnergyCarryoverYears'
+                            value={energyCarryoverYears}
                             label='energyCarryoverOption'
                             onChange={handleEnergyCarryoverChange}
                             disabled
                         >
-                            <MenuItem value={'One Year'}> One Year </MenuItem>
-                            <MenuItem value={'Two Year'}> Two Year </MenuItem>
+                            <MenuItem value={1}> One Year </MenuItem>
+                            <MenuItem value={2}> Two Year </MenuItem>
                         </Select>
                     </Box>
                 </DialogContent>
@@ -113,7 +134,14 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Button>
                     <Button
                         size='small'
-                        onClick={() => props.onProceed(gameYearInterval)} >
+                        onClick={() => props.onProceed(
+                            {
+                                gameYearInterval,
+                                financingStartYear,
+                                energyCarryoverYears,
+                                allowBudgetCarryover
+                            }
+                        )} >
                         Start Playing
                     </Button>
                 </DialogActions>
@@ -124,16 +152,16 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
 
 }
 
-/**
- * TS wrapper for a StartPage component control. 
- * Use this when definining a PageControl for code autocompletion and props checking.
- */
 export function newSelectGameSettingsControl(props: SelectGameSettingsControlProps): PageControl {
     return {
         componentClass: SelectGameSettings,
         controlProps: props,
         hideDashboard: true,
     };
+}
+
+export function getFinancingStartYear() {
+    return process.env.NODE_ENV == 'development' ? 1 : 3;
 }
 
 /**
@@ -144,6 +172,6 @@ export declare interface SelectGameSettingsControlProps {
 }
 
 export interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks, GameSettings {
-    onProceed: (gameYearInterval: number) => void;
+    onProceed: (userSettings: UserSettings) => void;
     doPageCallback: (callback?: PageCallback) => void;
 }
