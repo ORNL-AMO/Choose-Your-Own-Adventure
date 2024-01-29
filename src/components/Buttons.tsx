@@ -56,7 +56,6 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 	 * Whether the entire group of buttons appears disabled.
 	 */
 	disabled?: Resolvable<boolean>;
-	displayDialog: (props) => void;
 	doPageCallback: (callback?: PageCallback) => void;
 	/**
 	 * Whether to use a MUI Stack component to space the buttons, or just include the array of buttons "raw".
@@ -145,7 +144,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 					}
 					else if (button.projectDialog) {
 						// todo 25 set availableProjectIds should probably happen here instead of <InfoDialog/> useEfffect
-						props.displayDialog(button.projectDialog);
+						props.displayProjectDialog(button.projectDialog);
 					}
 				}}
 			>

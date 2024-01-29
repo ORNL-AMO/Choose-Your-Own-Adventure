@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { ButtonGroup, ButtonGroupButton } from '../Buttons';
 import { DialogCardContent, DialogControlProps, InfoCard } from './dialog-functions-and-types';
 import { ControlCallbacks } from '../controls';
+import { InfoDialogControlProps } from './InfoDialog';
 
 
 export class ProjectDialog extends PureComponentIgnoreFuncs <ProjectDialogProps> {
@@ -124,7 +125,7 @@ function ProjectDialogFunc (props: ProjectDialogProps) {
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback}
 					doAppStateCallback={props.doAppStateCallback}
-					displayDialog={props.displayDialog}
+					displayProjectDialog={props.displayProjectDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
 				/>

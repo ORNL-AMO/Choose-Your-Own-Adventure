@@ -201,7 +201,7 @@ function getProjectDialogCards(props: CompareDialogProps, theme) {
 					<ButtonGroup
 						buttons={project.projectDialog.comparisonDialogButtons}
 						doPageCallback={props.doPageCallback}
-						displayDialog={props.displayDialog}
+						displayProjectDialog={props.displayProjectDialog}
 						resolveToValue={props.resolveToValue}
 						doAppStateCallback={props.doAppStateCallback}
 					/>

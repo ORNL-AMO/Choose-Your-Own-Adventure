@@ -60,7 +60,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 										buttons={choice.energySavingsPreviewIcons}
 										disabled={disabled}
 										doPageCallback={props.doPageCallback}
-										displayDialog={props.displayDialog}
+										displayProjectDialog={props.displayProjectDialog}
 										resolveToValue={props.resolveToValue}
 										isProjectGroupChoice={props.isProjectGroupChoice}
 									/>
@@ -76,7 +76,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							buttons={choiceButtons}
 							disabled={disabled}
 							doPageCallback={props.doPageCallback}
-							displayDialog={props.displayDialog}
+							displayProjectDialog={props.displayProjectDialog}
 							resolveToValue={props.resolveToValue}
 							doAppStateCallback={props.doAppStateCallback}
 							isProjectGroupChoice={props.isProjectGroupChoice}

@@ -25,10 +25,9 @@ import { YearRecap } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
 import { CapitalFundingState } from './capitalFunding';
-import { DialogStateProps } from './components/Dialogs/dialog-functions-and-types';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
 import { CompareDialog } from './components/Dialogs/CompareDialog';
-import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog, isProjectDialogControlProps } from './components/Dialogs/ProjectDialog';
+import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 
 
@@ -71,9 +70,7 @@ export type AppState = {
 	selectedProjectsForComparison: SelectedProject[];
 	lastScrollY: number;
 	snackbarOpen: boolean;
-	isInfoDialogOpen: boolean;
 	isCompareDialogOpen: boolean;
-	isProjectDialogOpen: boolean;
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
@@ -102,9 +99,7 @@ export interface NextAppState {
 	yearRangeInitialStats?: TrackedStats[];
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
-	isInfoDialogOpen?: boolean;
 	isCompareDialogOpen?: boolean;
-	isProjectDialogOpen?: boolean;
 }
 
 export class App extends React.PureComponent<unknown, AppState> {
@@ -151,9 +146,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			completedProjects: [],
 			lastScrollY: -1,
 			snackbarOpen: false,
-			isInfoDialogOpen: false,
 			isCompareDialogOpen: false,
-			isProjectDialogOpen: false,
 			gameSettings: {
 				totalGameYears: 10,
 				gameYearInterval: 1,
@@ -177,13 +170,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let controlOnBack = thisPageControl.onBack;
 		let hideDashboard = thisPageControl.hideDashboard;
 
-		const {infoDialog, isInfoDialogOpen, projectDialog, isProjectDialogOpen, currentPageProps} = this.checkDialogDisplay(componentClass, controlProps);
+		const {infoDialog, projectDialog, currentPageProps} = this.checkDialogDisplay(componentClass, controlProps);
 		this.setState({
 			currentPage: page,
 			infoDialog,
-			isInfoDialogOpen,
 			projectDialog,
-			isProjectDialogOpen,
 			componentClass,
 			currentPageProps: currentPageProps,
 			currentOnBack: controlOnBack,
@@ -201,30 +192,23 @@ export class App extends React.PureComponent<unknown, AppState> {
 	 */
 	checkDialogDisplay(componentClass: Component, controlProps: AnyDict) {
 		let infoDialog: InfoDialogStateProps = getEmptyInfoDialogState();
-		let isInfoDialogOpen = false;
 		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
-		let isProjectDialogOpen = false;
 		let currentPageProps;
 
 		if (componentClass === InfoDialog) {
 			infoDialog = fillInfoDialogProps(controlProps);
 			infoDialog.isOpen = true;
-			isInfoDialogOpen = true;
 		} 
 		else {
 			// * If navigating back to project menu or other from a dialog, close dialog
 			infoDialog = cloneAndModify(this.state.infoDialog, { isOpen: false });
 			projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
-			isInfoDialogOpen = false;
-			isProjectDialogOpen = false;
 			currentPageProps = controlProps;
 		}
 
 		return {
 			infoDialog, 
-			isInfoDialogOpen,
 			projectDialog,
-			isProjectDialogOpen, 
 			currentPageProps
 		}
 	}
@@ -273,46 +257,45 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	/**
-	 * Display an info or project dialog with the specified dialog props. Does not change the current page.
+	 * Display an info dialog with the specified dialog props. Does not change the current page.
 	 */
 	displayDialog(props: InfoDialogControlProps) {
 		let infoDialog: InfoDialogStateProps = getEmptyInfoDialogState();
-		let isInfoDialogOpen = false;
-		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
-		let isProjectDialogOpen = false;
-
-		if (isProjectDialogControlProps) {
-			projectDialog = fillProjectDialogProps(props);
-			projectDialog.isOpen = true;
-			isProjectDialogOpen = true;
-		} else {
-			infoDialog = fillInfoDialogProps(props);
-			infoDialog.isOpen = true;
-			isInfoDialogOpen = true;
-		}
+		infoDialog = fillInfoDialogProps(props);
+		infoDialog.isOpen = true;
 		
 		setTimeout(() => {
-			this.setState({ 
-				infoDialog, 
-				isInfoDialogOpen,
-				projectDialog,
-				isProjectDialogOpen 
-			 });
+			this.setState({
+				infoDialog,
+			});
 			this.saveScrollY();
 		}, 50);
 	}
 
+	/**
+	 * Display a project dialog with the specified dialog props. Does not change the current page.
+	 */
+	displayProjectDialog(props: InfoDialogControlProps) {
+		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
+		projectDialog = fillProjectDialogProps(props);
+		projectDialog.isOpen = true;
+
+		setTimeout(() => {
+			this.setState({
+				projectDialog,
+			});
+			this.saveScrollY();
+		}, 50);
+	}
+
+
 	handleDialogClose() {
 		let infoDialog = cloneAndModify(this.state.infoDialog, {isOpen: false});
 		let projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
-		let isInfoDialogOpen = false;
-		let isProjectDialogOpen = false;
 
 		this.setState({
 			infoDialog, 
 			projectDialog,
-			isInfoDialogOpen,
-			isProjectDialogOpen
 		});
 	}
 
@@ -348,10 +331,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	componentDidUpdate(prevProps: AnyDict, prevState: AppState) {
-		this.ignoreScrollHeightOnDialogClose(prevProps, prevState)
+		this.ignoreScrollHeightOnDialogClose(prevState)
 	}
 
-	ignoreScrollHeightOnDialogClose(prevProps: AnyDict, prevState: AppState) {
+	ignoreScrollHeightOnDialogClose(prevState: AppState) {
 		let infoDialogClosed: boolean = (prevState.infoDialog.isOpen && !this.state.infoDialog.isOpen);
 		let projectdialogClosed: boolean = (prevState.projectDialog.isOpen && !this.state.projectDialog.isOpen);
 		let compareDialogClosed: boolean = (prevState.isCompareDialogOpen && !this.state.isCompareDialogOpen)
@@ -599,8 +582,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		const controlCallbacks: ControlCallbacks = {
 			doPageCallback: (callback) => this.handlePageCallback(callback),
 			doAppStateCallback: (callback) => this.handleAppStateCallback(callback),
-			// todo differnt dialog methods
-			displayDialog: (props) => this.displayDialog(props),
+			displayProjectDialog: (props) => this.displayProjectDialog(props),
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
 		};
 
@@ -674,19 +656,17 @@ export class App extends React.PureComponent<unknown, AppState> {
 								: <></>}
 						</Box>
 
-						{/* InfoDialog is always "mounted" so MUI can smoothly animate its opacity */}
+						{/* Dialogs are always "mounted" so MUI can smoothly animate its opacity */}
 						<InfoDialog
 							{...this.state.infoDialog}
 							{...controlCallbacks}
-							isOpen={this.state.isInfoDialogOpen}
 							onClose={() => this.handleDialogClose()}
 						/>
 						<ProjectDialog
 							{...this.state.projectDialog}
 							{...controlCallbacks}
-							isOpen={this.state.isProjectDialogOpen}
 							onClose={() => this.handleDialogClose()}
-							/>
+						/>
 						<CompareDialog
 							{...this.state.infoDialog}
 							{...controlCallbacks}

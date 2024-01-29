@@ -141,7 +141,6 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					buttons={props.buttons}
 					doPageCallback={props.doPageCallback} 
 					doAppStateCallback={props.doAppStateCallback} 
-					displayDialog={props.displayDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
 				/>
