@@ -656,9 +656,9 @@ export class ProjectControl implements ProjectControlParams {
 export const Scope1Projects = [
 	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
 	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler, Pages.hydrogenFuel
+	Pages.electricBoiler, Pages.hydrogenFuel, Pages.hydrogenPoweredForklifts, Pages.h2InjectionIntoHRSG
 	//Pages.digitalTwinAnalysis, 
-	//Pages.hydrogenPoweredForklifts, 
+	
 	//Pages.condensingEconomizerInstallation, 
 ]
 /**
