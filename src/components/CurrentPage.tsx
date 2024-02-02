@@ -1,11 +1,11 @@
 import React from 'react';
-import type { RenewableProject, UserSettings} from '../ProjectControl';
-import type { CompletedProject, SelectedProject, GameSettings} from '../ProjectControl';
+import type { RenewableProject} from '../ProjectControl';
+import type { CompletedProject, SelectedProject} from '../ProjectControl';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 import type { TrackedStats } from '../trackedStats';
 import { GroupedChoices } from './GroupedChoices';
 import type { GroupedChoicesProps } from './GroupedChoices';
-import { SelectGameSettings } from './SelectGameSettings';
+import { GameSettings, SelectGameSettings, UserSettings } from './SelectGameSettings';
 import { StartPage } from './StartPage';
 import type { StartPageProps } from './StartPage';
 import { YearRecap } from './YearRecap';

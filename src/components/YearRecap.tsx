@@ -28,7 +28,7 @@ import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats, YearCostSavings } from '../trackedStats';
 import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
-import type { CompletedProject, NumberApplier, GameSettings, RenewableProject, ProjectControl, RecapSurprise } from '../ProjectControl';
+import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise } from '../ProjectControl';
 import {
 	clampRatio,
 	parseSpecialText,
@@ -43,6 +43,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import YearRecapCharts from './YearRecapCharts';
 import { getCapitalFundingSurprise, type CapitalFundingState, setCapitalFundingMilestone } from '../capitalFunding';
 import Projects from '../Projects';
+import { GameSettings } from './SelectGameSettings';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 

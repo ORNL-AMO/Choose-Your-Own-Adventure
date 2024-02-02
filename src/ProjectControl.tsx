@@ -104,7 +104,7 @@ export class ProjectControl implements ProjectControlParams {
 				financingType: {
 					// todo 142 change name if no other options
 					name: hasFinancingOptions? 'Pay with Existing Budget' : 'Fully Fund Project',
-					id: undefined,
+					id: 'budget',
 					description: hasFinancingOptions? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget',
 				},
 				totalCost: self.cost,
@@ -142,7 +142,7 @@ export class ProjectControl implements ProjectControlParams {
 			}
 		];
 
-		if (self.financingOptions) {
+		if (hasFinancingOptions) {
 			self.financingOptions.forEach(option => {
 				let implementButton = getFinancingTypeImplementButton(option);		
 				let financingOptionCard: DialogFinancingOptionCard = {
@@ -807,26 +807,6 @@ export interface RenewableProject extends Project {
 
 export interface Project {
 	page: symbol
-}
-
-/**
- * Used for tracking Game Settings  
- */
-export interface GameSettings {
-	gameYearInterval: number,
-	totalGameYears: number,
-	budget: number,
-	financingStartYear: number,
-	naturalGasUse: number,
-	electricityUse: number,
-	hydrogenUse: number,
-}
-
-export interface UserSettings {
-	gameYearInterval: number,
-	financingStartYear: number,
-	energyCarryoverYears: number,
-	allowBudgetCarryover: string
 }
 
 /**

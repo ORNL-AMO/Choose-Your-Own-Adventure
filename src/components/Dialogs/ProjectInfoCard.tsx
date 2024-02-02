@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, DialogProps, Box, Card, CardHeader, CardContent, Typography, CardActions, Button, List, ListItem, ListItemText, Grid } from '@mui/material';
+import { CardMedia, DialogTitle, DialogContent, DialogContentText, Box, Card, CardHeader, CardContent, Typography, CardActions, Button, Grid } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../../functions-and-types';
-import { useTheme } from '@mui/material/styles';
 import { ButtonGroup } from '../Buttons';
 import { DialogCardContent, InfoCard } from './dialog-functions-and-types';
 import { Emphasis } from '../controls';
 import { DialogFinancingOptionCard, ProjectDialogProps } from './ProjectDialog';
+import { GameSettings } from '../SelectGameSettings';
 
 
 export class ProjectInfoCard extends PureComponentIgnoreFuncs<ProjectDialogProps> {
@@ -20,12 +20,14 @@ export class ProjectInfoCard extends PureComponentIgnoreFuncs<ProjectDialogProps
  * Project info child component for ProjectDialog and CompareDialogs.
  */
 function ProjectInfoCardFunc(props: ProjectDialogProps) {
-	const theme = useTheme();
 	let imgHeight = '260';
 	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
-
+	let energyStatCards: JSX.Element[] = getProjectEnergytStatCards(props.energyStatCards, props.resolveToValue);
+	let financingOptionCards: DialogFinancingOptionCard[] = getFinancingOptionsCards(props);
 	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
 	useEffect(() => {
+		financingOptionCards = getFinancingOptionsCards(props);
+
 		// timeout delay button display until dialog open - less page jump
 		const timeout = setTimeout(() => {
 			if (props.handleProjectInfoViewed && props.doAppStateCallback) {
@@ -38,12 +40,6 @@ function ProjectInfoCardFunc(props: ProjectDialogProps) {
 			clearTimeout(timeout);
 		};
 	});
-
-	let energyStatCards: JSX.Element[] = getProjectEnergytStatCards(props.energyStatCards, props.resolveToValue);
-	let financingOptionCards: DialogFinancingOptionCard[] = [];
-	if (props.financingOptionCards) {
-		financingOptionCards = props.resolveToValue(props.financingOptionCards);
-	}
 
 	return (
 		<>
@@ -157,6 +153,20 @@ export function getProjectEnergytStatCards(cards: Resolvable<DialogCardContent[]
 			dangerouslySetInnerHTML={parseSpecialText(cardContent.text, false)}
 		/>
 	);
+}
+
+function getFinancingOptionsCards(props: ProjectDialogProps) {
+	const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
+	let financingOptionCards = [];
+	if (props.financingOptionCards && gameSettings) {
+		if (gameSettings.financingOptions) {
+			financingOptionCards = props.resolveToValue(props.financingOptionCards);
+			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
+				return gameSettings.financingOptions[option.financingType.id] == true || option.financingType.id === 'budget' || option.financingType.id === 'capital-funding';
+			});
+		}
+	}
+	return financingOptionCards;
 }
 
 function getFinancingOptionsGrid(financingOptionCards: DialogFinancingOptionCard[], props: ProjectDialogProps) {

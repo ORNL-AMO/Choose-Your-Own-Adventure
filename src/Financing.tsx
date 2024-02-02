@@ -16,7 +16,7 @@ export interface FinancingType {
 export function getGreenBondsFinancing(): FinancingType {
     return {
         name: 'Green Bonds',
-        id: 'green-bonds',
+        id: 'greenBond',
         description: 'Finance your energy use reduction',
         detailedInfo: '0% interest loan. Loan term: 10 years'
     }
@@ -81,7 +81,7 @@ export function setFinancingCosts(financingOptionCard: DialogFinancingOptionCard
     if (financingOptionCard.financingType.id === 'loan') {
         financingOptionCard.annualCost = getLoanAnnualCost(projectCost)
         financingOptionCard.totalCost = getLoanTotalCost(projectCost)
-    } else if (financingOptionCard.financingType.id === 'green-bonds') {
+    } else if (financingOptionCard.financingType.id === 'greenBond') {
         financingOptionCard.annualCost = getGreenBondsAnnualCost(projectCost)
         financingOptionCard.totalCost = getGreenBondsTotalCost(projectCost)
     } else if (financingOptionCard.financingType.id === 'xaas') {
@@ -92,4 +92,4 @@ export function setFinancingCosts(financingOptionCard: DialogFinancingOptionCard
     }
 }
 
-export type FinancingId = 'budget' | 'green-bonds' | 'capital-funding' | 'loan' | 'xaas';
+export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'xaas';
