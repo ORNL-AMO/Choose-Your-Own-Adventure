@@ -16,8 +16,8 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import { Scope1Projects, Scope2Projects } from './ProjectControl';
-import type { RenewableProject, UserSettings} from './ProjectControl';
-import type { CompletedProject, SelectedProject, GameSettings} from './ProjectControl';
+import type { RenewableProject} from './ProjectControl';
+import type { CompletedProject, SelectedProject} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { closeDialogButton } from './components/Buttons';
@@ -29,6 +29,7 @@ import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialo
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
+import { GameSettings, UserSettings } from './components/SelectGameSettings';
 
 
 export type AppState = {
@@ -154,7 +155,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
 				hydrogenUse: 2_000,
-				financingStartYear: 3
+				financingStartYear: 3,
+				energyCarryoverYears: 0,
+				allowBudgetCarryover: 'no',
+				financingOptions: {
+					xaas: false,
+					greenBond: false,
+					loan: false
+				}
 			},
 			defaultTrackedStats : { ...initialTrackedStats }
 		};
@@ -553,25 +561,27 @@ export class App extends React.PureComponent<unknown, AppState> {
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
 		updatingInitialTrackedStats.hydrogenMMBTU = hydrogen;
 		updatingInitialTrackedStats.gameYearInterval = userSettings.gameYearInterval;
-
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
-		this.setState({
+
+		let gameStartState = {
 			trackedStats: updatingInitialTrackedStats,
 			yearRangeInitialStats: [
 				updatingInitialTrackedStats,
 			],
 			gameSettings: {
+				...userSettings,
 				totalGameYears: totalGameYears,
-				gameYearInterval: userSettings.gameYearInterval,
-				financingStartYear: userSettings.financingStartYear,
 				budget: budget,
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
 				hydrogenUse: hydrogen
 			},
 			defaultTrackedStats: updatingInitialTrackedStats
-		});
+		}
+		this.setState(gameStartState);
+		localStorage.setItem('gameSettings', JSON.stringify(gameStartState.gameSettings));
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
+
 		this.setPage(Pages.scope1Projects);
 	}
 	
