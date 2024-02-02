@@ -5,6 +5,7 @@ import Pages from "./Pages";
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import Co2Icon from '@mui/icons-material/Co2';
 import { ProjectControl, absolute } from "./ProjectControl";
+import { getCapitalFundsFinancing, getGreenBondsAnnualCost, getGreenBondsFinancing, getGreenBondsTotalCost, getLoanFinancing } from './Financing';
 
 declare interface ProjectControls {
 	[key: symbol]: ProjectControl;
@@ -34,6 +35,11 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	statsRecapAppliers: {
 		yearRebates: absolute(5_000),
 	},
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(),
+		},
+	],
 	title: 'Waste Heat Recovery',
 	shortTitle: 'Install waste heat recovery to preheat boiler water',
 	// bracketed words show as bold emphasis in the app 
@@ -107,6 +113,15 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		naturalGasMMBTU: absolute(-3000),
 	},
 	title: 'Paint Booth Upgrades',
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(),
+		},
+		// todo 142 temporary, capital funds will never be added from the start of a project
+		{
+			financingType: getCapitalFundsFinancing(),
+		}
+	],
 	shortTitle: 'Explore upgrades for the entire paint process system',
 	choiceInfoText: [
 		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps, and fans, as well as steam for hot water.',

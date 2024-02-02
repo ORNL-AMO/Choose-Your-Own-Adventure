@@ -55,7 +55,8 @@ function InfoDialogFunc (props: InfoDialogProps) {
 
 	let cardContents: DialogCardContent[] = [{
 			text: props.resolveToValue(props.cardText),
-			color: '#000000',
+			textColor: 'fff',
+			backgroundColor: '#000000',
 		}];
 
 	return (
@@ -130,7 +131,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 						return <InfoCard
 							key={idx}
 							variant='outlined'
-							sx={{ borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold' }}
+							sx={{ borderColor: cardContent.backgroundColor, color: '#000000', borderWidth: 'medium', fontWeight: 'bold' }}
 							dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
 						/>
 				})}

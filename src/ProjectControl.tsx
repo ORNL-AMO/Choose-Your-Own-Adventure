@@ -14,13 +14,15 @@ import { Alert } from '@mui/material';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
-import { ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
+import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
+import { FinancingOption, getGreenBondsAnnualCost, getGreenBondsTotalCost, setFinancingCosts } from './Financing';
 
 
 export class ProjectControl implements ProjectControlParams {
 	pageId: symbol;
 	isRenewable?: boolean;
+	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	cost: number;
 	statsInfoAppliers: TrackedStatsApplier;
@@ -53,6 +55,7 @@ export class ProjectControl implements ProjectControlParams {
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
+		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
@@ -94,61 +97,19 @@ export class ProjectControl implements ProjectControlParams {
 
         const self = this; // for use in bound button handlers
 
+		let hasFinancingOptions = self.financingOptions && self.financingOptions.length !== 0;
         let projectDialogStatCards: DialogCardContent[] = [];
-        let energySavingsPreviewIcons: ButtonGroupButton[] = [];
-
-		let perYearAddOn: string = '';
-		if(this.isRenewable == true){
-			perYearAddOn = 'per year';
-		}
-
-        projectDialogStatCards.push({
-            text: `Total project cost: {$${(this.cost).toLocaleString('en-US')} ${perYearAddOn}}`,
-            color: theme.palette.secondary.dark,
-        });
-
-        if (this.statsInfoAppliers.naturalGasMMBTU) {
-            projectDialogStatCards.push({
-                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
-                color: theme.palette.primary.dark,
-            });
-        }
-        if (this.statsInfoAppliers.electricityUseKWh) {
-            projectDialogStatCards.push({
-                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
-                color: theme.palette.warning.light,
-            });
-        }
-		if (this.statsInfoAppliers.hydrogenMMBTU) {
-            projectDialogStatCards.push({
-                text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
-                color: theme.palette.primary.light,
-            });
-        }
-        if (this.statsInfoAppliers.absoluteCarbonSavings) {
-            projectDialogStatCards.push({
-                text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
-                color: theme.palette.primary.main,
-            });
-        }
-
-        let choiceCardButtons: ButtonGroupButton[] = [];
-        let comparisonDialogButtons: ButtonGroupButton[] = [];
-
-        this.projectDialogControl = {
-			discriminator: 'project',
-            title: self.title,
-            text: self.choiceInfoText,
-            img: self.choiceInfoImg,
-            imgAlt: self.choiceInfoImgAlt,
-            imgObjectFit: self.choiceInfoImgObjectFit,
-            cards: projectDialogStatCards,
-            handleProjectInfoViewed: function (state, nextState) {
-                return setAllowImplementProject.apply(this, [state, nextState]);
-            },
-            buttons: [
-                closeDialogButton(),
-                {
+        let financingOptionCards: DialogFinancingOptionCard[] = [
+			{
+				financingType: {
+					// todo 142 change name if no other options
+					name: hasFinancingOptions? 'Pay with Existing Budget' : 'Fully Fund Project',
+					id: undefined,
+					description: hasFinancingOptions? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget',
+				},
+				totalCost: self.cost,
+				annualCost: undefined,
+				implementButton: {
                     text: 'Implement Project',
                     variant: 'contained',
                     color: 'success',
@@ -178,6 +139,77 @@ export class ProjectControl implements ProjectControlParams {
                         }
                     }
                 }
+			}
+		];
+
+		if (self.financingOptions) {
+			self.financingOptions.forEach(option => {
+				let implementButton = getFinancingTypeImplementButton(option);		
+				let financingOptionCard: DialogFinancingOptionCard = {
+					financingType: option.financingType,
+					totalCost: undefined,
+					annualCost: undefined,
+					implementButton: implementButton
+				}
+				setFinancingCosts(financingOptionCard, self.cost);
+				financingOptionCards.push(financingOptionCard);
+			});
+		}
+
+        let energySavingsPreviewIcons: ButtonGroupButton[] = [];
+
+		let perYearAddOn: string = '';
+		if(this.isRenewable == true){
+			perYearAddOn = 'per year';
+		}
+
+        if (this.statsInfoAppliers.naturalGasMMBTU) {
+            projectDialogStatCards.push({
+                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+				textColor: '#fff',
+                backgroundColor: 'rgb(20, 48, 109, 0.60)',
+            });
+        }
+        if (this.statsInfoAppliers.electricityUseKWh) {
+            projectDialogStatCards.push({
+                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
+				textColor: '#fff',
+                backgroundColor: 'rgba(233, 188, 24, .60)',
+            });
+        }
+		if (this.statsInfoAppliers.hydrogenMMBTU) {
+            projectDialogStatCards.push({
+                text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+				textColor: '#fff',
+				backgroundColor: 'rgb(20, 48, 109, 0.60)',
+            });
+        }
+        if (this.statsInfoAppliers.absoluteCarbonSavings) {
+            projectDialogStatCards.push({
+                text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
+				textColor: '#fff',
+				backgroundColor: 'rgb(20, 48, 109, 0.60)',
+
+            });
+        }
+
+        let choiceCardButtons: ButtonGroupButton[] = [];
+        let comparisonDialogButtons: ButtonGroupButton[] = [];
+
+        this.projectDialogControl = {
+			discriminator: 'project',
+            title: self.title,
+            text: self.choiceInfoText,
+            img: self.choiceInfoImg,
+            imgAlt: self.choiceInfoImgAlt,
+            imgObjectFit: self.choiceInfoImgObjectFit,
+            energyStatCards: projectDialogStatCards,
+            financingOptionCards: financingOptionCards,
+            handleProjectInfoViewed: function (state, nextState) {
+                return setAllowImplementProject.apply(this, [state, nextState]);
+            },
+            buttons: [
+                closeDialogButton(),
             ],
         };
 
@@ -190,7 +222,6 @@ export class ProjectControl implements ProjectControlParams {
         }
 
         comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
-        addImplementProjectButton(comparisonDialogButtons);
         this.projectDialogControl.comparisonDialogButtons = comparisonDialogButtons;
 
 
@@ -282,6 +313,40 @@ export class ProjectControl implements ProjectControlParams {
                 // (props) => shouldDisplayImplementButton(props)
             ));
         }
+
+		function getFinancingTypeImplementButton(financingOption: FinancingOption): ButtonGroupButton {
+			// todo 142 do some things depending on finance type
+			return {
+				text: 'Implement Project',
+				variant: 'contained',
+				color: 'success',
+				onClick: function (state, nextState) {
+					let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
+					if (self.isRenewable) {
+						isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+							if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+								return true
+							}
+							return false;
+						});
+						if (isProjectImplemented) {
+							return state.currentPage;
+						}
+						return toggleRenewableProject.apply(this, [state, nextState]);
+					} else {
+						return toggleProjectImplemented.apply(this, [state, nextState]);
+					}
+				},
+				// disabled when the project is implemented
+				disabled: (state) => {
+					if (self.isRenewable) {
+						return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+					} else {
+						return state.implementedProjectsIds.includes(self.pageId);
+					}
+				}
+			}
+		}
 
         function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
             let availableProjectIds = [...state.availableProjectIds];
@@ -385,6 +450,7 @@ export class ProjectControl implements ProjectControlParams {
                 if (!hasAbsoluteCarbonSavings) {
                     newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
                 }
+
                 nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
 				if (nextState.selectedProjectsForComparison.length === 0) {
 					nextState.isCompareDialogOpen = false;
@@ -779,6 +845,7 @@ declare interface ProjectControlParams {
 	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
 	*/
 	isRenewable?: boolean;
+	financingOptions?: FinancingOption[]
 	/**
 	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
 	*/
