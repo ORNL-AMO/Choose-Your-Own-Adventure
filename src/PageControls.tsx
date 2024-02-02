@@ -177,6 +177,8 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
             choices: [
                 Projects[Pages.electricBoiler].getProjectChoiceControl(),  
                 Projects[Pages.hydrogenFuel].getProjectChoiceControl(), 
+                Projects[Pages.hydrogenPoweredForklifts].getProjectChoiceControl(),
+                Projects[Pages.h2InjectionIntoHRSG].getProjectChoiceControl(),
             ]
         }
     ],

@@ -132,36 +132,41 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		startIcon: <BoltIcon />,
 	},
 });
-// Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
-//  pageId: Pages.hydrogenPoweredForklifts,
-//  cost: 100_000,
-//  statsInfoAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  statsActualAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  title: 'Fuel Switching – Hydrogen Powered Forklifts',
-//  shortTitle: 'Switch to hydrogen powered forklifts',
-//  choiceInfoText: [
-//      'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-//      'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-//  ],
-//  choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-//  choiceInfoImgAlt: 'Hydrogen powered forklift.',
-//  choiceInfoImgObjectFit: 'contain',
-//  recapDescription: 'Insert flavor text here!',
-//  caseStudy: {
-//      title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
-//      url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
-//      text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
-//  },
-//  energySavingsPreviewIcon: {
-//      text: '??%',
-//      variant: 'text',
-//      startIcon: <BoltIcon />,
-//  },
-// });
+Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
+	pageId: Pages.hydrogenPoweredForklifts,
+	cost: 100_000,
+	isEnergyEfficiency: true,
+	financingOpption: 'Green Bonds',
+	yearsToPayOff: 4,
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		electricityUseKWh: absolute(-1_000),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		electricityUseKWh: absolute(-1_000),
+	},
+	title: 'Fuel Switching – Hydrogen Powered Forklifts',
+	shortTitle: 'Switch to hydrogen powered forklifts',
+	choiceInfoText: [
+		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
+		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	energySavingsPreviewIcon: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
+});
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -208,6 +213,35 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 	shortTitle: 'Hydrogen Fuel Test Project',
 	choiceInfoText: [
 		'Hydrogen Fuel Test Project',
+	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
+Projects[Pages.h2InjectionIntoHRSG] = new ProjectControl({
+	pageId: Pages.h2InjectionIntoHRSG,
+	isCapitalFundsEligible: true,
+	isEnergyEfficiency: true,
+	financingOpption: 'Loan',
+	yearsToPayOff: 4,
+	cost: 500_000,
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	title: 'H2 injection into HRSG',
+	shortTitle: 'H2 injection into HRSG',
+	choiceInfoText: [
+		'Project Description: You need to replace two of your heat recovery steam generators for main steam system.', 
+		'While most of the work will be covered as a capital project, it has been suggested that the decarbonization budget could supply the cost difference between conventional HRSCs and those able to use hydrogen.',
+		'At first you will only supply 10% of the system energy via hydrogen.',
 	],
 	choiceInfoImg: 'images/electric-boiler.png',
 	choiceInfoImgAlt: 'electric boiler',
