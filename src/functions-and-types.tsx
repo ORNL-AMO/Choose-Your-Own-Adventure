@@ -13,12 +13,14 @@ import { theme } from './components/theme';
  * @param text Text to parse. If an array of strings is provided, then they will be joined by two newlines.
  * @returns Object for passing to "dangerouslySetInnerHTML" attribute (https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml)
  */
-export function parseSpecialText(text?: string|string[]): {__html: string} {
+export function parseSpecialText(text?: string|string[], shouldEmphasize: boolean = true): {__html: string} {
 	text = text || '';
+	let span = '<span>$1</span>';
+	if (shouldEmphasize) span = '<span class="emphasis">$1</span>';
 	if (text instanceof Array) text = text.join('\n\n'); // If text is an array, join it with two linebreaks into one string
 	let newText = text
 		.replace(/_{([^{}]*?)}/g, '<sub>$1</sub>')									// Subscript
-		.replace(/{([^{}]*?)}/g, '<span class="emphasis">$1</span>') 				// Emphasis
+		.replace(/{([^{}]*?)}/g, span) 				// Emphasis
 		.replace(/(\n)|(\\n)/g, '<br/>')											// Line break
         .replace(/\[(.*?)\]\((\S*?)\)/g, '<a href="$2" target="_blank">$1</a>');	// Links
     
