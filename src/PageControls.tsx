@@ -152,7 +152,7 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
     isProjectGroupChoice: true,
     groups: [
         {
-            title: 'Energy efficiency',
+            title: 'Energy Efficiency',
             choices: [
                 Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),
                 Projects[Pages.steamTrapsMaintenance].getProjectChoiceControl(),
@@ -165,15 +165,8 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
                 // Projects[Pages.condensingEconomizerInstallation].getProjectChoiceControl(),      
             ]
         }, 
-        //KEEP, temporarily hiding Fuel Switching Projects  
-        // {
-        //  title: 'Fuel switching',
-        //  choices: [
-        //      Projects[Pages.hydrogenPoweredForklifts].getProjectChoiceControl(),
-        //  ]
-        // }, 
         {
-            title: 'Invest in electrification',
+            title: 'Electrification & Fuel Switching',
             choices: [
                 Projects[Pages.electricBoiler].getProjectChoiceControl(),  
                 Projects[Pages.hydrogenFuel].getProjectChoiceControl(), 
@@ -189,7 +182,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
     isProjectGroupChoice: true,
     groups: [
         {
-            title: 'Energy efficiency',
+            title: 'Energy Efficiency',
             choices: [
                 Projects[Pages.advancedEnergyMonitoring].getProjectChoiceControl(),     
                 Projects[Pages.reduceFanSpeeds].getProjectChoiceControl(),          
