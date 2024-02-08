@@ -5,7 +5,7 @@ import Pages from "./Pages";
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import Co2Icon from '@mui/icons-material/Co2';
 import { ProjectControl, absolute } from "./ProjectControl";
-import { getCapitalFundsFinancing, getGreenBondsAnnualCost, getGreenBondsFinancing, getGreenBondsTotalCost, getLoanFinancing } from './Financing';
+import { getCapitalFundsFinancing, getGreenBondsFinancing, getLoanFinancing, getXaasFinancing } from './Financing';
 
 declare interface ProjectControls {
 	[key: symbol]: ProjectControl;
@@ -22,7 +22,14 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	pageId: Pages.wasteHeatRecovery,
 	isCapitalFundsEligible: true,
 	// project cost, in dollars
-	cost: 210_000,
+	baseCost: 210_000,
+	financedAnnualCost: 81_000,
+	financedTotalCost: 324_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(4),
+		},
+	],
 	// Stats that appear in the CARDS inside the INFO DIALOG. These should mirror ActualAppliers 
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-14_400),
@@ -35,11 +42,6 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	statsRecapAppliers: {
 		yearRebates: absolute(5_000),
 	},
-	financingOptions: [
-		{
-			financingType: getLoanFinancing(),
-		},
-	],
 	title: 'Waste Heat Recovery',
 	shortTitle: 'Install waste heat recovery to preheat boiler water',
 	// bracketed words show as bold emphasis in the app 
@@ -100,10 +102,14 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 //      startIcon: <FlameIcon />,
 //  }
 // });
+
+// todo green bonds
 Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
 	isCapitalFundsEligible: true,
-	cost: 80_000,
+	baseCost: 80_000,
+	financedAnnualCost: 31_000,
+	financedTotalCost: 124_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-300_000),
 		naturalGasMMBTU: absolute(-3000),
@@ -115,12 +121,8 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	title: 'Paint Booth Upgrades',
 	financingOptions: [
 		{
-			financingType: getGreenBondsFinancing(),
+			financingType: getGreenBondsFinancing(4),
 		},
-		// todo 142 temporary, capital funds will never be added from the start of a project
-		{
-			financingType: getCapitalFundsFinancing(),
-		}
 	],
 	shortTitle: 'Explore upgrades for the entire paint process system',
 	choiceInfoText: [
@@ -201,7 +203,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 Projects[Pages.hydrogenFuel] = new ProjectControl({
 	pageId: Pages.hydrogenFuel,
 	isCapitalFundsEligible: true,
-	cost: 5_000,
+	baseCost: 5_000,
 	statsInfoAppliers: {
 		hydrogenMMBTU: absolute(1_000),
 		naturalGasMMBTU: absolute(-1_000),
@@ -226,7 +228,7 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	isCapitalFundsEligible: true,
-	cost: 500_000,
+	baseCost: 500_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(200_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
@@ -250,8 +252,15 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
-	cost: 157_000,
-	hasImplementationYearAppliers: true,
+	baseCost: 150_000,
+	financedAnnualCost: 58_000,
+	financedTotalCost: 232_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
+	hasSingleYearStatAppliers: true,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
@@ -302,7 +311,7 @@ Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPortMaintenance,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	cost: 10_000,
+	baseCost: 10_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
 	},
@@ -328,7 +337,14 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	cost: 375_000,
+	baseCost: 3_750_000,
+	financedAnnualCost: 460_000,
+	financedTotalCost: 4_600_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-5_365_000),
 	},
@@ -374,7 +390,14 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	pageId: Pages.airHandingUnitUpgrades,
 	isCapitalFundsEligible: true,
-	cost: 175_000,
+	baseCost: 175_000,
+	financedAnnualCost: 67_000,
+	financedTotalCost: 268_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_165_000),
 		naturalGasMMBTU: absolute(-3600),
@@ -408,7 +431,14 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
 	isCapitalFundsEligible: true,
-	cost: 60_000,
+	baseCost: 60_000,
+	financedAnnualCost: 23_000,
+	financedTotalCost: 92_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		// electricityUseKWh: absolute(-0.03),
 		// naturalGasMMBTU: relative(-0.03),
@@ -470,10 +500,19 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 //      startIcon: <FlameIcon />,
 //  },
 // });
+
+// todo xaas
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
 	isCapitalFundsEligible: true,
-	cost: 100_000,
+	baseCost: 100_000,
+	financedAnnualCost: 38_000,
+	financedTotalCost: 152_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-9600),
 	},
@@ -504,7 +543,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
 	isCapitalFundsEligible: true,
-	cost: 15_000,
+	baseCost: 15_000,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-1800),
 	},
@@ -535,7 +574,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
 	isCapitalFundsEligible: true,
-	cost: 7_000,
+	baseCost: 7_000,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-900),
 	},
@@ -567,7 +606,14 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	pageId: Pages.compressedAirSystemImprovemnt,
 	isCapitalFundsEligible: true,
-	cost: 210_000,
+	baseCost: 210_000,
+	financedAnnualCost: 81_000,
+	financedTotalCost: 324_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-2_250_000),
 	},
@@ -632,7 +678,14 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	pageId: Pages.chilledWaterMonitoringSystem,
 	isCapitalFundsEligible: true,
-	cost: 40_000,
+	baseCost: 40_000,
+	financedAnnualCost: 15_000,
+	financedTotalCost: 60_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-900_000),
 	},
@@ -696,7 +749,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	pageId: Pages.loweringCompressorPressure,
 	isCapitalFundsEligible: true,
-	cost: 3_000,
+	baseCost: 3_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
@@ -728,7 +781,14 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
 	isCapitalFundsEligible: true,
-	cost: 50_000,
+	baseCost: 50_000,
+	financedAnnualCost: 19_000,
+	financedTotalCost: 76_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -763,7 +823,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
 	isCapitalFundsEligible: true,
-	cost: 5_000,
+	baseCost: 5_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-225_000),
 	},
@@ -794,7 +854,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
 	isCapitalFundsEligible: true,
-	cost: 30_000,
+	baseCost: 30_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -830,7 +890,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
 	isCapitalFundsEligible: true,
-	cost: 40_000,
+	baseCost: 40_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-600_000),
 	},
@@ -866,7 +926,14 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
 	isCapitalFundsEligible: true,
-	cost: 100_000,
+	baseCost: 100_000,
+	financedAnnualCost: 38_000,
+	financedTotalCost: 152_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_050_000),
 	},
@@ -902,7 +969,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
 	isCapitalFundsEligible: true,
-	cost: 1_000,
+	baseCost: 1_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-75_000),
 	},
@@ -932,7 +999,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
 	isCapitalFundsEligible: true,
-	cost: 3_000,
+	baseCost: 3_000,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
@@ -965,7 +1032,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
-	cost: 75_000,
+	baseCost: 75_000,
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_200_000)
 	},
@@ -991,7 +1058,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
-	cost: 150_000,
+	baseCost: 150_000,
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-2_400_000)
 	},
@@ -1017,7 +1084,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
-	cost: 225_000,
+	baseCost: 225_000,
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-3_600_000)
 	},
@@ -1044,7 +1111,14 @@ Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	cost: 100_000,
+	baseCost: 210_000,
+	financedAnnualCost: 26_000,
+	financedTotalCost: 260_000,
+	financingOptions: [
+		{
+			financingType: getXaasFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
@@ -1070,7 +1144,14 @@ Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	cost: 269_000,
+	baseCost: 537_000,
+	financedAnnualCost: 66_000,
+	financedTotalCost: 660_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},

@@ -16,15 +16,19 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { FinancingOption, getGreenBondsAnnualCost, getGreenBondsTotalCost, setFinancingCosts } from './Financing';
-
+import { FinancingId, FinancingOption, findFinancingOptionFromProject, getDefaultFinancingOption } from './Financing';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { resolveToValue } from './functions-and-types';
 
 export class ProjectControl implements ProjectControlParams {
 	pageId: symbol;
 	isRenewable?: boolean;
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
-	cost: number;
+	baseCost: number;
+	financedAnnualCost: number;
+	financedTotalCost: number;
 	statsInfoAppliers: TrackedStatsApplier;
 	statsActualAppliers: TrackedStatsApplier;
 	statsRecapAppliers?: TrackedStatsApplier;
@@ -45,7 +49,7 @@ export class ProjectControl implements ProjectControlParams {
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
 	projectDialogControl: ProjectDialogControlProps;
-	hasImplementationYearAppliers?: boolean;
+	hasSingleYearStatAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
 
 	/**
@@ -83,173 +87,140 @@ export class ProjectControl implements ProjectControlParams {
 		this.recapSurprises = params.recapSurprises;
 		this.visible = params.visible || true; // Default to true
 		this.disabled = params.disabled || false; // Default to false
-		this.cost = params.cost;
+		this.baseCost = params.baseCost;
+		this.financedAnnualCost = params.financedAnnualCost;
+		this.financedTotalCost = params.financedTotalCost;
 		this.yearSelected = params.yearSelected;
 		this.projectDialogControl = getEmptyProjectDialog();
-		this.hasImplementationYearAppliers = params.hasImplementationYearAppliers;
+		this.hasSingleYearStatAppliers = params.hasSingleYearStatAppliers;
 		this.relatedProjectSymbols = params.relatedProjectSymbols;
 	}
 
-    /**
-     * Gets a Choice control for the GroupedChoices pages in PageControls.tsx
-     */
-    getProjectChoiceControl(): Choice {
+	/**
+	 * Gets a Choice control for the GroupedChoices pages in PageControls.tsx
+	 */
+	getProjectChoiceControl(): Choice {
 
-        const self = this; // for use in bound button handlers
+		const self = this; // for use in bound button handlers
 
 		let hasFinancingOptions = self.financingOptions && self.financingOptions.length !== 0;
-        let projectDialogStatCards: DialogCardContent[] = [];
-        let financingOptionCards: DialogFinancingOptionCard[] = [
-			{
-				financingType: {
-					// todo 142 change name if no other options
-					name: hasFinancingOptions? 'Pay with Existing Budget' : 'Fully Fund Project',
-					id: 'budget',
-					description: hasFinancingOptions? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget',
-				},
-				totalCost: self.cost,
-				annualCost: undefined,
-				implementButton: {
-                    text: 'Implement Project',
-                    variant: 'contained',
-                    color: 'success',
-                    onClick: function (state, nextState) {
-                        let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
-                        if (self.isRenewable) {
-							isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-									return true
-								}
-								return false;
-							});
-                            if (isProjectImplemented) {
-                                return state.currentPage;
-                            }
-                            return toggleRenewableProject.apply(this, [state, nextState]);
-                        } else {
-                            return toggleProjectImplemented.apply(this, [state, nextState]);
-                        }
-                    },
-                    // disabled when the project is implemented
-                    disabled: (state) => {
-                        if (self.isRenewable) {
-                            return state.implementedRenewableProjects.some(project => project.page === self.pageId);
-                        } else {
-                            return state.implementedProjectsIds.includes(self.pageId);
-                        }
-                    }
-                }
-			}
-		];
+		let projectDialogStatCards: DialogCardContent[] = [];
+		let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost)
+		let defaultFinancingOptionCard: DialogFinancingOptionCard = {
+			...defaultFinancingOption,
+			implementButton: undefined
+		}
+		let implementButton = getFinancingTypeImplementButton(defaultFinancingOptionCard);
+		defaultFinancingOptionCard.implementButton = implementButton
+		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard];
 
 		if (hasFinancingOptions) {
 			self.financingOptions.forEach(option => {
-				let implementButton = getFinancingTypeImplementButton(option);		
+				let implementButton = getFinancingTypeImplementButton(option);
 				let financingOptionCard: DialogFinancingOptionCard = {
 					financingType: option.financingType,
-					totalCost: undefined,
-					annualCost: undefined,
+					financedTotalCost: self.financedTotalCost,
+					financedAnnualCost: self.financedAnnualCost,
 					implementButton: implementButton
 				}
-				setFinancingCosts(financingOptionCard, self.cost);
 				financingOptionCards.push(financingOptionCard);
 			});
 		}
 
-        let energySavingsPreviewIcons: ButtonGroupButton[] = [];
+		let energySavingsPreviewIcons: ButtonGroupButton[] = [];
 
 		let perYearAddOn: string = '';
-		if(this.isRenewable == true){
+		if (this.isRenewable == true) {
 			perYearAddOn = 'per year';
 		}
 
-        if (this.statsInfoAppliers.naturalGasMMBTU) {
-            projectDialogStatCards.push({
-                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+		if (this.statsInfoAppliers.naturalGasMMBTU) {
+			projectDialogStatCards.push({
+				text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
 				textColor: '#fff',
-                backgroundColor: 'rgb(20, 48, 109, 0.60)',
-            });
-        }
-        if (this.statsInfoAppliers.electricityUseKWh) {
-            projectDialogStatCards.push({
-                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
+				backgroundColor: 'rgb(20, 48, 109, 0.60)',
+			});
+		}
+		if (this.statsInfoAppliers.electricityUseKWh) {
+			projectDialogStatCards.push({
+				text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
 				textColor: '#fff',
-                backgroundColor: 'rgba(233, 188, 24, .60)',
-            });
-        }
+				backgroundColor: 'rgba(233, 188, 24, .60)',
+			});
+		}
 		if (this.statsInfoAppliers.hydrogenMMBTU) {
-            projectDialogStatCards.push({
-                text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+			projectDialogStatCards.push({
+				text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
 				textColor: '#fff',
 				backgroundColor: 'rgb(20, 48, 109, 0.60)',
-            });
-        }
-        if (this.statsInfoAppliers.absoluteCarbonSavings) {
-            projectDialogStatCards.push({
-                text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
+			});
+		}
+		if (this.statsInfoAppliers.absoluteCarbonSavings) {
+			projectDialogStatCards.push({
+				text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
 				textColor: '#fff',
 				backgroundColor: 'rgb(20, 48, 109, 0.60)',
 
-            });
-        }
+			});
+		}
 
-        let choiceCardButtons: ButtonGroupButton[] = [];
-        let comparisonDialogButtons: ButtonGroupButton[] = [];
+		let choiceCardButtons: ButtonGroupButton[] = [];
+		let comparisonDialogButtons: ButtonGroupButton[] = [];
 
-        this.projectDialogControl = {
+		this.projectDialogControl = {
 			discriminator: 'project',
-            title: self.title,
-            text: self.choiceInfoText,
-            img: self.choiceInfoImg,
-            imgAlt: self.choiceInfoImgAlt,
-            imgObjectFit: self.choiceInfoImgObjectFit,
-            energyStatCards: projectDialogStatCards,
-            financingOptionCards: financingOptionCards,
-            handleProjectInfoViewed: function (state, nextState) {
-                return setAllowImplementProject.apply(this, [state, nextState]);
-            },
-            buttons: [
-                closeDialogButton(),
-            ],
-        };
+			title: self.title,
+			text: self.choiceInfoText,
+			img: self.choiceInfoImg,
+			imgAlt: self.choiceInfoImgAlt,
+			imgObjectFit: self.choiceInfoImgObjectFit,
+			energyStatCards: projectDialogStatCards,
+			financingOptionCards: financingOptionCards,
+			handleProjectInfoViewed: function (state, nextState) {
+				return setAllowImplementProject.apply(this, [state, nextState]);
+			},
+			buttons: [
+				closeDialogButton(),
+			],
+		};
 
-        addCompareProjectButton(choiceCardButtons);
-        choiceCardButtons.push(infoButtonWithProjectDialog(this.projectDialogControl));
-        addImplementProjectButton(choiceCardButtons);
+		addCompareProjectButton(choiceCardButtons);
+		choiceCardButtons.push(infoButtonWithProjectDialog(this.projectDialogControl));
+		addImplementProjectCheckedButton(choiceCardButtons, hasFinancingOptions);
 
-        if (self.energySavingsPreviewIcon) {
-            energySavingsPreviewIcons.push(self.energySavingsPreviewIcon);
-        }
+		if (self.energySavingsPreviewIcon) {
+			energySavingsPreviewIcons.push(self.energySavingsPreviewIcon);
+		}
 
-        comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
-        this.projectDialogControl.comparisonDialogButtons = comparisonDialogButtons;
+		comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
+		this.projectDialogControl.comparisonDialogButtons = comparisonDialogButtons;
 
 
 		// todo 88 visible is set directly onto the project ref from the display button, should default to visible() if exists
-        let projectControlChoice: Choice = {
-            title: this.title,
-            text: this.shortTitle,
-            energySavingsPreviewIcons: energySavingsPreviewIcons,
-            buttons: choiceCardButtons,
-            visible: function (state) {
+		let projectControlChoice: Choice = {
+			title: this.title,
+			text: this.shortTitle,
+			energySavingsPreviewIcons: energySavingsPreviewIcons,
+			buttons: choiceCardButtons,
+			visible: function (state) {
 				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
 					// todo 88 bit of a bandaid until re-working visible()
 					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
 				} else if (state.implementedRenewableProjects.some(project => project.page === self.pageId)) {
-                    return true;
-                } else if (state.completedProjects.some(project => project.page === self.pageId)) {
-                    return false;
-                } else {
+					return true;
+				} else if (state.completedProjects.some(project => project.page === self.pageId)) {
+					return false;
+				} else {
 					// todo 88 this block should be before all others for projects with visible() defined,
 					// except visible is resolved and assigned to itself so it falls through and ignores defaults
 					// keep original else block here and adding if bandaids for dependant projects above
 					return this.resolveToValue(self.visible, true);
-				} 
-               
-            },
-            key: this.pageId.description,
-            disabled: this.disabled,
-        };
+				}
+
+			},
+			key: this.pageId.description,
+			disabled: this.disabled,
+		};
 
 
 		return projectControlChoice;
@@ -265,57 +236,86 @@ export class ProjectControl implements ProjectControlParams {
 			return isCarportCompleted || (maintenanceImplemented && !carportImplementedYear);
 		}
 
-        function addCompareProjectButton(buttons: ButtonGroupButton[]) {
-            const isSelectedForCompare = (props) => {
-                return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
-            };
+		function addCompareProjectButton(buttons: ButtonGroupButton[]) {
+			const isSelectedForCompare = (props) => {
+				return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			};
 
-            const isDisabled = (props) => {
-                return props.selectedProjectsForComparison.length >= 3 && !isSelectedForCompare(props);
-            };
+			const isDisabled = (props) => {
+				return props.selectedProjectsForComparison.length >= 3 && !isSelectedForCompare(props);
+			};
 
-            const getButtonText = (props) => {
-                let selected = isSelectedForCompare(props);
-                return selected ? 'Select another to compare' : 'Compare';
-            };
+			const getButtonText = (props) => {
+				let selected = isSelectedForCompare(props);
+				return selected ? 'Select another to compare' : 'Compare';
+			};
 
-            buttons.push(compareButton(
-                toggleSelectedProjectToCompare,
-                (props) => isSelectedForCompare(props),
-                (props) => isDisabled(props),
-                (props) => getButtonText(props)
-            ));
-        }
+			buttons.push(compareButton(
+				toggleSelectedProjectToCompare,
+				(props) => isSelectedForCompare(props),
+				(props) => isDisabled(props),
+				(props) => getButtonText(props)
+			));
+		}
 
-        function addImplementProjectButton(buttons: ButtonGroupButton[]) {
-            // const shouldDisplayImplementButton = (props) => {
-            // 	return props.availableProjectIds.includes(this.pageId);
-            // };
-            const shouldDisableImplementButton = (props) => {
-                return !props.availableProjectIds.includes(self.pageId);
-            };
-            const isProjectImplemented = (props) => {
-                if (self.isRenewable) {
-                    return props.implementedRenewableProjects.some((project: RenewableProject) => {
-                        if (project.page === self.pageId && project.gameYearsImplemented.includes(props.trackedStats.year)) {
-                            return true
-                        }
-                        return false;
-                    });
-                }
-                return props.implementedProjectsIds.includes(self.pageId);
-            };
-            
-            buttons.push(implementButtonCheckbox(
-                self.isRenewable? toggleRenewableProject : toggleProjectImplemented,
-                (props) => shouldDisableImplementButton(props),
-                (props) => isProjectImplemented(props),
-                // (props) => shouldDisplayImplementButton(props)
-            ));
-        }
+		// todo 143 combine
+		function addImplementProjectCheckedButton(buttons: ButtonGroupButton[], hasFinancingOptions: boolean) {
+			const isProjectImplemented = (props) => {
+				if (self.isRenewable) {
+					let isImplemented = props.implementedRenewableProjects.some((project: RenewableProject) => {
+						if (project.page === self.pageId && project.gameYearsImplemented.includes(props.trackedStats.currentGameYear)) {
+							return true
+						}
+						return false;
+					});
+					return isImplemented;
+				}
+				return props.implementedProjectsIds.includes(self.pageId);
+			};
 
+			const shouldDisable = (props) => {
+				return !props.availableProjectIds.includes(self.pageId) || (hasFinancingOptions && !isProjectImplemented(props))
+			};
+
+			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost)
+			let financedButton: ButtonGroupButton = {
+					text: 'Implement Project',
+					variant: 'contained',
+					color: 'success',
+					startIcon: function (...params) {
+						if (resolveToValue(isProjectImplemented, false, params, this)) {
+							return <CheckBoxIcon/>;
+						}
+						else {
+							return <CheckBoxOutlineBlankIcon/>;
+						}
+					},
+					onClick: function (state, nextState) {
+						let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
+						if (self.isRenewable) {
+							isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+									return true
+								}
+								return false;
+							});
+							if (isProjectImplemented) {
+								return state.currentPage;
+							}
+
+							return toggleRenewableProject.apply(this, [state, nextState, defaultFinancingOption]);
+						} else {
+							return toggleProjectImplemented.apply(this, [state, nextState, defaultFinancingOption]);
+						}
+					},
+					disabled: shouldDisable
+				}
+
+			buttons.push(financedButton);
+		}
+
+		// todo 143 combine
 		function getFinancingTypeImplementButton(financingOption: FinancingOption): ButtonGroupButton {
-			// todo 142 do some things depending on finance type
 			return {
 				text: 'Implement Project',
 				variant: 'contained',
@@ -332,9 +332,10 @@ export class ProjectControl implements ProjectControlParams {
 						if (isProjectImplemented) {
 							return state.currentPage;
 						}
-						return toggleRenewableProject.apply(this, [state, nextState]);
+
+						return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
 					} else {
-						return toggleProjectImplemented.apply(this, [state, nextState]);
+						return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
 					}
 				},
 				// disabled when the project is implemented
@@ -348,123 +349,150 @@ export class ProjectControl implements ProjectControlParams {
 			}
 		}
 
-        function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
-            let availableProjectIds = [...state.availableProjectIds];
-            const existingIndex: number = availableProjectIds.findIndex(projectPageId => projectPageId === self.pageId);
-            if (existingIndex === -1) {
-                availableProjectIds.push(self.pageId);
-                nextState.availableProjectIds = [...availableProjectIds];
-            }
-        }
+		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
+			let availableProjectIds = [...state.availableProjectIds];
+			const existingIndex: number = availableProjectIds.findIndex(projectPageId => projectPageId === self.pageId);
+			if (existingIndex === -1) {
+				availableProjectIds.push(self.pageId);
+				nextState.availableProjectIds = [...availableProjectIds];
+			}
+		}
 
-        function removeSelectedForCompare(state): Array<SelectedProject> {
-            let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-            const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
-            if (removeProjectIndex !== -1) {
-                selectedProjectsForComparison.splice(removeProjectIndex, 1);
-            }
-            return selectedProjectsForComparison;
-        }
+		function removeSelectedForCompare(state): Array<SelectedProject> {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
+			if (removeProjectIndex !== -1) {
+				selectedProjectsForComparison.splice(removeProjectIndex, 1);
+			}
+			return selectedProjectsForComparison;
+		}
 
-        function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
-            nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-            if (nextState.selectedProjectsForComparison.length === 0) {
-                nextState.isCompareDialogOpen = false;
-            }
-            return state.currentPage;
-        }
+		function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
+			nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+			if (nextState.selectedProjectsForComparison.length === 0) {
+				nextState.isCompareDialogOpen = false;
+			}
+			return state.currentPage;
+		}
 
-        function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
-            let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-            let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId);
-            if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
-                selectedProjectsForComparison.push({
-                    page: self.pageId,
-                    projectDialog: self.projectDialogControl
-                });
-            } else {
-                selectedProjectsForComparison = removeSelectedForCompare(state);
-            }
+		function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
+			let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
+			let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId);
+			if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
+				selectedProjectsForComparison.push({
+					page: self.pageId,
+					projectDialog: self.projectDialogControl
+				});
+			} else {
+				selectedProjectsForComparison = removeSelectedForCompare(state);
+			}
 
-            let isCompareDialogOpen = false;
-            // Auto open when 3 selected
-            if (selectedProjectsForComparison.length == 3) {
-                isCompareDialogOpen = isSelectingCompare ? true : false;
-                this.handleCompareDialogDisplay(isCompareDialogOpen);
-            } else if (selectedProjectsForComparison.length < 2) {
-                isCompareDialogOpen = false;
-            }
-
-
-            nextState.isCompareDialogOpen = isCompareDialogOpen;
-            nextState.selectedProjectsForComparison = selectedProjectsForComparison;
-            return state.currentPage;
-        }
-        /**
-         * Action to toggle whether the project is selected, after a select button is clicked.
-         */
-        function toggleProjectImplemented(this: App, state: AppState, nextState: NextAppState) {
-            let implementedProjectsIds = state.implementedProjectsIds.slice();
-            let newTrackedStats = { ...state.trackedStats };
-            // IF PROJECT IS ALREADY SELECTED
-            let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
-            if (implementedProjectsIds.includes(self.pageId)) {
-                // Since the order of projects matters, we can't simply unApplyChanges to ourself.
-                // 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
-                for (let i = implementedProjectsIds.length - 1; i >= 0; i--) {
-                    let pageId = implementedProjectsIds[i];
-                    Projects[pageId].unApplyStatChanges(newTrackedStats);
-                }
-
-                implementedProjectsIds.splice(implementedProjectsIds.indexOf(self.pageId), 1);
+			let isCompareDialogOpen = false;
+			// Auto open when 3 selected
+			if (selectedProjectsForComparison.length == 3) {
+				isCompareDialogOpen = isSelectingCompare ? true : false;
+				this.handleCompareDialogDisplay(isCompareDialogOpen);
+			} else if (selectedProjectsForComparison.length < 2) {
+				isCompareDialogOpen = false;
+			}
 
 
-				// * 88 check if associated maintenance project is implemented, remove then reset stats
+			nextState.isCompareDialogOpen = isCompareDialogOpen;
+			nextState.selectedProjectsForComparison = selectedProjectsForComparison;
+			return state.currentPage;
+		}
 
-				let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
-				if (self.relatedProjectSymbols) {
-					const dependantChildProjectIndex = implementedRenewableProjects.findIndex(project => self.relatedProjectSymbols && self.relatedProjectSymbols.includes(project.page));	
-					if (dependantChildProjectIndex >= 0) {
-						let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
-						removeRenewableProject(implementedRenewableProjects, dependantChildProjectIndex, newTrackedStats, yearRangeInitialStats, true);
+		/**
+		 * Action to toggle whether the project is selected, after a select button is clicked.
+		 */
+		function toggleProjectImplemented(this: App, state: AppState, nextState: NextAppState, financingOption?: FinancingOption) {
+			let implementedProjectsIds = state.implementedProjectsIds.slice();
+			let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
+			let newTrackedStats = { ...state.trackedStats };
+			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
 
-						nextState.implementedRenewableProjects = implementedRenewableProjects;
-						nextState.yearRangeInitialStats = yearRangeInitialStats;
-					}
-				}
-
-
-                for (let i = 0; i < implementedProjectsIds.length; i++) {
-                    let pageId = implementedProjectsIds[i];
-                    Projects[pageId].applyStatChanges(newTrackedStats);
-                }
-            }
-			// IF PROJECT IS NOT ALREADY SELECTED
-            else {
-                if (!checkCanImplementProject.apply(this, [state])) {
+			if (implementedProjectsIds.includes(self.pageId)) {
+				removeImplementedProject(implementedProjectsIds, implementedFinancedProjects, state, nextState, newTrackedStats);
+			} else {
+				if (!checkCanImplementProject.apply(this, [state, financingOption.financingType.id])) {
 					return state.currentPage;
 				}
+				implementedProjectsIds.push(self.pageId);
+				implementedFinancedProjects.push({
+					page: self.pageId,
+					gameYearsImplemented: [newTrackedStats.currentGameYear],
+					yearStarted: newTrackedStats.currentGameYear,
+					financingOption: financingOption
+				});
 
-                implementedProjectsIds.push(self.pageId);
-                self.applyStatChanges(newTrackedStats);
-                if (!hasAbsoluteCarbonSavings) {
-                    newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
-                }
+				self.applyStatChanges(newTrackedStats, financingOption);
 
-                nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+				if (!hasAbsoluteCarbonSavings) {
+					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
+				}
+
+				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
 				if (nextState.selectedProjectsForComparison.length === 0) {
 					nextState.isCompareDialogOpen = false;
 				}
-            }
+			}
 
-            newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
-            nextState.implementedProjectsIds = implementedProjectsIds;
-            nextState.trackedStats = newTrackedStats;
+			newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
+			nextState.implementedProjectsIds = implementedProjectsIds;
+			nextState.implementedFinancedProjects = implementedFinancedProjects;
+			nextState.trackedStats = newTrackedStats;
 
-            return state.currentPage; // no page change
-        }
+			return state.currentPage; // no page change
+		}
 
-		function checkCanImplementProject(this: App, state: AppState): boolean {
+		function removeImplementedProject(
+			implementedProjectsIds: symbol[], 
+			implementedFinancedProjects: ImplementedProject[], 
+			state: AppState, 
+			nextState: NextAppState, 
+			newTrackedStats: TrackedStats) 
+		{
+			undoAllProjectStats(implementedProjectsIds, implementedFinancedProjects, newTrackedStats)
+			
+			implementedProjectsIds.splice(implementedProjectsIds.indexOf(self.pageId), 1);
+			const deleteIndex = implementedFinancedProjects.findIndex(project => project.page === self.pageId);
+			implementedFinancedProjects.splice(deleteIndex, 1);
+			removeRelatedProjects(state, nextState, newTrackedStats)
+			for (let i = 0; i < implementedProjectsIds.length; i++) {
+				let pageId = implementedProjectsIds[i];
+				Projects[pageId].applyStatChanges(newTrackedStats, implementedFinancedProjects[i].financingOption);
+			}
+		}
+
+		/**
+		 * Since the order of projects matters, we can't simply unApplyChanges to ourself.
+		 * We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
+		 * IMPORTANT this is only needed due to relative project appliers
+		 */
+		function undoAllProjectStats(implementedProjectsIds: symbol[], implementedFinancedProjects: ImplementedProject[], newTrackedStats: TrackedStats) {
+			for (let i = implementedProjectsIds.length - 1; i >= 0; i--) {
+				let pageId = implementedProjectsIds[i];
+				const financingOption: FinancingOption = findFinancingOptionFromProject(implementedFinancedProjects, pageId);
+				Projects[pageId].unApplyStatChanges(newTrackedStats, financingOption);
+			}
+
+		}
+
+		/**
+		 * Remove related projects, i.e. renewable solar carport maintenance (available after solar carport implementation)
+		 */
+		function removeRelatedProjects(state: AppState, nextState: NextAppState, newTrackedStats: TrackedStats) {
+			let implementedRenewableProjects: RenewableProject[] = [...state.implementedRenewableProjects];
+				const dependantChildProjectIndex = implementedRenewableProjects.findIndex(project => self.relatedProjectSymbols && self.relatedProjectSymbols.includes(project.page));
+				if (dependantChildProjectIndex >= 0) {
+					let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
+					removeRenewableProject(implementedRenewableProjects, dependantChildProjectIndex, newTrackedStats, yearRangeInitialStats, true);
+					nextState.implementedRenewableProjects = implementedRenewableProjects;
+					nextState.yearRangeInitialStats = yearRangeInitialStats;
+				}
+		}
+
+		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
 			let canImplement = true;
 			let projectImplementationLimit = 4;
 			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
@@ -484,14 +512,10 @@ export class ProjectControl implements ProjectControlParams {
 				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
 				canImplement = false;
 			}
-			
-			console.log('cost', self.cost);
+
+			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
 			console.log('financesAvailable', state.trackedStats.financesAvailable);
-			let projectCost = self.cost;
-			// * renewable project self.costs are applied with gameYears multiplier elsewhere
-			if (self.isRenewable) {
-				projectCost *= state.trackedStats.gameYearInterval;
-			}
+			console.log('cost', projectCost);
 			if (projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
@@ -500,75 +524,82 @@ export class ProjectControl implements ProjectControlParams {
 			return canImplement;
 		}
 
+		function toggleRenewableProject(this: App, state: AppState, nextState: NextAppState, financingOption?: FinancingOption) {
+			let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+			let newTrackedStats: TrackedStats = { ...state.trackedStats };
+			let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
+			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
 
-        function toggleRenewableProject(this: App, state: AppState, nextState: NextAppState) {
-            let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
-            let newTrackedStats: TrackedStats = { ...state.trackedStats };
-            let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
-            let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
+			const existingRenewableProjectIndex = implementedRenewableProjects.findIndex(project => project.page === self.pageId);
+			let implementedInCurrentYear = false;
+			if (existingRenewableProjectIndex >= 0) {
+				implementedInCurrentYear = implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.includes(newTrackedStats.currentGameYear);
+			}
 
-            const existingRenewableProjectIndex = implementedRenewableProjects.findIndex(project => project.page === self.pageId);
-            let implementedInCurrentYear = false;
-            if (existingRenewableProjectIndex >= 0) {
-                implementedInCurrentYear = implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.includes(newTrackedStats.currentGameYear);
-            } 
-
-            if (implementedInCurrentYear) {
-                // * 22 removes stats AND costs from current year
+			if (implementedInCurrentYear) {
+				// * 22 removes stats AND costs from current year
 				removeRenewableProject(implementedRenewableProjects, existingRenewableProjectIndex, newTrackedStats, yearRangeInitialStats);
-            } else if (!implementedInCurrentYear) {
-				if (!checkCanImplementProject.apply(this, [state])) {
+			} else if (!implementedInCurrentYear) {
+				if (!checkCanImplementProject.apply(this, [state, financingOption.financingType.id])) {
 					return state.currentPage;
 				}
 
-                if (existingRenewableProjectIndex >= 0) {
-                    implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.push(newTrackedStats.currentGameYear);
-                    self.applyStatChanges(newTrackedStats);
-                    // * 22 if we've de-selected renewable implementation AND re-selected to implement in the same year, yearRangeInitial stats are out of sync with trackedStats
-                    yearRangeInitialStats = [...state.yearRangeInitialStats];
-                    const updatedCurrentStatsIndex = yearRangeInitialStats.findIndex(stats => stats.currentGameYear === newTrackedStats.currentGameYear);
-                    yearRangeInitialStats.splice(updatedCurrentStatsIndex, 1, newTrackedStats);
-                } else {
-                    implementedRenewableProjects.push({
-                        page: self.pageId,
-                        gameYearsImplemented: [newTrackedStats.currentGameYear],
-                        yearStarted: newTrackedStats.currentGameYear,
-                    });
-                    self.applyStatChanges(newTrackedStats);
-                }
+				if (existingRenewableProjectIndex >= 0) {
+					reImplementRenewable(implementedRenewableProjects, existingRenewableProjectIndex, yearRangeInitialStats, newTrackedStats)
+				} else {
+					implementedRenewableProjects.push({
+						page: self.pageId,
+						gameYearsImplemented: [newTrackedStats.currentGameYear],
+						yearStarted: newTrackedStats.currentGameYear,
+						financingOption: financingOption
+					});
+					self.applyStatChanges(newTrackedStats, financingOption);
+				}
 
-                if (!hasAbsoluteCarbonSavings) {
-                    newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
-                }
-                nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+				if (!hasAbsoluteCarbonSavings) {
+					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
+				}
+				nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
+			}
 
-            }
-
-            newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
-            nextState.implementedRenewableProjects = implementedRenewableProjects;
-            nextState.trackedStats = newTrackedStats;
-            nextState.yearRangeInitialStats = yearRangeInitialStats;
-            return state.currentPage;
-        }
+			newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
+			nextState.implementedRenewableProjects = implementedRenewableProjects;
+			nextState.trackedStats = newTrackedStats;
+			nextState.yearRangeInitialStats = yearRangeInitialStats;
+			return state.currentPage;
+		}
 
 		/**
-         * Remove implementation year are whole project
-         */
+		 * Called if we've de-selected renewable implementation AND re-selected to implement in the same year, 
+		 * yearRangeInitial stats must be reconciled with trackedStats
+		 */
+		function reImplementRenewable(implementedRenewableProjects: RenewableProject[], existingRenewableProjectIndex: number, yearRangeInitialStats: TrackedStats[], newTrackedStats: TrackedStats) {
+			implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.push(newTrackedStats.currentGameYear);
+			self.applyStatChanges(newTrackedStats, implementedRenewableProjects[existingRenewableProjectIndex].financingOption);
+			// * 22 if we've de-selected renewable implementation AND re-selected to implement in the same year, yearRangeInitial stats are out of sync with trackedStats
+			const updatedCurrentStatsIndex = yearRangeInitialStats.findIndex(stats => stats.currentGameYear === newTrackedStats.currentGameYear);
+			yearRangeInitialStats.splice(updatedCurrentStatsIndex, 1, newTrackedStats);
+		}
+
+
+		/**
+		 * Remove implementation year or whole project
+		 */
 		function removeRenewableProject(implementedRenewableProjects: RenewableProject[], removeProjectIndex: number, newTrackedStats: TrackedStats, yearRangeInitialStats: TrackedStats[], isFullRemoval = false) {
 			for (let i = implementedRenewableProjects.length - 1; i >= 0; i--) {
 				const project = implementedRenewableProjects[i];
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
-					Projects[project.page].unApplyStatChanges(newTrackedStats);
+					Projects[project.page].unApplyStatChanges(newTrackedStats, project.financingOption);
 				}
 			}
-			
+
 			const removeProject = implementedRenewableProjects[removeProjectIndex];
 			if (removeProject) {
 				if (isFullRemoval || removeProject.yearStarted === newTrackedStats.currentGameYear) {
 					implementedRenewableProjects.splice(removeProjectIndex, 1);
 				} else {
-						const implementedYear = removeProject.gameYearsImplemented.findIndex(year => year === newTrackedStats.currentGameYear);
-						removeProject.gameYearsImplemented.splice(implementedYear, 1);
+					const implementedYear = removeProject.gameYearsImplemented.findIndex(year => year === newTrackedStats.currentGameYear);
+					removeProject.gameYearsImplemented.splice(implementedYear, 1);
 				}
 
 			}
@@ -576,132 +607,152 @@ export class ProjectControl implements ProjectControlParams {
 			for (let i = 0; i < implementedRenewableProjects.length; i++) {
 				const project = implementedRenewableProjects[i];
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
-					Projects[project.page].applyStatChanges(newTrackedStats);
+					Projects[project.page].applyStatChanges(newTrackedStats, project.financingOption);
 				}
 			}
 
 			// * 22 update current stat year (necessary because we apply renewable at year recap of previous year) 
-            const currentYearEndIndex = yearRangeInitialStats.findIndex(stats => stats.currentGameYear === newTrackedStats.currentGameYear);
+			const currentYearEndIndex = yearRangeInitialStats.findIndex(stats => stats.currentGameYear === newTrackedStats.currentGameYear);
 			if (currentYearEndIndex !== 0) {
 				yearRangeInitialStats.splice(currentYearEndIndex, 1, newTrackedStats);
 			}
 		}
-    }
-	
-    /**
-     * Applies this project's stat changes by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    applyStatChanges(mutableStats: TrackedStats) {
-        for (let key in this.statsActualAppliers) {
-            let thisApplier = this.statsActualAppliers[key];
-            if (!thisApplier) return;
+	}
+
+	/**
+	 * Applies this project's stat changes by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	applyStatChanges(mutableStats: TrackedStats, financingOption: FinancingOption) {
+		// todo 143 which appiers should heed the financing option if any?
+		for (let key in this.statsActualAppliers) {
+			let thisApplier = this.statsActualAppliers[key];
+			if (!thisApplier) return;
 			let yearMultiplier = 1;
 			if (thisApplier.isAbsolute) {
 				yearMultiplier = mutableStats.gameYearInterval;
 			}
-            mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
-        }
-        // Now, apply the change to finances
-        this.applyCost(mutableStats);
-    }
+			mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
+		}
+		// Now, apply the change to finances
+		this.applyCost(mutableStats, financingOption);
+	}
 
-    /**
-     * Applies this project's cost & rebates by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    applyCost(mutableStats: TrackedStats) {
-        let rebates = this.getRebates();
-		let cost = this.cost;
+	/**
+	 * Un-applies this project's stat changes by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	unApplyStatChanges(mutableStats: TrackedStats, financingOption: FinancingOption, shouldUnapplyCosts: boolean = true) {
+		for (let key in this.statsActualAppliers) {
+			let thisApplier = this.statsActualAppliers[key];
+			if (!thisApplier) return;
+
+			let yearMultiplier = 1;
+			if (thisApplier.isAbsolute) {
+				yearMultiplier = mutableStats.gameYearInterval;
+			}
+			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
+		}
+		if (shouldUnapplyCosts) {
+			this.unApplyCost(mutableStats, financingOption);
+		}
+	}
+
+	/**
+ * Applies this project's cost & rebates by mutating the provided TrackedStats object.
+ * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+ */
+	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
+		// todo 143 which appiers should heed the financing option
+		let rebates = this.getRebates();
+		let cost = this.getImplementationCost(financingOption.financingType.id, mutableStats.gameYearInterval)
 		if (this.isRenewable) {
-			cost = cost * mutableStats.gameYearInterval;
 			// * giving renewbles rebates every year
 			rebates = rebates * mutableStats.gameYearInterval;
 		}
-        mutableStats.financesAvailable -= cost - rebates;
-        mutableStats.implementationSpending += cost;
-        mutableStats.yearBudget += rebates;
-    }
 
-    /**
-     * Un-applies this project's stat changes by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    unApplyStatChanges(mutableStats: TrackedStats, shouldUnapplyCosts: boolean = true) {
-        for (let key in this.statsActualAppliers) {
-            let thisApplier = this.statsActualAppliers[key];
-            if (!thisApplier) return;
+		mutableStats.financesAvailable -= cost - rebates;
+		mutableStats.implementationSpending += cost;
+		mutableStats.yearBudget += rebates;
+	}
 
-			let yearMultiplier = 1;
-			if (thisApplier.isAbsolute) {
-				yearMultiplier = mutableStats.gameYearInterval;
-			}
-            mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
-        }
-		if (shouldUnapplyCosts) {
-			this.unApplyCost(mutableStats);
-		}
-    }
 
-    /**
-     * Un-applies this project's cost & rebates by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    unApplyCost(mutableStats: TrackedStats) {
-        let rebates = this.getRebates();
-		let cost = this.cost;
+	/**
+	 * Un-applies this project's cost & rebates by mutating the provided TrackedStats object.
+	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+	 */
+	unApplyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
+		let rebates = this.getRebates();
+		let cost = this.getImplementationCost(financingOption.financingType.id, mutableStats.gameYearInterval)
 		if (this.isRenewable) {
-			cost = cost * mutableStats.gameYearInterval;
 			// todo 22 should get every year?
 			rebates = rebates * mutableStats.gameYearInterval;
 		}
-        mutableStats.financesAvailable += cost - rebates;
-        mutableStats.implementationSpending -= cost;
-        mutableStats.yearBudget -= rebates;
-    }
+		mutableStats.financesAvailable += cost - rebates;
+		mutableStats.implementationSpending -= cost;
+		mutableStats.yearBudget -= rebates;
+	}
 
-    /**
-     * Returns the total amount of rebates of this project.
-     */
-    getRebates(): number {
-        return (this.statsActualAppliers.yearRebates) ? this.statsActualAppliers.yearRebates.modifier : 0;
-    }
+	/**
+	 * Get project implementation cost by financing method and game year interval
+	 */
+	getImplementationCost(financingId: FinancingId, gameYearInterval: number) {
+		let projectCost = this.baseCost;
+		let isAnnuallyFinanced = financingId !== 'budget';
+		// todo 143 redo annually financed
+		if (financingId && financingId === 'capital-funding') {
+			projectCost = 0;
+		} else if (financingId && isAnnuallyFinanced) {
+			projectCost = this.financedAnnualCost;
+		}
+		if (this.isRenewable || isAnnuallyFinanced) {
+			projectCost *= gameYearInterval;
+		}
 
-    /**
-     * Returns the total amount of in-year and end-of-year rebates of this project.
-     */
-    getYearEndRebates(): number {
-        let total = 0;
-        if (this.statsActualAppliers.yearRebates) {
-            total += this.statsActualAppliers.yearRebates.modifier;
-        }
-        if (this.statsRecapAppliers?.yearRebates) {
-            total += this.statsRecapAppliers.yearRebates.modifier;
-        }
-        return total;
-    }
+		return projectCost;
+	}
 
-    /**
-     * Returns the extra hidden costs of the projects (via the `hiddenSpending` stat key)
-     */
-    getHiddenCost(): number {
-        return (this.statsRecapAppliers && this.statsRecapAppliers.hiddenSpending) ? this.statsRecapAppliers.hiddenSpending.modifier : 0;
-    }
-	
-    /**
-     * Returns the net cost of this project, including rebates (and in future, surprise hitches)
-     */
-    getYearEndTotalSpending(gameYears?: number): number {
-		let cost = this.cost;
+	/**
+	 * Returns the total amount of rebates of this project.
+	 */
+	getRebates(): number {
+		return (this.statsActualAppliers.yearRebates) ? this.statsActualAppliers.yearRebates.modifier : 0;
+	}
+
+	/**
+	 * Returns the total amount of in-year and end-of-year rebates of this project.
+	 */
+	getYearEndRebates(): number {
+		let total = 0;
+		if (this.statsActualAppliers.yearRebates) {
+			total += this.statsActualAppliers.yearRebates.modifier;
+		}
+		if (this.statsRecapAppliers?.yearRebates) {
+			total += this.statsRecapAppliers.yearRebates.modifier;
+		}
+		return total;
+	}
+
+	/**
+	 * Returns the extra hidden costs of the projects (via the `hiddenSpending` stat key)
+	 */
+	getHiddenCost(): number {
+		return (this.statsRecapAppliers && this.statsRecapAppliers.hiddenSpending) ? this.statsRecapAppliers.hiddenSpending.modifier : 0;
+	}
+
+	/**
+	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
+	 */
+	getYearEndTotalSpending(financingOption: FinancingOption, gameYearInterval: number): number {
+		let cost = this.getImplementationCost(financingOption.financingType.id, gameYearInterval);
 		let rebates = this.getYearEndRebates();
 		let hiddenCosts = this.getHiddenCost();
-		if (gameYears !== undefined) {
-			cost = gameYears * cost;
-			rebates = gameYears * rebates;
-			hiddenCosts = hiddenCosts * gameYears;
-		}
-        return cost - rebates + hiddenCosts;
-    }
+		cost = gameYearInterval * cost;
+		rebates = gameYearInterval * rebates;
+		hiddenCosts = hiddenCosts * gameYearInterval;
+
+		return cost - rebates + hiddenCosts;
+	}
 }
 
 
@@ -784,8 +835,8 @@ export interface RecapSurprise {
 /**
  * Used for tracking completed project related state throughout the view/pages
  */
-export interface CompletedProject extends Project {
-	selectedYear: number,
+export interface CompletedProject extends ImplementedProject {
+	completedYear: number,
 }
 
 export interface SelectedProject extends Project {
@@ -793,16 +844,25 @@ export interface SelectedProject extends Project {
 }
 
 /**
- * gameYearsImplemented - which game years was the project implemented
+ * Project that must be renewed each year 
+ * @param gameYearsImplemented - which game years was the project implemented
  */
-export interface RenewableProject extends Project {
-	
-	gameYearsImplemented: number[],
-    yearStarted: number;
+export interface RenewableProject extends ImplementedProject {
 	yearlyFinancialSavings?: {
 		naturalGas: number,
-		electricity: number	
+		electricity: number
 	}
+}
+
+/**
+ * Parameters to pass into a ProjectControl. See code definition in `projects.tsx` for all fields and params.
+ * @param gameYearsImplemented track years in implementation status for renewables and loan terms
+ */
+export interface ImplementedProject extends Project {
+	gameYearsImplemented: number[],
+	yearStarted?: number;
+	financingOption?: FinancingOption;
+
 }
 
 export interface Project {
@@ -820,7 +880,15 @@ declare interface ProjectControlParams {
 	/**
 	 * Project cost, exclusing rebates.
 	 */
-	cost: number;
+	baseCost: number;
+	/**
+	 * Financed project annual cost
+	 */
+	financedAnnualCost?: number;
+	/**
+	 * Financed project total cost, adjusted with interest
+	 */
+	financedTotalCost?: number;
 	/**
 	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
 	*/
@@ -912,7 +980,10 @@ declare interface ProjectControlParams {
 	/**
 	 * tracks the year the project is selected 
 	 */
-	hasImplementationYearAppliers?: boolean;
+	hasSingleYearStatAppliers?: boolean;
+	/**
+	 * Projects that have some relationship to this one. i.e. a yearly maintenance project for solar
+	 */
 	relatedProjectSymbols?: symbol[];
 }
 

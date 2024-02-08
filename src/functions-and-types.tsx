@@ -3,6 +3,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import React from 'react';
 import type { App, AppState, NextAppState } from './App';
 import { theme } from './components/theme';
+import { FinancingOption } from './Financing';
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
@@ -237,7 +238,7 @@ declare global {
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
-	type PageCallback = ((this: App, state: AppState, nextState: NextAppState) => symbol)|symbol;
+	type PageCallback = ((this: App, state: AppState, nextState: NextAppState, financingOption: FinancingOption) => symbol)|symbol;
 	
 	/**
 	 * Make state changes without Page navigation
