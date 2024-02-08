@@ -51,7 +51,7 @@ export class ProjectControl implements ProjectControlParams {
 	projectDialogControl: ProjectDialogControlProps;
 	hasSingleYearStatAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
-
+	isEnergyEfficiency: boolean;
 	/**
 	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
 	 * @param params 
@@ -94,6 +94,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.projectDialogControl = getEmptyProjectDialog();
 		this.hasSingleYearStatAppliers = params.hasSingleYearStatAppliers;
 		this.relatedProjectSymbols = params.relatedProjectSymbols;
+		this.isEnergyEfficiency = params.isEnergyEfficiency;
 	}
 
 	/**
@@ -767,9 +768,9 @@ export class ProjectControl implements ProjectControlParams {
 export const Scope1Projects = [
 	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
 	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler, Pages.hydrogenFuel
+	Pages.electricBoiler, Pages.hydrogenFuel, Pages.hydrogenPoweredForklifts, Pages.h2InjectionIntoHRSG
 	//Pages.digitalTwinAnalysis, 
-	//Pages.hydrogenPoweredForklifts, 
+	
 	//Pages.condensingEconomizerInstallation, 
 ]
 /**
@@ -894,6 +895,10 @@ declare interface ProjectControlParams {
 	*/
 	isRenewable?: boolean;
 	financingOptions?: FinancingOption[]
+	/**
+	 * Project that only gets energy $ savings for 1 year
+	*/
+	isEnergyEfficiency?: boolean;
 	/**
 	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
 	*/

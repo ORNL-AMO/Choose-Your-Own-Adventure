@@ -364,6 +364,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	handleDashboardOnProceed() {
+		this.setState({
+			lastScrollY: -1,
+		});
 		this.checkHasImplementedAllScopes();
 		this.setPage(Pages.yearRecap);
 	}

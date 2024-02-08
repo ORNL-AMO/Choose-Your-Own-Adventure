@@ -21,6 +21,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// Page symbol associated with the project. MUST BE THE SAME AS WHAT APPEARS IN Projects[...]
 	pageId: Pages.wasteHeatRecovery,
 	isCapitalFundsEligible: true,
+	isEnergyEfficiency: true,
 	// project cost, in dollars
 	baseCost: 210_000,
 	financedAnnualCost: 81_000,
@@ -110,6 +111,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	baseCost: 80_000,
 	financedAnnualCost: 31_000,
 	financedTotalCost: 124_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-300_000),
 		naturalGasMMBTU: absolute(-3000),
@@ -143,36 +145,39 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		startIcon: <BoltIcon />,
 	},
 });
-// Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
-//  pageId: Pages.hydrogenPoweredForklifts,
-//  cost: 100_000,
-//  statsInfoAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  statsActualAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  title: 'Fuel Switching – Hydrogen Powered Forklifts',
-//  shortTitle: 'Switch to hydrogen powered forklifts',
-//  choiceInfoText: [
-//      'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-//      'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-//  ],
-//  choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-//  choiceInfoImgAlt: 'Hydrogen powered forklift.',
-//  choiceInfoImgObjectFit: 'contain',
-//  recapDescription: 'Insert flavor text here!',
-//  caseStudy: {
-//      title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
-//      url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
-//      text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
-//  },
-//  energySavingsPreviewIcon: {
-//      text: '??%',
-//      variant: 'text',
-//      startIcon: <BoltIcon />,
-//  },
-// });
+Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
+	pageId: Pages.hydrogenPoweredForklifts,
+	baseCost: 100_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		electricityUseKWh: absolute(-1_000),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(1_000),
+		electricityUseKWh: absolute(-1_000),
+	},
+	title: 'Fuel Switching – Hydrogen Powered Forklifts',
+	shortTitle: 'Switch to hydrogen powered forklifts',
+	choiceInfoText: [
+		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
+		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
+		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
+		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+	},
+	energySavingsPreviewIcon: {
+		text: '??%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
+});
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -204,6 +209,7 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 	pageId: Pages.hydrogenFuel,
 	isCapitalFundsEligible: true,
 	baseCost: 5_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		hydrogenMMBTU: absolute(1_000),
 		naturalGasMMBTU: absolute(-1_000),
@@ -224,11 +230,39 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 	// add case study
 });
 
+Projects[Pages.h2InjectionIntoHRSG] = new ProjectControl({
+	pageId: Pages.h2InjectionIntoHRSG,
+	isCapitalFundsEligible: true,
+	isEnergyEfficiency: true,
+	baseCost: 500_000,
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	title: 'H2 injection into HRSG',
+	shortTitle: 'H2 injection into HRSG',
+	choiceInfoText: [
+		'Project Description: You need to replace two of your heat recovery steam generators for main steam system.', 
+		'While most of the work will be covered as a capital project, it has been suggested that the decarbonization budget could supply the cost difference between conventional HRSCs and those able to use hydrogen.',
+		'At first you will only supply 10% of the system energy via hydrogen.',
+	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
 
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	isCapitalFundsEligible: true,
 	baseCost: 500_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(200_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
@@ -261,6 +295,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		},
 	],
 	hasSingleYearStatAppliers: true,
+	isEnergyEfficiency: false,
 	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
@@ -305,7 +340,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	visible: state => {
 		const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
 		return !isCarportCompleted;
-	}
+	},
 });
 Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPortMaintenance,
@@ -398,6 +433,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_165_000),
 		naturalGasMMBTU: absolute(-3600),
@@ -439,6 +475,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		// electricityUseKWh: absolute(-0.03),
 		// naturalGasMMBTU: relative(-0.03),
@@ -513,6 +550,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-9600),
 	},
@@ -544,6 +582,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
 	isCapitalFundsEligible: true,
 	baseCost: 15_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-1800),
 	},
@@ -575,6 +614,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
 	isCapitalFundsEligible: true,
 	baseCost: 7_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-900),
 	},
@@ -614,6 +654,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-2_250_000),
 	},
@@ -686,6 +727,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-900_000),
 	},
@@ -750,6 +792,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	pageId: Pages.loweringCompressorPressure,
 	isCapitalFundsEligible: true,
 	baseCost: 3_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
@@ -789,6 +832,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 			financingType: getXaasFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -824,6 +868,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
 	isCapitalFundsEligible: true,
 	baseCost: 5_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-225_000),
 	},
@@ -855,6 +900,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
 	isCapitalFundsEligible: true,
 	baseCost: 30_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -891,6 +937,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
 	isCapitalFundsEligible: true,
 	baseCost: 40_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-600_000),
 	},
@@ -934,6 +981,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 			financingType: getGreenBondsFinancing(4),
 		},
 	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_050_000),
 	},
@@ -970,6 +1018,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
 	isCapitalFundsEligible: true,
 	baseCost: 1_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-75_000),
 	},
@@ -1000,6 +1049,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
 	isCapitalFundsEligible: true,
 	baseCost: 3_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
