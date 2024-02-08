@@ -145,6 +145,7 @@ export function getProjectEnergytStatCards(cards: Resolvable<DialogCardContent[]
 				borderWidth: 'medium',
 				fontWeight: 'bold',
 				border: 'none',
+				fontSize: '1rem',
 				color: cardContent.textColor,
 				backgroundColor: cardContent.backgroundColor,
 
@@ -214,24 +215,24 @@ function getFinancingOptionsGrid(financingOptionCards: DialogFinancingOptionCard
 
 								<Grid item xs={8}>
 									{cardContent.financingType.id !== 'capital-funding' ?
-										cardContent.annualCost !== undefined ?
+										cardContent.financedAnnualCost !== undefined ?
 											<>
 												<Typography variant={!props.inCompareDialog? 'body2' : 'caption'} gutterBottom>
 													<Emphasis money>
-														Total ${cardContent.totalCost.toLocaleString('en-US')}
+														Total ${cardContent.financedTotalCost.toLocaleString('en-US')}
 													</Emphasis>
 												</Typography>
 
 												<Typography variant='h6' gutterBottom>
 													<Emphasis money>
-														Annual ${cardContent.annualCost.toLocaleString('en-US')}
+														Annual ${cardContent.financedAnnualCost.toLocaleString('en-US')}
 													</Emphasis>
 												</Typography>
 											</>
 											:
 											<Typography variant='h6' gutterBottom>
 												<Emphasis money>
-													${cardContent.totalCost.toLocaleString('en-US')}
+													${cardContent.financedTotalCost.toLocaleString('en-US')}
 												</Emphasis>
 											</Typography>
 										:

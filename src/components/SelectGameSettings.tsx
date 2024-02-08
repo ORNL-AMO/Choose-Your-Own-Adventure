@@ -31,7 +31,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
     const [financingOptions, setFinancingOptions] = React.useState({
         xaas: true,
-        loan: false,
+        loan: true,
         greenBond: false,
       });
 

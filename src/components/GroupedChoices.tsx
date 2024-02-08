@@ -7,6 +7,7 @@ import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Stack } from '@mui/system';
 import type { SelectedProject } from '../ProjectControl';
+import { FinancingOption } from '../Financing';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -23,7 +24,6 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			.filter(choice => {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
-				// todo 25 eventually implement success border
 				// let implemented = resolveToValue(choice.implemented, false);
 				let disabled = resolveToValue(choice.disabled, false);
 				let paperStyle = { 
@@ -169,6 +169,7 @@ export interface Choice {
 	implemented?: Resolvable<boolean>;
 	// Quick/small stats to include in card headers or elsewhere 
 	energySavingsPreviewIcons?: ButtonGroupButton[]
+	financingOption?: FinancingOption;
 	/**
 	 * Buttons to appear at the bottom of the choice.
 	 */

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RenewableProject} from '../ProjectControl';
+import type { ImplementedProject, RenewableProject} from '../ProjectControl';
 import type { CompletedProject, SelectedProject} from '../ProjectControl';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
 import type { TrackedStats } from '../trackedStats';
@@ -16,6 +16,7 @@ import type { CapitalFundingState } from '../capitalFunding';
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	implementedProjectsIds: symbol[];
 	implementedRenewableProjects: RenewableProject[];
+	implementedFinancedProjects: ImplementedProject[];
 	availableProjectIds: symbol[];
 	selectedProjectsForComparison: SelectedProject[];
 	completedProjects: CompletedProject[];
@@ -78,6 +79,7 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 					defaultTrackedStats={this.props.defaultTrackedStats }
 					implementedProjectsIds={this.props.implementedProjectsIds}
 					implementedRenewableProjects={this.props.implementedRenewableProjects}
+					implementedFinancedProjects={this.props.implementedFinancedProjects}
 					completedProjects={this.props.completedProjects}
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
 					handleNewYearSetup={this.props.handleNewYearSetupOnProceed}
