@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
-import type { GameSettings, UserSettings } from '../ProjectControl';
 import Pages from '../Pages';
 
 export const SettingsCard = styled(Paper)(({ theme }) => ({
@@ -30,6 +29,11 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [financingStartYear, setFinancingStartYear] = React.useState(getFinancingStartYear());
     const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('yes');    
     const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
+    const [financingOptions, setFinancingOptions] = React.useState({
+        xaas: true,
+        loan: true,
+        greenBond: false,
+      });
 
     const handleIntervalChange = (event: SelectChangeEvent<number>) => {
         setGameYearInterval(event.target.value as number);
@@ -46,6 +50,15 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const handleEnergyCarryoverChange = (event: SelectChangeEvent<number>) => {
         setEnergyCarryoverOption(event.target.value as number);
     };
+    
+    const handleFinancingOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFinancingOptions({
+            ...financingOptions,
+            [event.target.name]: event.target.checked
+        });
+      };
+      const { xaas, loan, greenBond } = financingOptions;
+      const invalidFinancingOptionsError = [xaas, loan, greenBond].filter((v) => v).length !== 2;
 
     return (
         <>
@@ -96,6 +109,34 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         </Select>                        
                     </Box>
                     <Divider variant='middle'/>
+      
+
+                    <FormControl sx={{ m: 2 }} component='fieldset' error={invalidFinancingOptionsError} variant='standard'>
+                        <FormLabel component='legend'>Pick <b>two</b> financing options to be made available for project implementation.</FormLabel>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={xaas} onChange={handleFinancingOptionChange} name='xaas' />
+                                }
+                                label='Xaas'
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={loan} onChange={handleFinancingOptionChange} name='loan' />
+                                }
+                                label='Loan'
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={greenBond} onChange={handleFinancingOptionChange} name='greenBond' />
+                                }
+                                label='Green Bond'
+                            />
+                        </FormGroup>
+                        <FormHelperText>Select 2 options</FormHelperText>
+                    </FormControl>
+                    <Divider variant='middle' />
+
                     <Box m={2}>
                         <InputLabel id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
                         <Select
@@ -134,14 +175,19 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Button>
                     <Button
                         size='small'
-                        onClick={() => props.onProceed(
-                            {
-                                gameYearInterval,
-                                financingStartYear,
-                                energyCarryoverYears,
-                                allowBudgetCarryover
+                        disabled={invalidFinancingOptionsError}
+                        onClick={() => {
+                            if (!invalidFinancingOptionsError) {
+                                return  props.onProceed(
+                                    {
+                                        gameYearInterval,
+                                        financingStartYear,
+                                        energyCarryoverYears,
+                                        allowBudgetCarryover,
+                                        financingOptions
+                                    })
                             }
-                        )} >
+                        }} >
                         Start Playing
                     </Button>
                 </DialogActions>
@@ -174,4 +220,32 @@ export declare interface SelectGameSettingsControlProps {
 export interface SelectGameSettingsProps extends SelectGameSettingsControlProps, ControlCallbacks, GameSettings {
     onProceed: (userSettings: UserSettings) => void;
     doPageCallback: (callback?: PageCallback) => void;
+}
+
+/**
+ * Used for tracking Game Settings  
+ */
+export interface GameSettings extends UserSettings {
+	totalGameYears: number,
+	budget: number,
+	naturalGasUse: number,
+	electricityUse: number,
+	hydrogenUse: number,
+}
+
+export interface UserSettings {
+	gameYearInterval: number,
+	financingStartYear: number,
+	energyCarryoverYears: number,
+	allowBudgetCarryover: string,
+	financingOptions: GameFinancingOptions
+}
+
+/**
+ * Financing options enabled by user - pick two of three 
+ */
+export interface GameFinancingOptions {
+	xaas: boolean,
+	loan: boolean,
+	greenBond: boolean
 }

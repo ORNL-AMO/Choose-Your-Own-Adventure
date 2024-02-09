@@ -22,8 +22,8 @@ import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import type { GameSettings } from '../ProjectControl';
 import { Table } from '@mui/material';
+import { GameSettings } from './SelectGameSettings';
 
 export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
 	onBack?: () => void;
@@ -244,7 +244,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									<StyledTableCell align='center'>${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
 								</StyledTableRow>
 								<StyledTableRow
-									key={'totalCosts'}
+									key={'financedTotalCosts'}
 									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 								>
 									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Total Cost'}</StyledTableCell>

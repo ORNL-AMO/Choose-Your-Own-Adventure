@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
-import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, DialogProps } from '@mui/material';
+import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper, DialogProps, Box, Card, CardHeader, CardContent, Typography, CardActions, Button, List, ListItem, ListItemText, Grid } from '@mui/material';
 import { parseSpecialText, PureComponentIgnoreFuncs } from '../../functions-and-types';
 import { useTheme } from '@mui/material/styles';
 import { ButtonGroup, ButtonGroupButton } from '../Buttons';
 import { DialogCardContent, DialogControlProps, InfoCard } from './dialog-functions-and-types';
-import { ControlCallbacks } from '../controls';
-import { InfoDialogControlProps } from './InfoDialog';
+import { ControlCallbacks, Emphasis } from '../controls';
+import { FinancingOption } from '../../Financing';
+import { ProjectInfoCard } from './ProjectInfoCard';
 
 
-export class ProjectDialog extends PureComponentIgnoreFuncs <ProjectDialogProps> {
+export class ProjectDialog extends PureComponentIgnoreFuncs<ProjectDialogProps> {
 	render() {
 		return (
-			<ProjectDialogFunc {...this.props}/>
+			<ProjectDialogFunc {...this.props} />
 		);
 	}
 }
@@ -22,18 +23,16 @@ export class ProjectDialog extends PureComponentIgnoreFuncs <ProjectDialogProps>
  * but InfoDialog is using a class declaration so we can tell it when it should/should not re-render.
  */
 
-function ProjectDialogFunc (props: ProjectDialogProps) {
+function ProjectDialogFunc(props: ProjectDialogProps) {
 	const theme = useTheme();
-	let fullScreen = useMediaQuery(theme.breakpoints.down('sm'));	
-	let imgHeight = '260';
-	let objectFit = (props.imgObjectFit) ? props.imgObjectFit : 'cover';
+	let fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	function handleClose() {
 		// Run onClose handler ONLY if allowClose is set to true
 		if (props.allowClose === true) {
 			props.onClose();
 		}
 	}
-	
+
 	// todo 25 - this effect logic SHOULD be moved to onClick handler for the info dialog, 
 	useEffect(() => {
 		// timeout delay button display until dialog open - less page jump
@@ -48,78 +47,40 @@ function ProjectDialogFunc (props: ProjectDialogProps) {
 			clearTimeout(timeout);
 		};
 	});
-	
-	let energyStatCardContents: DialogCardContent[] = [];
-	if (props.cards) {
-		energyStatCardContents = props.resolveToValue(props.cards);
-	}
-	
+
+
+	let controlCallbacks = {
+		doPageCallback: props.doPageCallback,
+		doAppStateCallback: props.doAppStateCallback,
+		displayProjectDialog: props.displayProjectDialog,
+		resolveToValue: props.resolveToValue
+	};
+
 	return (
 		<Dialog
 			fullScreen={fullScreen}
+			fullWidth={true}
+			maxWidth={'lg'}
 			open={props.isOpen}
 			keepMounted
 			onClose={handleClose}
 			aria-describedby='alert-dialog-slide-description'
 			sx={{
-				backdropFilter: 'blur(10px)'
-			}}
-		>
-			{props.img && <>
-				<CardMedia
-					component='img'
-					height= {imgHeight}
-					image={props.img}
-					alt={props.imgAlt}
-					title={props.imgAlt}
-					sx={{
-						objectFit: objectFit,
-						position: 'relative',
-						zIndex: 2,
-					}}
-				/>
-				{/* Blurred background IF objectFit is 'contain' */}
-				{objectFit === 'contain' && 
-					// This div is a container that clips the edges of the blurred image
-					<div style={{
-						position: 'absolute',
-						height: 260,
-						width: '100%',
-						overflow: 'hidden',
-					}}>
-						<CardMedia
-							component='img'
-							height='260'
-							image={props.img}
-							alt={props.imgAlt}
-							title={props.imgAlt}
-							sx={{
-								objectFit: 'cover',
-								position: 'absolute',
-								zIndex: 1,
-								filter: 'blur(10px) grayscale(20%)',
-								margin: '-20px',
-								width: 'calc(100% + 40px)',
-								height: '300px'
-							}}
-						/>
-					</div>
-				}
-			</>}
+				backdropFilter: 'blur(10px)',
 
-			<DialogTitle className='semi-emphasis' dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.title))}></DialogTitle>
-			<DialogContent>
-				<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
-				</DialogContentText>
-				{energyStatCardContents.map((cardContent, idx) => 
-					<InfoCard 
-						key={idx}
-						variant='outlined' 
-						sx={{borderColor: cardContent.color, color: '#000000', borderWidth: 'medium', fontWeight: 'bold'}}
-						dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
-					/>
-				)}
-			</DialogContent>
+			}}
+			PaperProps={{
+				style: {
+				  overflowX: 'hidden'
+				},
+			}}
+			
+			>
+			<ProjectInfoCard
+				{...props}
+				{...controlCallbacks}
+				onClose={() => props.onClose}
+			></ProjectInfoCard>
 			<DialogActions>
 				<ButtonGroup
 					buttons={props.buttons}
@@ -134,7 +95,7 @@ function ProjectDialogFunc (props: ProjectDialogProps) {
 	);
 }
 
-export declare interface ProjectDialogProps extends ProjectDialogStateProps, ControlCallbacks { 
+export declare interface ProjectDialogProps extends ProjectDialogStateProps, ControlCallbacks {
 	onClose: () => void;
 }
 
@@ -142,27 +103,30 @@ export declare interface ProjectDialogProps extends ProjectDialogStateProps, Con
  * Represent dialog properties managed by App.tsx/state 
  */
 export declare interface ProjectDialogStateProps extends ProjectDialogControlProps {
-	isOpen: boolean
+	isOpen: boolean,
+	inCompareDialog?: boolean,
 }
 
+export declare interface DialogFinancingOptionCard extends FinancingOption {
+	implementButton: ButtonGroupButton
+}
 
 export declare interface ProjectDialogControlProps extends DialogControlProps {
 	discriminator?: string,
-	cards: Resolvable<DialogCardContent[]>;
+	energyStatCards: Resolvable<DialogCardContent[]>;
+	financingOptionCards: Resolvable<DialogFinancingOptionCard[]>;
 	comparisonDialogButtons?: ButtonGroupButton[];
-}
-
-export function isProjectDialogControlProps(object: any): object is ProjectDialogControlProps {
-    return object.discriminator === 'project';
 }
 
 export function fillProjectDialogProps(obj: AnyDict): ProjectDialogStateProps {
 	return {
 		discriminator: obj.discriminator,
+		comparisonDialogButtons: obj.comparisonDialogButtons || [],
 		isOpen: obj.isOpen || false,
 		title: obj.title || '',
 		text: obj.text || '',
-		cards: obj.cards || [],
+		energyStatCards: obj.energyStatCards || [],
+		financingOptionCards: obj.financingOptionCards || [],
 		img: obj.img || '',
 		imgAlt: obj.imgAlt || '',
 		allowClose: obj.allowClose || false,
@@ -176,10 +140,10 @@ export function getEmptyProjectDialog() {
 	return {
 		isOpen: false,
 		title: '',
-		cards: [],
+		energyStatCards: [],
+		financingOptionCards: [],
 		text: '',
 	}
 }
-
 
 

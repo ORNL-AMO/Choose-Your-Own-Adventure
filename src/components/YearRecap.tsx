@@ -28,7 +28,7 @@ import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats, YearCostSavings } from '../trackedStats';
 import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
-import type { CompletedProject, NumberApplier, GameSettings, RenewableProject, ProjectControl, RecapSurprise } from '../ProjectControl';
+import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise, ImplementedProject } from '../ProjectControl';
 import {
 	clampRatio,
 	parseSpecialText,
@@ -44,6 +44,8 @@ import YearRecapCharts from './YearRecapCharts';
 import { getCapitalFundingSurprise, type CapitalFundingState, setCapitalFundingMilestone } from '../capitalFunding';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
+import { GameSettings } from './SelectGameSettings';
+import { FinancingOption } from '../Financing';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -257,50 +259,49 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 	};
 
 	let implementedProjects: ProjectControl[] = [...props.implementedProjectsIds].map(project => Projects[project]);
+	let implementedFinancedProjects: ImplementedProject[] = [...props.implementedFinancedProjects];
 	addPreviousRenewablesForDisplay(props.implementedRenewableProjects, mutableStats, implementedProjects);
 	addRebateRecapCard(implementedProjects, recapResults.projectRecapCards);
 	addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards);
 	
-	// * creating new array - the original MUST be modified below as a workaround to project state/setup
-	// todo low-priority find a way to not modify props original
 	let implementedRenewableProjectsCopy: RenewableProject[] = props.implementedRenewableProjects.map(project => { return { ...project } });
-	// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats 
-	// * with current projects modifiers, not the cumulative stats for the year
 	let projectNetCost = 0;
 	let totalProjectExtraCosts = 0;
-	implementedProjects.forEach(implementedProject => {
-		// * projectIndividualizedStats === renewable project savings calculation need stats only mutated by that project (instead of mutatedStats which tracks all projects)
+	// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats with current projects modifiers, not the cumulative stats for the year
+	implementedProjects.forEach((implementedProject: ProjectControl, index) => {
+		// * projectIndividualizedStats === renewable project savings calculations need project stats which are ONLY 
+		// * mutated by the current renewable project (instead of mutatedStats which tracks all projects)
 		const projectIndividualizedStats: TrackedStats = { ...initialCurrentYearStats };
 		let gaugeCharts: JSX.Element[] = [];
 		const renewableProject = implementedRenewableProjectsCopy.find(project => project.page === implementedProject.pageId);
-		let hasImplementationYearSavings = false;
+		let hasAppliedFirstYearSavings = false;
+		let financingOption: FinancingOption;
 		if (renewableProject) {
-			hasImplementationYearSavings = renewableProject.yearStarted !== mutableStats.currentGameYear;
-		}
-
-		// * actualStatsAppliers
-		applyStatsFromImplementation(implementedProject, projectIndividualizedStats, mutableStats, gaugeCharts, hasImplementationYearSavings);
-		// * recapStatsAppliers
-		applyEndOfYearStats(implementedProject, mutableStats, hasImplementationYearSavings);
-		addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
-		implementedProject.applyCost(mutableStats);
-
-		if (implementedProject.isRenewable) {
-			projectNetCost = implementedProject.getYearEndTotalSpending(mutableStats.gameYearInterval);
-			const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
-
-			// * Need to assign/save individualized project savings to be applied in each renewable year recap - later years don't change savings state, only display values 
-			if (renewableProjectIndex >= 0) {
-				if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
-					// * WARNING changes state/props implementedRenewableProjects state directly
-					// todo 22 / 88 no other visible sane way to update this - should probably be done in componentDidMount / useEffect
-					props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
-					console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
-				}
-			}
+			hasAppliedFirstYearSavings = renewableProject.yearStarted !== mutableStats.currentGameYear;
+			let renewableProjectIndex: number = implementedRenewableProjectsCopy.findIndex(project => project.page === implementedProject.pageId);
+			financingOption = implementedRenewableProjectsCopy[renewableProjectIndex].financingOption;
 		} else {
-			projectNetCost = implementedProject.getYearEndTotalSpending();
+			let financedIndex: number = implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
+			financingOption = implementedFinancedProjects[financedIndex].financingOption;
 		}
+
+		applyStatsFromImplementation(implementedProject, projectIndividualizedStats, mutableStats, gaugeCharts, hasAppliedFirstYearSavings);
+		applyEndOfYearStats(implementedProject, mutableStats, hasAppliedFirstYearSavings);
+		addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
+		implementedProject.applyCost(mutableStats, financingOption);
+
+		if (renewableProject && !hasAppliedFirstYearSavings) {
+			projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
+			mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+		} else {
+			projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
+		}
+		// if (implementedProject.isRenewable) {
+		// 	projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
+		// 	mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+		// } else {
+		// 	projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
+		// }
 
 		recapResults.yearEndTotalSpending += projectNetCost;
 		totalProjectExtraCosts = implementedProject.getHiddenCost();
@@ -322,6 +323,7 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 	// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 	setCostPerCarbonSavings(mutableStats);
+	// todo 143 ignore for some financed projects
 	recapResults.yearCostSavings = getYearCostSavings(initialCurrentYearStats, mutableStats);
 	setRenewableProjectResults(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
 
@@ -337,6 +339,20 @@ function setCostPerCarbonSavings(mutableStats: TrackedStats) {
 		costPerCarbonSavings = mutableStats.yearEndTotalSpending / mutableStats.carbonSavingsPerKg;
 	}
 	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
+
+/**
+* WARNING - Directly mutates renewable project in first year. This is a workaround to get correct stats display and state given some of the other game mechanics and logic
+* we need to assign/save individualized project savings to be applied in each renewable year recap - later years don't change savings state, only display values
+*/
+function mutateRenewableFirstYearStats(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
+	const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
+		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+			// todo 143 ignore for some financed projects
+			props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
+			console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
+		}
 }
 
 /**
@@ -389,7 +405,7 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 	if (implementedProject.isRenewable) {
 		yearMultiplier = mutableStats.gameYearInterval;
 	}
-	const initialCost = implementedProject.cost * yearMultiplier;
+	const initialCost = implementedProject.baseCost * yearMultiplier;
 
 	recapResults.projectRecapCards.push(
 		<ListItem key={String(implementedProject.pageId)}>
@@ -580,13 +596,13 @@ function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapC
 }
 
 /**
-* Stats applied for: implementing a project, gauge charts, or other display purpose
+* actualStatAppliers - Stats applied for implementing a project, gauge charts, or other display purpose
 */
 function applyStatsFromImplementation(implementedProject: ProjectControl,
 	projectIndividualizedStats: TrackedStats,
 	mutableStats: TrackedStats,
 	gaugeCharts: JSX.Element[],
-	hasImplementationYearSavings: boolean) {
+	hasAppliedFirstYearSavings: boolean) {
 
 	for (let key in implementedProject.statsActualAppliers) {
 		let thisApplier: NumberApplier = implementedProject.statsActualAppliers[key];
@@ -595,12 +611,12 @@ function applyStatsFromImplementation(implementedProject: ProjectControl,
 			yearMultiplier = mutableStats.gameYearInterval;
 		}
 		let oldValue = mutableStats[key];
-		let newValue = hasImplementationYearSavings ? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
+		let newValue = hasAppliedFirstYearSavings ? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 		let difference = newValue - oldValue;
 		mutableStats[key] = newValue;
 
 		let oldProjectValue = projectIndividualizedStats[key];
-		let newProjectValue = hasImplementationYearSavings ? oldProjectValue : thisApplier.applyValue(oldProjectValue, yearMultiplier);
+		let newProjectValue = hasAppliedFirstYearSavings ? oldProjectValue : thisApplier.applyValue(oldProjectValue, yearMultiplier);
 		projectIndividualizedStats[key] = newProjectValue;
 
 		let thisGaugeProps = statsGaugeProperties[key];
@@ -633,11 +649,12 @@ function applyStatsFromImplementation(implementedProject: ProjectControl,
 }
 
 /**
-* Stats applied for at end of budget period, i.e. 1 year or 2 years if playing short game
+* recapStatAppliers - Stats applied for at end of budget period, i.e. 1 year or 2 years if playing short game
+* @param hasAppliedFirstYearSavings: skip applying savings for this project - already applied in inplementation year
 */
 function applyEndOfYearStats(implementedProject: ProjectControl,
 	mutableStats: TrackedStats,
-	hasImplementationYearSavings: boolean) {
+	hasAppliedFirstYearSavings: boolean) {
 
 	for (let key in implementedProject.statsRecapAppliers) {
 		let thisApplier: NumberApplier = implementedProject.statsRecapAppliers[key];
@@ -646,7 +663,7 @@ function applyEndOfYearStats(implementedProject: ProjectControl,
 		if (thisApplier.isAbsolute) {
 			yearMultiplier = mutableStats.gameYearInterval;
 		}
-		let newValue = hasImplementationYearSavings ? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
+		let newValue = hasAppliedFirstYearSavings ? oldValue : thisApplier.applyValue(oldValue, yearMultiplier);
 		mutableStats[key] = newValue;
 	}
 
@@ -813,6 +830,7 @@ export interface YearRecapProps
 	implementedProjectsIds: symbol[];
 	completedProjects: CompletedProject[];
 	implementedRenewableProjects: RenewableProject[];
+	implementedFinancedProjects: ImplementedProject[];
 	yearRangeInitialStats: TrackedStats[];
 	defaultTrackedStats: TrackedStats;
 	/**
