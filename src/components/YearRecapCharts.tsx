@@ -24,10 +24,11 @@ export type BarsProps = {
     currentYear: number;
     domainYaxis: number;
     events?: boolean;
+    backgroundFill: string;
     id: string;
 };
 
-export default function Example(props: BarsProps) {
+export default function YearRecapChart(props: BarsProps) {
     //'#1D428A' 96b1e9 d5e0f6
     let graphDataAndLables: BarData[] = [];
     let yearCount = 0;    
@@ -93,6 +94,8 @@ export default function Example(props: BarsProps) {
     yScale.range([yMax, 0]);
 
     return props.width < 10 ? null : (
+        <div style={{ marginTop: '1rem', marginBottom: '1rem', }}>
+
         <svg width={props.width} height={props.height}>
             <PatternLines
                 id='bar-hash'
@@ -102,7 +105,7 @@ export default function Example(props: BarsProps) {
                 strokeWidth={1}
                 orientation={['diagonal']}
             />
-            <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
+            <rect x={0} y={0} width={props.width} height={props.height} fill={props.backgroundFill} rx={14} />
             <Group top={verticalMargin / 2}>
                 {graphDataAndLables.map((d, index) => {
                     const data = d.dataLables;
@@ -175,6 +178,8 @@ export default function Example(props: BarsProps) {
                 }}
             />
         </svg>
+        </div>
+
     );
 }
 

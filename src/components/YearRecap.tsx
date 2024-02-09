@@ -43,6 +43,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import YearRecapCharts from './YearRecapCharts';
 import { getCapitalFundingSurprise, type CapitalFundingState, setCapitalFundingMilestone } from '../capitalFunding';
 import Projects from '../Projects';
+import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
 import { FinancingOption } from '../Financing';
 
@@ -173,12 +174,18 @@ export class YearRecap extends React.Component<YearRecapProps> {
 					
 					<List>{recapResults.projectRecapCards}</List>
 
-					<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'}/>
-					<YearRecapCharts barGraphData={barGraphData.totalSpending} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} />
-					<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'}/>
-					<YearRecapCharts barGraphData={barGraphData.naturalGas} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'}/>
-					<YearRecapCharts barGraphData={barGraphData.electricity} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'}/>
-					<YearRecapCharts barGraphData={barGraphData.hydrogen} width={1200} height={500} totalGameYears={this.props.totalGameYears} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'hydrogen'}/>
+					<ParentSize>
+						{(parent) => (
+							<>
+								<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
+								<YearRecapCharts barGraphData={barGraphData.totalSpending} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} backgroundFill={'#f5f5f5'} />
+								<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
+								<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
+								<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'}/>
+								<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'hydrogen'} backgroundFill={'#f5f5f5'}/>
+							</>
+						)}
+					</ParentSize>
 
 					{this.props.completedProjects.length > 0 && <>
 						<Divider />
