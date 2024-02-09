@@ -16,8 +16,8 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import { Scope1Projects, Scope2Projects } from './ProjectControl';
-import type { RenewableProject, UserSettings} from './ProjectControl';
-import type { CompletedProject, SelectedProject, GameSettings} from './ProjectControl';
+import type { ImplementedProject, RenewableProject} from './ProjectControl';
+import type { CompletedProject, SelectedProject} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { closeDialogButton } from './components/Buttons';
@@ -29,6 +29,8 @@ import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialo
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
+import { GameSettings, UserSettings } from './components/SelectGameSettings';
+import { isProjectFullyFunded } from './Financing';
 
 
 export type AppState = {
@@ -55,9 +57,13 @@ export type AppState = {
 	capitalFundingState: CapitalFundingState;
 	showDashboard: boolean;
 	/**
-	 * Projects that have been selected to implement
+	 * Projects that have been selected to implement in the current year
 	 */
 	implementedProjectsIds: symbol[];
+	/**
+	 * Projects that have been selected to implement
+	 */
+	implementedFinancedProjects: ImplementedProject[];
 	/**
 	 * Projects selected to implement whose cost is reapplied each year (savings applied once), and are automatically selected until unselected
 	 */
@@ -95,6 +101,7 @@ export interface NextAppState {
 	completedProjects?: CompletedProject[];
 	availableProjectIds?: symbol[];
 	implementedRenewableProjects?: RenewableProject[];
+	implementedFinancedProjects: ImplementedProject[];
 	selectedProjectsForComparison: SelectedProject[];
 	yearRangeInitialStats?: TrackedStats[];
 	snackbarOpen?: boolean;
@@ -141,6 +148,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			showDashboard: showDashboardAtStart,
 			implementedProjectsIds: [],
 			implementedRenewableProjects: [],
+			implementedFinancedProjects: [],
 			availableProjectIds: [],
 			selectedProjectsForComparison: [],
 			completedProjects: [],
@@ -154,7 +162,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
 				hydrogenUse: 2_000,
-				financingStartYear: 3
+				financingStartYear: 3,
+				energyCarryoverYears: 0,
+				allowBudgetCarryover: 'no',
+				financingOptions: {
+					xaas: false,
+					greenBond: false,
+					loan: false
+				}
 			},
 			defaultTrackedStats : { ...initialTrackedStats }
 		};
@@ -422,32 +437,33 @@ export class App extends React.PureComponent<unknown, AppState> {
 	 * Only updates current stats ('trackedStats'), not those in yearRangeInitialStats
 	 */
 	setPreviousAppState() {
-		let previousYear: number = this.state.trackedStats.currentGameYear > 1 ? this.state.trackedStats.currentGameYear - 1 : 0;
-		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
-		let RenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
-		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.selectedYear !== previousYear);
-		let previousimplementedProjectsIds: symbol[] = completedProjects.filter(project => project.selectedYear === previousYear).map(previousYearProject => previousYearProject.page);
-		let startedRenewableProjects: symbol[] = RenewableProjects.filter(project => project.yearStarted === previousYear).map(RenewableProject => RenewableProject.page);
-
-		yearRangeInitialStats.pop();
+		let renewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+		let previousYear: number = this.state.trackedStats.currentGameYear > 1 ? this.state.trackedStats.currentGameYear - 1 : 0;
 		previousYear--;
+		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.completedYear !== previousYear);
+		let previousimplementedProjectsIds: symbol[] = completedProjects.filter(project => project.completedYear === previousYear).map(previousYearProject => previousYearProject.page);
+		
+		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
+		yearRangeInitialStats.pop();
 		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYear].currentGameYear - 1];
 		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYear];
 		if (previousYearStats) {
 			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
 			let statsForResultDisplay = { ...previousYearStats };
-			let implementedProjectsIds = [...previousimplementedProjectsIds];
-			startedRenewableProjects = [...startedRenewableProjects];
-			implementedProjectsIds.forEach(projectSymbol => {
+
+			let implementedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
+			previousimplementedProjectsIds.forEach((projectSymbol, index) => {
 				let project = Projects[projectSymbol];
-				project.applyStatChanges(statsForResultDisplay);
+				project.applyStatChanges(statsForResultDisplay, implementedProjects[index].financingOption);
 			});
 
-			// Renewable projects need to be applied again if we're going back to the year they were started
-			startedRenewableProjects.forEach(projectSymbol => {
-				let project = Projects[projectSymbol];
-				project.applyStatChanges(statsForResultDisplay);
+			// started renewable projects
+			renewableProjects.forEach(project => {
+				if (project.yearStarted === previousYear) {
+					let Project = Projects[project.page];
+					Project.applyStatChanges(statsForResultDisplay, project.financingOption);
+				}
 			});
 			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats); 
 			updateStatsGaugeMaxValues(newTrackedStats);
@@ -468,8 +484,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 	setupNewYearOnProceed(currentYearStats: TrackedStats, capitalFundingState: CapitalFundingState) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
+		let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
+		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
 
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
@@ -486,27 +504,27 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
 		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
 		
-		// todo instead of unapply get default value? create new single time applier?
-		implementedProjectsIds.forEach(projectSymbol => {
-			if (Projects[projectSymbol].hasImplementationYearAppliers) {
-				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, false);
+		// todo 143 why? instead of unapply get default value? create new single time applier? are we unapplying after year recap so it still shows in yearrecap?
+		implementedProjectsIds.forEach((projectSymbol, index) => {
+			if (Projects[projectSymbol].hasSingleYearStatAppliers) {
+				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, implementedFinancedProjects[index].financingOption, false);
 			}
 		});
-		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
 
+		this.checkFinancedProjectsComplete(implementedFinancedProjects, newYearTrackedStats);
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
-		// * if project was renewed our current year, apply cost to next
-		implementedRenewableProjects.map(project => {
-			// todo potential bug -  Should rebates be ignored here? they will be applied at end of year also
-			Projects[project.page].applyCost(newYearTrackedStats);
-			project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
-			return project;
-		});
+		this.checkFinancedRenewablesComplete(implementedRenewableProjects, newYearTrackedStats);
 
-		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
-		implementedProjectsIds.forEach(implementedProjectsIdsymbol => {
-			if (!implementedRenewableProjects.some(project => project.page === implementedProjectsIdsymbol)) {
-				return newCompletedProjects.push({ selectedYear: currentYearStats.currentGameYear, page: implementedProjectsIdsymbol });
+		implementedProjectsIds.forEach((id, index) => {
+			// We are checking existing in array instead of project.isRenewable in case it has NOT been renewed. For tracking previous/forward year movement
+			if (!implementedRenewableProjects.some(project => project.page === id)) {
+				const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
+				newCompletedProjects.push({ 
+					completedYear: currentYearStats.currentGameYear, 
+					gameYearsImplemented: [currentYearStats.currentGameYear],
+					page: id,
+					financingOption: implementedFinancedProjects[financingIndex]? implementedFinancedProjects[financingIndex].financingOption : undefined
+				});
 			}
 		});
 		
@@ -519,6 +537,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			completedYears: completedYears,
 			implementedProjectsIds: [],
 			implementedRenewableProjects: implementedRenewableProjects,
+			implementedFinancedProjects: implementedFinancedProjects,
 			selectedProjectsForComparison: [],
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
@@ -533,6 +552,32 @@ export class App extends React.PureComponent<unknown, AppState> {
 			this.setPage(Pages.scope1Projects);
 		}
 
+	}
+
+	checkFinancedProjectsComplete(financedProjects: ImplementedProject[], newYearTrackedStats: TrackedStats) {
+		let completedFinancedIndicies = [];
+		financedProjects.forEach((project: ImplementedProject, index) => {
+			if (isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
+				completedFinancedIndicies.push(index);
+			} else {
+				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
+				project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
+			}
+		});
+
+		completedFinancedIndicies.forEach(completed => {
+			financedProjects.splice(completed, 1);
+		});
+	}
+
+	checkFinancedRenewablesComplete(financedRenewables: RenewableProject[], newYearTrackedStats: TrackedStats) {
+		financedRenewables.map(project => {
+			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
+				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
+			}
+			project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
+			return project;
+		});
 	}
 
 	handleGameSettingsOnProceed(userSettings: UserSettings){
@@ -556,25 +601,27 @@ export class App extends React.PureComponent<unknown, AppState> {
 		updatingInitialTrackedStats.electricityUseKWh = electricity;
 		updatingInitialTrackedStats.hydrogenMMBTU = hydrogen;
 		updatingInitialTrackedStats.gameYearInterval = userSettings.gameYearInterval;
-
 		updatingInitialTrackedStats.carbonEmissions = calculateEmissions(updatingInitialTrackedStats);
-		this.setState({
+
+		let gameStartState = {
 			trackedStats: updatingInitialTrackedStats,
 			yearRangeInitialStats: [
 				updatingInitialTrackedStats,
 			],
 			gameSettings: {
+				...userSettings,
 				totalGameYears: totalGameYears,
-				gameYearInterval: userSettings.gameYearInterval,
-				financingStartYear: userSettings.financingStartYear,
 				budget: budget,
 				naturalGasUse: naturalGas,
 				electricityUse: electricity,
 				hydrogenUse: hydrogen
 			},
 			defaultTrackedStats: updatingInitialTrackedStats
-		});
+		}
+		this.setState(gameStartState);
+		localStorage.setItem('gameSettings', JSON.stringify(gameStartState.gameSettings));
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
+
 		this.setPage(Pages.scope1Projects);
 	}
 	
@@ -647,6 +694,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									defaultTrackedStats ={this.state.defaultTrackedStats }
 									implementedProjectsIds={this.state.implementedProjectsIds} // note: if implementedProjectsIds is not passed into CurrentPage, then it will not update when the select buttons are clicked
 									implementedRenewableProjects={this.state.implementedRenewableProjects} // note: if implementedProjectsIds is not passed into CurrentPage, then it will not update when the select buttons are clicked
+									implementedFinancedProjects={this.state.implementedFinancedProjects} 
 									availableProjectIds={this.state.availableProjectIds}
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 									completedProjects={this.state.completedProjects}

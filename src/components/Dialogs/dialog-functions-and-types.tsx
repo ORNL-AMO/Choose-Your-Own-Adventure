@@ -20,7 +20,8 @@ export const InfoCard = styled(Paper)(({ theme }) => ({
 
 export declare interface DialogCardContent {
 	text: string;
-	color: string;
+	textColor: string;
+	backgroundColor: string;
 }
 
 export declare interface DialogStateProps extends DialogControlProps {
