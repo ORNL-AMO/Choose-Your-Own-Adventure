@@ -41,11 +41,10 @@ import GaugeChart from './GaugeChart';
 import { darkTheme } from './theme';
 import InfoIcon from '@mui/icons-material/Info';
 import YearRecapCharts from './YearRecapCharts';
-import { getCapitalFundingSurprise, type CapitalFundingState, setCapitalFundingMilestone } from '../capitalFunding';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
-import { FinancingOption } from '../Financing';
+import { CapitalFundingState, FinancingOption, getCapitalFundingSurprise, setCapitalFundingMilestone } from '../Financing';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -318,7 +317,6 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 			totalProjectExtraCosts);
 	});
 
-	// let mutableCapitalFundingState: CapitalFundingState = { ...props.capitalFundingState };
 	addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 	// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;

@@ -22,7 +22,6 @@ export interface CapitalFundingState {
 
 export interface FundingRound {
     isEarned: boolean;
-    isUsed: boolean;
     usedOnProjectId: symbol;
 }
 
@@ -32,6 +31,7 @@ export interface FinancingType {
 	loanTerm?: number,
     description: string,
     detailedInfo?: string,
+    isRoundA?: boolean,
 }
 
 
@@ -87,14 +87,48 @@ export function getXaasFinancing(years: number): FinancingType {
  * Capital funding financing - one free project
  * 
  */
-export function getCapitalFundsFinancing(): FinancingType {
+export function getCapitalFundingOption(): FinancingOption {
     return {
-        name: 'Capital Funding',
-        id: 'capital-funding',
-        description: 'Use capital funding reward',
-        detailedInfo: 'Capital funding reward earned from reaching 15% energy savings'
+        financingType: {
+            name: 'Capital Funding',
+            id: 'capital-funding',
+            description: 'Use capital funding reward',
+            detailedInfo: 'Capital funding reward earned from reaching 15% energy savings'
+        },
     }
 }
+
+export function setCapitalFundingRoundUsed(capitalFundingState: CapitalFundingState, financingOption: FinancingOption, projectId: symbol) {
+    if (capitalFundingState.roundA.isEarned && capitalFundingState.roundA.usedOnProjectId === undefined) {
+        capitalFundingState.roundA.usedOnProjectId = projectId;
+        financingOption.financingType.isRoundA = true;
+        console.log('used capital funding A', capitalFundingState.roundA.usedOnProjectId);
+    } else if (capitalFundingState.roundB.isEarned && capitalFundingState.roundB.usedOnProjectId === undefined) {
+        capitalFundingState.roundB.usedOnProjectId = projectId;
+        financingOption.financingType.isRoundA = false;
+        console.log('used capital funding B', capitalFundingState.roundB.usedOnProjectId);
+    }
+
+    return capitalFundingState;
+}
+
+export function removeCapitalFundingRoundUsed(capitalFundingState: CapitalFundingState, isRoundA: boolean) {
+    if (isRoundA) {
+        capitalFundingState.roundA.usedOnProjectId = undefined;
+        console.log('Remove capital funding A')
+    } else if (isRoundA === false) {
+        capitalFundingState.roundB.usedOnProjectId = undefined;
+        console.log('Remove capital funding B')
+    }
+    return capitalFundingState;
+}
+
+export function getCanUseCapitalFunding(capitalFundingState: CapitalFundingState) {
+    let canUseRoundA: boolean = capitalFundingState.roundA.isEarned && !capitalFundingState.roundA.usedOnProjectId;
+    let canUseRoundB: boolean = capitalFundingState.roundB.isEarned && !capitalFundingState.roundB.usedOnProjectId;
+    return canUseRoundA || canUseRoundB; 
+}
+
 
 export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost: number): FinancingOption {
     return {
@@ -115,11 +149,11 @@ export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
 	if (!capitalFundingState.roundA.isEarned) {
-		savingsMilestone = checkHasSavingsMilestone(stats, .15);
+		savingsMilestone = checkHasSavingsMilestone(stats, .02);
 		capitalFundingState.roundA.isEarned = savingsMilestone !== undefined;
 		console.log('earned round A')
 	} else if (!capitalFundingState.roundB.isEarned) {
-		savingsMilestone = checkHasSavingsMilestone(stats, .30);
+		savingsMilestone = checkHasSavingsMilestone(stats, .05);
 		capitalFundingState.roundB.isEarned = savingsMilestone !== undefined;
 		console.log('earned round B');
 	}
@@ -143,7 +177,7 @@ export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPerce
  */
 export function getCapitalFundingSurprise(milestoneSavingsPercent: string): RecapSurprise {
     return {
-		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}!`,
+		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}`,
 		subHeader: 'Capital Funding Reward Earned',
 		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project for {FREE}.',
 		className: 'year-recap-positive-surprise',
@@ -181,6 +215,22 @@ export function findFinancingOptionFromProject(implementedFinancedProjects: Impl
     const financingIndex = implementedFinancedProjects.findIndex(project => project.page === pageId);
 	 return implementedFinancedProjects[financingIndex]? implementedFinancedProjects[financingIndex].financingOption : undefined;
 }
+
+/**
+ * Capital Funding state - track user carbon/ghg savings and rewards related to capital funding
+ */
+export interface CapitalFundingState {
+    roundA: FundingRound;
+    roundB: FundingRound;
+}
+
+export interface FundingRound {
+    isEarned: boolean;
+    usedOnProjectId: symbol;
+}
+
+
+
 
 
 // todo 143 - don't currently need below. we're hardcoded values for each project, I've been told we may eventually calculate interest

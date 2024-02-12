@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { ButtonGroup, ButtonGroupButton } from '../Buttons';
 import { DialogCardContent, DialogControlProps, InfoCard } from './dialog-functions-and-types';
 import { ControlCallbacks, Emphasis } from '../controls';
-import { FinancingOption } from '../../Financing';
+import { CapitalFundingState, FinancingOption } from '../../Financing';
 import { ProjectInfoCard } from './ProjectInfoCard';
 
 
@@ -97,6 +97,7 @@ function ProjectDialogFunc(props: ProjectDialogProps) {
 
 export declare interface ProjectDialogProps extends ProjectDialogStateProps, ControlCallbacks {
 	onClose: () => void;
+	capitalFundingState: CapitalFundingState
 }
 
 /**

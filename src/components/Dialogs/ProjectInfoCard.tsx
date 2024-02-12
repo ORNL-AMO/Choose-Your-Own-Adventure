@@ -6,6 +6,7 @@ import { DialogCardContent, InfoCard } from './dialog-functions-and-types';
 import { Emphasis } from '../controls';
 import { DialogFinancingOptionCard, ProjectDialogProps } from './ProjectDialog';
 import { GameSettings } from '../SelectGameSettings';
+import { getCanUseCapitalFunding } from '../../Financing';
 
 
 export class ProjectInfoCard extends PureComponentIgnoreFuncs<ProjectDialogProps> {
@@ -158,12 +159,17 @@ export function getProjectEnergytStatCards(cards: Resolvable<DialogCardContent[]
 
 function getFinancingOptionsCards(props: ProjectDialogProps) {
 	const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
-	let financingOptionCards = [];
+	let financingOptionCards: DialogFinancingOptionCard[] = [];
 	if (props.financingOptionCards && gameSettings) {
 		if (gameSettings.financingOptions) {
 			financingOptionCards = props.resolveToValue(props.financingOptionCards);
 			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
-				return gameSettings.financingOptions[option.financingType.id] == true || option.financingType.id === 'budget' || option.financingType.id === 'capital-funding';
+				let showCapitalFundingCard: boolean = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
+				if (gameSettings.financingOptions[option.financingType.id] == true || option.financingType.id === 'budget' || showCapitalFundingCard) {
+					return true;
+				} else {
+					return false;
+				}
 			});
 		}
 	}

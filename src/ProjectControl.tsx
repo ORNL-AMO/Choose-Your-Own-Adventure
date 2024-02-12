@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { FinancingId, FinancingOption, findFinancingOptionFromProject, getDefaultFinancingOption } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
@@ -106,15 +106,22 @@ export class ProjectControl implements ProjectControlParams {
 
 		let hasFinancingOptions = self.financingOptions && self.financingOptions.length !== 0;
 		let projectDialogStatCards: DialogCardContent[] = [];
-		let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost)
+		let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost);
 		let defaultFinancingOptionCard: DialogFinancingOptionCard = {
 			...defaultFinancingOption,
 			implementButton: undefined
 		}
 		let implementButton = getFinancingTypeImplementButton(defaultFinancingOptionCard);
-		defaultFinancingOptionCard.implementButton = implementButton
-		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard];
+		defaultFinancingOptionCard.implementButton = implementButton;
+		let capitalFundingOption: FinancingOption = getCapitalFundingOption();
+		let capitalFundingCard: DialogFinancingOptionCard = {
+			...capitalFundingOption,
+			implementButton: undefined
+		}
+		let implementCapitalFunding = getFinancingTypeImplementButton(capitalFundingCard);
+		capitalFundingCard.implementButton = implementCapitalFunding;
 
+		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard, capitalFundingCard];
 		if (hasFinancingOptions) {
 			self.financingOptions.forEach(option => {
 				let implementButton = getFinancingTypeImplementButton(option);
@@ -411,23 +418,29 @@ export class ProjectControl implements ProjectControlParams {
 			let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
 			let newTrackedStats = { ...state.trackedStats };
 			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
-
+			let implementationFinancing: FinancingOption = {...financingOption};
+			
 			if (implementedProjectsIds.includes(self.pageId)) {
 				removeImplementedProject(implementedProjectsIds, implementedFinancedProjects, state, nextState, newTrackedStats);
 			} else {
-				if (!checkCanImplementProject.apply(this, [state, financingOption.financingType.id])) {
+				if (!checkCanImplementProject.apply(this, [state, implementationFinancing.financingType.id])) {
 					return state.currentPage;
+				}
+				
+				if (implementationFinancing.financingType.id === 'capital-funding') {
+					let capitalFundingState: CapitalFundingState = this.state.capitalFundingState;
+					setCapitalFundingRoundUsed(capitalFundingState, implementationFinancing, self.pageId);
+					nextState.capitalFundingState = capitalFundingState;
 				}
 				implementedProjectsIds.push(self.pageId);
 				implementedFinancedProjects.push({
 					page: self.pageId,
 					gameYearsImplemented: [newTrackedStats.currentGameYear],
 					yearStarted: newTrackedStats.currentGameYear,
-					financingOption: financingOption
+					financingOption: implementationFinancing
 				});
 
-				self.applyStatChanges(newTrackedStats, financingOption);
-
+				self.applyStatChanges(newTrackedStats, implementationFinancing);
 				if (!hasAbsoluteCarbonSavings) {
 					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
 				}
@@ -457,12 +470,18 @@ export class ProjectControl implements ProjectControlParams {
 			
 			implementedProjectsIds.splice(implementedProjectsIds.indexOf(self.pageId), 1);
 			const deleteIndex = implementedFinancedProjects.findIndex(project => project.page === self.pageId);
+			let implementedFinancingOption = implementedFinancedProjects[deleteIndex].financingOption;
 			implementedFinancedProjects.splice(deleteIndex, 1);
 			removeRelatedProjects(state, nextState, newTrackedStats)
 			for (let i = 0; i < implementedProjectsIds.length; i++) {
 				let pageId = implementedProjectsIds[i];
 				Projects[pageId].applyStatChanges(newTrackedStats, implementedFinancedProjects[i].financingOption);
 			}
+			
+			if (implementedFinancingOption.financingType.id === 'capital-funding') {
+				let capitalFundingState: CapitalFundingState = {...state.capitalFundingState};
+				nextState.capitalFundingState = removeCapitalFundingRoundUsed(capitalFundingState, implementedFinancingOption.financingType.isRoundA);
+			} 
 		}
 
 		/**
@@ -701,7 +720,7 @@ export class ProjectControl implements ProjectControlParams {
 		let projectCost = this.baseCost;
 		let isAnnuallyFinanced = financingId !== 'budget';
 		// todo 143 redo annually financed
-		if (financingId && financingId === 'capital-funding') {
+		if (financingId && financingId === 'capital-funding' && getCanUseCapitalFunding) {
 			projectCost = 0;
 		} else if (financingId && isAnnuallyFinanced) {
 			projectCost = this.financedAnnualCost;

@@ -24,13 +24,12 @@ import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
-import { CapitalFundingState } from './capitalFunding';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings } from './components/SelectGameSettings';
-import { isProjectFullyFunded } from './Financing';
+import { CapitalFundingState, isProjectFullyFunded } from './Financing';
 
 
 export type AppState = {
@@ -133,13 +132,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 			capitalFundingState: {
 				roundA: {
 					isEarned: false,
-					isUsed: false,
-					usedOnProjectId: Symbol('start'),
+					usedOnProjectId: undefined,
 				},
 				roundB: {
 					isEarned: false,
-					isUsed: false,
-					usedOnProjectId: Symbol('start'),
+					usedOnProjectId: undefined,
 				}
 			},
 			yearRangeInitialStats: [
@@ -716,12 +713,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 						<ProjectDialog
 							{...this.state.projectDialog}
 							{...controlCallbacks}
+							capitalFundingState={this.state.capitalFundingState}
 							onClose={() => this.handleDialogClose()}
-						/>
+							/>
 						<CompareDialog
 							{...this.state.infoDialog}
 							{...controlCallbacks}
 							isOpen={this.state.isCompareDialogOpen}
+							capitalFundingState={this.state.capitalFundingState}
 							selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 							onClearSelectedProjects={() => this.handleClearSelectedProjects()}
 							onClose={() => this.handleCompareDialogDisplay(false)}
