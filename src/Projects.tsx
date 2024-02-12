@@ -5,7 +5,7 @@ import Pages from "./Pages";
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import Co2Icon from '@mui/icons-material/Co2';
 import { ProjectControl, absolute } from "./ProjectControl";
-import { getCapitalFundsFinancing, getGreenBondsFinancing, getLoanFinancing, getXaasFinancing } from './Financing';
+import { getGreenBondsFinancing, getLoanFinancing, getXaasFinancing } from './Financing';
 
 declare interface ProjectControls {
 	[key: symbol]: ProjectControl;

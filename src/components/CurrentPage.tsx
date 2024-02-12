@@ -10,7 +10,7 @@ import { StartPage } from './StartPage';
 import type { StartPageProps } from './StartPage';
 import { YearRecap } from './YearRecap';
 import type { PageControlProps, ControlCallbacks } from './controls';
-import type { CapitalFundingState } from '../capitalFunding';
+import { CapitalFundingState } from '../Financing';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {

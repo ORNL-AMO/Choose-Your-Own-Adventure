@@ -12,6 +12,7 @@ import type { ControlCallbacks } from '../controls';
 import { DialogStateProps } from './dialog-functions-and-types';
 import { fillProjectDialogProps } from './ProjectDialog';
 import { ProjectInfoCard } from './ProjectInfoCard';
+import { CapitalFundingState } from '../../Financing';
 
 
 
@@ -141,6 +142,7 @@ function getProjectInfoCards(props: CompareDialogProps, theme) {
 			{...projectDialogStateProps}
 			{...controlCallbacks}
 			inCompareDialog={true}
+			capitalFundingState={props.capitalFundingState}
 			onClose={() => props.onClose}
 		></ProjectInfoCard>
 		</Card>
@@ -164,6 +166,7 @@ const Transition = React.forwardRef(function Transition(
 export declare interface CompareDialogProps extends DialogStateProps, ControlCallbacks {
 	selectedProjectsForComparison: SelectedProject[];
 	handleRemoveSelectedCompare?: PageCallback;
+	capitalFundingState: CapitalFundingState;
 	onClose: () => void;
 	onClearSelectedProjects: () => void;
 }
