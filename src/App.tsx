@@ -275,8 +275,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	 * Display an info dialog with the specified dialog props. Does not change the current page.
 	 */
 	displayDialog(props: InfoDialogControlProps) {
-		let infoDialog: InfoDialogStateProps = getEmptyInfoDialogState();
-		infoDialog = fillInfoDialogProps(props);
+		let infoDialog = fillInfoDialogProps(props);
 		infoDialog.isOpen = true;
 		
 		setTimeout(() => {

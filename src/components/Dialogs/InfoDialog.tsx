@@ -53,12 +53,6 @@ function InfoDialogFunc (props: InfoDialogProps) {
 		};
 	});
 
-	let cardContents: DialogCardContent[] = [{
-			text: props.resolveToValue(props.cardText),
-			textColor: 'fff',
-			backgroundColor: '#000000',
-		}];
-
 	return (
 		<Dialog
 			fullScreen={fullScreen}
@@ -127,14 +121,6 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					<DialogContentText id='alert-dialog-slide-description' gutterBottom dangerouslySetInnerHTML={parseSpecialText(props.resolveToValue(props.text))}>
 					</DialogContentText>
 				}
-				{cardContents.map((cardContent, idx) => {
-						return <InfoCard
-							key={idx}
-							variant='outlined'
-							sx={{ borderColor: cardContent.backgroundColor, color: '#000000', borderWidth: 'medium', fontWeight: 'bold' }}
-							dangerouslySetInnerHTML={parseSpecialText(cardContent.text)}
-						/>
-				})}
 			</DialogContent>
 
 			<DialogActions>
