@@ -40,7 +40,6 @@ export interface FinancingType {
  * @param item Item to resolve.
  */
 export function getGreenBondsFinancing(years: number): FinancingType {
-    years = 2;
     return {
         name: 'Green Bonds',
         id: 'greenBond',
@@ -56,7 +55,6 @@ export function getGreenBondsFinancing(years: number): FinancingType {
  * @param years years to pay back loan
  */
 export function getLoanFinancing(years: number): FinancingType {
-    years = 2;
     return {
         name: 'Loan',
         id: 'loan',
@@ -72,8 +70,6 @@ export function getLoanFinancing(years: number): FinancingType {
  * @param years years to pay back loan
  */
 export function getXaasFinancing(years: number): FinancingType {
-    // todo testing 
-    years = 2;
     return {
         name: 'Xaas',
         id: 'xaas',

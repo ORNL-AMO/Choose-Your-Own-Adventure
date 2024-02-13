@@ -496,7 +496,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
-		title: 'SAINT-GOBAIN CORPORATION: ADVANCED ENERGY MONITORING WITH WIRELESS SUBMETERING',
+		title: 'SAINT-GOBAIN CORPORATION',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-advanced-energy-monitoring-wireless-submetering',
 		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing GHG emissions and lowering energy intensity.'
 	},

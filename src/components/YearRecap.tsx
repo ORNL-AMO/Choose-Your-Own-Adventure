@@ -23,6 +23,8 @@ import {
 	ListItemText,
 	ListItemIcon,
 	Link,
+	CardActions,
+	Container,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -31,6 +33,7 @@ import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings 
 import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise, ImplementedProject } from '../ProjectControl';
 import {
 	clampRatio,
+	getIdString,
 	parseSpecialText,
 	rightArrow,
 	shortenNumber,
@@ -45,6 +48,8 @@ import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
 import { CapitalFundingState, FinancingOption, getCapitalFundingSurprise, setCapitalFundingMilestone } from '../Financing';
+import { findFinancingOptionFromProject } from '../Financing';
+import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
 export class YearRecap extends React.Component<YearRecapProps> {
 
@@ -55,7 +60,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		let mutableStats: TrackedStats = { ...initialCurrentYearStats };
 		let mutableCapitalFundingState: CapitalFundingState = { ...this.props.capitalFundingState };
 		let recapResults: YearRecapResults = buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats, mutableCapitalFundingState);
-		
+
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
@@ -71,9 +76,8 @@ export class YearRecap extends React.Component<YearRecapProps> {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 2,
 		}).format(mutableStats.costPerCarbonSavings) : '0';
-		
 		let barGraphData: BarGraphData = getBarGraphData(this.props, mutableStats);
-
+		let recapWidthSx = { width: '90%', margin: 'auto' };
 		return (
 			<>
 				<Divider />
@@ -132,7 +136,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								</ListItemIcon>
 								<ListItemText
 									primary={
-										<Typography sx={{ fontSize: '20px' }} >
+										<Typography variant={'h5'}>
 											This will be added to your budget for the next period, as well as the{' '}
 											<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
 											that was not yet spent.
@@ -145,9 +149,10 @@ export class YearRecap extends React.Component<YearRecapProps> {
 									<InfoIcon />
 								</ListItemIcon>
 								<ListItemText
-									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.</span>
+										<Typography variant={'h5'}>
+											You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.
+										</Typography>
 									}
 								/>
 							</ListItem>
@@ -156,35 +161,46 @@ export class YearRecap extends React.Component<YearRecapProps> {
 									<InfoIcon />
 								</ListItemIcon>
 								<ListItemText
-									primaryTypographyProps={{ fontSize: '20px' }}
 									primary={
-										<span>Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub>e</Emphasis>{' '}</span>
+										<Typography variant={'h5'}>
+											Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub>e</Emphasis>{' '}
+										</Typography>
 									}
 								/>
 							</ListItem>
 						</List>
 					</Box>
 
-					<Typography variant='body1' marginTop={2}>
-						These are the projects you have selected for this year. Make sure to
-						check out the case studies, where real companies have applied these
-						ideas!
-					</Typography>
-					
-					<List>{recapResults.projectRecapCards}</List>
+					<Box sx={recapWidthSx}>
+						<Typography variant='h4' fontWeight={'500'} marginTop={3}>
+							Current Projects
+						</Typography>
+						<Typography variant='body1' fontSize={18} sx={recapWidthSx} marginTop={.5}>
+							These include projects implemented or renewed in this year.
+							<br></br>
+							<Emphasis>
+								Check out the case studies, where real companies have applied these
+								ideas!
+							</Emphasis>
+						</Typography>
+					</Box>
+					<List sx={recapWidthSx}>{recapResults.projectRecapCards}</List>
 
-					<ParentSize>
-						{(parent) => (
-							<>
-								<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
-								<YearRecapCharts barGraphData={barGraphData.totalSpending} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} backgroundFill={'#f5f5f5'} />
-								<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
-								<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
-								<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'}/>
-								<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'hydrogen'} backgroundFill={'#f5f5f5'}/>
-							</>
-						)}
-					</ParentSize>
+
+					<Box sx={recapWidthSx}>
+						<ParentSize>
+							{(parent) => (
+								<>
+									<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
+									<YearRecapCharts barGraphData={barGraphData.totalSpending} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} backgroundFill={'#f5f5f5'} />
+									<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
+									<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
+									<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'} />
+									<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Hydrogen Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'hydrogen'} backgroundFill={'#f5f5f5'} />
+								</>
+							)}
+						</ParentSize>
+					</Box>
 
 					{this.props.completedProjects.length > 0 && <>
 						<Divider />
@@ -262,7 +278,7 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 	addPreviousRenewablesForDisplay(props.implementedRenewableProjects, mutableStats, implementedProjects);
 	addRebateRecapCard(implementedProjects, recapResults.projectRecapCards);
 	addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards);
-	
+
 	let implementedRenewableProjectsCopy: RenewableProject[] = props.implementedRenewableProjects.map(project => { return { ...project } });
 	let projectNetCost = 0;
 	let totalProjectExtraCosts = 0;
@@ -309,11 +325,12 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 		mutableStats.financesAvailable = recapResults.unspentBudget;
 
 		addImplementedProjectRecapCard(
-			implementedProject, 
-			mutableStats, 
-			recapResults, 
-			gaugeCharts, 
-			projectNetCost, 
+			implementedProject,
+			props,
+			mutableStats,
+			recapResults,
+			gaugeCharts,
+			projectNetCost,
 			totalProjectExtraCosts);
 	});
 
@@ -346,11 +363,11 @@ function setCostPerCarbonSavings(mutableStats: TrackedStats) {
 */
 function mutateRenewableFirstYearStats(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 	const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
-			// todo 143 ignore for some financed projects
-			props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
-			console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
-		}
+	if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		// todo 143 ignore for some financed projects
+		props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
+		console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
+	}
 }
 
 /**
@@ -378,9 +395,10 @@ function setRenewableProjectResults(implementedRenewableProjectsCopy: RenewableP
 /**
 * Add card for an implemented project
 */
-function addImplementedProjectRecapCard(implementedProject: ProjectControl, 
-	mutableStats: TrackedStats, 
-	recapResults: YearRecapResults, 
+function addImplementedProjectRecapCard(implementedProject: ProjectControl,
+	props: YearRecapProps,
+	mutableStats: TrackedStats,
+	recapResults: YearRecapResults,
 	gaugeCharts: JSX.Element[],
 	projectNetCost: number,
 	totalExtraCosts: number) {
@@ -388,12 +406,12 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 	let headerStyle = {
 		'& .MuiCardHeader-title': {
 			textAlign: 'left',
-			fontSize: '30px',
+			fontSize: '26px',
 			fontWeight: 'bold'
 		},
 		'& .MuiCardHeader-subheader': {
 			textAlign: 'left',
-			fontSize: '18px',
+			fontSize: '22px',
 			fontWeight: '400',
 			color: '#000000',
 		},
@@ -403,70 +421,196 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 	if (implementedProject.isRenewable) {
 		yearMultiplier = mutableStats.gameYearInterval;
 	}
-	const initialCost = implementedProject.baseCost * yearMultiplier;
+	// const initialCost = implementedProject.baseCost * yearMultiplier;
 
+	const implementedProjects = implementedProject.isRenewable? props.implementedRenewableProjects : props.implementedFinancedProjects
+	let implementationFinancing: FinancingOption = findFinancingOptionFromProject(implementedProjects, implementedProject.pageId);
+	let isFinanced = implementationFinancing.financingType.id !== 'budget';
+	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
+	initialCost *= yearMultiplier;
+
+	let financingCardContent: DialogFinancingOptionCard = {
+		...implementationFinancing,
+		financedTotalCost: implementedProject.financedTotalCost ? implementedProject.financedTotalCost : implementedProject.baseCost,
+		financedAnnualCost: implementedProject.financedAnnualCost,
+		implementButton: undefined
+	}
+	let listItemSx = { paddingLeft: '8px'}
 	recapResults.projectRecapCards.push(
 		<ListItem key={String(implementedProject.pageId)}>
 			<Card sx={{ width: '100%' }}>
-				<Grid
-					container
-					spacing={2}
-					justifyContent='center'
-					alignItems='center'
-				>
-					<Grid item xs={12} md={6}>
-						<CardHeader
-							title={implementedProject.title}
-							// subheader={implementedProject.shortTitle}
-							sx={headerStyle}
-						/>
-						<CardContent>
-							<Typography variant='body1' sx={{ textAlign: 'left', fontSize: '18px', fontWeight: '400', color: '#000000', }} dangerouslySetInnerHTML={parseSpecialText(implementedProject.shortTitle)} />
-							{implementedProject.caseStudy && (
-								<>
-									<Link href={implementedProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
-										<p style={{ color: '#1D428A', fontSize: '24px', fontWeight: '500' }}>
-											Case Study - {implementedProject.caseStudy.title}
-										</p>
-									</Link>
-								</>
-							)}
-						</CardContent>
+				<CardHeader
+					title={implementedProject.title}
+					subheader={
+						<Typography dangerouslySetInnerHTML={parseSpecialText(implementedProject.shortTitle)} />
+					}
+					sx={headerStyle}
+				/>
+				<CardContent sx={{ paddingTop: '0' }}>
+					{implementedProject.caseStudy && (
+						<Link href={implementedProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
+							<p style={{ margin: 0, color: '#1D428A', fontSize: '20px', fontWeight: '500' }}>
+								Case Study - {implementedProject.caseStudy.title}
+							</p>
+						</Link>
+					)}
+
+
+					<Grid
+						container
+						spacing={1}
+						justifyContent='center'
+						alignItems='center'>
+
+
+						{isFinanced &&
+							<Grid item
+								xs={12}
+								md={6}
+								lg={3}>
+
+								<List dense={true} sx={{ paddingLeft: 0 }}>
+									<ListItem sx={listItemSx}>
+										<ListItemText
+											sx={{ marginTop: 0, marginBottom: 0}}
+											primary={
+												<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
+													Financing
+												</Typography>
+											}
+											secondary={
+												<>
+												<Typography variant='h6'>
+													{financingCardContent.financingType.name}
+												</Typography>
+												<Typography>
+												{financingCardContent.financingType.detailedInfo}
+											</Typography>
+												</>
+											}
+										/>
+									</ListItem>
+									{financingCardContent.financedAnnualCost && implementationFinancing.financingType.id !== 'capital-funding' &&
+										<ListItem sx={listItemSx}>
+											<ListItemText
+											sx={{ marginTop: 0, marginBottom: 0}}
+												primary={
+													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
+														Annual {' '}
+														<Emphasis money>
+															${financingCardContent.financedAnnualCost.toLocaleString('en-US')}
+														</Emphasis>
+													</Typography>
+												}
+												secondary={
+													<Typography sx={{ fontSize: '1rem', fontWeight: '500' }}>
+														Total {' '} ${financingCardContent.financedTotalCost.toLocaleString('en-US')}
+													</Typography>
+												}
+											/>
+										</ListItem>
+									}
+									{implementationFinancing.financingType.id === 'capital-funding' &&
+										<ListItem sx={listItemSx}>
+											<ListItemText
+												primary={
+													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
+														<Emphasis money>
+															Free
+														</Emphasis>
+													</Typography>
+												}
+											/>
+										</ListItem>
+									}
+								</List>
+							</Grid>
+						}
+
+						<Grid item
+							xs={isFinanced ? 12 : 12}
+							md={isFinanced ? 6 : 3}
+							lg={isFinanced ? 3 : 3}>
+
+							<List dense={true} sx={{ paddingLeft: 0 }}>
+							{!isFinanced &&
+									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+										<ListItemText
+											primary={
+												<Typography>
+													Initial Project Cost:{' '}
+													<Emphasis money>
+														${initialCost.toLocaleString('en-US')}
+													</Emphasis>
+												</Typography>
+											}
+										/>
+									</ListItem>
+								}
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+									<ListItemText
+										primary={
+											<Typography >
+												Rebates: {' '}
+												<Emphasis money>
+													${implementedProject.getYearEndRebates().toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+
+									/>
+								</ListItem>
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+									<ListItemText
+										primary={
+											<Typography>
+												Extra Costs:{' '}
+												<Emphasis money>
+													${totalExtraCosts.toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+									/>
+								</ListItem>
+								<ListItem sx={listItemSx}>
+									<ListItemText
+										primary={
+											<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
+												Year Net Cost:{' '}
+												<Emphasis money>
+													${projectNetCost.toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+									/>
+								</ListItem>
+							</List>
+						</Grid>
+
+
+						<Grid item
+							xs={isFinanced ? 12 : 12}
+							md={isFinanced ? 12 : 9}
+							lg={isFinanced ? 6: 9}
+							className='year-recap-charts'>
+							<Grid 
+							container
+							spacing={1}
+							justifyContent='space-evenly'
+							alignItems='center'>
+								{gaugeCharts}
+							</Grid>	
+						</Grid>	
+										
 					</Grid>
-					<Grid item xs={12} md={6} className='year-recap-charts'>
-						{gaugeCharts}
-						<div style={{ width: '100%', textAlign: 'center' }}>
-							<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
-								<>
-									Initial project cost:{' '}
-									<Emphasis money>
-										${initialCost.toLocaleString('en-US')}
-									</Emphasis>
-									{' '}
-									&nbsp; Rebates:{' '}
-									<Emphasis money>
-										${implementedProject.getYearEndRebates().toLocaleString('en-US')}
-									</Emphasis>
-									{' '}
-									&nbsp; Extra costs:{' '}
-									<Emphasis money>
-										${totalExtraCosts.toLocaleString('en-US')}
-									</Emphasis>
-								</>
-							</Typography>
-							<Typography sx={{ color: 'black', fontSize: '20px', fontWeight: '500' }}>
-								Net cost:{' '}
-								<Emphasis money>
-									${projectNetCost.toLocaleString('en-US')}
-								</Emphasis>
-							</Typography>
-						</div>
-					</Grid>
-				</Grid>
+
+				</CardContent>
+
 			</Card>
 		</ListItem>
 	);
 }
+
 
 /**
 * Add already implemented/processed renewables to display alongside implemented projects
@@ -493,7 +637,7 @@ function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRec
 						getSurpriseEventCard(projectSurprise, project.title, project.shortTitle, index)
 					);
 				})
-				);
+			);
 		}
 	});
 }
@@ -503,7 +647,7 @@ function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRec
 * Add card for negative/positive surprises.
 */
 function getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader: string | undefined, index?: number): JSX.Element {
-	let keyId = index !== undefined? index : title;
+	let keyId = index !== undefined ? index : title;
 	return <ListItem key={`year-recap-surprise_${keyId}`}>
 		<ThemeProvider theme={darkTheme}>
 			<Card className={surprise.className} sx={{ width: '100%' }}>
@@ -529,7 +673,7 @@ function getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader:
 /**
 * Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
 */
-function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) { 
+function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
 	if (savingsMilestone) {
 		let percentFormattedMilestone = toPercent(savingsMilestone);
@@ -553,43 +697,43 @@ function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapC
 			return project;
 		}
 	});
-	
+
 	if (totallyUtilityRebateDollars) {
-	const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. 
+		const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. 
 	You will receive a $\{${totallyUtilityRebateDollars.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
-	projectRecapCards.push(
-		<ListItem key={`${utilityRebateText}_surprise_`}>
-			<ThemeProvider theme={darkTheme}>
-				<Card className='year-recap-positive-surprise' sx={{ width: '100%' }}>
-					<CardHeader
-						avatar={
-							<Avatar
-							sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
-							>
-								{rebateProjects[0].rebateAvatar.icon}
-							</Avatar>
-						}
-						title='Congratulations!'
-						subheader='Utility Rebates Earned'
-					/>
-					<CardContent>
-						<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
-						{rebateProjects.map((project, idx) => {
-							return <List dense={true} key={project.shortTitle + idx}>
-								<ListItem>
-									<ListItemText
-										primary={project.title}
-										secondary={project.shortTitle}
-									/>
-								</ListItem>
-							</List>
-						} // eslint-disable-line 
-						)}
-					</CardContent>
-				</Card>
-			</ThemeProvider>
-		</ListItem>
-	);
+		projectRecapCards.push(
+			<ListItem key={`${utilityRebateText}_surprise_`}>
+				<ThemeProvider theme={darkTheme}>
+					<Card className='year-recap-positive-surprise' sx={{ width: '100%' }}>
+						<CardHeader
+							avatar={
+								<Avatar
+									sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
+								>
+									{rebateProjects[0].rebateAvatar.icon}
+								</Avatar>
+							}
+							title='Congratulations!'
+							subheader='Utility Rebates Earned'
+						/>
+						<CardContent>
+							<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
+							{rebateProjects.map((project, idx) => {
+								return <List dense={true} key={project.shortTitle + idx}>
+									<ListItem>
+										<ListItemText
+											primary={project.title}
+											secondary={project.shortTitle}
+										/>
+									</ListItem>
+								</List>
+							} // eslint-disable-line 
+							)}
+						</CardContent>
+					</Card>
+				</ThemeProvider>
+			</ListItem>
+		);
 	}
 }
 
@@ -620,9 +764,10 @@ function applyStatsFromImplementation(implementedProject: ProjectControl,
 		let thisGaugeProps = statsGaugeProperties[key];
 		if (thisGaugeProps) {
 			gaugeCharts.push(
+				<Grid item sx={{padding: '1rem'}} key={getIdString()}>
 				<GaugeChart
 					key={key}
-					width={250}
+					width={260}
 					backgroundColor={'#88888820'}
 					value1={clampRatio(newValue, thisGaugeProps.maxValue)}
 					color1={'#bbbbbba0'}
@@ -640,6 +785,8 @@ function applyStatsFromImplementation(implementedProject: ProjectControl,
 						},
 					]}
 				/>
+				</Grid>
+
 			);
 		}
 	}
@@ -673,40 +820,42 @@ function applyEndOfYearStats(implementedProject: ProjectControl,
 function addCarbonSavingsGauge(mutableStats: TrackedStats,
 	gaugeCharts: JSX.Element[],
 	defaultTrackedStats: TrackedStats,
-	) {
+) {
 
-		let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
-		mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
-		let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+	let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+	mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
+	let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 
-		gaugeCharts.push(
-			<GaugeChart
-				key={'carbonSavings'}
-				width={250}
-				value1={prevYearCarbonSavingsPercent}
-				color1='#888888'
-				value2={newCarbonSavingsPercent}
-				color2='#000000'
-				text={
-					withSign(
-						(newCarbonSavingsPercent - prevYearCarbonSavingsPercent) * 100,
-						1
-					) + '%'
-				}
-				backgroundColor={'#88888820'}
-				label='GHG Reduction'
-				ticks={[
-					{
-						label: toPercent(newCarbonSavingsPercent),
-						value: newCarbonSavingsPercent,
-					},
-					{
-						label: '50%',
-						value: 0.5,
-					},
-				]}
-			/>
-		);
+	gaugeCharts.push(
+		<Grid item sx={{padding: '1rem'}}
+		key={'carbonSavings' + getIdString()}>
+		<GaugeChart
+			width={260}
+			value1={prevYearCarbonSavingsPercent}
+			color1='#888888'
+			value2={newCarbonSavingsPercent}
+			color2='#000000'
+			text={
+				withSign(
+					(newCarbonSavingsPercent - prevYearCarbonSavingsPercent) * 100,
+					1
+				) + '%'
+			}
+			backgroundColor={'#88888820'}
+			label='GHG Reduction'
+			ticks={[
+				{
+					label: toPercent(newCarbonSavingsPercent),
+					value: newCarbonSavingsPercent,
+				},
+				{
+					label: '50%',
+					value: 0.5,
+				},
+			]}
+		/>
+		</Grid>
+	);
 }
 
 function getBarGraphData(props: YearRecapProps, mutableStats: TrackedStats): BarGraphData {
