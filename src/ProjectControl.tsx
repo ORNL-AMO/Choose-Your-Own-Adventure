@@ -475,7 +475,8 @@ export class ProjectControl implements ProjectControlParams {
 			removeRelatedProjects(state, nextState, newTrackedStats)
 			for (let i = 0; i < implementedProjectsIds.length; i++) {
 				let pageId = implementedProjectsIds[i];
-				Projects[pageId].applyStatChanges(newTrackedStats, implementedFinancedProjects[i].financingOption);
+				let financingOption = findFinancingOptionFromProject(implementedFinancedProjects, pageId);
+				Projects[pageId].applyStatChanges(newTrackedStats, financingOption);
 			}
 			
 			if (implementedFinancingOption.financingType.id === 'capital-funding') {
@@ -690,7 +691,6 @@ export class ProjectControl implements ProjectControlParams {
 			// * giving renewbles rebates every year
 			rebates = rebates * mutableStats.gameYearInterval;
 		}
-
 		mutableStats.financesAvailable -= cost - rebates;
 		mutableStats.implementationSpending += cost;
 		mutableStats.yearBudget += rebates;
