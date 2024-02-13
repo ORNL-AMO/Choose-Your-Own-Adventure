@@ -33,6 +33,7 @@ import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings 
 import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise, ImplementedProject } from '../ProjectControl';
 import {
 	clampRatio,
+	getIdString,
 	parseSpecialText,
 	rightArrow,
 	shortenNumber,
@@ -422,7 +423,8 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 	}
 	// const initialCost = implementedProject.baseCost * yearMultiplier;
 
-	let implementationFinancing: FinancingOption = findFinancingOptionFromProject(props.implementedFinancedProjects, implementedProject.pageId);
+	const implementedProjects = implementedProject.isRenewable? props.implementedRenewableProjects : props.implementedFinancedProjects
+	let implementationFinancing: FinancingOption = findFinancingOptionFromProject(implementedProjects, implementedProject.pageId);
 	let isFinanced = implementationFinancing.financingType.id !== 'budget';
 	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
 	initialCost *= yearMultiplier;
@@ -433,7 +435,6 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 		financedAnnualCost: implementedProject.financedAnnualCost,
 		implementButton: undefined
 	}
-	debugger;
 	let listItemSx = { paddingLeft: '8px'}
 	recapResults.projectRecapCards.push(
 		<ListItem key={String(implementedProject.pageId)}>
@@ -466,26 +467,33 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 							<Grid item
 								xs={12}
 								md={6}
-								lg={2}>
+								lg={3}>
 
 								<List dense={true} sx={{ paddingLeft: 0 }}>
 									<ListItem sx={listItemSx}>
 										<ListItemText
+											sx={{ marginTop: 0, marginBottom: 0}}
 											primary={
 												<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
 													Financing
 												</Typography>
 											}
 											secondary={
-												<Typography>
-													{financingCardContent.financingType.name}: {financingCardContent.financingType.detailedInfo}
+												<>
+												<Typography variant='h6'>
+													{financingCardContent.financingType.name}
 												</Typography>
+												<Typography>
+												{financingCardContent.financingType.detailedInfo}
+											</Typography>
+												</>
 											}
 										/>
 									</ListItem>
-									{financingCardContent.financedAnnualCost &&
+									{financingCardContent.financedAnnualCost && implementationFinancing.financingType.id !== 'capital-funding' &&
 										<ListItem sx={listItemSx}>
 											<ListItemText
+											sx={{ marginTop: 0, marginBottom: 0}}
 												primary={
 													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
 														Annual {' '}
@@ -502,6 +510,19 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 											/>
 										</ListItem>
 									}
+									{implementationFinancing.financingType.id === 'capital-funding' &&
+										<ListItem sx={listItemSx}>
+											<ListItemText
+												primary={
+													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
+														<Emphasis money>
+															Free
+														</Emphasis>
+													</Typography>
+												}
+											/>
+										</ListItem>
+									}
 								</List>
 							</Grid>
 						}
@@ -509,15 +530,15 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 						<Grid item
 							xs={isFinanced ? 12 : 12}
 							md={isFinanced ? 6 : 3}
-							lg={isFinanced ? 2 : 3}>
+							lg={isFinanced ? 3 : 3}>
 
 							<List dense={true} sx={{ paddingLeft: 0 }}>
 							{!isFinanced &&
-									<ListItem sx={{ padding: 0, fontSize: '1', paddingLeft: '8px' }}>
+									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
 										<ListItemText
 											primary={
 												<Typography>
-													Initial project cost:{' '}
+													Initial Project Cost:{' '}
 													<Emphasis money>
 														${initialCost.toLocaleString('en-US')}
 													</Emphasis>
@@ -526,7 +547,7 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 										/>
 									</ListItem>
 								}
-								<ListItem sx={{ padding: 0, fontSize: '1', paddingLeft: '8px' }}>
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
 									<ListItemText
 										primary={
 											<Typography >
@@ -539,11 +560,11 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 
 									/>
 								</ListItem>
-								<ListItem sx={{ padding: 0, fontSize: '1rem', paddingLeft: '8px' }}>
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
 									<ListItemText
 										primary={
 											<Typography>
-												Extra costs:{' '}
+												Extra Costs:{' '}
 												<Emphasis money>
 													${totalExtraCosts.toLocaleString('en-US')}
 												</Emphasis>
@@ -555,7 +576,7 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 									<ListItemText
 										primary={
 											<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
-												Year Net cost:{' '}
+												Year Net Cost:{' '}
 												<Emphasis money>
 													${projectNetCost.toLocaleString('en-US')}
 												</Emphasis>
@@ -570,7 +591,7 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 						<Grid item
 							xs={isFinanced ? 12 : 12}
 							md={isFinanced ? 12 : 9}
-							lg={isFinanced ? 8: 9}
+							lg={isFinanced ? 6: 9}
 							className='year-recap-charts'>
 							<Grid 
 							container
@@ -743,7 +764,7 @@ function applyStatsFromImplementation(implementedProject: ProjectControl,
 		let thisGaugeProps = statsGaugeProperties[key];
 		if (thisGaugeProps) {
 			gaugeCharts.push(
-				<Grid item sx={{padding: '1rem'}}>
+				<Grid item sx={{padding: '1rem'}} key={getIdString()}>
 				<GaugeChart
 					key={key}
 					width={260}
@@ -806,9 +827,9 @@ function addCarbonSavingsGauge(mutableStats: TrackedStats,
 	let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 
 	gaugeCharts.push(
-		<Grid item sx={{padding: '1rem'}}>
+		<Grid item sx={{padding: '1rem'}}
+		key={'carbonSavings' + getIdString()}>
 		<GaugeChart
-			key={'carbonSavings'}
 			width={260}
 			value1={prevYearCarbonSavingsPercent}
 			color1='#888888'

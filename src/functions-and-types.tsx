@@ -31,6 +31,13 @@ export function parseSpecialText(text?: string|string[], shouldEmphasize: boolea
 }
 
 /**
+ * Use to pad strings for unique keys in React lists
+ */
+export function getIdString() {
+	return (Math.random() + 1).toString(36).substring(7);
+}
+
+/**
  * Return the ratio of one number to another, with a maximum of 1.
  */
 export function clampRatio(value: number, max: number) {
@@ -256,4 +263,7 @@ declare global {
 	
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	type Component = React.Component|Function;
+
+
+
 }
