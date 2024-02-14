@@ -151,7 +151,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primary={
 										<Typography variant={'h5'}>
-											You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} total.
+											You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} throughout the game.
 										</Typography>
 									}
 								/>
@@ -305,18 +305,10 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 		addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
 		implementedProject.applyCost(mutableStats, financingOption);
 
+		projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
 		if (renewableProject && !hasAppliedFirstYearSavings) {
-			projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
 			mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
-		} else {
-			projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
 		}
-		// if (implementedProject.isRenewable) {
-		// 	projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
-		// 	mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
-		// } else {
-		// 	projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
-		// }
 
 		recapResults.yearEndTotalSpending += projectNetCost;
 		totalProjectExtraCosts = implementedProject.getHiddenCost();
@@ -474,19 +466,17 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 										<ListItemText
 											sx={{ marginTop: 0, marginBottom: 0}}
 											primary={
+												<>
 												<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
 													Financing
 												</Typography>
-											}
-											secondary={
-												<>
 												<Typography variant='h6'>
 													{financingCardContent.financingType.name}
 												</Typography>
-												<Typography>
-												{financingCardContent.financingType.detailedInfo}
-											</Typography>
 												</>
+											}
+											secondary={
+												<span>{financingCardContent.financingType.detailedInfo}</span>
 											}
 										/>
 									</ListItem>
