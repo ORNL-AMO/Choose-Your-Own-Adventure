@@ -266,7 +266,6 @@ export class ProjectControl implements ProjectControlParams {
 			));
 		}
 
-		// todo 143 combine
 		function addImplementProjectCheckedButton(buttons: ButtonGroupButton[], hasFinancingOptions: boolean) {
 			const isProjectImplemented = (props) => {
 				if (self.isRenewable) {
@@ -299,18 +298,7 @@ export class ProjectControl implements ProjectControlParams {
 						}
 					},
 					onClick: function (state, nextState) {
-						let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
 						if (self.isRenewable) {
-							isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-									return true
-								}
-								return false;
-							});
-							if (isProjectImplemented) {
-								return state.currentPage;
-							}
-
 							return toggleRenewableProject.apply(this, [state, nextState, defaultFinancingOption]);
 						} else {
 							return toggleProjectImplemented.apply(this, [state, nextState, defaultFinancingOption]);
@@ -322,16 +310,14 @@ export class ProjectControl implements ProjectControlParams {
 			buttons.push(financedButton);
 		}
 
-		// todo 143 combine
 		function getFinancingTypeImplementButton(financingOption: FinancingOption): ButtonGroupButton {
 			return {
 				text: 'Implement Project',
 				variant: 'contained',
 				color: 'success',
 				onClick: function (state, nextState) {
-					let isProjectImplemented: boolean = state.implementedProjectsIds.includes(self.pageId);
 					if (self.isRenewable) {
-						isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+						let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
 							if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
 								return true
 							}

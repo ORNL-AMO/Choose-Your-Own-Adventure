@@ -566,8 +566,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 		});
 	}
 
-	checkFinancedRenewablesComplete(financedRenewables: RenewableProject[], newYearTrackedStats: TrackedStats) {
-		financedRenewables.map(project => {
+	checkFinancedRenewablesComplete(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
+		renewableProjects.map(project => {
 			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
 				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
 			}

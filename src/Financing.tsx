@@ -201,7 +201,7 @@ export function getIsAnnualFinanced(financingId: FinancingId) {
 export function isProjectFullyFunded(project: ImplementedProject, currentGameYear: number) {
     let financingPayoffYear: number = project.yearStarted + project.financingOption.financingType.loanTerm;
     let isAnnuallyFinanced = getIsAnnualFinanced(project.financingOption.financingType.id);
-    return !isAnnuallyFinanced || currentGameYear === financingPayoffYear;
+    return !isAnnuallyFinanced || currentGameYear >= financingPayoffYear;
 }
 
 /**
