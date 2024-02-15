@@ -143,6 +143,7 @@ function getProjectInfoCards(props: CompareDialogProps, theme) {
 			{...controlCallbacks}
 			inCompareDialog={true}
 			capitalFundingState={props.capitalFundingState}
+			currentGameYear={props.currentGameYear}
 			onClose={() => props.onClose}
 		></ProjectInfoCard>
 		</Card>
@@ -167,6 +168,7 @@ export declare interface CompareDialogProps extends DialogStateProps, ControlCal
 	selectedProjectsForComparison: SelectedProject[];
 	handleRemoveSelectedCompare?: PageCallback;
 	capitalFundingState: CapitalFundingState;
+	currentGameYear: number,
 	onClose: () => void;
 	onClearSelectedProjects: () => void;
 }

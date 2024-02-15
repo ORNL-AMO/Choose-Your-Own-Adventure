@@ -26,7 +26,7 @@ import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
 import { CompareDialog } from './components/Dialogs/CompareDialog';
-import { ProjectDialog, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
+import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings } from './components/SelectGameSettings';
 import { CapitalFundingState, isProjectFullyFunded } from './Financing';
@@ -286,7 +286,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	/**
 	 * Display a project dialog with the specified dialog props. Does not change the current page.
 	 */
-	displayProjectDialog(props: InfoDialogControlProps) {
+	displayProjectDialog(props: ProjectDialogControlProps) {
 		let projectDialog: ProjectDialogStateProps = getEmptyProjectDialog(); 
 		projectDialog = fillProjectDialogProps(props);
 		projectDialog.isOpen = true;
@@ -509,7 +509,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		this.checkFinancedProjectsComplete(implementedFinancedProjects, newYearTrackedStats);
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
-		this.checkFinancedRenewablesComplete(implementedRenewableProjects, newYearTrackedStats);
+		this.applyRenewableCosts(implementedRenewableProjects, newYearTrackedStats);
 
 		implementedProjectsIds.forEach((id, index) => {
 			// We are checking existing in array instead of project.isRenewable in case it has NOT been renewed. For tracking previous/forward year movement
@@ -566,7 +566,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		});
 	}
 
-	checkFinancedRenewablesComplete(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
+	applyRenewableCosts(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
 		renewableProjects.map(project => {
 			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
 				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
@@ -713,6 +713,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 							{...this.state.projectDialog}
 							{...controlCallbacks}
 							capitalFundingState={this.state.capitalFundingState}
+							currentGameYear={this.state.trackedStats.currentGameYear}
 							onClose={() => this.handleDialogClose()}
 							/>
 						<CompareDialog
@@ -720,6 +721,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 							{...controlCallbacks}
 							isOpen={this.state.isCompareDialogOpen}
 							capitalFundingState={this.state.capitalFundingState}
+							currentGameYear={this.state.trackedStats.currentGameYear}
 							selectedProjectsForComparison={this.state.selectedProjectsForComparison}
 							onClearSelectedProjects={() => this.handleClearSelectedProjects()}
 							onClose={() => this.handleCompareDialogDisplay(false)}

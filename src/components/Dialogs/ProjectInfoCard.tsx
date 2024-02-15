@@ -6,7 +6,7 @@ import { DialogCardContent, InfoCard } from './dialog-functions-and-types';
 import { Emphasis } from '../controls';
 import { DialogFinancingOptionCard, ProjectDialogProps } from './ProjectDialog';
 import { GameSettings } from '../SelectGameSettings';
-import { getCanUseCapitalFunding } from '../../Financing';
+import { getCanUseCapitalFunding, getIsAnnuallyFinanced } from '../../Financing';
 
 
 export class ProjectInfoCard extends PureComponentIgnoreFuncs<ProjectDialogProps> {
@@ -161,15 +161,16 @@ function getFinancingOptionsCards(props: ProjectDialogProps) {
 	const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 	let financingOptionCards: DialogFinancingOptionCard[] = [];
 	if (props.financingOptionCards && gameSettings) {
+		let hasFinancingStarted = props.currentGameYear >= gameSettings.financingStartYear;
 		if (gameSettings.financingOptions) {
 			financingOptionCards = props.resolveToValue(props.financingOptionCards);
 			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
-				let showCapitalFundingCard: boolean = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
-				if (gameSettings.financingOptions[option.financingType.id] == true || option.financingType.id === 'budget' || showCapitalFundingCard) {
+				let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
+				let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
+				if (option.financingType.id === 'budget') {
 					return true;
-				} else {
-					return false;
 				}
+				return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true) || hasCapitalFunding;
 			});
 		}
 	}
