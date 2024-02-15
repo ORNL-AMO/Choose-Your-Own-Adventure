@@ -375,7 +375,9 @@ function setCostPerCarbonSavings(mutableStats: TrackedStats) {
 function getOngoingFinancingCosts(completedProjects: CompletedProject[], mutableStats: TrackedStats) {
 	let yearFinancingCosts: number = 0;
 	completedProjects.forEach((completedProject: CompletedProject) => {
-		yearFinancingCosts += Projects[completedProject.page].getYearEndTotalSpending(completedProject.financingOption, mutableStats.gameYearInterval, false);
+		if (completedProject.financingOption) {
+			yearFinancingCosts += Projects[completedProject.page].getYearEndTotalSpending(completedProject.financingOption, mutableStats.gameYearInterval, false);
+		}
 		
 	});
 	return yearFinancingCosts;
