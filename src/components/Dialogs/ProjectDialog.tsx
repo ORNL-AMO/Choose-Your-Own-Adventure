@@ -97,7 +97,8 @@ function ProjectDialogFunc(props: ProjectDialogProps) {
 
 export declare interface ProjectDialogProps extends ProjectDialogStateProps, ControlCallbacks {
 	onClose: () => void;
-	capitalFundingState: CapitalFundingState
+	capitalFundingState: CapitalFundingState,
+	currentGameYear: number
 }
 
 /**

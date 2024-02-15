@@ -113,15 +113,19 @@ export class ProjectControl implements ProjectControlParams {
 		}
 		let implementButton = getFinancingTypeImplementButton(defaultFinancingOptionCard);
 		defaultFinancingOptionCard.implementButton = implementButton;
-		let capitalFundingOption: FinancingOption = getCapitalFundingOption();
-		let capitalFundingCard: DialogFinancingOptionCard = {
-			...capitalFundingOption,
-			implementButton: undefined
-		}
-		let implementCapitalFunding = getFinancingTypeImplementButton(capitalFundingCard);
-		capitalFundingCard.implementButton = implementCapitalFunding;
+		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard];
 
-		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard, capitalFundingCard];
+		if (self.isCapitalFundsEligible) {
+			let capitalFundingOption: FinancingOption = getCapitalFundingOption();
+			let capitalFundingCard: DialogFinancingOptionCard = {
+				...capitalFundingOption,
+				implementButton: undefined
+			}
+			let implementCapitalFunding = getFinancingTypeImplementButton(capitalFundingCard);
+			capitalFundingCard.implementButton = implementCapitalFunding;
+			financingOptionCards.push(capitalFundingCard);
+		}
+
 		if (hasFinancingOptions) {
 			self.financingOptions.forEach(option => {
 				let implementButton = getFinancingTypeImplementButton(option);
@@ -668,11 +672,13 @@ export class ProjectControl implements ProjectControlParams {
 	/**
  * Applies this project's cost & rebates by mutating the provided TrackedStats object.
  * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
+ * @param financingOption will be undefined for a renewable project that is done financing
  */
 	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
 		// todo 143 which appiers should heed the financing option
 		let rebates = this.getRebates();
-		let cost = this.getImplementationCost(financingOption.financingType.id, mutableStats.gameYearInterval)
+		let financingId: FinancingId = financingOption? financingOption.financingType.id : 'budget';
+		let cost = this.getImplementationCost(financingId, mutableStats.gameYearInterval)
 		if (this.isRenewable) {
 			// * giving renewbles rebates every year
 			rebates = rebates * mutableStats.gameYearInterval;
@@ -749,15 +755,16 @@ export class ProjectControl implements ProjectControlParams {
 	/**
 	 * Returns the net cost of this project, including rebates (and in future, surprise hitches)
 	 */
-	getYearEndTotalSpending(financingOption: FinancingOption, gameYearInterval: number): number {
+	getYearEndTotalSpending(financingOption: FinancingOption, gameYearInterval: number, calculateExtraCosts: boolean = true): number {
 		let cost = this.getImplementationCost(financingOption.financingType.id, gameYearInterval);
-		let rebates = this.getYearEndRebates();
-		let hiddenCosts = this.getHiddenCost();
-		cost = gameYearInterval * cost;
-		rebates = gameYearInterval * rebates;
-		hiddenCosts = hiddenCosts * gameYearInterval;
 
-		return cost - rebates + hiddenCosts;
+		if (calculateExtraCosts) {
+			const rebates = this.getYearEndRebates() * gameYearInterval;
+			const hiddenCosts = this.getHiddenCost() * gameYearInterval;
+			return cost - rebates + hiddenCosts;
+		} else {
+			return cost;
+		}
 	}
 }
 

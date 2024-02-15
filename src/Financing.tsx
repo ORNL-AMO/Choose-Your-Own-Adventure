@@ -145,11 +145,13 @@ export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
 	if (!capitalFundingState.roundA.isEarned) {
-		savingsMilestone = checkHasSavingsMilestone(stats, .02);
+        let roundAMilestone = process.env.NODE_ENV == 'development' ? .005: .3;
+		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestone);
 		capitalFundingState.roundA.isEarned = savingsMilestone !== undefined;
 		console.log('earned round A')
 	} else if (!capitalFundingState.roundB.isEarned) {
-		savingsMilestone = checkHasSavingsMilestone(stats, .05);
+        let roundBMilestone = process.env.NODE_ENV == 'development' ? .02: .5;
+		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestone);
 		capitalFundingState.roundB.isEarned = savingsMilestone !== undefined;
 		console.log('earned round B');
 	}
@@ -191,7 +193,7 @@ export function getCapitalFundingSurprise(milestoneSavingsPercent: string): Reca
 /**
  * Check whether project is annually financed or should otherwise be ignored by year to year logic
  */
-export function getIsAnnualFinanced(financingId: FinancingId) {
+export function getIsAnnuallyFinanced(financingId: FinancingId) {
     return !['budget', 'capital-funding'].includes(financingId);
 }
 
@@ -200,7 +202,7 @@ export function getIsAnnualFinanced(financingId: FinancingId) {
  */
 export function isProjectFullyFunded(project: ImplementedProject, currentGameYear: number) {
     let financingPayoffYear: number = project.yearStarted + project.financingOption.financingType.loanTerm;
-    let isAnnuallyFinanced = getIsAnnualFinanced(project.financingOption.financingType.id);
+    let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
     return !isAnnuallyFinanced || currentGameYear >= financingPayoffYear;
 }
 

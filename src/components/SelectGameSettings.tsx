@@ -245,6 +245,8 @@ export interface UserSettings {
  * Financing options enabled by user - pick two of three 
  */
 export interface GameFinancingOptions {
+    // always true
+    budget?: boolean,
 	xaas: boolean,
 	loan: boolean,
 	greenBond: boolean

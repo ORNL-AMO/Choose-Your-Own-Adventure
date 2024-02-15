@@ -47,7 +47,7 @@ import YearRecapCharts from './YearRecapCharts';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
-import { CapitalFundingState, FinancingOption, getCapitalFundingSurprise, setCapitalFundingMilestone } from '../Financing';
+import { CapitalFundingState, FinancingOption, getCapitalFundingSurprise, getIsAnnuallyFinanced, isProjectFullyFunded, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
@@ -71,7 +71,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		const unspentBudgetFormatted: string = noDecimalsFormatter.format(recapResults.unspentBudget);
 		const yearEndTotalSpendingFormatted: string = noDecimalsFormatter.format(recapResults.yearEndTotalSpending);
 		// formatting new value? or existing
-		const totalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.yearEndTotalSpending);
+		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.yearEndTotalSpending);
 		const costPerCarbonSavingsFormatted: string = mutableStats.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 2,
@@ -151,7 +151,19 @@ export class YearRecap extends React.Component<YearRecapProps> {
 								<ListItemText
 									primary={
 										<Typography variant={'h5'}>
-											You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs. You have spent{' '}<Emphasis>${totalNetCostFormatted}</Emphasis>{' '} throughout the game.
+											You spent{' '}<Emphasis>${yearEndTotalSpendingFormatted}</Emphasis>{' '} including hidden costs and rebates.
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant={'h5'}>
+											You have spent{' '}<Emphasis>${gameTotalNetCostFormatted}</Emphasis>{' '} throughout the game.
 										</Typography>
 									}
 								/>
@@ -171,19 +183,27 @@ export class YearRecap extends React.Component<YearRecapProps> {
 						</List>
 					</Box>
 
-					<Box sx={recapWidthSx}>
-						<Typography variant='h4' fontWeight={'500'} marginTop={3}>
-							Current Projects
-						</Typography>
-						<Typography variant='body1' fontSize={18} sx={recapWidthSx} marginTop={.5}>
-							These include projects implemented or renewed in this year.
-							<br></br>
-							<Emphasis>
-								Check out the case studies, where real companies have applied these
-								ideas!
-							</Emphasis>
-						</Typography>
-					</Box>
+					{recapResults.projectRecapCards.length !== 0?
+						<Box sx={recapWidthSx}>
+							<Typography variant='h4' fontWeight={'500'} marginTop={3}>
+								Current Projects
+							</Typography>
+							<Typography variant='body1' fontSize={18} sx={recapWidthSx} marginTop={.5}>
+								These include projects implemented or renewed in this year.
+								<br></br>
+								<Emphasis>
+									Check out the case studies, where real companies have applied these
+									ideas!
+								</Emphasis>
+							</Typography>
+						</Box>
+						:
+						<Box sx={recapWidthSx}>
+							<Typography variant='h4' fontWeight={'500'} marginTop={3}>
+								No Projects Selected
+							</Typography>
+						</Box>
+					}
 					<List sx={recapWidthSx}>{recapResults.projectRecapCards}</List>
 
 
@@ -325,12 +345,13 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 			projectNetCost,
 			totalProjectExtraCosts);
 	});
+	
+	// todo this will eventually handle renwables
+	recapResults.yearEndTotalSpending += getOngoingFinancingCosts(props.completedProjects, mutableStats);
 
 	addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
-	// * total net costs / (% CO2 saved * (ngEmissionRate * ngUseInitial + electEmissionRate * electUseInitial));
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 	setCostPerCarbonSavings(mutableStats);
-	// todo 143 ignore for some financed projects
 	recapResults.yearCostSavings = getYearCostSavings(initialCurrentYearStats, mutableStats);
 	setRenewableProjectResults(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
 
@@ -346,6 +367,20 @@ function setCostPerCarbonSavings(mutableStats: TrackedStats) {
 		costPerCarbonSavings = mutableStats.yearEndTotalSpending / mutableStats.carbonSavingsPerKg;
 	}
 	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
+/**
+* Costs from completed projects still in financing
+*/
+function getOngoingFinancingCosts(completedProjects: CompletedProject[], mutableStats: TrackedStats) {
+	let yearFinancingCosts: number = 0;
+	completedProjects.forEach((completedProject: CompletedProject) => {
+		if (completedProject.financingOption) {
+			yearFinancingCosts += Projects[completedProject.page].getYearEndTotalSpending(completedProject.financingOption, mutableStats.gameYearInterval, false);
+		}
+		
+	});
+	return yearFinancingCosts;
 }
 
 
@@ -413,11 +448,15 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 	if (implementedProject.isRenewable) {
 		yearMultiplier = mutableStats.gameYearInterval;
 	}
-	// const initialCost = implementedProject.baseCost * yearMultiplier;
-
 	const implementedProjects = implementedProject.isRenewable? props.implementedRenewableProjects : props.implementedFinancedProjects
 	let implementationFinancing: FinancingOption = findFinancingOptionFromProject(implementedProjects, implementedProject.pageId);
 	let isFinanced = implementationFinancing.financingType.id !== 'budget';
+	let isFinancingPaidOff;
+	if (isFinanced) {
+		let financedProject = implementedProjects.find(project => project.page === implementedProject.pageId);
+		isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
+	}
+
 	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
 	initialCost *= yearMultiplier;
 
@@ -454,7 +493,6 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 						justifyContent='center'
 						alignItems='center'>
 
-
 						{isFinanced &&
 							<Grid item
 								xs={12}
@@ -480,7 +518,8 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 											}
 										/>
 									</ListItem>
-									{financingCardContent.financedAnnualCost && implementationFinancing.financingType.id !== 'capital-funding' &&
+									{!isFinancingPaidOff 
+									&& 
 										<ListItem sx={listItemSx}>
 											<ListItemText
 											sx={{ marginTop: 0, marginBottom: 0}}
@@ -500,19 +539,21 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 											/>
 										</ListItem>
 									}
-									{implementationFinancing.financingType.id === 'capital-funding' &&
+									{isFinancingPaidOff 
+									&& 
 										<ListItem sx={listItemSx}>
 											<ListItemText
 												primary={
 													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
 														<Emphasis money>
-															Free
+															Paid Off
 														</Emphasis>
 													</Typography>
 												}
 											/>
 										</ListItem>
 									}
+
 								</List>
 							</Grid>
 						}
