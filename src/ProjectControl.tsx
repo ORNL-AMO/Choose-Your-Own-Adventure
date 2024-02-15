@@ -215,17 +215,14 @@ export class ProjectControl implements ProjectControlParams {
 			energySavingsPreviewIcons: energySavingsPreviewIcons,
 			buttons: choiceCardButtons,
 			visible: function (state) {
+				let isRenewedProject = state.implementedRenewableProjects.some(project => project.page === self.pageId && project.yearStarted !== state.trackedStats.currentGameYear)
 				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
-					// todo 88 bit of a bandaid until re-working visible()
 					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
-				} else if (state.implementedRenewableProjects.some(project => project.page === self.pageId)) {
-					return true;
+				} else if (isRenewedProject) {
+					return false;
 				} else if (state.completedProjects.some(project => project.page === self.pageId)) {
 					return false;
 				} else {
-					// todo 88 this block should be before all others for projects with visible() defined,
-					// except visible is resolved and assigned to itself so it falls through and ignores defaults
-					// keep original else block here and adding if bandaids for dependant projects above
 					return this.resolveToValue(self.visible, true);
 				}
 

@@ -368,6 +368,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	}
 
 	checkHasImplementedAllScopes() {
+		// todo 201 this will need to check financed and renewable projects
 		let someScope1 = Scope1Projects.some((page) => this.state.implementedProjectsIds.includes(page));
 		let someScope2 = Scope2Projects.some((page) => this.state.implementedProjectsIds.includes(page));
 
@@ -436,14 +437,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let renewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 		let previousYear: number = this.state.trackedStats.currentGameYear > 1 ? this.state.trackedStats.currentGameYear - 1 : 0;
-		previousYear--;
-		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.completedYear !== previousYear);
-		let previousimplementedProjectsIds: symbol[] = completedProjects.filter(project => project.completedYear === previousYear).map(previousYearProject => previousYearProject.page);
+		let previousYearIndex = previousYear - 1;
+		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.completedYear !== previousYearIndex);
+		let previousimplementedProjectsIds: symbol[] = completedProjects.filter(project => project.completedYear === previousYearIndex).map(previousYearProject => previousYearProject.page);
 		
 		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
 		yearRangeInitialStats.pop();
-		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYear].currentGameYear - 1];
-		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYear];
+		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYearIndex].currentGameYear - 1];
+		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYearIndex];
 		if (previousYearStats) {
 			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
 			let statsForResultDisplay = { ...previousYearStats };
@@ -454,7 +455,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 				project.applyStatChanges(statsForResultDisplay, implementedProjects[index].financingOption);
 			});
 
-			// started renewable projects
 			renewableProjects.forEach(project => {
 				if (project.yearStarted === previousYear) {
 					let Project = Projects[project.page];
