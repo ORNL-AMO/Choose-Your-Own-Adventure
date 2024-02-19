@@ -524,7 +524,7 @@ export class ProjectControl implements ProjectControlParams {
 			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
 			console.log('financesAvailable', state.trackedStats.financesAvailable);
 			console.log('cost', projectCost);
-			if (projectCost > state.trackedStats.financesAvailable) {
+			if (projectCost > 0 && projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
 			}
@@ -708,8 +708,7 @@ export class ProjectControl implements ProjectControlParams {
 	getImplementationCost(financingId: FinancingId, gameYearInterval: number) {
 		let projectCost = this.baseCost;
 		let isAnnuallyFinanced = financingId !== 'budget';
-		// todo 143 redo annually financed
-		if (financingId && financingId === 'capital-funding' && getCanUseCapitalFunding) {
+		if (financingId && financingId === 'capital-funding') {
 			projectCost = 0;
 		} else if (financingId && isAnnuallyFinanced) {
 			projectCost = this.financedAnnualCost;
@@ -870,6 +869,7 @@ export interface RenewableProject extends ImplementedProject {
  */
 export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
+	// todo 200 just get from gameYearsImpelmented?
 	yearStarted?: number;
 	financingOption?: FinancingOption;
 

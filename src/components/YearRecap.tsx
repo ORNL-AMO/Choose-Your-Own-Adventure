@@ -47,7 +47,7 @@ import YearRecapCharts from './YearRecapCharts';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
-import { CapitalFundingState, FinancingOption, getCapitalFundingSurprise, getIsAnnuallyFinanced, isProjectFullyFunded, setCapitalFundingMilestone } from '../Financing';
+import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
@@ -348,7 +348,7 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 	
 	// todo this will eventually handle renwables
 	recapResults.yearEndTotalSpending += getOngoingFinancingCosts(props.completedProjects, mutableStats);
-
+	setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
 	addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 	setCostPerCarbonSavings(mutableStats);
@@ -705,10 +705,9 @@ function getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader:
 * Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
 */
 function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) {
-	let savingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
-	if (savingsMilestone) {
-		let percentFormattedMilestone = toPercent(savingsMilestone);
-		let surprise: RecapSurprise = getCapitalFundingSurprise(percentFormattedMilestone);
+	let percentSavingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
+	if (percentSavingsMilestone) {
+		let surprise: RecapSurprise = getCapitalFundingSurprise(percentSavingsMilestone);
 		let capitalFundingRewardCard = getSurpriseEventCard(surprise, surprise.title, surprise.subHeader)
 		projectRecapCards.unshift(capitalFundingRewardCard);
 	}
