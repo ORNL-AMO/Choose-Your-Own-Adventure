@@ -22,6 +22,7 @@ export interface CapitalFundingState {
 
 export interface FundingRound {
     isEarned: boolean;
+    eligibleYear: number;
     usedOnProjectId: symbol;
 }
 
@@ -89,7 +90,7 @@ export function getCapitalFundingOption(): FinancingOption {
             name: 'Capital Funding',
             id: 'capital-funding',
             description: 'Use capital funding reward',
-            detailedInfo: 'Capital funding reward earned from reaching 15% energy savings'
+            detailedInfo: 'Capital funding reward earned from reaching energy savings milestones'
         },
     }
 }
@@ -98,11 +99,11 @@ export function setCapitalFundingRoundUsed(capitalFundingState: CapitalFundingSt
     if (capitalFundingState.roundA.isEarned && capitalFundingState.roundA.usedOnProjectId === undefined) {
         capitalFundingState.roundA.usedOnProjectId = projectId;
         financingOption.financingType.isRoundA = true;
-        console.log('used capital funding A', capitalFundingState.roundA.usedOnProjectId);
+        console.log('Used capital funding A', capitalFundingState.roundA.usedOnProjectId);
     } else if (capitalFundingState.roundB.isEarned && capitalFundingState.roundB.usedOnProjectId === undefined) {
         capitalFundingState.roundB.usedOnProjectId = projectId;
         financingOption.financingType.isRoundA = false;
-        console.log('used capital funding B', capitalFundingState.roundB.usedOnProjectId);
+        console.log('Used capital funding B', capitalFundingState.roundB.usedOnProjectId);
     }
 
     return capitalFundingState;
@@ -120,9 +121,24 @@ export function removeCapitalFundingRoundUsed(capitalFundingState: CapitalFundin
 }
 
 export function getCanUseCapitalFunding(capitalFundingState: CapitalFundingState) {
-    let canUseRoundA: boolean = capitalFundingState.roundA.isEarned && !capitalFundingState.roundA.usedOnProjectId;
-    let canUseRoundB: boolean = capitalFundingState.roundB.isEarned && !capitalFundingState.roundB.usedOnProjectId;
-    return canUseRoundA || canUseRoundB; 
+    return getCanUseRound(capitalFundingState.roundA) || getCanUseRound(capitalFundingState.roundB);
+}
+
+export function getCanUseRound(round: FundingRound) {
+    return round.isEarned && !round.isExpired && !round.usedOnProjectId;
+}
+
+/**
+* Was capital funding used in elegible year
+*/
+export function setCapitalFundingExpired(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
+	capitalFundingState.roundA.isExpired = getRoundIsExpired(capitalFundingState.roundA, stats);
+	capitalFundingState.roundB.isExpired = getRoundIsExpired(capitalFundingState.roundB, stats);
+}
+
+
+export function getRoundIsExpired(round: FundingRound, stats: TrackedStats) {
+    return round.isEarned && round.eligibleYear <= stats.currentGameYear && round.usedOnProjectId === undefined;
 }
 
 
@@ -145,25 +161,51 @@ export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
 	if (!capitalFundingState.roundA.isEarned) {
-        let roundAMilestone = process.env.NODE_ENV == 'development' ? .005: .3;
-		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestone);
-		capitalFundingState.roundA.isEarned = savingsMilestone !== undefined;
-		console.log('earned round A')
+        let roundAMilestonePercent = 15;
+		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
+        if (savingsMilestone) {
+            capitalFundingState.roundA.isEarned = true;
+            capitalFundingState.roundA.eligibleYear = stats.currentGameYear + 1;
+            capitalFundingState.roundA.isExpired = false;
+            console.log('Capital Funding - earned round A, for year:', stats.currentGameYear + 1)
+        }
 	} else if (!capitalFundingState.roundB.isEarned) {
-        let roundBMilestone = process.env.NODE_ENV == 'development' ? .02: .5;
-		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestone);
-		capitalFundingState.roundB.isEarned = savingsMilestone !== undefined;
-		console.log('earned round B');
+        let roundBMilestonePercent = 40;
+        // let roundBMilestone = process.env.NODE_ENV == 'development' ? .8: 40;
+		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
+		if (savingsMilestone) {
+            capitalFundingState.roundB.isEarned = true;
+            capitalFundingState.roundB.eligibleYear = stats.currentGameYear + 1;
+            capitalFundingState.roundB.isExpired = false;
+            console.log('Capital Funding - earned round B, for year:', stats.currentGameYear + 1);
+        }
 	}
 	return savingsMilestone;
 }
+
+/**
+ * Reset capital funding state from future year
+ */
+export function resetCapitalFundingState(capitalFundingState: CapitalFundingState, prevYearStats: TrackedStats) {
+	if (capitalFundingState.roundA.eligibleYear === prevYearStats.currentGameYear + 1) {
+        capitalFundingState.roundA.isEarned = false;
+        capitalFundingState.roundA.eligibleYear = undefined;
+	}
+    if (capitalFundingState.roundB.eligibleYear === prevYearStats.currentGameYear + 1) {
+        capitalFundingState.roundB.isEarned = false;
+        capitalFundingState.roundB.eligibleYear = undefined;
+	}
+}
+
 
 
 /**
  * User has obtained savings milestone and can receive a Capital Funds Reward to implement a free project
  */
 export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPercentMilestone: number): number {
-	if (stats.carbonSavingsPercent >= carbonSavingsPercentMilestone) {
+    let carbonSavingsPercent = stats.carbonSavingsPercent * 100;
+    carbonSavingsPercent = Number(carbonSavingsPercent.toFixed(1))
+	if (carbonSavingsPercent >= carbonSavingsPercentMilestone) {
 		return carbonSavingsPercentMilestone;
 	}
 	return undefined;
@@ -173,9 +215,9 @@ export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPerce
 /**
  * Get Default Capital Funding surprise
  */
-export function getCapitalFundingSurprise(milestoneSavingsPercent: string): RecapSurprise {
+export function getCapitalFundingSurprise(milestoneSavingsPercent: number): RecapSurprise {
     return {
-		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}`,
+		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
 		subHeader: 'Capital Funding Reward Earned',
 		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project for {FREE}.',
 		className: 'year-recap-positive-surprise',
@@ -224,6 +266,8 @@ export interface CapitalFundingState {
 
 export interface FundingRound {
     isEarned: boolean;
+    isExpired: boolean;
+    eligibleYear: number;
     usedOnProjectId: symbol;
 }
 

@@ -40,14 +40,11 @@
 ## Financing 
 At game start, players select the year that financing options should appear (years 1-5), and which options should be available, including: Xaas, Loan, Green Bonds. Currently, only one financing option is available per project.
 
-Players will be awarded Capital Funding rewards for reaching savings milestones (30% and 50%) throughout the game. Each Capital Funding reward can be used to implement a project for free (excluding VPPA's). 
+Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 15% and 40% throughout the game. Each Capital Funding reward must be used in the following year. VPPA projects are ineligible. 
 
 - Financed project recap cards appear at Year Recap for each year until they are paid in full. They are then part of Completed Projects. Financed Renewables will continue to appear at year recap.
 - Financed normal non-renewables can't be unimplemented after the implementation year
 - Financed Projects un-implemented from the Scopes page will have their implement button disabled. Player must select financing option from the project info dialog.
-
-##### Dev notes:
-Capital Funding pays the project in full but is still considered a financing type for purposes of game state/logic
 
 ---
 ## Year Recap
@@ -59,6 +56,32 @@ Capital Funding pays the project in full but is still considered a financing typ
 Shows completed projects after their implementation year, as well non-renewable financed projects.
 
 ### Hidden and Rebates
+
+
+## Other
+When players move backward one year, their project implementation choices, savings, and budget reflect that year's state prior to Year Recap
+
+
+
+---
+
+## Notes for Development
+
+## Important notes, caveats, architecture, improvement opportunities
+
+#### Project Tracking
+
+Implemented renewable projects (any funding type) are added to implementedRenewableProjects as an ImplementedProject object - they are NOT added to `implementedFinancedProjects` and `implementedProjectIds` like other normal projects. 
+
+All normal projects are now added to `implementedFinancedProjects` and `implementedProjectIds`. This should eventually be refactored to drop implementedProjectIds
+
+
+Capital Funding pays projects in full and has it's own state object, but is also considered a financing type so that the feature can follow the app's pattern for project implementation. 
+
+#### Opportunities
+
+Implemented projects are being added to a number of arrays to track state between years, including implementedProjectIds, implementedFinancedProjects, implementedRenewableProjects, and so on. This was done to stay within existing app patterns. We should refactor for a single source of truth where implemented project objects have knowledge of their own state.
+
 
 
 

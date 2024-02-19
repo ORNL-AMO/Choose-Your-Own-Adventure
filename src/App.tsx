@@ -24,12 +24,12 @@ import { closeDialogButton } from './components/Buttons';
 import { YearRecap } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
-import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
+import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getDefaultWarningDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings } from './components/SelectGameSettings';
-import { CapitalFundingState, isProjectFullyFunded } from './Financing';
+import { CapitalFundingState, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
 
 
 export type AppState = {
@@ -132,10 +132,14 @@ export class App extends React.PureComponent<unknown, AppState> {
 			capitalFundingState: {
 				roundA: {
 					isEarned: false,
+					isExpired: false, 
+					eligibleYear: undefined,
 					usedOnProjectId: undefined,
 				},
 				roundB: {
 					isEarned: false,
+					isExpired: false,
+					eligibleYear: undefined,
 					usedOnProjectId: undefined,
 				}
 			},
@@ -363,41 +367,42 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setState({
 			lastScrollY: -1,
 		});
-		this.checkHasImplementedAllScopes();
+		let hasWarningDialog = this.displayWarningDialogs();
+		if (hasWarningDialog) {
+			return;
+		}
 		this.setPage(Pages.yearRecap);
 	}
 
-	checkHasImplementedAllScopes() {
-		let someScope1 = Scope1Projects.some((page) => this.state.implementedProjectsIds.includes(page));
-		let someScope2 = Scope2Projects.some((page) => this.state.implementedProjectsIds.includes(page));
-
-		if (!someScope1 || !someScope2) {
-			let warningDialogProps: InfoDialogControlProps = {
-				title: 'Hold up!',
-				text: '',
-				buttons: [
-					closeDialogButton(),
-					{
-						text: 'Proceed anyway',
-						variant: 'text',
-						endIcon: rightArrow(),
-						onClick: () => {
-							return Pages.yearRecap;
-						}
-					}
-				],
-				allowClose: true,
-			};
-
-			if (!someScope1) {
+	displayWarningDialogs(): boolean {
+		let warningDialogProps: InfoDialogControlProps = getDefaultWarningDialogProps();
+		let hasScopesWarning = this.state.completedYears < 1;
+		if (hasScopesWarning) {
+			let renewableProjectSymbols = [...this.state.implementedRenewableProjects].map(project => project.page);
+			let hasSelectedScope1Projects = Scope1Projects.some((page) => {
+				return this.state.implementedProjectsIds.includes(page) || renewableProjectSymbols.includes(page);
+			});
+			let hasSelectedScope2Projects = Scope2Projects.some((page) => {
+				return this.state.implementedProjectsIds.includes(page) || renewableProjectSymbols.includes(page);
+			});
+			if (!hasSelectedScope1Projects) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
-				this.displayDialog(warningDialogProps);
-			}
-			else if (!someScope2) {
+			} else if (!hasSelectedScope2Projects) {
 				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
-				this.displayDialog(warningDialogProps);
 			}
-			return;
+			hasScopesWarning = !hasSelectedScope1Projects || !hasSelectedScope2Projects;
+		}
+		
+		let canUseCapitalFunding = getCanUseCapitalFunding(this.state.capitalFundingState);
+		if (canUseCapitalFunding) {
+			warningDialogProps.text = 'Your Capital Funding reward must be used in this budget period or the funding will be lost.';
+		}
+
+		if (hasScopesWarning || canUseCapitalFunding) {
+			this.displayDialog(warningDialogProps);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -435,26 +440,34 @@ export class App extends React.PureComponent<unknown, AppState> {
 	setPreviousAppState() {
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let renewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+
 		let previousYear: number = this.state.trackedStats.currentGameYear > 1 ? this.state.trackedStats.currentGameYear - 1 : 0;
-		previousYear--;
+		let previousYearIndex = previousYear - 1;
 		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.completedYear !== previousYear);
-		let previousimplementedProjectsIds: symbol[] = completedProjects.filter(project => project.completedYear === previousYear).map(previousYearProject => previousYearProject.page);
-		
+		let previousimplementedProjects: ImplementedProject[] = completedProjects.filter(project => project.completedYear === previousYear);
+		let previousimplementedProjectsIds: symbol[] = [...previousimplementedProjects].map(previousYearProject => previousYearProject.page);
+
+		let mutableCapitalFundingState: CapitalFundingState = {...this.state.capitalFundingState};
 		let yearRangeInitialStats = [...this.state.yearRangeInitialStats];
 		yearRangeInitialStats.pop();
-		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYear].currentGameYear - 1];
-		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYear];
+		let previousYearStats: TrackedStats = yearRangeInitialStats[yearRangeInitialStats[previousYearIndex].currentGameYear - 1];
+		let newTrackedStats: TrackedStats = yearRangeInitialStats[previousYearIndex];
+		let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
 		if (previousYearStats) {
 			// * Only modify stats for display. YearRecap will handle yearRangeInitialStats updates
 			let statsForResultDisplay = { ...previousYearStats };
-
-			let implementedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
-			previousimplementedProjectsIds.forEach((projectSymbol, index) => {
-				let project = Projects[projectSymbol];
-				project.applyStatChanges(statsForResultDisplay, implementedProjects[index].financingOption);
+			
+			previousimplementedProjects.forEach((completedProject: ImplementedProject, index) => {
+				let project = Projects[completedProject.page];
+				project.applyStatChanges(statsForResultDisplay, completedProject.financingOption);
+				implementedFinancedProjects.push({
+					page: project.pageId,
+					gameYearsImplemented: [newTrackedStats.currentGameYear],
+					yearStarted: newTrackedStats.currentGameYear,
+					financingOption: completedProject.financingOption
+				});
 			});
 
-			// started renewable projects
 			renewableProjects.forEach(project => {
 				if (project.yearStarted === previousYear) {
 					let Project = Projects[project.page];
@@ -464,10 +477,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats); 
 			updateStatsGaugeMaxValues(newTrackedStats);
 		}
+		resetCapitalFundingState(mutableCapitalFundingState, newTrackedStats);
 
 		let onBackState = {
 			completedProjects: updatedCompletedProjects,
 			implementedProjectsIds: previousimplementedProjectsIds,
+			implementedFinancedProjects: implementedFinancedProjects,
 			trackedStats: newTrackedStats,
 			yearRangeInitialStats: yearRangeInitialStats,
 		};
@@ -507,23 +522,20 @@ export class App extends React.PureComponent<unknown, AppState> {
 			}
 		});
 
+		implementedProjectsIds.forEach((id, index) => {
+			const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
+			newCompletedProjects.push({
+				completedYear: currentYearStats.currentGameYear,
+				gameYearsImplemented: [currentYearStats.currentGameYear],
+				page: id,
+				financingOption: implementedFinancedProjects[financingIndex] ? implementedFinancedProjects[financingIndex].financingOption : undefined
+			});
+		});
 		this.checkFinancedProjectsComplete(implementedFinancedProjects, newYearTrackedStats);
+		
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
 		this.applyRenewableCosts(implementedRenewableProjects, newYearTrackedStats);
 
-		implementedProjectsIds.forEach((id, index) => {
-			// We are checking existing in array instead of project.isRenewable in case it has NOT been renewed. For tracking previous/forward year movement
-			if (!implementedRenewableProjects.some(project => project.page === id)) {
-				const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
-				newCompletedProjects.push({ 
-					completedYear: currentYearStats.currentGameYear, 
-					gameYearsImplemented: [currentYearStats.currentGameYear],
-					page: id,
-					financingOption: implementedFinancedProjects[financingIndex]? implementedFinancedProjects[financingIndex].financingOption : undefined
-				});
-			}
-		});
-		
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 		console.log('new year range initial stats', newYearRangeInitialStats);
 		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);

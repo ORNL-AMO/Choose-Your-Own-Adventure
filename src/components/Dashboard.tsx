@@ -48,6 +48,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		});
 		
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
+		const carbonSavingsFractionValue = clampRatio(this.props.carbonSavingsPercent, 1);
 		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 		
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
@@ -134,7 +135,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							{/* <Typography variant="h3">Dashboard</Typography> */}
 							<GaugeChart
 								width={CHART_SIZE}
-								value1={clampRatio(this.props.carbonSavingsPercent, 1)}
+								value1={carbonSavingsFractionValue}
 								text={carbonSavingsFormatted}
 								label='GHG Reduction'
 								textFontSize={0.85}

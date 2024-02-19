@@ -215,17 +215,14 @@ export class ProjectControl implements ProjectControlParams {
 			energySavingsPreviewIcons: energySavingsPreviewIcons,
 			buttons: choiceCardButtons,
 			visible: function (state) {
+				let isRenewedProject = state.implementedRenewableProjects.some(project => project.page === self.pageId && project.yearStarted !== state.trackedStats.currentGameYear)
 				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
-					// todo 88 bit of a bandaid until re-working visible()
 					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
-				} else if (state.implementedRenewableProjects.some(project => project.page === self.pageId)) {
-					return true;
+				} else if (isRenewedProject) {
+					return false;
 				} else if (state.completedProjects.some(project => project.page === self.pageId)) {
 					return false;
 				} else {
-					// todo 88 this block should be before all others for projects with visible() defined,
-					// except visible is resolved and assigned to itself so it falls through and ignores defaults
-					// keep original else block here and adding if bandaids for dependant projects above
 					return this.resolveToValue(self.visible, true);
 				}
 
@@ -527,7 +524,7 @@ export class ProjectControl implements ProjectControlParams {
 			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
 			console.log('financesAvailable', state.trackedStats.financesAvailable);
 			console.log('cost', projectCost);
-			if (projectCost > state.trackedStats.financesAvailable) {
+			if (projectCost > 0 && projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
 			}
@@ -711,8 +708,7 @@ export class ProjectControl implements ProjectControlParams {
 	getImplementationCost(financingId: FinancingId, gameYearInterval: number) {
 		let projectCost = this.baseCost;
 		let isAnnuallyFinanced = financingId !== 'budget';
-		// todo 143 redo annually financed
-		if (financingId && financingId === 'capital-funding' && getCanUseCapitalFunding) {
+		if (financingId && financingId === 'capital-funding') {
 			projectCost = 0;
 		} else if (financingId && isAnnuallyFinanced) {
 			projectCost = this.financedAnnualCost;
@@ -873,6 +869,7 @@ export interface RenewableProject extends ImplementedProject {
  */
 export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
+	// todo 200 just get from gameYearsImpelmented?
 	yearStarted?: number;
 	financingOption?: FinancingOption;
 

@@ -1,10 +1,11 @@
 import { CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, useMediaQuery, Paper } from '@mui/material';
-import { parseSpecialText, PureComponentIgnoreFuncs } from '../../functions-and-types';
+import { parseSpecialText, PureComponentIgnoreFuncs, rightArrow } from '../../functions-and-types';
 import { useTheme } from '@mui/material/styles';
 import React, { useEffect } from 'react';
-import { ButtonGroup } from '../Buttons';
+import { ButtonGroup, closeDialogButton } from '../Buttons';
 import { DialogCardContent, DialogControlProps, DialogStateProps, InfoCard } from './dialog-functions-and-types';
 import { ControlCallbacks, PageControl } from '../controls';
+import Pages from '../../Pages';
 
 /**
  * Dialog pop-up that shows general information, standalone app page dialogs.
@@ -170,6 +171,25 @@ export function fillInfoDialogProps(obj: AnyDict): InfoDialogStateProps {
 		handleProjectInfoViewed: obj.handleProjectInfoViewed
 	};
 }
+export function getDefaultWarningDialogProps(): InfoDialogControlProps {
+		return {
+			title: 'Hold up!',
+			text: '',
+			buttons: [
+				closeDialogButton(),
+				{
+					text: 'Proceed anyway',
+					variant: 'text',
+					endIcon: rightArrow(),
+					onClick: () => {
+						return Pages.yearRecap;
+					}
+				}
+			],
+			allowClose: true,
+		};
+}
+
 
 export function getEmptyInfoDialogState() {
 	return {
