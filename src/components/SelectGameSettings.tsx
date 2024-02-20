@@ -207,7 +207,8 @@ export function newSelectGameSettingsControl(props: SelectGameSettingsControlPro
 }
 
 export function getFinancingStartYear() {
-    return process.env.NODE_ENV == 'development' ? 1 : 3;
+    // return process.env.NODE_ENV == 'development' ? 1 : 3;
+    return 3;
 }
 
 /**

@@ -528,7 +528,6 @@ export class ProjectControl implements ProjectControlParams {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
 			}
-			console.log('canImplement', canImplement);
 			return canImplement;
 		}
 
