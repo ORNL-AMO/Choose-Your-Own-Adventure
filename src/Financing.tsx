@@ -112,10 +112,8 @@ export function setCapitalFundingRoundUsed(capitalFundingState: CapitalFundingSt
 export function removeCapitalFundingRoundUsed(capitalFundingState: CapitalFundingState, isRoundA: boolean) {
     if (isRoundA) {
         capitalFundingState.roundA.usedOnProjectId = undefined;
-        console.log('Remove capital funding A')
     } else if (isRoundA === false) {
         capitalFundingState.roundB.usedOnProjectId = undefined;
-        console.log('Remove capital funding B')
     }
     return capitalFundingState;
 }
