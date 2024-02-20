@@ -74,12 +74,11 @@ $blur-radius: 5px;
 		justify-content: center;
 		display: flex;
 	flex-wrap: wrap;
-	& > * {
-		padding: 8px;
-	}
+	padding-left: 0;
+
 }
 
-.year-recap-rebate-surprise {
+.year-recap-positive-surprise {
 	background: linear-gradient(to right bottom, rgba(63, 163, 0, 1), rgb(80, 161, 0) 120%)!important;
 	// color: rgba(255, 255, 255, 0.9)!important;
 	& .emphasis {
@@ -87,7 +86,7 @@ $blur-radius: 5px;
 	}
 }
 
-.year-recap-hidden-surprise {
+.year-recap-negative-surprise {
 	background: linear-gradient(to right bottom, rgba(251, 67, 67, 98%), rgb(147, 39, 39) 120%)!important;
 	// color: rgba(255, 255, 255, 0.9)!important;
 	& .emphasis {
@@ -96,7 +95,7 @@ $blur-radius: 5px;
 }
 
 
-#alert-dialog-slide-description, #selectYearInterval, #allowCarryover, #allowEnergyCarryover {
+#alert-dialog-slide-description, #selectGameYearInterval, #selectFinancingStartYear, #selectAllowBudgetCarryover, #selectEnergyCarryoverYears {
 	color: black;
 }
 

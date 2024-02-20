@@ -22,6 +22,8 @@ const Pages = {
 	processHeatingUpgrades: Symbol('process-heating-upgrades'),
 	hydrogenPoweredForklifts: Symbol('hydrogen-powered-forklifts'),
 	electricBoiler: Symbol('electric-boiler'),
+	hydrogenFuel: Symbol('hydrogen-fuel'),
+	h2InjectionIntoHRSG: Symbol('h2-injection-into-HRSG'),
 	// below: scope 2 projects
 	lightingUpgrades: Symbol('explore-lighting-upgrades'),
 	greenPowerTariff: Symbol('green-power-tariff'),

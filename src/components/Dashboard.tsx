@@ -6,18 +6,32 @@ import {
 	MobileStepper,
 	Paper,
 	styled,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TableRow,
 	Typography,
 } from '@mui/material';
 import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
 import React from 'react';
 import GaugeChart from './GaugeChart';
-import { theme } from './theme';
+import { StyledTableCell, StyledTableRow, theme } from './theme';
 import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
 import { statsGaugeProperties } from '../trackedStats';
-import type { GameSettings } from '../Projects';
+import { Table } from '@mui/material';
+import { GameSettings } from './SelectGameSettings';
+
+export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
+	onBack?: () => void;
+	onProceed: () => void;
+	btnBackDisabled: boolean;
+	btnProceedDisabled: boolean;
+}
+
 
 export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 
@@ -34,7 +48,8 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		});
 		
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
-		const carbonSavingsFormatted: string = `${carbonSavingsPercent.toFixed(1)}%`;
+		const carbonSavingsFractionValue = clampRatio(this.props.carbonSavingsPercent, 1);
+		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 		
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
 		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
@@ -52,17 +67,16 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		const electricityUseFormatted: string = noDecimalsFormatter.format(this.props.electricityUseKWh);
 		const hydrogenFormatted: string = noDecimalsFormatter.format(this.props.hydrogenMMBTU);
 
-		const financesFormatted: number = Number(this.props.financesAvailable.toFixed(0));
-
+		const financesFormatted = Number(this.props.financesAvailable.toFixed(0));
 
 		return (
 			<>
 			<Divider/>
 				<MobileStepper
 					variant='progress'
-					steps={this.props.totalIterations}
+					steps={this.props.totalGameYears}
 					position='static'
-					activeStep={this.props.year - 1}
+					activeStep={this.props.currentGameYear - 1}
 					LinearProgressProps={{sx: {height: '16px', width: '50%'}}}
 					sx={{ padding: '.75rem' }}
 					backButton={
@@ -84,35 +98,36 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							endIcon={rightArrow()}
 							buttonDisabled={this.props.btnProceedDisabled}
 						>
-							{this.props.totalIterations == 5 &&
+							{this.props.totalGameYears == 5 &&
 								<div
 									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
-									Commit to your selected projects and proceed to Years {this.props.yearInterval} and {this.props.yearInterval + 1}.
+									Commit to your selected projects and proceed to Years {this.props.gameYearDisplayOffset} and {this.props.gameYearDisplayOffset + 1}.
 								</div>
 							}
-							{this.props.totalIterations == 10 &&
+							{this.props.totalGameYears == 10 &&
 								<div
 									style={{ maxWidth: '200px' }}
 								>
 									{/* todo: special case for last year! */}
-									Commit to your selected projects and proceed to Year {this.props.year}.
+									Commit to your selected projects and proceed to Year {this.props.currentGameYear}.
 								</div>
 							}
 						</BasicPopover>
 					}
 				/>
+				
 				<Box m={2}>
 					{/* todo timer for each year */}
-					{this.props.totalIterations == 5 &&
+					{this.props.totalGameYears == 5 &&
 						<Typography variant='h6'>
-							Years {this.props.yearInterval} and {this.props.yearInterval + 1} of 10
+							Years {this.props.gameYearDisplayOffset} and {this.props.gameYearDisplayOffset + 1} of 10
 						</Typography>
 					}
-					{this.props.totalIterations == 10 &&
+					{this.props.totalGameYears == 10 &&
 						<Typography variant='h6'>
-							Year {this.props.year} of 10
+							Year {this.props.currentGameYear} of 10
 						</Typography>
 					}
 					<Grid container spacing={2}>
@@ -120,9 +135,9 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 							{/* <Typography variant="h3">Dashboard</Typography> */}
 							<GaugeChart
 								width={CHART_SIZE}
-								value1={clampRatio(this.props.carbonSavingsPercent, 1)}
+								value1={carbonSavingsFractionValue}
 								text={carbonSavingsFormatted}
-								label='Carbon Savings'
+								label='GHG Reduction'
 								textFontSize={0.85}
 								color1={theme.palette.primary.dark}
 								ticks={[{
@@ -186,99 +201,64 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								data={[{
 									// Finances available can be negative UP TO the amount of rebates.... may be changed later
 									'Finances available': Math.max(financesFormatted, 0),
-									'Money spent': this.props.moneySpent,
+									'Money spent': this.props.implementationSpending,
 								}]}
 							/>
-						</Grid>
-
-
-						<Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 16 }} pt={3}>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas emission rate: {
-										naturalGasEmissionRateFormatted
-									} kg/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from natural gas: {
-										emissionsFromNaturalGasFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas: ${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Natural gas cost: ${naturalGasCost}
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity emission rate: {
-										electricityEmissionRateFormatted
-									} kg/kWh
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from electricity: {
-										emissionsFromElectricityFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity: ${this.props.electricityCostPerKWh.toFixed(2)}/kWh
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Electricity cost: ${electricityCost}
-								</Typography>
-							</Grid>
-
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen emission rate: {
-										hydrogenEmissionRateFormatted
-									} kg/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Emissions from Hydrogen: {
-										emissionsFromHydrogenFormatted
-									} metric tons
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen: ${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU
-								</Typography>
-							</Grid>
-							<Grid item xs={2} sm={4} md={4}>
-								<Typography id='dashboardText'>
-									Hydrogen cost: ${hydrogenCost}
-								</Typography>
-							</Grid>
-						</Grid>
-
+						</Grid>		
 					</Grid>
+					<TableContainer component={Paper} sx={{ marginTop: 3}}>
+						<Table sx={{ minWidth: 650 }} size='small' aria-label='simple table'>
+							<TableHead>
+								<TableRow>
+									<StyledTableCell align='center'> </StyledTableCell>
+									<StyledTableCell align='center'>Natural Gas</StyledTableCell>
+									<StyledTableCell align='center'>Electricity</StyledTableCell>
+									<StyledTableCell align='center'>Hydrogen</StyledTableCell>
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								<StyledTableRow
+									key={'naturalGas'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'> {'Emission Rate'}</StyledTableCell>
+									<StyledTableCell align='center'>{naturalGasEmissionRateFormatted} kg/MMBTU</StyledTableCell>
+									<StyledTableCell align='center'>{electricityEmissionRateFormatted} kg/kWh</StyledTableCell>											
+									<StyledTableCell align='center'>{hydrogenEmissionRateFormatted} kg/MMBTU</StyledTableCell> 
+								</StyledTableRow>
+								<StyledTableRow
+									key={'electricity'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Emissions from Utility'}</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromNaturalGasFormatted} metric tons</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromElectricityFormatted} metric tons</StyledTableCell>
+									<StyledTableCell align='center'>{emissionsFromHydrogenFormatted} metric tons</StyledTableCell>
+								</StyledTableRow>
+								<StyledTableRow
+									key={'hydrogen'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Utility Cost per unit'}</StyledTableCell>
+									<StyledTableCell align='center'>${this.props.naturalGasCostPerMMBTU.toFixed(2)}/kWh</StyledTableCell>
+									<StyledTableCell align='center'>${this.props.electricityCostPerKWh.toFixed(2)}/kWh</StyledTableCell>									
+									<StyledTableCell align='center'>${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
+								</StyledTableRow>
+								<StyledTableRow
+									key={'financedTotalCosts'}
+									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+								>
+									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Total Cost'}</StyledTableCell>
+									<StyledTableCell align='center'>${naturalGasCost}</StyledTableCell>
+									<StyledTableCell align='center'>${electricityCost}</StyledTableCell>		
+									<StyledTableCell align='center'>${hydrogenCost}</StyledTableCell>
+								</StyledTableRow>
+							</TableBody>
+						</Table>
+					</TableContainer>
 				</Box>
 				<Divider variant='middle' />
 			</>
 		);
 	}
-}
-
-export interface DashboardProps extends ControlCallbacks, TrackedStats, GameSettings {
-	onBack?: () => void;
-	onProceed: () => void;
-	btnBackDisabled: boolean;
-	btnProceedDisabled: boolean;
 }

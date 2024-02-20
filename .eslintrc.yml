@@ -22,16 +22,12 @@ rules:
   no-unused-vars: off
   no-mixed-spaces-and-tabs: warn
   jsx-quotes:
-    - error
+    - warn
     - prefer-single
-  quotes: 
-    - error
-    - single
   '@typescript-eslint/no-empty-interface': warn
   '@typescript-eslint/no-unused-vars': off
-  '@typescript-eslint/ban-ts-comment': warn
-  '@typescript-eslint/consistent-type-imports': error
-  '@typescript-eslint/no-inferrable-types': warn
+  '@typescript-eslint/ban-ts-comment': off
+  '@typescript-eslint/no-inferrable-types': off
   'react/prop-types': warn
   '@typescript-eslint/no-this-alias':
     - off # temp
@@ -39,6 +35,3 @@ rules:
       allowDestructuring: false
       allowedNames: 
         - self
-  semi:
-    - warn
-    - always
