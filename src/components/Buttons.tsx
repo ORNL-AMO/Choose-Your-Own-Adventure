@@ -1,4 +1,4 @@
-import { Button, Stack } from '@mui/material';
+import { Button, MenuItem, Select, SelectChangeEvent, Stack } from '@mui/material';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -15,6 +15,10 @@ import { fillProjectDialogProps } from './Dialogs/ProjectDialog';
  */
 export declare interface ButtonGroupButton {
 	text: string;
+	/**
+	 * Determines input type: Button or Select
+	 */
+	inputType: 'button' | 'select';
 	variant: buttonVariant;
 	color?: 'primary' | 'inherit' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | undefined;
 	/**
@@ -47,6 +51,12 @@ export declare interface ButtonGroupButton {
 	shouldDisplay?: Resolvable<boolean>
 	href?: string;
 	target?: React.HTMLAttributeAnchorTarget;
+	/**
+	 * Below properties are for Select input type
+	 */
+	value?: string;
+	onChange?: SelectChangeEvent<string>;
+	selectOptions?: string[];
 }
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
@@ -85,71 +95,90 @@ export function ButtonGroup(props: ButtonGroupProps) {
 
 export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupButton, idx: number) {
 	let thisDisabled = props.resolveToValue(props.disabled, false);
-	if (button.disabled) {
-		thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
-	}
-
-	// todo 142 remove this and related. use distinct different components or better language if we need mutual exlusivity
-	if (
-		(button.infoPopup && (button.infoDialog || button.onClick)) ||
-		(button.infoDialog && (button.infoPopup || button.onClick)) ||
-		(button.onClick && (button.infoPopup || button.infoDialog))
-	) {
-		throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
-	}
-
-	let stateDependentText = props.resolveToValue(button.getDynamicButtonText);
-	if (stateDependentText) {
-		button.text = stateDependentText;
-	}
-
-	if (button.infoPopup) {
+	if (button.inputType === 'button') {
+		if (button.disabled) {
+			thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+		}
+	
+		// todo 142 remove this and related. use distinct different components or better language if we need mutual exlusivity
+		if (
+			(button.infoPopup && (button.infoDialog || button.onClick)) ||
+			(button.infoDialog && (button.infoPopup || button.onClick)) ||
+			(button.onClick && (button.infoPopup || button.infoDialog))
+		) {
+			throw new Error('Button has multiple mutually exclusive properties, infoPopup/infoDialog/onClick');
+		}
+	
+		let stateDependentText = props.resolveToValue(button.getDynamicButtonText);
+		if (stateDependentText) {
+			button.text = stateDependentText;
+		}
+	
+		if (button.infoPopup) {
+			return (
+				<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
+					{button.infoPopup}
+				</BasicPopover>
+			);
+		} else if (button.href) {
+			// Button with href (using 'a' as the root node)
+			return (
+				<Button
+					key={idx}
+					variant={button.variant}
+					color={button.color}
+					startIcon={props.resolveToValue(button.startIcon)}
+					endIcon={props.resolveToValue(button.endIcon)}
+					size={button.size}
+					href={button.href}
+					target={button.target}
+					disabled={thisDisabled}
+				>
+					{button.text}
+				</Button>
+			);
+		}
+		// Button without href
+		else {
+			return (
+				<Button
+					key={idx}
+					variant={button.variant}
+					color={button.color}
+					startIcon={props.resolveToValue(button.startIcon)}
+					endIcon={props.resolveToValue(button.endIcon)}
+					size={button.size}
+					disabled={thisDisabled}
+					onClick={() => {
+						if (button.onClick) {
+							props.doPageCallback(button.onClick);
+						}
+						else if (button.projectDialog) {
+							// todo 25 set availableProjectIds should probably happen here instead of <InfoDialog/> useEfffect
+							props.displayProjectDialog(button.projectDialog);
+						}
+					}}
+				>
+					{button.text}
+				</Button>
+			);
+		}
+	} 
+	if (button.inputType === 'select') {
 		return (
-			<BasicPopover key={idx} text={button.text} buttonVariant={button.variant} startIcon={props.resolveToValue(button.startIcon)}>
-				{button.infoPopup}
-			</BasicPopover>
-		);
-	} else if (button.href) {
-		// Button with href (using 'a' as the root node)
-		return (
-			<Button
+			<Select
 				key={idx}
-				variant={button.variant}
-				color={button.color}
-				startIcon={props.resolveToValue(button.startIcon)}
-				endIcon={props.resolveToValue(button.endIcon)}
-				size={button.size}
-				href={button.href}
-				target={button.target}
-				disabled={thisDisabled}
+				value={button.value}
+				//onChange={}
 			>
-				{button.text}
-			</Button>
-		);
-	}
-	// Button without href
-	else {
-		return (
-			<Button
-				key={idx}
-				variant={button.variant}
-				color={button.color}
-				startIcon={props.resolveToValue(button.startIcon)}
-				endIcon={props.resolveToValue(button.endIcon)}
-				size={button.size}
-				disabled={thisDisabled}
-				onClick={() => {
-					if (button.onClick) {
-						props.doPageCallback(button.onClick);
-					}
-					else if (button.projectDialog) {
-						// todo 25 set availableProjectIds should probably happen here instead of <InfoDialog/> useEfffect
-						props.displayProjectDialog(button.projectDialog);
-					}
-				}}
-			>
-				{button.text}
-			</Button>
+				{button.selectOptions.map((selectOption, index ) => {
+					return (
+						<MenuItem key={selectOption} value={selectOption}>{selectOption}</MenuItem>
+					);
+				})}
+		
+			</Select>
+
 		);
 	}
 }
@@ -164,6 +193,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 export function backButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Back',
+		inputType: 'button',
 		variant: 'text',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
@@ -178,6 +208,7 @@ export function backButton(onClick: PageCallback, disabled?: Resolvable<boolean>
 export function continueButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Continue',
+		inputType: 'button',
 		variant: 'text',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
@@ -192,6 +223,7 @@ export function continueButton(onClick: PageCallback, disabled?: Resolvable<bool
 export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Select',
+		inputType: 'button',
 		variant: 'contained',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
@@ -211,6 +243,7 @@ export function selectButton(onClick: PageCallback, disabled?: Resolvable<boolea
 export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolvable<boolean>, selected?: Resolvable<boolean>, shouldDisplay?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Implement Project',
+		inputType: 'button',
 		color: 'success',
 		variant: 'contained',
 		onClick: function (...params) {
@@ -235,6 +268,7 @@ export function implementButtonCheckbox(onClick: PageCallback, disabled?: Resolv
 export function infoButtonWithPopup(popupContents: React.ReactNode, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: 'Info',
+		inputType: 'button',
 		variant: 'outlined',
 		infoPopup: popupContents,
 		startIcon: <QuestionMarkIcon/>,
@@ -248,6 +282,7 @@ export function infoButtonWithPopup(popupContents: React.ReactNode, disabled?: R
 export function iconButtonWithPopupText(text: string, icon: React.ReactNode, popupContents: React.ReactNode, disabled?: Resolvable<boolean>): ButtonGroupButton {
 	return {
 		text: text,
+		inputType: 'button',
 		variant: 'text',
 		startIcon: icon,
 		infoPopup: popupContents,
@@ -265,6 +300,7 @@ export function infoButtonWithProjectDialog(dialogProps: DialogControlProps, dis
 	dialogProps.allowClose = true; // Allow closing with the esc button or by clicking outside of the dialog
 	return {
 		text: 'Info',
+		inputType: 'button',
 		variant: 'outlined',
 		startIcon: <QuestionMarkIcon/>,
 		projectDialog: fillProjectDialogProps(dialogProps),
@@ -284,6 +320,7 @@ export function infoButtonWithProjectDialog(dialogProps: DialogControlProps, dis
 export function compareButton(addProjectToCompare: PageCallback, selected: Resolvable<boolean>, disabled?: Resolvable<boolean>, buttonText?: Resolvable<string>): ButtonGroupButton {
 	return {
 		text: 'Compare',
+		inputType: 'button',
 		variant: 'outlined',
 		onClick: function (...params) {
 			return resolveToValue(addProjectToCompare, undefined, params, this);
@@ -314,6 +351,7 @@ export function compareButton(addProjectToCompare: PageCallback, selected: Resol
 export function deselectButton(onClick: AppStateCallback): ButtonGroupButton {
 	return {
 		text: 'Deselect',
+		inputType: 'button',
 		variant: 'outlined',
 		onClick: function (...params) {
 			return resolveToValue(onClick, undefined, params, this);
@@ -330,6 +368,7 @@ export function closeDialogButton(text?: string, disabled?: Resolvable<boolean>)
 	if (!text) text = 'Back';
 	return {
 		text: text,
+		inputType: 'button',
 		variant: 'text',
 		onClick: function (this: App, state) {
 			this.handleDialogClose();

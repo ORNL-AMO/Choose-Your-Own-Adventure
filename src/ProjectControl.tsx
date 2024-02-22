@@ -16,10 +16,11 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
+import { GameSettings } from './components/SelectGameSettings';
 
 export class ProjectControl implements ProjectControlParams {
 	pageId: symbol;
@@ -199,6 +200,7 @@ export class ProjectControl implements ProjectControlParams {
 		addCompareProjectButton(choiceCardButtons);
 		choiceCardButtons.push(infoButtonWithProjectDialog(this.projectDialogControl));
 		addImplementProjectCheckedButton(choiceCardButtons, hasFinancingOptions);
+		addDropdownFinancingType(choiceCardButtons, hasFinancingOptions, financingOptionCards);
 
 		if (self.energySavingsPreviewIcon) {
 			energySavingsPreviewIcons.push(self.energySavingsPreviewIcon);
@@ -288,6 +290,7 @@ export class ProjectControl implements ProjectControlParams {
 			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost)
 			let financedButton: ButtonGroupButton = {
 					text: 'Implement Project',
+					inputType: 'button',
 					variant: 'contained',
 					color: 'success',
 					startIcon: function (...params) {
@@ -314,6 +317,7 @@ export class ProjectControl implements ProjectControlParams {
 		function getFinancingTypeImplementButton(financingOption: FinancingOption): ButtonGroupButton {
 			return {
 				text: 'Implement Project',
+				inputType: 'button',
 				variant: 'contained',
 				color: 'success',
 				onClick: function (state, nextState) {
@@ -342,6 +346,55 @@ export class ProjectControl implements ProjectControlParams {
 					}
 				}
 			}
+		}
+
+		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptionCards: DialogFinancingOptionCard[]) {
+			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
+			let hasFinancingStarted = (props) => {
+				return props.trackedStats.currentGameYear >= gameSettings.financingStartYear;
+				//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			};
+			// let capitalFundingState = (props) => {
+			// 	return props.capitalFundingState;
+			// 	//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			// };
+			let selectOptions: string[] = [];
+			selectOptions.push('Select Financing');			
+			selectOptions.push('Budget');
+			
+			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
+				let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
+				//let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
+				if (option.financingType.id === 'budget') {
+					return true;
+				}
+				return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true);
+			});
+
+			financingOptionCards.forEach(option => {
+				if (option.financedAnnualCost !== undefined) {
+					selectOptions.push(option.financingType.name);
+				}
+			});
+
+			let dropdownSelect: ButtonGroupButton =  {
+				text: 'Implement Project',
+				inputType: 'select',
+				variant: 'contained',
+				color: 'success',
+				value: 'Select Financing',
+				selectOptions: selectOptions,
+				// disabled when the project is implemented
+				disabled: (state) => {
+					if (self.isRenewable) {
+						return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+					} else {
+						return state.implementedProjectsIds.includes(self.pageId);
+					}
+				}
+			}
+
+			buttons.push(dropdownSelect);
 		}
 
 		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
