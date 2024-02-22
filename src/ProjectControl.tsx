@@ -20,6 +20,7 @@ import { CapitalFundingState, FinancingId, FinancingOption, findFinancingOptionF
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
+import { GameSettings } from './components/SelectGameSettings';
 
 export class ProjectControl implements ProjectControlParams {
 	pageId: symbol;
@@ -501,8 +502,9 @@ export class ProjectControl implements ProjectControlParams {
 		}
 
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
+			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 			let canImplement = true;
-			let projectImplementationLimit = 4;
+			let projectImplementationLimit = gameSettings.useGodMode? 1000 : 4;
 			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
 			if (state.gameSettings.totalGameYears === 5) {
 				projectImplementationLimit = 6;
