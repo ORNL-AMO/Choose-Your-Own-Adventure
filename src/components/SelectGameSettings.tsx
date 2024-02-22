@@ -91,19 +91,23 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                 inputProps={{ 'aria-label': 'controlled' }}
                                 />
                              <List dense={true}>
-                                    <ListItem>
+                                <ListItem>
                                     <ListItemText
                                         primary="Inflated budget"
                                         secondary={'$5,000,000'}
                                     />
+                                </ListItem>
+                                <ListItem>
                                     <ListItemText
                                         primary="No limit on project count"
                                     />
+                                </ListItem>
+                                <ListItem>
                                     <ListItemText
                                         primary="No warnings for Scopes or Capital funding use in same year"
                                     />
-                                    </ListItem>,
-                                </List>               
+                                </ListItem>
+                            </List>              
                         </Box>
                     }
                     <Box m={2}>
