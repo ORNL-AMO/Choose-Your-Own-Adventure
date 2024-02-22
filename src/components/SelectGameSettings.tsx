@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -34,6 +34,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
         loan: true,
         greenBond: false,
       });
+    const [useGodMode, setUseGodMode] = React.useState(false);
+
 
     const handleIntervalChange = (event: SelectChangeEvent<number>) => {
         setGameYearInterval(event.target.value as number);
@@ -56,9 +58,15 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
             ...financingOptions,
             [event.target.name]: event.target.checked
         });
-      };
-      const { xaas, loan, greenBond } = financingOptions;
-      const invalidFinancingOptionsError = [xaas, loan, greenBond].filter((v) => v).length !== 2;
+    };
+    const { xaas, loan, greenBond } = financingOptions;
+    const invalidFinancingOptionsError = [xaas, loan, greenBond].filter((v) => v).length !== 2;
+
+
+    const handleGodMode = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUseGodMode(event.target.checked);
+    };
+
 
     return (
         <>
@@ -72,6 +80,32 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogTitle>
 
                 <DialogContent>
+                    {process.env.NODE_ENV == 'development' && 
+                        <Box m={2} p='16px' sx={{background: '#ff000052'}}>
+                            <InputLabel
+                            sx={{fontWeight: '800'} }
+                            id='useGodMode'>DEVELOPMENT ONLY: Activate law-less mode</InputLabel>
+                            <Checkbox
+                                checked={useGodMode}
+                                onChange={handleGodMode}
+                                inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                             <List dense={true}>
+                                    <ListItem>
+                                    <ListItemText
+                                        primary="Inflated budget"
+                                        secondary={'$5,000,000'}
+                                    />
+                                    <ListItemText
+                                        primary="No limit on project count"
+                                    />
+                                    <ListItemText
+                                        primary="No warnings for Scopes or Capital funding use in same year"
+                                    />
+                                    </ListItem>,
+                                </List>               
+                        </Box>
+                    }
                     <Box m={2}>
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
                             You have the option to play through in 1 OR 2-year intervals.
@@ -184,7 +218,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         financingStartYear,
                                         energyCarryoverYears,
                                         allowBudgetCarryover,
-                                        financingOptions
+                                        financingOptions,
+                                        useGodMode
                                     })
                             }
                         }} >
@@ -239,6 +274,7 @@ export interface UserSettings {
 	financingStartYear: number,
 	energyCarryoverYears: number,
 	allowBudgetCarryover: string,
+    useGodMode: boolean,
 	financingOptions: GameFinancingOptions
 }
 

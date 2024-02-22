@@ -166,6 +166,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				financingStartYear: 3,
 				energyCarryoverYears: 0,
 				allowBudgetCarryover: 'no',
+				useGodMode: false,
 				financingOptions: {
 					xaas: false,
 					greenBond: false,
@@ -376,7 +377,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	displayWarningDialogs(): boolean {
 		let warningDialogProps: InfoDialogControlProps = getDefaultWarningDialogProps();
-		let hasScopesWarning = this.state.completedYears < 1;
+		const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
+		let hasScopesWarning = gameSettings.useGodMode? false : this.state.completedYears < 1;
+		let canUseCapitalFunding = gameSettings.useGodMode? true : getCanUseCapitalFunding(this.state.capitalFundingState);
+		
 		if (hasScopesWarning) {
 			let renewableProjectSymbols = [...this.state.implementedRenewableProjects].map(project => project.page);
 			let hasSelectedScope1Projects = Scope1Projects.some((page) => {
@@ -393,7 +397,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 			hasScopesWarning = !hasSelectedScope1Projects || !hasSelectedScope2Projects;
 		}
 		
-		let canUseCapitalFunding = getCanUseCapitalFunding(this.state.capitalFundingState);
 		if (canUseCapitalFunding) {
 			warningDialogProps.text = 'Your Capital Funding reward must be used in this budget period or the funding will be lost.';
 		}
@@ -441,6 +444,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let completedProjects: CompletedProject[] = [...this.state.completedProjects];
 		let renewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 
+		// todo previousYear is actually currentYearIndex
 		let previousYear: number = this.state.trackedStats.currentGameYear > 1 ? this.state.trackedStats.currentGameYear - 1 : 0;
 		let previousYearIndex = previousYear - 1;
 		let updatedCompletedProjects: CompletedProject[] = completedProjects.filter(project => project.completedYear !== previousYear);
@@ -552,6 +556,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 			capitalFundingState: newCapitalFundingState
 		});
 
+		// debugger;
+		// if (newYearTrackedStats.currentGameYear === 2) {
+		// 	newYearTrackedStats.carbonSavingsPercent = .5
+		// 	console.log('yearRangeInitialStats', this.state.yearRangeInitialStats);
+		// }
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
 			this.setPage(Pages.winScreen);
 		} else if (newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1) {
@@ -601,7 +610,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 			naturalGas = 240_000;
 			electricity = 60_000_000;
 			hydrogen = 120_000;
-			totalGameYears = 5
+			totalGameYears = 5;
+		}
+
+		if (userSettings.useGodMode) {
+			budget = 5_000_000;
 		}
 		updatingInitialTrackedStats.yearBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;
@@ -700,8 +713,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 									componentClass={this.state.componentClass}
 									controlProps={this.state.currentPageProps}
 									defaultTrackedStats ={this.state.defaultTrackedStats }
-									implementedProjectsIds={this.state.implementedProjectsIds} // note: if implementedProjectsIds is not passed into CurrentPage, then it will not update when the select buttons are clicked
-									implementedRenewableProjects={this.state.implementedRenewableProjects} // note: if implementedProjectsIds is not passed into CurrentPage, then it will not update when the select buttons are clicked
+									implementedProjectsIds={this.state.implementedProjectsIds} 
+									implementedRenewableProjects={this.state.implementedRenewableProjects} 
 									implementedFinancedProjects={this.state.implementedFinancedProjects} 
 									availableProjectIds={this.state.availableProjectIds}
 									selectedProjectsForComparison={this.state.selectedProjectsForComparison}
