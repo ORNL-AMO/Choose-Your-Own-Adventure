@@ -379,7 +379,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let warningDialogProps: InfoDialogControlProps = getDefaultWarningDialogProps();
 		const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 		let hasScopesWarning = gameSettings.useGodMode? false : this.state.completedYears < 1;
-		let canUseCapitalFunding = gameSettings.useGodMode? true : getCanUseCapitalFunding(this.state.capitalFundingState);
+		let canUseCapitalFunding = gameSettings.useGodMode? false : getCanUseCapitalFunding(this.state.capitalFundingState);
 		
 		if (hasScopesWarning) {
 			let renewableProjectSymbols = [...this.state.implementedRenewableProjects].map(project => project.page);
