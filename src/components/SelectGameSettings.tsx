@@ -94,7 +94,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                 <ListItem>
                                     <ListItemText
                                         primary="Inflated budget"
-                                        secondary={'$5,000,000'}
+                                        secondary={'$100,000,000 a year'}
                                     />
                                 </ListItem>
                                 <ListItem>
