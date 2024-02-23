@@ -614,7 +614,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		}
 
 		if (userSettings.useGodMode) {
-			budget = 5_000_000;
+			budget = 100_000_000 * userSettings.gameYearInterval;
 		}
 		updatingInitialTrackedStats.yearBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;
