@@ -548,11 +548,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 			capitalFundingState: newCapitalFundingState
 		});
 
-		// debugger;
-		// if (newYearTrackedStats.currentGameYear === 2) {
-		// 	newYearTrackedStats.carbonSavingsPercent = .5
-		// 	console.log('yearRangeInitialStats', this.state.yearRangeInitialStats);
-		// }
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
 			this.setPage(Pages.winScreen);
 		} else if (newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1) {

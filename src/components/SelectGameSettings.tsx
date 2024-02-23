@@ -82,14 +82,15 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 <DialogContent>
                     {process.env.NODE_ENV == 'development' && 
                         <Box m={2} p='16px' sx={{background: '#ff000052'}}>
-                            <InputLabel
-                            sx={{fontWeight: '800'} }
-                            id='useGodMode'>DEVELOPMENT ONLY: Activate law-less mode</InputLabel>
-                            <Checkbox
-                                checked={useGodMode}
-                                onChange={handleGodMode}
-                                inputProps={{ 'aria-label': 'controlled' }}
-                                />
+                            <FormGroup>
+                                <FormControlLabel control={
+                                    <Checkbox
+                                        checked={useGodMode}
+                                        onChange={handleGodMode}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />
+                                } label='Activate law-less mode (DEVELOPMENT ONLY)' />
+                            </FormGroup>
                              <List dense={true}>
                                 <ListItem>
                                     <ListItemText

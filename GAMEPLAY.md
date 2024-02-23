@@ -47,7 +47,7 @@ Players will be awarded Capital Funding rewards (one free project) for reaching 
 Shows completed projects after their implementation year, as well non-renewable financed projects.
 
 ### Hidden and Rebates
-
+Are only applied in the first year that the project is implemented.
 
 ## Other
 When players move backward one year, their project implementation choices, savings, and budget reflect that year's state prior to Year Recap

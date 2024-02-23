@@ -723,10 +723,9 @@ export class ProjectControl implements ProjectControlParams {
 	 */
 	getYearEndTotalSpending(financingOption: FinancingOption, gameYearInterval: number, calculateExtraCosts: boolean = true): number {
 		let cost = this.getImplementationCost(financingOption.financingType.id, gameYearInterval);
-
 		if (calculateExtraCosts) {
-			const rebates = this.getYearEndRebates() * gameYearInterval;
-			const hiddenCosts = this.getHiddenCost() * gameYearInterval;
+			const rebates = this.getYearEndRebates();
+			const hiddenCosts = this.getHiddenCost();
 			return cost - rebates + hiddenCosts;
 		} else {
 			return cost;
