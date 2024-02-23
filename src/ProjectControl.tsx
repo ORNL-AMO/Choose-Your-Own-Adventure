@@ -397,6 +397,51 @@ export class ProjectControl implements ProjectControlParams {
 			buttons.push(dropdownSelect);
 		}
 
+
+
+		// function addDropdownFinancingType(buttons: ButtonGroupButton[]) {
+			
+		// 	// todo selectOptions callback function - should return an array of FinancingId type's that you'll use in onChange() and as selected value, 
+		// 	// OR FinancingOption[] depending on what MUI MenuItem accepts
+		// 	let selectOptions = function (state, nextState) {
+		// 		// todo set financing options based on state that resolveToValue() will give you in Buttons.tsx at render time
+		// 		let financingIds: FinancingId[] = [];
+		// 		return financingIds;
+		// 	}
+
+			
+
+		// 	let dropdownSelect: ButtonGroupButton =  {
+		// 		text: 'Implement Project',
+		// 		inputType: 'select',
+		// 		variant: 'contained',
+		// 		color: 'success',
+
+		// 		// todo 'budget' (FinancingId type)
+		// 		value: 'Select Financing',
+		// 		// todo make selectOptions property a Resolvable<WhateverType this method will return>
+		// 		// * think of a Resolvable as saying "Hey I want to call this method when you update the page with new data".
+		// 		selectOptions: selectOptions,
+
+		// 		// todo - onChange should have similar structure to onClick for getFinancingTypeImplementButton
+		// 		// * onChange should probably use the FinancingId type so you can .find() the correct financingOption in the financingOptions - see Buttons.tsx onChange
+		// 		onChange: (state) => {
+					
+		// 		}
+				
+		// 		// todo don't even worry about this right now, just set always true till you're finished devving other stuff 
+		// 		disabled: (state) => {
+		// 			if (self.isRenewable) {
+		// 				return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+		// 			} else {
+		// 				return state.implementedProjectsIds.includes(self.pageId);
+		// 			}
+		// 		}
+		// 	}
+
+		// 	buttons.push(dropdownSelect);
+		// }
+
 		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
 			let availableProjectIds = [...state.availableProjectIds];
 			const existingIndex: number = availableProjectIds.findIndex(projectPageId => projectPageId === self.pageId);

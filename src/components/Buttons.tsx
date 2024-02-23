@@ -55,6 +55,7 @@ export declare interface ButtonGroupButton {
 	 * Below properties are for Select input type
 	 */
 	value?: string;
+	// todo onChange, selectOptions should be Resolvable<whatever-type>
 	onChange?: SelectChangeEvent<string>;
 	selectOptions?: string[];
 }
@@ -180,6 +181,39 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 			</Select>
 
 		);
+
+
+
+		// 		// * resolveToValue - give  (state, nextState) values to the selectOptions() callback you defined in ProjectControl
+		// 		let selectOptions = props.resolveToValue(button.selectOptions);
+		// 		// todo selectOptions will either be FinancingId[] or FinancingOption
+		// 		let menuItems = selectOptions.map((selectOption, index ) => {
+		// 			return (
+		// 				<MenuItem key={selectOption} value={selectOption}>{selectOption}</MenuItem>
+		// 			);
+		// 		})
+		
+		// 		return (
+		// 			<Select
+		// 				key={idx}
+		// 				value={''}
+		// 				onChange={(newValue) => {
+		// 					// this is where your button.onchange will do it's thing with the newValue it receives from the Select
+		// 				}}
+		// 			>
+		// 				{menuItems}
+				
+		// 			</Select>
+		
+		// );
+
+
+
+
+
+
+
+
 	}
 }
 
