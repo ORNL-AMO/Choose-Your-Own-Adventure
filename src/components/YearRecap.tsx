@@ -668,7 +668,7 @@ function addPreviousRenewablesForDisplay(implementedRenewableProjects: Renewable
 function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[], implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number) {
 	implementedProjects.forEach(project => {
 		if (project.recapSurprises) {
-			let shouldShowSurprise = getShouldShowHiddenCostCards(project, implementedFinancedProjects, renewableProjects, currentGameYear);
+			let shouldShowSurprise = getHasActiveHiddenCost(project, implementedFinancedProjects, renewableProjects, currentGameYear);
 			if (shouldShowSurprise) {
 				projectRecapCards.push(
 					...project.recapSurprises.map((projectSurprise, index) => {
@@ -682,18 +682,18 @@ function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRec
 	});
 }
 
-function getShouldShowHiddenCostCards(project: ProjectControl, implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number): boolean {
-	let shouldShowSurprise = true;
+export function getHasActiveHiddenCost(project: ProjectControl, implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number): boolean {
+	let hasActiveHiddenCosts = true;
 	let renewableProject = renewableProjects.find(renewable => renewable.page === project.pageId);
 	if (renewableProject && renewableProject.yearStarted !== currentGameYear) {
-		shouldShowSurprise = false;
+		hasActiveHiddenCosts = false;
 	} else {
 		let financedProject = implementedFinancedProjects.find(implementedProject => implementedProject.page === project.pageId);
 		if (financedProject && renewableProject.yearStarted !== currentGameYear) {
-			shouldShowSurprise = false;
+			hasActiveHiddenCosts = false;
 		}
 	}
-	return shouldShowSurprise;
+	return hasActiveHiddenCosts;
 }
 
 
@@ -732,7 +732,7 @@ function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapC
 	let rebateProjects: ProjectControl[] = implementedProjects.filter(project => {
 		let rebateValue = Number(project.utilityRebateValue);
 		if (rebateValue) {
-			let shouldShowSurprise = getShouldShowHiddenCostCards(project, implementedFinancedProjects, renewableProjects, currentGameYear)
+			let shouldShowSurprise = getHasActiveHiddenCost(project, implementedFinancedProjects, renewableProjects, currentGameYear)
 			if (shouldShowSurprise) {
 				totallyUtilityRebateDollars += rebateValue;
 				return project;

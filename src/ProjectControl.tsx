@@ -641,15 +641,13 @@ export class ProjectControl implements ProjectControlParams {
  * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
  * @param financingOption will be undefined for a renewable project that is done financing
  */
-	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
-		// todo 143 which appiers should heed the financing option
-		let rebates = this.getRebates();
+	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption, hasActiveRebates: boolean = true) {
+		let rebates = 0
+		if (hasActiveRebates){
+			rebates = this.getRebates();
+		}
 		let financingId: FinancingId = financingOption? financingOption.financingType.id : 'budget';
 		let cost = this.getImplementationCost(financingId, mutableStats.gameYearInterval)
-		if (this.isRenewable) {
-			// * giving renewbles rebates every year
-			rebates = rebates * mutableStats.gameYearInterval;
-		}
 		mutableStats.financesAvailable -= cost - rebates;
 		mutableStats.implementationSpending += cost;
 		mutableStats.yearBudget += rebates;
