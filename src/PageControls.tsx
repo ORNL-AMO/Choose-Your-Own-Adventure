@@ -205,7 +205,6 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
             title: 'Bundled RECs (Renewable Energy Credits)',
             choices: [
                 Projects[Pages.solarPanelsCarPort].getProjectChoiceControl(),
-                Projects[Pages.solarPanelsCarPortMaintenance].getProjectChoiceControl(),
                 Projects[Pages.midSolar].getProjectChoiceControl(),
                 Projects[Pages.solarRooftop].getProjectChoiceControl(),
                 Projects[Pages.largeWind].getProjectChoiceControl(),

@@ -518,14 +518,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.hiddenSpending = 0;
 		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
 		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
-		
-		// todo 143 why? instead of unapply get default value? create new single time applier? are we unapplying after year recap so it still shows in yearrecap?
-		implementedProjectsIds.forEach((projectSymbol, index) => {
-			if (Projects[projectSymbol].hasSingleYearStatAppliers) {
-				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, implementedFinancedProjects[index].financingOption, false);
-			}
-		});
-
 		implementedProjectsIds.forEach((id, index) => {
 			const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
 			newCompletedProjects.push({

@@ -16,25 +16,16 @@
 ## Project Types and Behavior
 ### All Types:
 - May be implemented and un-implemented in the implementation year
-- Implementation applies energy savings immediately. Savings remain for all subsequent game years, **Except savings from projects w/ Related Maintenance**. 
+- Implementation applies energy savings immediately. Savings remain for all subsequent game years.
 
 ### Normal (Non-Renewable):
 - **!!!!** Projects implemented in previous years become Completed Projects (in Year Recap) after the implementation year.
-
-### Normal (Non-Renewable) W/ Related Maintenance:
-- energy savings apply for the year implemented, but don't last for subsequent years. Savings may come back with a related project (see below)
-- **Example** Scope 2 - Small Carport Solar Installation reveals Carport Solar - Maintenance
 
 ### Renewable:
 - Are auto-implemented in all years following implementation. Can be unimplemented at any time to remove energy savings and costs 
 - Project cost is deducted from the budget at the start of each year it is renewed
 - Year Recap project recap cards will only be displayed in the implementation year, unless the project was financed.
 - **Example** Scope 2 - Mid-sized Solar PPPA
-
-
-### Maintenance Renewable:
-- Becomes available when it's parent/dependant is implemented. 
-- **Example** Scope 2 - Small Carport Solar Installation reveals Carport Solar - Maintenance
 
 ---
 ## Financing 
