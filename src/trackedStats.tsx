@@ -27,10 +27,6 @@ export interface TrackedStats {
 	 * Cost of electricity, per kWh.
 	 */
 	electricityCostPerKWh: number;
-	/**
-	 * Emissions of electricity production, per MMBTU.
-	 */
-	electricityEmissionsPerKWh: number;
 
 	/**
 	 * Hydrogen, in millions of British Thermal Units (MMBTU, for reasons)
@@ -109,6 +105,20 @@ export interface YearCostSavings {
 	hydrogen: number
 }
 
+
+const ElectricityEmissionsFactors: { [key: number]: number } = {
+	1: .371,
+	2: .358,
+	3: .324,
+	4: .311,
+	5: .305,
+	6: .302,
+	7: .300,
+	8: .291,
+	9: .285,
+	10: .276
+};
+
 /**
  * The initial state of TrackedStats
  */
@@ -118,7 +128,6 @@ export const initialTrackedStats: TrackedStats = {
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
-	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
 	hydrogenMMBTU: 2_000,
 	hydrogenCostPerMMBTU: 40,
 	hydrogenEmissionsPerMMBTU: 0,
@@ -139,9 +148,17 @@ export const initialTrackedStats: TrackedStats = {
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
+export function getElectricityEmissionsFactor(currentGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
+	let year = currentGameYear;
+	if (gameYearInterval > 1) {
+		year = gameYearDisplayOffset + 1;
+    }
+	return ElectricityEmissionsFactors[year];
+}
+
 export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
-	let elecEmissions = stats.electricityUseKWh * stats.electricityEmissionsPerKWh;
+	let elecEmissions = stats.electricityUseKWh * getElectricityEmissionsFactor(stats.currentGameYear, stats.gameYearInterval, stats.gameYearDisplayOffset);
 	return ngEmissions + elecEmissions;
 }
 

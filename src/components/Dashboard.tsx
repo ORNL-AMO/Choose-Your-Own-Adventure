@@ -21,7 +21,7 @@ import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
-import { statsGaugeProperties } from '../trackedStats';
+import { getElectricityEmissionsFactor, statsGaugeProperties } from '../trackedStats';
 import { Table } from '@mui/material';
 import { GameSettings } from './SelectGameSettings';
 
@@ -52,11 +52,11 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 		
 		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
-		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh);
+		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(getElectricityEmissionsFactor(this.props.currentGameYear, this.props.gameYearInterval, this.props.gameYearDisplayOffset));
 		const hydrogenEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU);
 
 		const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
-		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(this.props.electricityEmissionsPerKWh * this.props.electricityUseKWh / 1000);
+		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format((this.props.currentGameYear, this.props.gameYearInterval) * this.props.electricityUseKWh / 1000);
 		const emissionsFromHydrogenFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU * this.props.hydrogenMMBTU / 1000);
 
 		const electricityCost = noDecimalsFormatter.format(this.props.electricityCostPerKWh * this.props.electricityUseKWh);
