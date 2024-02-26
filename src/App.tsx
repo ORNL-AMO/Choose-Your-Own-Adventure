@@ -21,7 +21,7 @@ import type { CompletedProject, SelectedProject} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { closeDialogButton } from './components/Buttons';
-import { YearRecap } from './components/YearRecap';
+import { YearRecap, getHasActiveHiddenCost } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getDefaultWarningDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
@@ -168,7 +168,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				allowBudgetCarryover: 'no',
 				useGodMode: false,
 				financingOptions: {
-					xaas: false,
+					eaas: false,
 					greenBond: false,
 					loan: false
 				}
@@ -464,12 +464,16 @@ export class App extends React.PureComponent<unknown, AppState> {
 			previousimplementedProjects.forEach((completedProject: ImplementedProject, index) => {
 				let project = Projects[completedProject.page];
 				project.applyStatChanges(statsForResultDisplay, completedProject.financingOption);
-				implementedFinancedProjects.push({
-					page: project.pageId,
-					gameYearsImplemented: [newTrackedStats.currentGameYear],
-					yearStarted: newTrackedStats.currentGameYear,
-					financingOption: completedProject.financingOption
-				});
+				// only add completed projects back in
+				let inFinancedProjects = implementedFinancedProjects.find(project => project.page === completedProject.page);
+				if (!inFinancedProjects) {
+					implementedFinancedProjects.push({
+						page: project.pageId,
+						gameYearsImplemented: [newTrackedStats.currentGameYear],
+						yearStarted: newTrackedStats.currentGameYear,
+						financingOption: completedProject.financingOption
+					});
+				}
 			});
 
 			renewableProjects.forEach(project => {
@@ -507,10 +511,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
 		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + yearCostSavings.electricity + yearCostSavings.naturalGas;
-		console.log('settings budget', this.state.gameSettings.budget);
-		console.log('finances available', currentYearStats.financesAvailable);
-		console.log('yearCostSavings.electricity', yearCostSavings.electricity);
-		console.log('yearCostSavings.naturalGas', yearCostSavings.naturalGas);
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		newYearTrackedStats.yearBudget = newBudget;
 		newYearTrackedStats.financesAvailable = newBudget;
@@ -518,14 +518,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.hiddenSpending = 0;
 		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
 		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
-		
-		// todo 143 why? instead of unapply get default value? create new single time applier? are we unapplying after year recap so it still shows in yearrecap?
-		implementedProjectsIds.forEach((projectSymbol, index) => {
-			if (Projects[projectSymbol].hasSingleYearStatAppliers) {
-				Projects[projectSymbol].unApplyStatChanges(newYearTrackedStats, implementedFinancedProjects[index].financingOption, false);
-			}
-		});
-
 		implementedProjectsIds.forEach((id, index) => {
 			const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
 			newCompletedProjects.push({
@@ -542,7 +534,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 		console.log('new year range initial stats', newYearRangeInitialStats);
-		console.log('new year financesAvailable', newYearTrackedStats.financesAvailable);
+		console.log('new year finances available (after financed/renewable charges)', newYearTrackedStats.financesAvailable);
 		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
 		this.setState({
 			completedProjects: newCompletedProjects,
@@ -556,11 +548,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 			capitalFundingState: newCapitalFundingState
 		});
 
-		// debugger;
-		// if (newYearTrackedStats.currentGameYear === 2) {
-		// 	newYearTrackedStats.carbonSavingsPercent = .5
-		// 	console.log('yearRangeInitialStats', this.state.yearRangeInitialStats);
-		// }
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
 			this.setPage(Pages.winScreen);
 		} else if (newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1) {
@@ -577,7 +564,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 			if (isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
 				completedFinancedIndicies.push(index);
 			} else {
-				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
+				console.log(`Apply ${String(project.page)} cost`);
+				let hasActiveRebates = project.yearStarted === newYearTrackedStats.currentGameYear;
+				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption, hasActiveRebates);
 				project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
 			}
 		});
@@ -590,7 +579,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 	applyRenewableCosts(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
 		renewableProjects.map(project => {
 			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
-				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption);
+				let hasActiveRebates = project.yearStarted === newYearTrackedStats.currentGameYear;
+				console.log(`Apply ${String(project.page)} cost`);
+				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption, hasActiveRebates);
 			}
 			project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
 			return project;

@@ -30,7 +30,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('yes');    
     const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
     const [financingOptions, setFinancingOptions] = React.useState({
-        xaas: true,
+        eaas: true,
         loan: true,
         greenBond: false,
       });
@@ -59,8 +59,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
             [event.target.name]: event.target.checked
         });
     };
-    const { xaas, loan, greenBond } = financingOptions;
-    const invalidFinancingOptionsError = [xaas, loan, greenBond].filter((v) => v).length !== 2;
+    const { eaas, loan, greenBond } = financingOptions;
+    const invalidFinancingOptionsError = [eaas, loan, greenBond].filter((v) => v).length !== 2;
 
 
     const handleGodMode = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,14 +82,15 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 <DialogContent>
                     {process.env.NODE_ENV == 'development' && 
                         <Box m={2} p='16px' sx={{background: '#ff000052'}}>
-                            <InputLabel
-                            sx={{fontWeight: '800'} }
-                            id='useGodMode'>DEVELOPMENT ONLY: Activate law-less mode</InputLabel>
-                            <Checkbox
-                                checked={useGodMode}
-                                onChange={handleGodMode}
-                                inputProps={{ 'aria-label': 'controlled' }}
-                                />
+                            <FormGroup>
+                                <FormControlLabel control={
+                                    <Checkbox
+                                        checked={useGodMode}
+                                        onChange={handleGodMode}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />
+                                } label='Activate law-less mode (DEVELOPMENT ONLY)' />
+                            </FormGroup>
                              <List dense={true}>
                                 <ListItem>
                                     <ListItemText
@@ -154,9 +155,9 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <FormGroup>
                             <FormControlLabel
                                 control={
-                                    <Checkbox checked={xaas} onChange={handleFinancingOptionChange} name='xaas' />
+                                    <Checkbox checked={eaas} onChange={handleFinancingOptionChange} name='eaas' />
                                 }
-                                label='Xaas'
+                                label='Energy as a Service (EaaS)'
                             />
                             <FormControlLabel
                                 control={
@@ -288,7 +289,7 @@ export interface UserSettings {
 export interface GameFinancingOptions {
     // always true
     budget?: boolean,
-	xaas: boolean,
+	eaas: boolean,
 	loan: boolean,
 	greenBond: boolean
 }

@@ -293,13 +293,15 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 		}
 	};
 
-	let implementedProjects: ProjectControl[] = [...props.implementedProjectsIds].map(project => Projects[project]);
+	let implementedProjectIds: symbol[] = [...props.implementedProjectsIds];
+	let implementedProjects: ProjectControl[] = implementedProjectIds.map(project => Projects[project]);
 	let implementedFinancedProjects: ImplementedProject[] = [...props.implementedFinancedProjects];
-	addPreviousRenewablesForDisplay(props.implementedRenewableProjects, mutableStats, implementedProjects);
-	addRebateRecapCard(implementedProjects, recapResults.projectRecapCards);
-	addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards);
-
 	let implementedRenewableProjectsCopy: RenewableProject[] = props.implementedRenewableProjects.map(project => { return { ...project } });
+
+	addPreviousRenewablesForDisplay(props.implementedRenewableProjects, mutableStats, implementedProjects);
+	addRebateRecapCard(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
+	addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
+
 	let projectNetCost = 0;
 	let totalProjectExtraCosts = 0;
 	// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats with current projects modifiers, not the cumulative stats for the year
@@ -310,11 +312,13 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 		let gaugeCharts: JSX.Element[] = [];
 		const renewableProject = implementedRenewableProjectsCopy.find(project => project.page === implementedProject.pageId);
 		let hasAppliedFirstYearSavings = false;
+		let shouldApplyHiddenCosts = true;
 		let financingOption: FinancingOption;
 		if (renewableProject) {
 			hasAppliedFirstYearSavings = renewableProject.yearStarted !== mutableStats.currentGameYear;
 			let renewableProjectIndex: number = implementedRenewableProjectsCopy.findIndex(project => project.page === implementedProject.pageId);
 			financingOption = implementedRenewableProjectsCopy[renewableProjectIndex].financingOption;
+			shouldApplyHiddenCosts = renewableProject.yearStarted === mutableStats.currentGameYear;
 		} else {
 			let financedIndex: number = implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
 			financingOption = implementedFinancedProjects[financedIndex].financingOption;
@@ -325,13 +329,15 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 		addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
 		implementedProject.applyCost(mutableStats, financingOption);
 
-		projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval);
+		projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval, shouldApplyHiddenCosts);
 		if (renewableProject && !hasAppliedFirstYearSavings) {
 			mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 		}
 
 		recapResults.yearEndTotalSpending += projectNetCost;
-		totalProjectExtraCosts = implementedProject.getHiddenCost();
+		if (shouldApplyHiddenCosts) {
+			totalProjectExtraCosts = implementedProject.getHiddenCost();
+		}
 		recapResults.unspentBudget -= totalProjectExtraCosts;
 		recapResults.unspentBudget += implementedProject.getYearEndRebates();
 		mutableStats.financesAvailable = recapResults.unspentBudget;
@@ -457,7 +463,7 @@ function addImplementedProjectRecapCard(implementedProject: ProjectControl,
 		isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
 	}
 
-	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
+	let initialCost = isFinanced? implementedProject.financedAnnualCost : implementedProject.baseCost;
 	initialCost *= yearMultiplier;
 
 	let financingCardContent: DialogFinancingOptionCard = {
@@ -659,18 +665,35 @@ function addPreviousRenewablesForDisplay(implementedRenewableProjects: Renewable
 /**
 * Add recap cards for "surprises".
 */
-function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[]) {
+function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[], implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number) {
 	implementedProjects.forEach(project => {
 		if (project.recapSurprises) {
-			projectRecapCards.push(
-				...project.recapSurprises.map((projectSurprise, index) => {
-					return (
-						getSurpriseEventCard(projectSurprise, project.title, project.shortTitle, index)
-					);
-				})
-			);
+			let shouldShowSurprise = getHasActiveHiddenCost(project, implementedFinancedProjects, renewableProjects, currentGameYear);
+			if (shouldShowSurprise) {
+				projectRecapCards.push(
+					...project.recapSurprises.map((projectSurprise, index) => {
+						return (
+							getSurpriseEventCard(projectSurprise, project.title, project.shortTitle, index)
+						);
+					})
+				);
+			}
 		}
 	});
+}
+
+export function getHasActiveHiddenCost(project: ProjectControl, implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number): boolean {
+	let hasActiveHiddenCosts = true;
+	let renewableProject = renewableProjects.find(renewable => renewable.page === project.pageId);
+	if (renewableProject && renewableProject.yearStarted !== currentGameYear) {
+		hasActiveHiddenCosts = false;
+	} else {
+		let financedProject = implementedFinancedProjects.find(implementedProject => implementedProject.page === project.pageId);
+		if (financedProject && renewableProject.yearStarted !== currentGameYear) {
+			hasActiveHiddenCosts = false;
+		}
+	}
+	return hasActiveHiddenCosts;
 }
 
 
@@ -704,6 +727,62 @@ function getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader:
 /**
 * Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
 */
+function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[], implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number) {
+	let totallyUtilityRebateDollars = 0;
+	let rebateProjects: ProjectControl[] = implementedProjects.filter(project => {
+		let rebateValue = Number(project.utilityRebateValue);
+		if (rebateValue) {
+			let shouldShowSurprise = getHasActiveHiddenCost(project, implementedFinancedProjects, renewableProjects, currentGameYear)
+			if (shouldShowSurprise) {
+				totallyUtilityRebateDollars += rebateValue;
+				return project;
+			}
+		}
+	});
+
+	if (totallyUtilityRebateDollars) {
+			const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. 
+	You will receive a $\{${totallyUtilityRebateDollars.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
+			projectRecapCards.push(
+				<ListItem key={`${utilityRebateText}_surprise_`}>
+					<ThemeProvider theme={darkTheme}>
+						<Card className='year-recap-positive-surprise' sx={{ width: '100%' }}>
+							<CardHeader
+								avatar={
+									<Avatar
+										sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
+									>
+										{rebateProjects[0].rebateAvatar.icon}
+									</Avatar>
+								}
+								title='Congratulations!'
+								subheader='Utility Rebates Earned'
+							/>
+							<CardContent>
+								<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
+								{rebateProjects.map((project, idx) => {
+									return <List dense={true} key={project.shortTitle + idx}>
+										<ListItem>
+											<ListItemText
+												primary={project.title}
+												secondary={project.shortTitle}
+											/>
+										</ListItem>
+									</List>
+								} // eslint-disable-line 
+								)}
+							</CardContent>
+						</Card>
+					</ThemeProvider>
+				</ListItem>
+			);
+		}
+}
+
+
+/**
+* Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
+*/
 function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let percentSavingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
 	if (percentSavingsMilestone) {
@@ -715,57 +794,6 @@ function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFu
 }
 
 
-/**
-* Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
-*/
-function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[]) {
-	let totallyUtilityRebateDollars = 0;
-	let rebateProjects: ProjectControl[] = implementedProjects.filter(project => {
-		let rebateValue = Number(project.utilityRebateValue);
-		if (rebateValue) {
-			totallyUtilityRebateDollars += rebateValue;
-			return project;
-		}
-	});
-
-	if (totallyUtilityRebateDollars) {
-		const utilityRebateText = `Your project selections qualify you for your local utility’s energy efficiency {rebate program}. 
-	You will receive a $\{${totallyUtilityRebateDollars.toLocaleString('en-US')} utility credit} for implementing energy efficiency measures.`;
-		projectRecapCards.push(
-			<ListItem key={`${utilityRebateText}_surprise_`}>
-				<ThemeProvider theme={darkTheme}>
-					<Card className='year-recap-positive-surprise' sx={{ width: '100%' }}>
-						<CardHeader
-							avatar={
-								<Avatar
-									sx={{ bgcolor: rebateProjects[0].rebateAvatar.backgroundColor, color: rebateProjects[0].rebateAvatar.color }}
-								>
-									{rebateProjects[0].rebateAvatar.icon}
-								</Avatar>
-							}
-							title='Congratulations!'
-							subheader='Utility Rebates Earned'
-						/>
-						<CardContent>
-							<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(utilityRebateText)} />
-							{rebateProjects.map((project, idx) => {
-								return <List dense={true} key={project.shortTitle + idx}>
-									<ListItem>
-										<ListItemText
-											primary={project.title}
-											secondary={project.shortTitle}
-										/>
-									</ListItem>
-								</List>
-							} // eslint-disable-line 
-							)}
-						</CardContent>
-					</Card>
-				</ThemeProvider>
-			</ListItem>
-		);
-	}
-}
 
 /**
 * actualStatAppliers - Stats applied for implementing a project, gauge charts, or other display purpose

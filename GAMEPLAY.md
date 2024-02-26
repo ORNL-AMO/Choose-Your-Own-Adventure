@@ -16,14 +16,10 @@
 ## Project Types and Behavior
 ### All Types:
 - May be implemented and un-implemented in the implementation year
-- Implementation applies energy savings immediately. Savings remain for all subsequent game years, **Except savings from projects w/ Related Maintenance**. 
+- Implementation applies energy savings immediately. Savings remain for all subsequent game years.
 
 ### Normal (Non-Renewable):
 - **!!!!** Projects implemented in previous years become Completed Projects (in Year Recap) after the implementation year.
-
-### Normal (Non-Renewable) W/ Related Maintenance:
-- energy savings apply for the year implemented, but don't last for subsequent years. Savings may come back with a related project (see below)
-- **Example** Scope 2 - Small Carport Solar Installation reveals Carport Solar - Maintenance
 
 ### Renewable:
 - Are auto-implemented in all years following implementation. Can be unimplemented at any time to remove energy savings and costs 
@@ -31,14 +27,9 @@
 - Year Recap project recap cards will only be displayed in the implementation year, unless the project was financed.
 - **Example** Scope 2 - Mid-sized Solar PPPA
 
-
-### Maintenance Renewable:
-- Becomes available when it's parent/dependant is implemented. 
-- **Example** Scope 2 - Small Carport Solar Installation reveals Carport Solar - Maintenance
-
 ---
 ## Financing 
-At game start, players select the year that financing options should appear (years 1-5), and which options should be available, including: Xaas, Loan, Green Bonds. Currently, only one financing option is available per project.
+At game start, players select the year that financing options should appear (years 1-5), and which options should be available, including: EaaS, Loan, Green Bonds. Currently, only one financing option is available per project.
 
 Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 15% and 40% throughout the game. Each Capital Funding reward must be used in the following year. VPPA projects are ineligible. 
 
@@ -56,7 +47,7 @@ Players will be awarded Capital Funding rewards (one free project) for reaching 
 Shows completed projects after their implementation year, as well non-renewable financed projects.
 
 ### Hidden and Rebates
-
+Are only applied in the first year that the project is implemented.
 
 ## Other
 When players move backward one year, their project implementation choices, savings, and budget reflect that year's state prior to Year Recap
