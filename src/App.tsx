@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext } from 'react';
 import { Container, Box, ThemeProvider, Snackbar, Typography, Button, AppBar, IconButton, Toolbar, } from '@mui/material';
 
 import './App.scss';
@@ -349,6 +349,24 @@ export class App extends React.PureComponent<unknown, AppState> {
 	componentDidUpdate(prevProps: AnyDict, prevState: AppState) {
 		this.ignoreScrollHeightOnDialogClose(prevState)
 	}
+	
+	// componentDidMount(): void {
+	// 	window.addEventListener('scroll', this.handleScroll);
+	// }
+
+	// componentWillUnmount() {
+	// 	window.removeEventListener('scroll', this.handleScroll);
+	// }
+	
+	handleScroll(event) {
+		let scrollTop = event.srcElement.body.scrollTop,
+			itemTranslate = Math.min(0, scrollTop/3 - 60);
+	
+		// this.setState({
+		//   transform: itemTranslate
+		// });
+	}
+	
 
 	ignoreScrollHeightOnDialogClose(prevState: AppState) {
 		let infoDialogClosed: boolean = (prevState.infoDialog.isOpen && !this.state.infoDialog.isOpen);
@@ -507,6 +525,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
+		
 
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
@@ -648,9 +667,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
 		};
 
+		// const NativeEventContext = createContext(null);
+
 
 		return (
 			<>
+			{/* <NativeEventContext.Provider value={{}}> */}
 				<ThemeProvider theme={theme}>
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
@@ -758,9 +780,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 						</Snackbar>
 					</Container>
 				</ThemeProvider>
+			{/* </NativeEventContext.Provider> */}
 			</>
 		);
 	}
 }
+
+
 
 export default App;

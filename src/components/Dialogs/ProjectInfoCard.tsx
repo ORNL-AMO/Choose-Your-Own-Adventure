@@ -245,7 +245,7 @@ function getFinancingOptionsGrid(financingOptionCards: DialogFinancingOptionCard
 										:
 										<Typography variant='h6' gutterBottom>
 											<Emphasis money>
-												Free
+												Capital Project
 											</Emphasis>
 										</Typography>
 									}

@@ -159,7 +159,7 @@ export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
 	if (!capitalFundingState.roundA.isEarned) {
-        let roundAMilestonePercent = 15;
+        let roundAMilestonePercent = 5;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
             capitalFundingState.roundA.isEarned = true;
@@ -168,7 +168,7 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
             console.log('Capital Funding - earned round A, for year:', stats.currentGameYear + 1)
         }
 	} else if (!capitalFundingState.roundB.isEarned) {
-        let roundBMilestonePercent = 40;
+        let roundBMilestonePercent = 35;
         // let roundBMilestone = process.env.NODE_ENV == 'development' ? .8: 40;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
 		if (savingsMilestone) {
@@ -215,9 +215,9 @@ export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPerce
  */
 export function getCapitalFundingSurprise(milestoneSavingsPercent: number): RecapSurprise {
     return {
-		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
-		subHeader: 'Capital Funding Reward Earned',
-		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project for {FREE}.',
+		title: "Capital Funding Reward Earned",
+        subHeader: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
+		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project without pulling from your budget.',
 		className: 'year-recap-positive-surprise',
 		avatar: {
 			icon: <AttachMoneyIcon />,

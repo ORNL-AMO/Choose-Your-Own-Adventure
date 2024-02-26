@@ -25,6 +25,9 @@ import {
 	Link,
 	CardActions,
 	Container,
+	CardMedia,
+	Fade,
+	Grow,
 } from '@mui/material';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
@@ -51,7 +54,47 @@ import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapit
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
-export class YearRecap extends React.Component<YearRecapProps> {
+export class YearRecap extends React.Component<YearRecapProps, {inView}> {
+	// timeout: NodeJS.Timeout;
+
+	// constructor(props) {
+	// 	super(props);
+
+	// 	this.state = {
+	// 		inView: false
+	// 	};
+	// 	// this.handleScroll = this.handleScroll.bind(this);
+	// }
+
+	// componentDidMount() {
+	// 	debugger;
+	// 	// Add scroll event listener when component mounts
+	// 	window.addEventListener('scroll', this.handleScroll);
+	// }
+
+	// componentWillUnmount() {
+	// 	// Remove scroll event listener when component unmounts
+	// 	window.removeEventListener('scroll', this.handleScroll);
+	// }
+
+	// handleScroll() {
+	// 	function isElementInViewport(el: HTMLElement) {
+	// 		const rect = el.getBoundingClientRect()
+	// 		return (
+	// 			rect.top >= 0 &&
+	// 			rect.left >= 0 &&
+	// 			rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+	// 			rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+	// 		)
+	// 	}
+
+	// 	const surprise = document.querySelector('.year-recap-positive-surprise');
+	// 	const surpriseInView = isElementInViewport(surprise as HTMLElement);
+	// 	this.setState({ inView: surpriseInView });
+	// 	// clearTimeout(this.timeout);
+	// 	// this.timeout = setTimeout(() => {
+	// 	// }, 200);
+	// }
 
 	render() {
 		// * initialCurrentYearStats - READ ONLY stats 
@@ -78,6 +121,7 @@ export class YearRecap extends React.Component<YearRecapProps> {
 		}).format(mutableStats.costPerCarbonSavings) : '0';
 		let barGraphData: BarGraphData = getBarGraphData(this.props, mutableStats);
 		let recapWidthSx = { width: '90%', margin: 'auto' };
+
 		return (
 			<>
 				<Divider />
@@ -354,7 +398,7 @@ function buildRecapCardsAndResults(props: YearRecapProps, initialCurrentYearStat
 	
 	// todo this will eventually handle renwables
 	recapResults.yearEndTotalSpending += getOngoingFinancingCosts(props.completedProjects, mutableStats);
-	setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
+	// setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
 	addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 	mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 	setCostPerCarbonSavings(mutableStats);
@@ -663,6 +707,51 @@ function addPreviousRenewablesForDisplay(implementedRenewableProjects: Renewable
 
 
 /**
+* Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
+*/
+function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) {
+	let percentSavingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
+	if (percentSavingsMilestone) {
+		let surprise: RecapSurprise = getCapitalFundingSurprise(percentSavingsMilestone);
+		let capitalFundingRewardCard = getCapitalFundingCard(surprise, surprise.title, surprise.subHeader)
+		projectRecapCards.unshift(capitalFundingRewardCard);
+	}
+
+}
+
+
+/**
+* Add card for Capital Funding Reward
+*/
+function getCapitalFundingCard(surprise: RecapSurprise, title: string, subHeader: string | undefined, index?: number): JSX.Element {
+	let keyId = index !== undefined ? index : title;
+	return <ListItem key={`year-recap-surprise_${keyId}`}>
+		<ThemeProvider theme={darkTheme}>
+			{/* <Grow
+					in={this.state.inView}
+					style={{ transformOrigin: '0 0 0' }}
+					{...(this.state.inView ? { timeout: 3000 } : {})}
+				> */}
+			<Card className={surprise.className} sx={{ width: '100%' }}>
+				<CardMedia
+					sx={{ height: 150 }}
+					image="images/money-hands.jpg"
+					title="reward"
+				/>
+				<CardHeader
+					title={title}
+					subheader={subHeader}
+				/>
+				<CardContent>
+					<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)} />
+				</CardContent>
+			</Card>
+			{/* </Grow> */}
+		</ThemeProvider>
+	</ListItem>
+}
+
+/**
 * Add recap cards for "surprises".
 */
 function addSurpriseEventCards(implementedProjects: ProjectControl[], projectRecapCards: JSX.Element[], implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number) {
@@ -780,18 +869,6 @@ function addRebateRecapCard(implementedProjects: ProjectControl[], projectRecapC
 }
 
 
-/**
-* Add card for total utility rebate. Some rebates may happen multiple times (renewable projects)
-*/
-function addCapitalFundingRewardCard(projectRecapCards: JSX.Element[], capitalFundingState: CapitalFundingState, stats: TrackedStats) {
-	let percentSavingsMilestone: number = setCapitalFundingMilestone(capitalFundingState, stats);
-	if (percentSavingsMilestone) {
-		let surprise: RecapSurprise = getCapitalFundingSurprise(percentSavingsMilestone);
-		let capitalFundingRewardCard = getSurpriseEventCard(surprise, surprise.title, surprise.subHeader)
-		projectRecapCards.unshift(capitalFundingRewardCard);
-	}
-
-}
 
 
 
