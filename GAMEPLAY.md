@@ -29,7 +29,7 @@
 
 ---
 ## Financing 
-At game start, players select the year that financing options should appear (years 1-5), and which options should be available, including: Xaas, Loan, Green Bonds. Currently, only one financing option is available per project.
+At game start, players select the year that financing options should appear (years 1-5), and which options should be available, including: EaaS, Loan, Green Bonds. Currently, only one financing option is available per project.
 
 Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 15% and 40% throughout the game. Each Capital Funding reward must be used in the following year. VPPA projects are ineligible. 
 

@@ -30,7 +30,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('yes');    
     const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
     const [financingOptions, setFinancingOptions] = React.useState({
-        xaas: true,
+        eaas: true,
         loan: true,
         greenBond: false,
       });
@@ -59,8 +59,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
             [event.target.name]: event.target.checked
         });
     };
-    const { xaas, loan, greenBond } = financingOptions;
-    const invalidFinancingOptionsError = [xaas, loan, greenBond].filter((v) => v).length !== 2;
+    const { eaas, loan, greenBond } = financingOptions;
+    const invalidFinancingOptionsError = [eaas, loan, greenBond].filter((v) => v).length !== 2;
 
 
     const handleGodMode = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,9 +155,9 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <FormGroup>
                             <FormControlLabel
                                 control={
-                                    <Checkbox checked={xaas} onChange={handleFinancingOptionChange} name='xaas' />
+                                    <Checkbox checked={eaas} onChange={handleFinancingOptionChange} name='eaas' />
                                 }
-                                label='Xaas'
+                                label='Energy as a Service (EaaS)'
                             />
                             <FormControlLabel
                                 control={
@@ -289,7 +289,7 @@ export interface UserSettings {
 export interface GameFinancingOptions {
     // always true
     budget?: boolean,
-	xaas: boolean,
+	eaas: boolean,
 	loan: boolean,
 	greenBond: boolean
 }

@@ -10,7 +10,7 @@ export declare interface FinancingOption {
     financedAnnualCost?: number,
 }
 
-export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'xaas';
+export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'eaas';
 
 /**
  * Capital Funding state - track user carbon/ghg savings and rewards related to capital funding
@@ -70,10 +70,10 @@ export function getLoanFinancing(years: number): FinancingType {
  * No interest, short or long term
  * @param years years to pay back loan
  */
-export function getXaasFinancing(years: number): FinancingType {
+export function getEaaSFinancing(years: number): FinancingType {
     return {
-        name: 'Xaas',
-        id: 'xaas',
+        name: 'EaaS',
+        id: 'eaas',
         loanTerm: years,
         description: 'Finance your energy use reduction',
         detailedInfo: `0% interest. Loan term: ${years} years`
@@ -238,6 +238,18 @@ export function getIsAnnuallyFinanced(financingId: FinancingId) {
 }
 
 /**
+ *
+ */
+export function getHasFinancingStarted(currentGameYear: number, financingStartYear: number, gameInterval: number) {
+    let startYear: number = financingStartYear;
+    if (gameInterval > 1) {
+        startYear = Math.ceil(financingStartYear / gameInterval);
+    }
+    return currentGameYear >= startYear;
+
+}
+
+/**
  * check whether budget, capital funding, or payoff year
  */
 export function isProjectFullyFunded(project: ImplementedProject, currentGameYear: number) {
@@ -281,19 +293,19 @@ export interface FundingRound {
 //     } else if (financingOptionCard.financingType.id === 'greenBond') {
 //         financingOptionCard.financedAnnualCost = getGreenBondsfinancedAnnualCost(projectCost)
 //         financingOptionCard.financedTotalCost = getGreenBondsfinancedTotalCost(projectCost)
-//     } else if (financingOptionCard.financingType.id === 'xaas') {
-//         financingOptionCard.financedAnnualCost = getXaasfinancedAnnualCost(projectCost)
-//         financingOptionCard.financedTotalCost = getXaasfinancedTotalCost(projectCost)
+//     } else if (financingOptionCard.financingType.id === 'eaas') {
+//         financingOptionCard.financedAnnualCost = getEaaSfinancedAnnualCost(projectCost)
+//         financingOptionCard.financedTotalCost = getEaaSfinancedTotalCost(projectCost)
 //     } else if (financingOptionCard.financingType.id === 'budget') {
 //         financingOptionCard.financedTotalCost = projectCost
 //     }
 // }
 
-// export function getXaasfinancedAnnualCost(projectCost: number) {
+// export function getEaaSfinancedAnnualCost(projectCost: number) {
 //     return projectCost / 10;
 // }
 
-// export function getXaasfinancedTotalCost(projectCost: number) {
+// export function getEaaSfinancedTotalCost(projectCost: number) {
 //     return projectCost;
 // }
 

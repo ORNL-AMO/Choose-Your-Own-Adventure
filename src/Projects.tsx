@@ -5,7 +5,7 @@ import Pages from "./Pages";
 import TrafficConeIcon from './icons/TrafficConeIcon';
 import Co2Icon from '@mui/icons-material/Co2';
 import { ProjectControl, absolute } from "./ProjectControl";
-import { getGreenBondsFinancing, getLoanFinancing, getXaasFinancing } from './Financing';
+import { getGreenBondsFinancing, getLoanFinancing, getEaaSFinancing, getHasFinancingStarted } from './Financing';
 
 declare interface ProjectControls {
 	[key: symbol]: ProjectControl;
@@ -291,7 +291,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	financedTotalCost: 232_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: false,
@@ -401,7 +401,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	financedTotalCost: 268_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -443,7 +443,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	financedTotalCost: 92_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -509,7 +509,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 //  },
 // });
 
-// todo xaas
+// todo eaas
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
 	isCapitalFundsEligible: true,
@@ -518,7 +518,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 	financedTotalCost: 152_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -622,7 +622,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	financedTotalCost: 324_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -695,7 +695,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	financedTotalCost: 60_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -800,7 +800,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	financedTotalCost: 76_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(4),
+			financingType: getEaaSFinancing(4),
 		},
 	],
 	isEnergyEfficiency: true,
@@ -1137,7 +1137,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	financedTotalCost: 260_000,
 	financingOptions: [
 		{
-			financingType: getXaasFinancing(10),
+			financingType: getEaaSFinancing(10),
 		},
 	],
 	statsInfoAppliers: {
@@ -1159,7 +1159,12 @@ Projects[Pages.midSolar] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
 });
+
+
 
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,

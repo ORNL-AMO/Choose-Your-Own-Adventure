@@ -168,7 +168,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				allowBudgetCarryover: 'no',
 				useGodMode: false,
 				financingOptions: {
-					xaas: false,
+					eaas: false,
 					greenBond: false,
 					loan: false
 				}
