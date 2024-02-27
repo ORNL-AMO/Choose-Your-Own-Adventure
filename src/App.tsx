@@ -28,7 +28,7 @@ import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialo
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { GameSettings, UserSettings } from './components/SelectGameSettings';
+import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
 import { CapitalFundingState, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
 
 
@@ -510,7 +510,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
 		newEnergyCostSavingsList.push(yearCostSavings);
-		let newBudget: number = this.state.gameSettings.budget;
+		let newBudget: number = getYearlyBudget(currentYearStats.currentGameYear + 1, currentYearStats.gameYearInterval, currentYearStats.gameYearDisplayOffset);
 		if (this.state.gameSettings.allowBudgetCarryover == 'no') {
 			if (currentYearStats.financesAvailable < 0 ) {				
 				newBudget += currentYearStats.financesAvailable;
