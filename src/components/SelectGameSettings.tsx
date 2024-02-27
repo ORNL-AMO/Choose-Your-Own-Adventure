@@ -64,6 +64,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
 
 
     const handleGodMode = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setBudgetCarryoverOption('yes');
+        setCostSavingsCarryoverOption('oneYear');
         setUseGodMode(event.target.checked);
     };
 
