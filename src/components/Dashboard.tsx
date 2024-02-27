@@ -240,7 +240,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 								>
 									<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Utility Cost per unit'}</StyledTableCell>
-									<StyledTableCell align='center'>${this.props.naturalGasCostPerMMBTU.toFixed(2)}/kWh</StyledTableCell>
+									<StyledTableCell align='center'>${this.props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
 									<StyledTableCell align='center'>${this.props.electricityCostPerKWh.toFixed(2)}/kWh</StyledTableCell>									
 									<StyledTableCell align='center'>${this.props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
 								</StyledTableRow>
