@@ -50,7 +50,6 @@ export class ProjectControl implements ProjectControlParams {
 	disabled: Resolvable<boolean>;
 	yearSelected?: number;
 	projectDialogControl: ProjectDialogControlProps;
-	hasSingleYearStatAppliers?: boolean;
 	relatedProjectSymbols?: symbol[] | undefined;
 	isEnergyEfficiency: boolean;
 	/**
@@ -93,8 +92,6 @@ export class ProjectControl implements ProjectControlParams {
 		this.financedTotalCost = params.financedTotalCost;
 		this.yearSelected = params.yearSelected;
 		this.projectDialogControl = getEmptyProjectDialog();
-		this.hasSingleYearStatAppliers = params.hasSingleYearStatAppliers;
-		this.relatedProjectSymbols = params.relatedProjectSymbols;
 		this.isEnergyEfficiency = params.isEnergyEfficiency;
 	}
 
@@ -217,9 +214,7 @@ export class ProjectControl implements ProjectControlParams {
 			buttons: choiceCardButtons,
 			visible: function (state) {
 				let isRenewedProject = state.implementedRenewableProjects.some(project => project.page === self.pageId && project.yearStarted !== state.trackedStats.currentGameYear)
-				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
-					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
-				} else if (isRenewedProject) {
+				if (isRenewedProject) {
 					return false;
 				} else if (state.completedProjects.some(project => project.page === self.pageId)) {
 					return false;
@@ -234,17 +229,6 @@ export class ProjectControl implements ProjectControlParams {
 
 
 		return projectControlChoice;
-
-		function getSolarCarportMaintenanceVisible(state) {
-			const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
-			// hide if maintenance has been implemented and user navigates back to year carport implemented 
-			const carportImplementedYear = state.implementedProjectsIds.find(project => project === Pages.solarPanelsCarPort);
-			const maintenanceImplemented = state.implementedRenewableProjects.some(project => {
-				return project.page === Pages.solarPanelsCarPortMaintenance;
-			})
-			// if going to previous year, project can be in both completed and implemented
-			return isCarportCompleted || (maintenanceImplemented && !carportImplementedYear);
-		}
 
 		function addCompareProjectButton(buttons: ButtonGroupButton[]) {
 			const isSelectedForCompare = (props) => {
@@ -460,7 +444,6 @@ export class ProjectControl implements ProjectControlParams {
 			const deleteIndex = implementedFinancedProjects.findIndex(project => project.page === self.pageId);
 			let implementedFinancingOption = implementedFinancedProjects[deleteIndex].financingOption;
 			implementedFinancedProjects.splice(deleteIndex, 1);
-			removeRelatedProjects(state, nextState, newTrackedStats)
 			for (let i = 0; i < implementedProjectsIds.length; i++) {
 				let pageId = implementedProjectsIds[i];
 				let financingOption = findFinancingOptionFromProject(implementedFinancedProjects, pageId);
@@ -485,20 +468,6 @@ export class ProjectControl implements ProjectControlParams {
 				Projects[pageId].unApplyStatChanges(newTrackedStats, financingOption);
 			}
 
-		}
-
-		/**
-		 * Remove related projects, i.e. renewable solar carport maintenance (available after solar carport implementation)
-		 */
-		function removeRelatedProjects(state: AppState, nextState: NextAppState, newTrackedStats: TrackedStats) {
-			let implementedRenewableProjects: RenewableProject[] = [...state.implementedRenewableProjects];
-				const dependantChildProjectIndex = implementedRenewableProjects.findIndex(project => self.relatedProjectSymbols && self.relatedProjectSymbols.includes(project.page));
-				if (dependantChildProjectIndex >= 0) {
-					let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
-					removeRenewableProject(implementedRenewableProjects, dependantChildProjectIndex, newTrackedStats, yearRangeInitialStats, true);
-					nextState.implementedRenewableProjects = implementedRenewableProjects;
-					nextState.yearRangeInitialStats = yearRangeInitialStats;
-				}
 		}
 
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
@@ -672,15 +641,13 @@ export class ProjectControl implements ProjectControlParams {
  * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
  * @param financingOption will be undefined for a renewable project that is done financing
  */
-	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
-		// todo 143 which appiers should heed the financing option
-		let rebates = this.getRebates();
+	applyCost(mutableStats: TrackedStats, financingOption: FinancingOption, hasActiveRebates: boolean = true) {
+		let rebates = 0
+		if (hasActiveRebates){
+			rebates = this.getRebates();
+		}
 		let financingId: FinancingId = financingOption? financingOption.financingType.id : 'budget';
 		let cost = this.getImplementationCost(financingId, mutableStats.gameYearInterval)
-		if (this.isRenewable) {
-			// * giving renewbles rebates every year
-			rebates = rebates * mutableStats.gameYearInterval;
-		}
 		mutableStats.financesAvailable -= cost - rebates;
 		mutableStats.implementationSpending += cost;
 		mutableStats.yearBudget += rebates;
@@ -754,10 +721,9 @@ export class ProjectControl implements ProjectControlParams {
 	 */
 	getYearEndTotalSpending(financingOption: FinancingOption, gameYearInterval: number, calculateExtraCosts: boolean = true): number {
 		let cost = this.getImplementationCost(financingOption.financingType.id, gameYearInterval);
-
 		if (calculateExtraCosts) {
-			const rebates = this.getYearEndRebates() * gameYearInterval;
-			const hiddenCosts = this.getHiddenCost() * gameYearInterval;
+			const rebates = this.getYearEndRebates();
+			const hiddenCosts = this.getHiddenCost();
 			return cost - rebates + hiddenCosts;
 		} else {
 			return cost;
@@ -793,7 +759,6 @@ export const Scope2Projects = [
 	Pages.chilledWaterMonitoringSystem,
 	Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3,
 	Pages.solarPanelsCarPort,
-	Pages.solarPanelsCarPortMaintenance,
 	Pages.midSolar,
 	Pages.solarRooftop,
 	Pages.largeWind,
@@ -995,11 +960,6 @@ declare interface ProjectControlParams {
 	/**
 	 * tracks the year the project is selected 
 	 */
-	hasSingleYearStatAppliers?: boolean;
-	/**
-	 * Projects that have some relationship to this one. i.e. a yearly maintenance project for solar
-	 */
-	relatedProjectSymbols?: symbol[];
 }
 
 

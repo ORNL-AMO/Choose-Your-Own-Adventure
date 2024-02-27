@@ -10,7 +10,7 @@ export declare interface FinancingOption {
     financedAnnualCost?: number,
 }
 
-export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'xaas';
+export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'eaas';
 
 /**
  * Capital Funding state - track user carbon/ghg savings and rewards related to capital funding
@@ -70,10 +70,10 @@ export function getLoanFinancing(years: number): FinancingType {
  * No interest, short or long term
  * @param years years to pay back loan
  */
-export function getXaasFinancing(years: number): FinancingType {
+export function getEaaSFinancing(years: number): FinancingType {
     return {
-        name: 'Xaas',
-        id: 'xaas',
+        name: 'EaaS',
+        id: 'eaas',
         loanTerm: years,
         description: 'Finance your energy use reduction',
         detailedInfo: `0% interest. Loan term: ${years} years`
@@ -159,7 +159,7 @@ export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
 	if (!capitalFundingState.roundA.isEarned) {
-        let roundAMilestonePercent = 15;
+        let roundAMilestonePercent = 5;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
             capitalFundingState.roundA.isEarned = true;
@@ -168,7 +168,7 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
             console.log('Capital Funding - earned round A, for year:', stats.currentGameYear + 1)
         }
 	} else if (!capitalFundingState.roundB.isEarned) {
-        let roundBMilestonePercent = 40;
+        let roundBMilestonePercent = 35;
         // let roundBMilestone = process.env.NODE_ENV == 'development' ? .8: 40;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
 		if (savingsMilestone) {
@@ -215,9 +215,9 @@ export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPerce
  */
 export function getCapitalFundingSurprise(milestoneSavingsPercent: number): RecapSurprise {
     return {
-		title: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
-		subHeader: 'Capital Funding Reward Earned',
-		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project for {FREE}.',
+		title: "Capital Funding Reward Earned",
+        subHeader: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
+		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project without pulling from your budget.',
 		className: 'year-recap-positive-surprise',
 		avatar: {
 			icon: <AttachMoneyIcon />,
@@ -235,6 +235,18 @@ export function getCapitalFundingSurprise(milestoneSavingsPercent: number): Reca
  */
 export function getIsAnnuallyFinanced(financingId: FinancingId) {
     return !['budget', 'capital-funding'].includes(financingId);
+}
+
+/**
+ *
+ */
+export function getHasFinancingStarted(currentGameYear: number, financingStartYear: number, gameInterval: number) {
+    let startYear: number = financingStartYear;
+    if (gameInterval > 1) {
+        startYear = Math.ceil(financingStartYear / gameInterval);
+    }
+    return currentGameYear >= startYear;
+
 }
 
 /**
@@ -281,19 +293,19 @@ export interface FundingRound {
 //     } else if (financingOptionCard.financingType.id === 'greenBond') {
 //         financingOptionCard.financedAnnualCost = getGreenBondsfinancedAnnualCost(projectCost)
 //         financingOptionCard.financedTotalCost = getGreenBondsfinancedTotalCost(projectCost)
-//     } else if (financingOptionCard.financingType.id === 'xaas') {
-//         financingOptionCard.financedAnnualCost = getXaasfinancedAnnualCost(projectCost)
-//         financingOptionCard.financedTotalCost = getXaasfinancedTotalCost(projectCost)
+//     } else if (financingOptionCard.financingType.id === 'eaas') {
+//         financingOptionCard.financedAnnualCost = getEaaSfinancedAnnualCost(projectCost)
+//         financingOptionCard.financedTotalCost = getEaaSfinancedTotalCost(projectCost)
 //     } else if (financingOptionCard.financingType.id === 'budget') {
 //         financingOptionCard.financedTotalCost = projectCost
 //     }
 // }
 
-// export function getXaasfinancedAnnualCost(projectCost: number) {
+// export function getEaaSfinancedAnnualCost(projectCost: number) {
 //     return projectCost / 10;
 // }
 
-// export function getXaasfinancedTotalCost(projectCost: number) {
+// export function getEaaSfinancedTotalCost(projectCost: number) {
 //     return projectCost;
 // }
 

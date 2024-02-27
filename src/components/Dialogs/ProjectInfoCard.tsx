@@ -6,7 +6,7 @@ import { DialogCardContent, InfoCard } from './dialog-functions-and-types';
 import { Emphasis } from '../controls';
 import { DialogFinancingOptionCard, ProjectDialogProps } from './ProjectDialog';
 import { GameSettings } from '../SelectGameSettings';
-import { getCanUseCapitalFunding, getIsAnnuallyFinanced } from '../../Financing';
+import { getCanUseCapitalFunding, getHasFinancingStarted, getIsAnnuallyFinanced } from '../../Financing';
 
 
 export class ProjectInfoCard extends PureComponentIgnoreFuncs<ProjectDialogProps> {
@@ -161,7 +161,7 @@ function getFinancingOptionsCards(props: ProjectDialogProps) {
 	const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 	let financingOptionCards: DialogFinancingOptionCard[] = [];
 	if (props.financingOptionCards && gameSettings) {
-		let hasFinancingStarted = props.currentGameYear >= gameSettings.financingStartYear;
+		let hasFinancingStarted = getHasFinancingStarted(props.currentGameYear, gameSettings.financingStartYear, gameSettings.gameYearInterval);
 		if (gameSettings.financingOptions) {
 			financingOptionCards = props.resolveToValue(props.financingOptionCards);
 			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
@@ -245,7 +245,7 @@ function getFinancingOptionsGrid(financingOptionCards: DialogFinancingOptionCard
 										:
 										<Typography variant='h6' gutterBottom>
 											<Emphasis money>
-												Free
+												Capital Project
 											</Emphasis>
 										</Typography>
 									}

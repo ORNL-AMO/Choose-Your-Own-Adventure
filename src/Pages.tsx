@@ -33,7 +33,6 @@ const Pages = {
 	largeWind: Symbol('large-wind'),
 	midSolar: Symbol('mid-solar'),
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
-	solarPanelsCarPortMaintenance: Symbol('solar-panels-car-port-maintenance'),
 	solarRooftop: Symbol('solar-rooftop'),
 	// solarFieldOnSite: Symbol('solar-field-on-site'),
 	airHandingUnitUpgrades: Symbol('air-handing-unit-upgrades'),
