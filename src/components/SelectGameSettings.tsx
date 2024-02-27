@@ -27,8 +27,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [gameYearInterval, setGameYearInterval] = React.useState(props.gameYearInterval);
     const [financingStartYear, setFinancingStartYear] = React.useState(getFinancingStartYear());
-    const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('yes');    
-    const [energyCarryoverYears, setEnergyCarryoverOption ] = React.useState(1);
+    const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('no');    
+    const [costSavingsCarryoverYears, setCostSavingsCarryoverOption ] = React.useState(props.costSavingsCarryoverYears);
     const [financingOptions, setFinancingOptions] = React.useState({
         xaas: true,
         loan: true,
@@ -49,8 +49,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
         setBudgetCarryoverOption(event.target.value as string);
     };
 
-    const handleEnergyCarryoverChange = (event: SelectChangeEvent<number>) => {
-        setEnergyCarryoverOption(event.target.value as number);
+    const handleCostSavingsCarryoverChange = (event: SelectChangeEvent<CostSavingsCarryoverId>) => {
+        setCostSavingsCarryoverOption(event.target.value as CostSavingsCarryoverId);
     };
     
     const handleFinancingOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +183,6 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                             value={allowBudgetCarryover}
                             label='carryoverOption'
                             onChange={handleCarryoverChange}
-                            disabled
                         >
                             <MenuItem value={'yes'}> Yes </MenuItem>
                             <MenuItem value={'no'}> No </MenuItem>
@@ -191,17 +190,17 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='selectEnergyCarryoverYears'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
+                        <InputLabel id='selectCostSavingsCarryoverYears'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
                         <Select
-                            labelId='selectEnergyCarryoverYears'
-                            id='selectEnergyCarryoverYears'
-                            value={energyCarryoverYears}
-                            label='energyCarryoverOption'
-                            onChange={handleEnergyCarryoverChange}
-                            disabled
+                            labelId='selectCostSavingsCarryoverYears'
+                            id='selectCostSavingsCarryoverYears'
+                            value={costSavingsCarryoverYears}
+                            label='costSavingsCarryoverYearsOption'
+                            onChange={handleCostSavingsCarryoverChange}
                         >
-                            <MenuItem value={1}> One Year </MenuItem>
-                            <MenuItem value={2}> Two Year </MenuItem>
+                            <MenuItem value={'never'}> Never </MenuItem>
+                            <MenuItem value={'oneYear'}> One Year </MenuItem>
+                            <MenuItem value={'always'} disabled> Always </MenuItem>
                         </Select>
                     </Box>
                 </DialogContent>
@@ -220,7 +219,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                     {
                                         gameYearInterval,
                                         financingStartYear,
-                                        energyCarryoverYears,
+                                        costSavingsCarryoverYears,
                                         allowBudgetCarryover,
                                         financingOptions,
                                         useGodMode
@@ -276,11 +275,13 @@ export interface GameSettings extends UserSettings {
 export interface UserSettings {
 	gameYearInterval: number,
 	financingStartYear: number,
-	energyCarryoverYears: number,
+	costSavingsCarryoverYears: CostSavingsCarryoverId,
 	allowBudgetCarryover: string,
     useGodMode: boolean,
 	financingOptions: GameFinancingOptions
 }
+
+export type CostSavingsCarryoverId = 'never' | 'oneYear' | 'always';
 
 /**
  * Financing options enabled by user - pick two of three 

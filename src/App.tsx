@@ -79,6 +79,7 @@ export type AppState = {
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
+	energyCostSavingsList: YearCostSavings[];
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -164,7 +165,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				electricityUse: 4_000_000,
 				hydrogenUse: 2_000,
 				financingStartYear: 3,
-				energyCarryoverYears: 0,
+				costSavingsCarryoverYears: 'oneYear',
 				allowBudgetCarryover: 'no',
 				useGodMode: false,
 				financingOptions: {
@@ -173,7 +174,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 					loan: false
 				}
 			},
-			defaultTrackedStats : { ...initialTrackedStats }
+			defaultTrackedStats : { ...initialTrackedStats },
+			energyCostSavingsList: []
 		};
 	}
 
@@ -503,10 +505,35 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
+		let newEnergyCostSavingsList: YearCostSavings[] = [...this.state.energyCostSavingsList];
 
 		// * has accurate RenewableProjects savings only in first year of implementation
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
-		let newBudget: number = this.state.gameSettings.budget + currentYearStats.financesAvailable + yearCostSavings.electricity + yearCostSavings.naturalGas;
+		newEnergyCostSavingsList.push(yearCostSavings);
+		let newBudget: number = this.state.gameSettings.budget;
+		if (this.state.gameSettings.allowBudgetCarryover == 'no') {
+			if (currentYearStats.financesAvailable < 0 ) {				
+				newBudget += currentYearStats.financesAvailable;
+			} else {
+				newBudget;
+			}
+		} else if (this.state.gameSettings.allowBudgetCarryover == 'yes') {
+			newBudget += currentYearStats.financesAvailable;
+		} 
+		
+		if (this.state.gameSettings.costSavingsCarryoverYears == 'always') {
+			newEnergyCostSavingsList.forEach(costSavings => {
+				newBudget += costSavings.electricity + costSavings.naturalGas;
+			});
+
+		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
+			newBudget += yearCostSavings.electricity + yearCostSavings.naturalGas;
+
+		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'never') {
+			newBudget;
+		}
+
+
 		console.log('settings budget', this.state.gameSettings.budget);
 		console.log('finances available', currentYearStats.financesAvailable);
 		console.log('yearCostSavings.electricity', yearCostSavings.electricity);
@@ -553,7 +580,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			selectedProjectsForComparison: [],
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
-			capitalFundingState: newCapitalFundingState
+			capitalFundingState: newCapitalFundingState,
+			energyCostSavingsList: newEnergyCostSavingsList
 		});
 
 		// debugger;
