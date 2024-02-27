@@ -1072,13 +1072,12 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 }
 
-
 export function getHasActiveHiddenCost(project: ProjectControl, implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number): boolean {
 	let hasActiveHiddenCosts = true;
 	let renewableProject = renewableProjects.find(renewable => renewable.page === project.pageId);
 	if (renewableProject && renewableProject.yearStarted !== currentGameYear) {
 		hasActiveHiddenCosts = false;
-	} else {
+	} else if (renewableProject) {
 		let financedProject = implementedFinancedProjects.find(implementedProject => implementedProject.page === project.pageId);
 		if (financedProject && renewableProject.yearStarted !== currentGameYear) {
 			hasActiveHiddenCosts = false;
