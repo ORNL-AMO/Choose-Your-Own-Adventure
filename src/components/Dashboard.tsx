@@ -185,7 +185,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									statsGaugeProperties.hydrogenMMBTU.maxValue,
 								)}
 								text={hydrogenFormatted}
-								label='Hydrogen (MMBTU)'
+								label='Landfill Gas (MMBTU)'
 								textFontSize={0.85}
 								color1={theme.palette.primary.light}
 								ticks={[{
@@ -213,7 +213,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 									<StyledTableCell align='center'> </StyledTableCell>
 									<StyledTableCell align='center'>Natural Gas</StyledTableCell>
 									<StyledTableCell align='center'>Electricity</StyledTableCell>
-									<StyledTableCell align='center'>Hydrogen</StyledTableCell>
+									<StyledTableCell align='center'>Landfill Gas</StyledTableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>

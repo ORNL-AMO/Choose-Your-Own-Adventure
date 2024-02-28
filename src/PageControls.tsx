@@ -169,9 +169,8 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
             title: 'Electrification & Fuel Switching',
             choices: [
                 Projects[Pages.electricBoiler].getProjectChoiceControl(),  
-                Projects[Pages.hydrogenFuel].getProjectChoiceControl(), 
-                Projects[Pages.hydrogenPoweredForklifts].getProjectChoiceControl(),
-                Projects[Pages.h2InjectionIntoHRSG].getProjectChoiceControl(),
+                Projects[Pages.blendedFuel].getProjectChoiceControl(),                
+                Projects[Pages.landfillGasForOven].getProjectChoiceControl(),
             ]
         }
     ],
@@ -195,7 +194,8 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
                 Projects[Pages.chilledWaterMonitoringSystem].getProjectChoiceControl(),         
                 Projects[Pages.installVFDs1].getProjectChoiceControl(),         
                 Projects[Pages.installVFDs2].getProjectChoiceControl(),         
-                Projects[Pages.installVFDs3].getProjectChoiceControl()      
+                Projects[Pages.installVFDs3].getProjectChoiceControl(),
+                Projects[Pages.hydrogenPoweredForklifts].getProjectChoiceControl(),      
                 // Projects[Pages.lightingUpgrades].getProjectChoiceControl(),  
                 // Projects[Pages.compressedAirSystemOptimization].getProjectChoiceControl(),           
                 // Projects[Pages.refrigerationUpgrade].getProjectChoiceControl(),          
@@ -208,6 +208,7 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
                 Projects[Pages.midSolar].getProjectChoiceControl(),
                 Projects[Pages.solarRooftop].getProjectChoiceControl(),
                 Projects[Pages.largeWind].getProjectChoiceControl(),
+                Projects[Pages.communityWindProject].getProjectChoiceControl(),
                 // Projects[Pages.solarFieldOnSite].getProjectChoiceControl(),
             ]
         }, 

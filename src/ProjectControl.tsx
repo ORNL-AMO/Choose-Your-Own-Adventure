@@ -160,7 +160,7 @@ export class ProjectControl implements ProjectControlParams {
 		}
 		if (this.statsInfoAppliers.hydrogenMMBTU) {
 			projectDialogStatCards.push({
-				text: `Hydrogen reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+				text: `Landfill Gas reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
 				textColor: '#fff',
 				backgroundColor: 'rgb(20, 48, 109, 0.60)',
 			});
@@ -743,7 +743,7 @@ export class ProjectControl implements ProjectControlParams {
 export const Scope1Projects = [
 	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
 	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler, Pages.hydrogenFuel, Pages.hydrogenPoweredForklifts, Pages.h2InjectionIntoHRSG
+	Pages.electricBoiler, Pages.blendedFuel, Pages.landfillGasForOven
 	//Pages.digitalTwinAnalysis, 
 	
 	//Pages.condensingEconomizerInstallation, 
@@ -765,6 +765,8 @@ export const Scope2Projects = [
 	Pages.smallVPPA,
 	Pages.midVPPA,
 	Pages.largeVPPA,
+	Pages.communityWindProject,
+	Pages.hydrogenPoweredForklifts
 	// Pages.solarFieldOnSite, 
 	//Pages.lightingUpgrades, Pages.greenPowerTariff,
 	//Pages.compressedAirSystemOptimization, 
