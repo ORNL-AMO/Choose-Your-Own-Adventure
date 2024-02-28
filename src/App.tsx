@@ -483,7 +483,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 			
 			previousimplementedProjects.forEach((completedProject: ImplementedProject, index) => {
 				let project = Projects[completedProject.page];
-				project.applyStatChanges(statsForResultDisplay, completedProject.financingOption);
+				project.applyStatChanges(statsForResultDisplay);
+				project.applyCost(statsForResultDisplay, completedProject.financingOption);
+
 				// only add completed projects back in
 				let inFinancedProjects = implementedFinancedProjects.find(project => project.page === completedProject.page);
 				if (!inFinancedProjects) {
@@ -499,7 +501,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 			renewableProjects.forEach(project => {
 				if (project.yearStarted === previousYear) {
 					let Project = Projects[project.page];
-					Project.applyStatChanges(statsForResultDisplay, project.financingOption);
+					Project.applyStatChanges(statsForResultDisplay);
+					Project.applyCost(statsForResultDisplay, project.financingOption);
+
 				}
 			});
 			newTrackedStats = setCarbonEmissionsAndSavings(statsForResultDisplay, this.state.defaultTrackedStats); 
@@ -573,7 +577,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				financingOption: implementedFinancedProjects[financingIndex] ? implementedFinancedProjects[financingIndex].financingOption : undefined
 			});
 		});
-		this.checkFinancedProjectsComplete(implementedFinancedProjects, newYearTrackedStats);
+		this.handleNewYearFinancedProjects(implementedFinancedProjects, newYearTrackedStats);
 		
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
 		this.applyRenewableCosts(implementedRenewableProjects, newYearTrackedStats);
@@ -605,7 +609,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	}
 
-	checkFinancedProjectsComplete(financedProjects: ImplementedProject[], newYearTrackedStats: TrackedStats) {
+	handleNewYearFinancedProjects(financedProjects: ImplementedProject[], newYearTrackedStats: TrackedStats) {
 		let completedFinancedIndicies = [];
 		financedProjects.forEach((project: ImplementedProject, index) => {
 			if (isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
@@ -625,10 +629,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	applyRenewableCosts(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
 		renewableProjects.map(project => {
+			let projectControl = Projects[project.page];
 			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
 				let hasActiveRebates = project.yearStarted === newYearTrackedStats.currentGameYear;
 				console.log(`Apply ${String(project.page)} cost`);
-				Projects[project.page].applyCost(newYearTrackedStats, project.financingOption, hasActiveRebates);
+				projectControl.applyCost(newYearTrackedStats, project.financingOption, hasActiveRebates);
 			}
 			project.gameYearsImplemented.push(newYearTrackedStats.currentGameYear);
 			return project;
