@@ -313,6 +313,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
+	isOneTimePayment: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -369,6 +370,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
+	isOneTimePayment: true,
 	baseCost: 3_750_000,
 	financedAnnualCost: 460_000,
 	financedTotalCost: 4_600_000,
@@ -1086,6 +1088,11 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-1_200_000)
 	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
+	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
@@ -1111,6 +1118,11 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	},
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-2_400_000)
+	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
@@ -1138,6 +1150,11 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-3_600_000)
 	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
+	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
@@ -1157,10 +1174,16 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: false,
+	isPPPA: true,
 	isRenewable: true,
 	baseCost: 210_000,
 	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
+	},
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(10),
@@ -1200,9 +1223,15 @@ Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
+	isPPPA: true,
 	baseCost: 537_000,
 	financedAnnualCost: 268_000,
 	financedTotalCost: 660_000,
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
+	},
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(10),
@@ -1232,6 +1261,9 @@ Projects[Pages.largeWind] = new ProjectControl({
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
 });
 
 Projects[Pages.communityWindProject] = new ProjectControl({
@@ -1246,6 +1278,11 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 			financingType: getGreenBondsFinancing(10),
 		},
 	],
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget'
+	},
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-8_200_000),
 	},

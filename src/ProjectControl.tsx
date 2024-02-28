@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
@@ -27,7 +27,10 @@ export class ProjectControl implements ProjectControlParams {
 	isRenewable?: boolean;
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
+	isPPPA?: boolean;
+	isOneTimePayment?: boolean;
 	baseCost: number;
+	customBudgetType?: FinancingType;
 	financedAnnualCost: number;
 	financedTotalCost: number;
 	statsInfoAppliers: TrackedStatsApplier;
@@ -59,11 +62,14 @@ export class ProjectControl implements ProjectControlParams {
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
+		this.isPPPA = params.isPPPA;
+		this.isOneTimePayment = params.isOneTimePayment;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
+		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
 		this.choiceInfoText = params.choiceInfoText;
@@ -104,14 +110,12 @@ export class ProjectControl implements ProjectControlParams {
 
 		let hasFinancingOptions = self.financingOptions && self.financingOptions.length !== 0;
 		let projectDialogStatCards: DialogCardContent[] = [];
-		let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost);
-		let defaultFinancingOptionCard: DialogFinancingOptionCard = {
-			...defaultFinancingOption,
-			implementButton: undefined
+		let financingOptionCards: DialogFinancingOptionCard[] = [];
+
+		if (!self.isPPPA) {
+			let defaultFinancingOptionCard: DialogFinancingOptionCard = getBudgetOptionCard(hasFinancingOptions);
+			financingOptionCards.push(defaultFinancingOptionCard);
 		}
-		let implementButton = getFinancingTypeImplementButton(defaultFinancingOptionCard);
-		defaultFinancingOptionCard.implementButton = implementButton;
-		let financingOptionCards: DialogFinancingOptionCard[] = [defaultFinancingOptionCard];
 
 		if (self.isCapitalFundsEligible) {
 			let capitalFundingOption: FinancingOption = getCapitalFundingOption();
@@ -252,6 +256,17 @@ export class ProjectControl implements ProjectControlParams {
 			));
 		}
 
+		function getBudgetOptionCard(hasFinancingOptions: boolean): DialogFinancingOptionCard {
+			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(self, hasFinancingOptions, self.baseCost);
+			let defaultFinancingOptionCard: DialogFinancingOptionCard = {
+				...defaultFinancingOption,
+				implementButton: undefined
+			}
+			let implementButton = getFinancingTypeImplementButton(defaultFinancingOptionCard);
+			defaultFinancingOptionCard.implementButton = implementButton;
+			return defaultFinancingOptionCard;
+		}
+
 		function addImplementProjectCheckedButton(buttons: ButtonGroupButton[], hasFinancingOptions: boolean) {
 			const isProjectImplemented = (props) => {
 				if (self.isRenewable) {
@@ -270,7 +285,7 @@ export class ProjectControl implements ProjectControlParams {
 				return !props.availableProjectIds.includes(self.pageId) || (hasFinancingOptions && !isProjectImplemented(props))
 			};
 
-			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(hasFinancingOptions, self.baseCost)
+			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(self, hasFinancingOptions, self.baseCost)
 			let financedButton: ButtonGroupButton = {
 					text: 'Implement Project',
 					variant: 'contained',
@@ -871,11 +886,17 @@ declare interface ProjectControlParams {
 	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
 	*/
 	isRenewable?: boolean;
+	customBudgetType?: FinancingType;
+	isOneTimePayment?: boolean;
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
 	*/
 	isEnergyEfficiency?: boolean;
+	/**
+	 * PPPAs must finance, only show once financing has started
+	*/
+	isPPPA?: boolean;
 	/**
 	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
 	*/
