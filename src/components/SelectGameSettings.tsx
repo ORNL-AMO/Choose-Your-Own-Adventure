@@ -82,7 +82,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogTitle>
 
                 <DialogContent>
-                    {process.env.NODE_ENV == 'development' && 
+                    {/* {process.env.NODE_ENV == 'development' && 
                         <Box m={2} p='16px' sx={{background: '#ff000052'}}>
                             <FormGroup>
                                 <FormControlLabel control={
@@ -112,7 +112,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                 </ListItem>
                             </List>              
                         </Box>
-                    }
+                    } */}
                     <Box m={2}>
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
                             You have the option to play through in 1 OR 2-year intervals.
