@@ -29,15 +29,15 @@ export interface TrackedStats {
 	electricityCostPerKWh: number;
 
 	/**
-	 * Hydrogen, in millions of British Thermal Units (MMBTU, for reasons)
+	 * Landfill Gas, in millions of British Thermal Units (MMBTU, for reasons)
 	 */
 	hydrogenMMBTU: number;
 	/**
-	 * Cost of Hydrogen, per MMBTU.
+	 * Cost of Landfill Gas, per MMBTU.
 	 */
 	hydrogenCostPerMMBTU: number;
 	/**
-	 * Emissions of Hydrogen, per MMBTU.
+	 * Emissions of Landfill Gas, per MMBTU.
 	 */
 	hydrogenEmissionsPerMMBTU: number;
 
@@ -129,8 +129,8 @@ export const initialTrackedStats: TrackedStats = {
 	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
 	hydrogenMMBTU: 2_000,
-	hydrogenCostPerMMBTU: 40,
-	hydrogenEmissionsPerMMBTU: 0,
+	hydrogenCostPerMMBTU: 5,
+	hydrogenEmissionsPerMMBTU: 0.268,
 	carbonSavingsPercent: 0,
 	financesAvailable: 150_000,
 	yearBudget: 150_000,
@@ -228,7 +228,7 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		maxValue: 2_000_000,
 	},
 	hydrogenMMBTU: {
-		label: 'Hydrogen use (MMBTU)',
+		label: 'Landfill Gas use (MMBTU)',
 		color: theme.palette.primary.light,
 		textFontSize: 0.85,
 		maxValue: 2_000,

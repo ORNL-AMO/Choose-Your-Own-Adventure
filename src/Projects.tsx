@@ -147,30 +147,39 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 });
 Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
-	baseCost: 100_000,
+	baseCost: 80_000,
 	isEnergyEfficiency: true,
+	financedAnnualCost: 20_000,
+	financedTotalCost: 80_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
 	statsInfoAppliers: {
-		hydrogenMMBTU: absolute(1_000),
-		electricityUseKWh: absolute(-1_000),
+		electricityUseKWh: absolute(280_000),
 	},
 	statsActualAppliers: {
-		hydrogenMMBTU: absolute(1_000),
-		electricityUseKWh: absolute(-1_000),
+		electricityUseKWh: absolute(280_000),
 	},
-	title: 'Fuel Switching – Hydrogen Powered Forklifts',
-	shortTitle: 'Switch to hydrogen powered forklifts',
+	title: 'More efficient batteries for forklifts',
+	shortTitle: 'Switch forklifts to lithium-ion batteries',
 	choiceInfoText: [
-		'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-		'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
+		`Text: Currently, your facility uses {lead acid} batteries to power your mobile forklifts, 
+		which yields {high} maintenance costs and {low} battery life for each forklift. You can replace these batteries with {lithium-ion} batteries, 
+		which will result in {higher} efficiency batteries and charging, {lower} maintenance costs, 
+		{longer} battery life, and you will also be able to shutdown a costly ventilation system. 
+		These additional cost reductions are factored into the project cost.
+		`
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
-		title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
-		url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
-		text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
+		title: 'Better Buildings, Better Plants SUMMIT',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/sites/default/files/2023Summit-Industrial_Energy_Efficiency-Slides.pdf',
+		text: 'Better Buildings, Better Plants SUMMIT'
 	},
 	energySavingsPreviewIcon: {
 		text: '??%',
@@ -205,23 +214,33 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 //  utilityRebateValue: 5000,
 // });
 
-Projects[Pages.hydrogenFuel] = new ProjectControl({
-	pageId: Pages.hydrogenFuel,
+Projects[Pages.blendedFuel] = new ProjectControl({
+	pageId: Pages.blendedFuel,
 	isCapitalFundsEligible: true,
-	baseCost: 5_000,
+	baseCost: 500_000,
 	isEnergyEfficiency: true,
+	financedAnnualCost: 50_000,
+	financedTotalCost: 500_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
-		hydrogenMMBTU: absolute(1_000),
-		naturalGasMMBTU: absolute(-1_000),
+		hydrogenMMBTU: absolute(-18_000),
+		naturalGasMMBTU: absolute(18_000),
 	},
 	statsActualAppliers: {
-		hydrogenMMBTU: absolute(1_000),
-		naturalGasMMBTU: absolute(-1_000),
+		hydrogenMMBTU: absolute(-18_000),
+		naturalGasMMBTU: absolute(18_000),
 	},
-	title: 'Hydrogen Fuel Test Project',
-	shortTitle: 'Hydrogen Fuel Test Project',
+	title: 'Blended Fuel for boiler',
+	shortTitle: 'Utilize 30% landfill gas in your large boiler',
 	choiceInfoText: [
-		'Hydrogen Fuel Test Project',
+		`As your larger boiler is still well within its expected lifetime, replacement is not yet warranted. 
+		Instead, you have investigated the potential for fuel blending with local landfill gas. 
+		It has been decided that a 30% blend best suits your needs. Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, plus the on-site pipeline and boiler retrofit. `
 	],
 	choiceInfoImg: 'images/electric-boiler.png',
 	choiceInfoImgAlt: 'electric boiler',
@@ -230,11 +249,18 @@ Projects[Pages.hydrogenFuel] = new ProjectControl({
 	// add case study
 });
 
-Projects[Pages.h2InjectionIntoHRSG] = new ProjectControl({
-	pageId: Pages.h2InjectionIntoHRSG,
+Projects[Pages.landfillGasForOven] = new ProjectControl({
+	pageId: Pages.landfillGasForOven,
 	isCapitalFundsEligible: true,
 	isEnergyEfficiency: true,
-	baseCost: 500_000,
+	baseCost: 200_000,
+	financedAnnualCost: 20_000,
+	financedTotalCost: 200_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
 		hydrogenMMBTU: absolute(7_500),
 		naturalGasMMBTU: absolute(-7_500),
@@ -243,12 +269,14 @@ Projects[Pages.h2InjectionIntoHRSG] = new ProjectControl({
 		hydrogenMMBTU: absolute(7_500),
 		naturalGasMMBTU: absolute(-7_500),
 	},
-	title: 'H2 injection into HRSG',
-	shortTitle: 'H2 injection into HRSG',
+	title: 'Landfill Gas for oven',
+	shortTitle: 'Utilize landfill gas for an oven.',
 	choiceInfoText: [
-		'Project Description: You need to replace two of your heat recovery steam generators for main steam system.', 
-		'While most of the work will be covered as a capital project, it has been suggested that the decarbonization budget could supply the cost difference between conventional HRSCs and those able to use hydrogen.',
-		'At first you will only supply 10% of the system energy via hydrogen.',
+		`As part of the boiler project, you have investigated the potential for fuel blending with local landfill gas. 
+		You have decided to test one of your ovens out with landfill gas. 
+		Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, 
+		plus the on-site pipeline and boiler retrofit.`
 	],
 	choiceInfoImg: 'images/electric-boiler.png',
 	choiceInfoImgAlt: 'electric boiler',
@@ -273,10 +301,8 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	},
 	title: 'Fossil Fuel to Electric Boiler',
 	shortTitle: 'Replace the old fossil fuel boiler with an electric boiler',
-	choiceInfoText: [
-		'The smaller of your two boilers is {older} and near ready for replacement.  You can replace that boiler with an {electric boiler} providing the same steam pressure, temperature, and rate. ',
-		'As the boiler needs replacing soon, corporate has agreed to pay for half of this project out of capital funds, leaving you with about half the total installed cost.'
-	],
+	choiceInfoText: [`The smaller of your two boilers is older and near ready for replacement.  You can replace that boiler with an electric providing the same steam pressure, 
+	temperature and rate. As the boiler needs replacing soon, corporate has agreed to pay for part of this project out of capital funds, leaving you with about half the total installed cost.`],
 	choiceInfoImg: 'images/electric-boiler.png',
 	choiceInfoImgAlt: 'electric boiler',
 	choiceInfoImgObjectFit: 'contain',
@@ -287,8 +313,8 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
-	financedAnnualCost: 58_000,
-	financedTotalCost: 232_000,
+	financedAnnualCost: 37_500,
+	financedTotalCost: 150_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -319,9 +345,9 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	title: 'Small Carport Solar Installation',
 	shortTitle: 'Install solar panels on new facility carport',
 	choiceInfoText: [
-		`You decided to look into installing a small covered carport with a solar electricity generation system. Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use 
-		parking in the carport as an incentive to well-performing or energy-saving employees. You decide to pay for the carport outright and not via a power purchase agreement.
-	    You will receive {CREDITs} to your budget for the energy generated (and not purchased).`
+		`You decided to look into installing a small covered carport with a solar electricity generation system. 
+		Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use parking in the carport as an incentive to well-performing or energy-saving employees. 
+		Corporate has agreed that you will receive an annual {CREDIT} for the avoided grid electricity payment added to your budget every year.`
 	],
 	choiceInfoImg: 'images/solar-panels.png',
 	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
@@ -370,11 +396,11 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	//           color: 'rgb(255 135 33)',
 	//        }
 	//    }],
-	title: 'Mid-sized solar with storage via PACE loan',
-	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	title: 'Rooftop mid-sized solar with storage',
+	shortTitle: 'Build a 2MW rooftop solar array, with storage.',
 	choiceInfoText: [
-		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
-		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
+		`You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.
+		Corporate has agreed that you will receive an annual {CREDIT} for the avoided grid electricity payment added to your budget every year.`
 	],
 	choiceInfoImg: 'images/solar-field.jpg',
 	choiceInfoImgAlt: 'Solar panels field',
@@ -1061,8 +1087,8 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-1_200_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
@@ -1087,8 +1113,8 @@ Projects[Pages.midVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-2_400_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
@@ -1113,8 +1139,8 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-3_600_000)
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
@@ -1130,10 +1156,10 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
-	isCapitalFundsEligible: true,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	baseCost: 210_000,
-	financedAnnualCost: 26_000,
+	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
 	financingOptions: [
 		{
@@ -1147,8 +1173,12 @@ Projects[Pages.midSolar] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
 	title: 'Mid-sized Solar PPPA',
-	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
+	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
+		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  
+		 You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
+		 You will be in this contract for the next 10 years, so this cost will renew annually automatically.`],
 	choiceInfoImg: 'images/solar-field.jpg',
 	choiceInfoImgAlt: 'Solar panels field',
 	choiceInfoImgObjectFit: 'cover',
@@ -1168,14 +1198,14 @@ Projects[Pages.midSolar] = new ProjectControl({
 
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
-	isCapitalFundsEligible: true,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	baseCost: 537_000,
-	financedAnnualCost: 66_000,
+	financedAnnualCost: 268_000,
 	financedTotalCost: 660_000,
 	financingOptions: [
 		{
-			financingType: getGreenBondsFinancing(10),
+			financingType: getEaaSFinancing(10),
 		},
 	],
 	statsInfoAppliers: {
@@ -1184,9 +1214,14 @@ Projects[Pages.largeWind] = new ProjectControl({
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},
-	title: 'Large Wind PPPA',
-	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15-year contract to source a large portion of your electricity use. You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
+	title: 'Utility-PPPA Wind Project',
+	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
+		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
+		but not be responsible for the capital investment or maintenance of the system. They are planning to install a {5MW system} on the site. 
+		You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
+		You will be in this contract for the next 15 years, so this cost will renew annually automatically.`],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
@@ -1196,5 +1231,42 @@ Projects[Pages.largeWind] = new ProjectControl({
 		text: '23%',
 		variant: 'text',
 		startIcon: <Co2Icon />,
+	},
+});
+
+Projects[Pages.communityWindProject] = new ProjectControl({
+	pageId: Pages.communityWindProject,
+	isCapitalFundsEligible: false,
+	isRenewable: true,
+	baseCost: 537_000,
+	financedAnnualCost: 400_000,
+	financedTotalCost: 660_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-8_200_000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-8_200_000),
+	},
+	title: 'Utility-PPPA Wind Project',
+	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
+		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 
+		You have worked out a deal with your corporate management team and they will pay for half of the project from capital funds. 
+		You will paying the bonds back for the next 10 years, so this cost will renew annually automatically. `],
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewIcon: {
+		text: '23%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
 	},
 });

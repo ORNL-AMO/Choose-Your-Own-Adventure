@@ -22,8 +22,8 @@ const Pages = {
 	processHeatingUpgrades: Symbol('process-heating-upgrades'),
 	hydrogenPoweredForklifts: Symbol('hydrogen-powered-forklifts'),
 	electricBoiler: Symbol('electric-boiler'),
-	hydrogenFuel: Symbol('hydrogen-fuel'),
-	h2InjectionIntoHRSG: Symbol('h2-injection-into-HRSG'),
+	blendedFuel: Symbol('blended-fuel'),
+	landfillGasForOven: Symbol('landfill-gas-for-oven'),
 	// below: scope 2 projects
 	lightingUpgrades: Symbol('explore-lighting-upgrades'),
 	greenPowerTariff: Symbol('green-power-tariff'),
@@ -31,6 +31,7 @@ const Pages = {
 	midVPPA: Symbol('mid-vppa'),
 	largeVPPA: Symbol('large-vppa'),
 	largeWind: Symbol('large-wind'),
+	communityWindProject: Symbol('community-wind-project'),
 	midSolar: Symbol('mid-solar'),
 	solarPanelsCarPort: Symbol('solar-panels-car-port'),
 	solarRooftop: Symbol('solar-rooftop'),
