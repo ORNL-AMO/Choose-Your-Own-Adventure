@@ -1,4 +1,4 @@
-import type { ImplementedProject, RecapSurprise } from './ProjectControl';
+import type { ImplementedProject, ProjectControl, RecapSurprise } from './ProjectControl';
 import type { TrackedStats } from './trackedStats';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import React from 'react';
@@ -140,11 +140,17 @@ export function getRoundIsExpired(round: FundingRound, stats: TrackedStats) {
 }
 
 
-export function getDefaultFinancingOption(hasFinancingOptions: boolean, baseCost: number): FinancingOption {
+export function getDefaultFinancingOption(projectControl: ProjectControl, hasFinancingOptions: boolean, baseCost: number): FinancingOption {
+    let name = 'Pay with Existing Budget';
+    let description = hasFinancingOptions ? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget';
+    if (projectControl.customBudgetType) {
+        name = projectControl.customBudgetType.name;
+        description = projectControl.customBudgetType.description;
+    }
     return {
         financingType: {
-            name: hasFinancingOptions ? 'Pay with Existing Budget' : 'Fully Fund Project',
-            description: hasFinancingOptions ? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget',
+            name: name,
+            description: description,
             id: 'budget',
         },
         financedTotalCost: baseCost,
