@@ -27,7 +27,7 @@ export class ProjectControl implements ProjectControlParams {
 	isRenewable?: boolean;
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
-	isPPPA?: boolean;
+	mustAnnuallyFinance?: boolean;
 	isSinglePaymentRenewable?: boolean;
 	baseCost: number;
 	customBudgetType?: FinancingType;
@@ -62,7 +62,7 @@ export class ProjectControl implements ProjectControlParams {
 	constructor(params: ProjectControlParams) {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
-		this.isPPPA = params.isPPPA;
+		this.mustAnnuallyFinance = params.mustAnnuallyFinance;
 		this.isSinglePaymentRenewable = params.isSinglePaymentRenewable;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
@@ -112,7 +112,7 @@ export class ProjectControl implements ProjectControlParams {
 		let projectDialogStatCards: DialogCardContent[] = [];
 		let financingOptionCards: DialogFinancingOptionCard[] = [];
 
-		if (!self.isPPPA) {
+		if (!self.mustAnnuallyFinance) {
 			let defaultFinancingOptionCard: DialogFinancingOptionCard = getBudgetOptionCard(hasFinancingOptions);
 			financingOptionCards.push(defaultFinancingOptionCard);
 		}
@@ -914,7 +914,7 @@ declare interface ProjectControlParams {
 	/**
 	 * PPPAs must finance, only show once financing has started
 	*/
-	isPPPA?: boolean;
+	mustAnnuallyFinance?: boolean;
 	/**
 	 * Project can be implemented using the Capital Funds Reward (awarded for GHG/carbon savings milestones)
 	*/

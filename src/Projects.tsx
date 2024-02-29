@@ -1172,7 +1172,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: false,
-	isPPPA: true,
+	mustAnnuallyFinance: true,
 	isRenewable: true,
 	baseCost: 210_000,
 	financedAnnualCost: 105_000,
@@ -1262,7 +1262,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	pageId: Pages.communityWindProject,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
-	isPPPA: true,
+	mustAnnuallyFinance: true,
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
 	financedTotalCost: 660_000,
@@ -1294,4 +1294,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.greenBond && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
 });
