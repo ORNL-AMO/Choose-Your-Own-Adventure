@@ -369,7 +369,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				let renewableProjectIndex: number = implementedRenewableProjectsCopy.findIndex(project => project.page === implementedProject.pageId);
 				financingOption = implementedRenewableProjectsCopy[renewableProjectIndex].financingOption;
 				let isAnnuallyFinanced = getIsAnnuallyFinanced(financingOption.financingType.id);
-				shouldApplyCosts = isAnnuallyFinanced || !implementedProject.isOneTimePayment || (implementedProject.isOneTimePayment && renewableProject.yearStarted === mutableStats.currentGameYear);
+				shouldApplyCosts = isAnnuallyFinanced || !implementedProject.isSinglePaymentRenewable || (implementedProject.isSinglePaymentRenewable && renewableProject.yearStarted === mutableStats.currentGameYear);
 				shouldApplyHiddenCosts = renewableProject.yearStarted === mutableStats.currentGameYear;
 			} else {
 				let financedIndex: number = implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
@@ -517,7 +517,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
 		}
 
-		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.currentGameYear)
+		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.gameYearInterval)
 
 		let financingCardContent: DialogFinancingOptionCard = {
 			...implementationFinancing,

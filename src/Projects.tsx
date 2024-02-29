@@ -311,7 +311,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
-	isOneTimePayment: true,
+	isSinglePaymentRenewable: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -368,7 +368,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	isOneTimePayment: true,
+	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,
 	financedAnnualCost: 460_000,
 	financedTotalCost: 4_600_000,

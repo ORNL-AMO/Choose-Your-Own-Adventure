@@ -316,6 +316,6 @@ export function getYearlyBudget(proceedGameYear: number, gameYearInterval: numbe
 	if (gameYearInterval > 1) {
 		year = gameYearDisplayOffset + 1;
         yearBudget = YearlyBudget[year] * 2;
-    }
+    } 
 	return yearBudget;
 }

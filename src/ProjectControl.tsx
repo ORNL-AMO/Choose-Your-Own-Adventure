@@ -28,7 +28,7 @@ export class ProjectControl implements ProjectControlParams {
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	isPPPA?: boolean;
-	isOneTimePayment?: boolean;
+	isSinglePaymentRenewable?: boolean;
 	baseCost: number;
 	customBudgetType?: FinancingType;
 	financedAnnualCost: number;
@@ -63,7 +63,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
 		this.isPPPA = params.isPPPA;
-		this.isOneTimePayment = params.isOneTimePayment;
+		this.isSinglePaymentRenewable = params.isSinglePaymentRenewable;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
@@ -577,7 +577,7 @@ export class ProjectControl implements ProjectControlParams {
 		function reImplementRenewable(implementedRenewableProjects: RenewableProject[], existingRenewableProjectIndex: number, yearRangeInitialStats: TrackedStats[], newTrackedStats: TrackedStats) {
 			implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.push(newTrackedStats.currentGameYear);
 			self.applyStatChanges(newTrackedStats);
-			let shouldApplyCosts = !Projects[implementedRenewableProjects[existingRenewableProjectIndex].page].isOneTimePayment;
+			let shouldApplyCosts = !Projects[implementedRenewableProjects[existingRenewableProjectIndex].page].isSinglePaymentRenewable;
 			if (shouldApplyCosts) {
 				self.applyCost(newTrackedStats, implementedRenewableProjects[existingRenewableProjectIndex].financingOption);
 			}
@@ -596,7 +596,7 @@ export class ProjectControl implements ProjectControlParams {
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
 					const projectControl = Projects[project.page];
 					Projects[project.page].unApplyStatChanges(newTrackedStats);
-					let shouldUnapplyCosts = !projectControl.isOneTimePayment || (projectControl.isOneTimePayment && project.yearStarted === newTrackedStats.currentGameYear);
+					let shouldUnapplyCosts = !projectControl.isSinglePaymentRenewable || (projectControl.isSinglePaymentRenewable && project.yearStarted === newTrackedStats.currentGameYear);
 					if (shouldUnapplyCosts) {
 						Projects[project.page].unApplyCost(newTrackedStats, project.financingOption);
 					}
@@ -619,7 +619,7 @@ export class ProjectControl implements ProjectControlParams {
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
 					const projectControl = Projects[project.page];
 					Projects[project.page].applyStatChanges(newTrackedStats);
-					let shouldApplyCosts = !projectControl.isOneTimePayment || (projectControl.isOneTimePayment && project.yearStarted === newTrackedStats.currentGameYear);
+					let shouldApplyCosts = !projectControl.isSinglePaymentRenewable || (projectControl.isSinglePaymentRenewable && project.yearStarted === newTrackedStats.currentGameYear);
 					if (shouldApplyCosts) {
 						Projects[project.page].applyCost(newTrackedStats, project.financingOption);
 					}
@@ -707,7 +707,11 @@ export class ProjectControl implements ProjectControlParams {
 	getImplementationCost(financingId: FinancingId, gameYearInterval: number) {
 		let projectCost = this.baseCost;
 		let isAnnuallyFinanced = getIsAnnuallyFinanced(financingId);
-		let intervalMultiplier = this.isOneTimePayment && !isAnnuallyFinanced? 1 : gameYearInterval;
+		let intervalMultiplier = gameYearInterval;
+		if (this.isSinglePaymentRenewable && !isAnnuallyFinanced) {
+			intervalMultiplier = 1
+		}
+
 		if (financingId && financingId === 'capital-funding') {
 			projectCost = 0;
 		} else if (financingId && isAnnuallyFinanced) {
@@ -904,7 +908,7 @@ declare interface ProjectControlParams {
 	*/
 	isRenewable?: boolean;
 	customBudgetType?: FinancingType;
-	isOneTimePayment?: boolean;
+	isSinglePaymentRenewable?: boolean;
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
