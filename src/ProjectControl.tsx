@@ -507,15 +507,12 @@ export class ProjectControl implements ProjectControlParams {
 
 			const currentProjectCount = startedRenewableProjects + state.implementedProjectsIds.length;
 			const projectCounts = `year ${state.trackedStats.currentGameYear} - reg projects: ${state.implementedProjectsIds.length}, started renewables: ${startedRenewableProjects}`;
-			console.log(projectCounts);
 			if (currentProjectCount >= projectImplementationLimit) {
 				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
 				canImplement = false;
 			}
 
 			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
-			console.log('financesAvailable', state.trackedStats.financesAvailable);
-			console.log('cost', projectCost);
 			if (projectCost > 0 && projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
 				canImplement = false;
