@@ -453,7 +453,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
 			// todo 143 ignore for some financed projects
 			props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
-			console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
+			// console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
 		}
 	}
 
@@ -468,7 +468,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			if (project.yearlyFinancialSavings && project.gameYearsImplemented.includes(initialCurrentYearStats.currentGameYear)
 				&& project.yearStarted !== initialCurrentYearStats.currentGameYear
 				&& initialCurrentYearStats.currentGameYear !== 1) {
-				console.log(`${String(project.page)} renewable savings added', ${project.yearlyFinancialSavings.electricity}`);
+				// console.log(`${String(project.page)} renewable savings added', ${project.yearlyFinancialSavings.electricity}`);
 				yearCostSavings.electricity += project.yearlyFinancialSavings.electricity;
 				yearCostSavings.naturalGas += project.yearlyFinancialSavings.naturalGas;
 
