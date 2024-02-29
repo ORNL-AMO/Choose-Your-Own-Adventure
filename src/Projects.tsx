@@ -147,10 +147,10 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 });
 Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
-	baseCost: 80_000,
+	baseCost: 150_000,
 	isEnergyEfficiency: true,
-	financedAnnualCost: 20_000,
-	financedTotalCost: 80_000,
+	financedAnnualCost: 37_500,
+	financedTotalCost: 150_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -165,12 +165,10 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	title: 'More efficient batteries for forklifts',
 	shortTitle: 'Switch forklifts to lithium-ion batteries',
 	choiceInfoText: [
-		`Text: Currently, your facility uses {lead acid} batteries to power your mobile forklifts, 
-		which yields {high} maintenance costs and {low} battery life for each forklift. You can replace these batteries with {lithium-ion} batteries, 
-		which will result in {higher} efficiency batteries and charging, {lower} maintenance costs, 
-		{longer} battery life, and you will also be able to shutdown a costly ventilation system. 
-		These additional cost reductions are factored into the project cost.
-		`
+		`Currently, your facility uses lead acid batteries to power your mobile forklifts, which yields high maintenance costs and low battery life for each forklift. 
+		You can replace these batteries with lithium-ion batteries, which will result in higher efficiency batteries and charging, lower maintenance costs, longer battery life, 
+		and you will also be able to shutdown a costly ventilation system. By quantifying the additional benefits of the new system, 
+		you were able to convince management to transfer some maintenance budget over for this project, reducing your required payment.`
 	],
 	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
 	choiceInfoImgAlt: 'Hydrogen powered forklift.',
@@ -227,12 +225,12 @@ Projects[Pages.blendedFuel] = new ProjectControl({
 		},
 	],
 	statsInfoAppliers: {
-		hydrogenMMBTU: absolute(-18_000),
-		naturalGasMMBTU: absolute(18_000),
+		hydrogenMMBTU: absolute(18_000),
+		naturalGasMMBTU: absolute(-18_000),
 	},
 	statsActualAppliers: {
-		hydrogenMMBTU: absolute(-18_000),
-		naturalGasMMBTU: absolute(18_000),
+		hydrogenMMBTU: absolute(18_000),
+		naturalGasMMBTU: absolute(-18_000),
 	},
 	title: 'Blended Fuel for boiler',
 	shortTitle: 'Utilize 30% landfill gas in your large boiler',
@@ -1223,7 +1221,6 @@ Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
-	isPPPA: true,
 	baseCost: 537_000,
 	financedAnnualCost: 268_000,
 	financedTotalCost: 660_000,
@@ -1232,11 +1229,6 @@ Projects[Pages.largeWind] = new ProjectControl({
 		description: "Pay Annually",
 		id: 'budget'
 	},
-	financingOptions: [
-		{
-			financingType: getEaaSFinancing(10),
-		},
-	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},
@@ -1270,6 +1262,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	pageId: Pages.communityWindProject,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
+	isPPPA: true,
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
 	financedTotalCost: 660_000,
@@ -1278,18 +1271,13 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 			financingType: getGreenBondsFinancing(10),
 		},
 	],
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget'
-	},
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-8_200_000),
 	},
 	statsActualAppliers: {
 		electricityUseKWh: absolute(-8_200_000),
 	},
-	title: 'Utility-PPPA Wind Project',
+	title: 'Community Wind Project',
 	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 

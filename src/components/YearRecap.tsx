@@ -103,7 +103,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		let mutableStats: TrackedStats = { ...initialCurrentYearStats };
 		let mutableCapitalFundingState: CapitalFundingState = { ...this.props.capitalFundingState };
 		let recapResults: YearRecapResults = this.buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats, mutableCapitalFundingState);
-
+		const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
@@ -174,20 +174,26 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									}
 								/>
 							</ListItem>
-							<ListItem >
-								<ListItemIcon>
-									<InfoIcon />
-								</ListItemIcon>
-								<ListItemText
-									primary={
-										<Typography variant={'h5'}>
-											This will be added to your budget for the next period, as well as the{' '}
-											<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
-											that was not yet spent.
-										</Typography>
-									}
-								/>
-							</ListItem>
+							{gameSettings.allowBudgetCarryover === 'yes' ?
+								<ListItem >
+									<ListItemIcon>
+										<InfoIcon />
+									</ListItemIcon>
+									<ListItemText
+										primary={
+											<Typography variant={'h5'}>
+												This will be added to your budget for the next period, as well as the{' '}
+												<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
+												that was not yet spent.
+											</Typography>
+										}
+									/>
+								</ListItem> 
+								:
+								<ListItem >
+									{/* Leave this List Item empty so nothing will display when allowBudgetCarryover === 'no' */}
+								</ListItem>
+							}
 							<ListItem >
 								<ListItemIcon>
 									<InfoIcon />
@@ -373,6 +379,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			this.applyStatsFromImplementation(implementedProject, projectIndividualizedStats, mutableStats, gaugeCharts, hasAppliedFirstYearSavings);
 			this.applyEndOfYearStats(implementedProject, mutableStats, hasAppliedFirstYearSavings);
 			this.addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
+			
 			if (shouldApplyCosts) {
 				implementedProject.applyCost(mutableStats, financingOption);
 				projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval, shouldApplyHiddenCosts);
