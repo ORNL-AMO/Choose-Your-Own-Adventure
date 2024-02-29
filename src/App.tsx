@@ -646,7 +646,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
 		let budget = 75_000;
 		let naturalGas = 120_000;
-		let hydrogen = 6_000;
+		let hydrogen = 0;
 		let electricity = 30_000_000;
 		let totalGameYears = 10;
 
@@ -654,7 +654,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			budget = 150_000;
 			naturalGas = 240_000;
 			electricity = 60_000_000;
-			hydrogen = 120_000;
+			hydrogen = 0;
 			totalGameYears = 5;
 		}
 
