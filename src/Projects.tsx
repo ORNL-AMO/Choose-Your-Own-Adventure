@@ -313,7 +313,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
-	isOneTimePayment: true,
+	isSinglePaymentRenewable: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -344,7 +344,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		}
 	}],
 	title: 'Small Carport Solar Installation',
-	shortTitle: 'Install solar panels on new facility carport',
+	shortTitle: 'Install solar panels on new facility carport. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
 	choiceInfoText: [
 		`You decided to look into installing a small covered carport with a solar electricity generation system. 
 		Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use parking in the carport as an incentive to well-performing or energy-saving employees. 
@@ -370,7 +370,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
 	isCapitalFundsEligible: true,
 	isRenewable: true,
-	isOneTimePayment: true,
+	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,
 	financedAnnualCost: 460_000,
 	financedTotalCost: 4_600_000,

@@ -357,10 +357,13 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			let hasAppliedFirstYearSavings = false;
 			let shouldApplyHiddenCosts = true;
 			let financingOption: FinancingOption;
+			let shouldApplyCosts = true;
 			if (renewableProject) {
 				hasAppliedFirstYearSavings = renewableProject.yearStarted !== mutableStats.currentGameYear;
 				let renewableProjectIndex: number = implementedRenewableProjectsCopy.findIndex(project => project.page === implementedProject.pageId);
 				financingOption = implementedRenewableProjectsCopy[renewableProjectIndex].financingOption;
+				let isAnnuallyFinanced = getIsAnnuallyFinanced(financingOption.financingType.id);
+				shouldApplyCosts = isAnnuallyFinanced || !implementedProject.isSinglePaymentRenewable || (implementedProject.isSinglePaymentRenewable && renewableProject.yearStarted === mutableStats.currentGameYear);
 				shouldApplyHiddenCosts = renewableProject.yearStarted === mutableStats.currentGameYear;
 			} else {
 				let financedIndex: number = implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
@@ -370,9 +373,10 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			this.applyStatsFromImplementation(implementedProject, projectIndividualizedStats, mutableStats, gaugeCharts, hasAppliedFirstYearSavings);
 			this.applyEndOfYearStats(implementedProject, mutableStats, hasAppliedFirstYearSavings);
 			this.addCarbonSavingsGauge(mutableStats, gaugeCharts, props.defaultTrackedStats);
-			implementedProject.applyCost(mutableStats, financingOption);
-
-			projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval, shouldApplyHiddenCosts);
+			if (shouldApplyCosts) {
+				implementedProject.applyCost(mutableStats, financingOption);
+				projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval, shouldApplyHiddenCosts);
+			}
 			if (renewableProject && !hasAppliedFirstYearSavings) {
 				this.mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			}
@@ -506,8 +510,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
 		}
 
-		let initialCost = isFinanced ? implementedProject.financedAnnualCost : implementedProject.baseCost;
-		initialCost *= yearMultiplier;
+		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.gameYearInterval)
 
 		let financingCardContent: DialogFinancingOptionCard = {
 			...implementationFinancing,

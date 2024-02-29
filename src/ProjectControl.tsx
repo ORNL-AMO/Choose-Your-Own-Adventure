@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
@@ -28,7 +28,7 @@ export class ProjectControl implements ProjectControlParams {
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	isPPPA?: boolean;
-	isOneTimePayment?: boolean;
+	isSinglePaymentRenewable?: boolean;
 	baseCost: number;
 	customBudgetType?: FinancingType;
 	financedAnnualCost: number;
@@ -63,7 +63,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.pageId = params.pageId;
 		this.isRenewable = params.isRenewable;
 		this.isPPPA = params.isPPPA;
-		this.isOneTimePayment = params.isOneTimePayment;
+		this.isSinglePaymentRenewable = params.isSinglePaymentRenewable;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
@@ -427,7 +427,9 @@ export class ProjectControl implements ProjectControlParams {
 					financingOption: implementationFinancing
 				});
 
-				self.applyStatChanges(newTrackedStats, implementationFinancing);
+				self.applyStatChanges(newTrackedStats);
+				self.applyCost(newTrackedStats, implementationFinancing);
+				
 				if (!hasAbsoluteCarbonSavings) {
 					newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
 				}
@@ -462,7 +464,9 @@ export class ProjectControl implements ProjectControlParams {
 			for (let i = 0; i < implementedProjectsIds.length; i++) {
 				let pageId = implementedProjectsIds[i];
 				let financingOption = findFinancingOptionFromProject(implementedFinancedProjects, pageId);
-				Projects[pageId].applyStatChanges(newTrackedStats, financingOption);
+				Projects[pageId].applyStatChanges(newTrackedStats);
+				Projects[pageId].applyCost(newTrackedStats, financingOption);
+
 			}
 			
 			if (implementedFinancingOption.financingType.id === 'capital-funding') {
@@ -480,7 +484,9 @@ export class ProjectControl implements ProjectControlParams {
 			for (let i = implementedProjectsIds.length - 1; i >= 0; i--) {
 				let pageId = implementedProjectsIds[i];
 				const financingOption: FinancingOption = findFinancingOptionFromProject(implementedFinancedProjects, pageId);
-				Projects[pageId].unApplyStatChanges(newTrackedStats, financingOption);
+				Projects[pageId].unApplyStatChanges(newTrackedStats);
+				Projects[pageId].unApplyCost(newTrackedStats, financingOption);
+
 			}
 
 		}
@@ -546,7 +552,8 @@ export class ProjectControl implements ProjectControlParams {
 						yearStarted: newTrackedStats.currentGameYear,
 						financingOption: financingOption
 					});
-					self.applyStatChanges(newTrackedStats, financingOption);
+					self.applyStatChanges(newTrackedStats);
+					self.applyCost(newTrackedStats, financingOption);
 				}
 
 				if (!hasAbsoluteCarbonSavings) {
@@ -562,13 +569,18 @@ export class ProjectControl implements ProjectControlParams {
 			return state.currentPage;
 		}
 
+		// todo do better than indexing into array here
 		/**
 		 * Called if we've de-selected renewable implementation AND re-selected to implement in the same year, 
 		 * yearRangeInitial stats must be reconciled with trackedStats
 		 */
 		function reImplementRenewable(implementedRenewableProjects: RenewableProject[], existingRenewableProjectIndex: number, yearRangeInitialStats: TrackedStats[], newTrackedStats: TrackedStats) {
 			implementedRenewableProjects[existingRenewableProjectIndex].gameYearsImplemented.push(newTrackedStats.currentGameYear);
-			self.applyStatChanges(newTrackedStats, implementedRenewableProjects[existingRenewableProjectIndex].financingOption);
+			self.applyStatChanges(newTrackedStats);
+			let shouldApplyCosts = !Projects[implementedRenewableProjects[existingRenewableProjectIndex].page].isSinglePaymentRenewable;
+			if (shouldApplyCosts) {
+				self.applyCost(newTrackedStats, implementedRenewableProjects[existingRenewableProjectIndex].financingOption);
+			}
 			// * 22 if we've de-selected renewable implementation AND re-selected to implement in the same year, yearRangeInitial stats are out of sync with trackedStats
 			const updatedCurrentStatsIndex = yearRangeInitialStats.findIndex(stats => stats.currentGameYear === newTrackedStats.currentGameYear);
 			yearRangeInitialStats.splice(updatedCurrentStatsIndex, 1, newTrackedStats);
@@ -580,9 +592,14 @@ export class ProjectControl implements ProjectControlParams {
 		 */
 		function removeRenewableProject(implementedRenewableProjects: RenewableProject[], removeProjectIndex: number, newTrackedStats: TrackedStats, yearRangeInitialStats: TrackedStats[], isFullRemoval = false) {
 			for (let i = implementedRenewableProjects.length - 1; i >= 0; i--) {
-				const project = implementedRenewableProjects[i];
+				const project: RenewableProject = implementedRenewableProjects[i];
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
-					Projects[project.page].unApplyStatChanges(newTrackedStats, project.financingOption);
+					const projectControl = Projects[project.page];
+					Projects[project.page].unApplyStatChanges(newTrackedStats);
+					let shouldUnapplyCosts = !projectControl.isSinglePaymentRenewable || (projectControl.isSinglePaymentRenewable && project.yearStarted === newTrackedStats.currentGameYear);
+					if (shouldUnapplyCosts) {
+						Projects[project.page].unApplyCost(newTrackedStats, project.financingOption);
+					}
 				}
 			}
 
@@ -600,8 +617,13 @@ export class ProjectControl implements ProjectControlParams {
 			for (let i = 0; i < implementedRenewableProjects.length; i++) {
 				const project = implementedRenewableProjects[i];
 				if (project.gameYearsImplemented.includes(newTrackedStats.currentGameYear)) {
-					Projects[project.page].applyStatChanges(newTrackedStats, project.financingOption);
-				}
+					const projectControl = Projects[project.page];
+					Projects[project.page].applyStatChanges(newTrackedStats);
+					let shouldApplyCosts = !projectControl.isSinglePaymentRenewable || (projectControl.isSinglePaymentRenewable && project.yearStarted === newTrackedStats.currentGameYear);
+					if (shouldApplyCosts) {
+						Projects[project.page].applyCost(newTrackedStats, project.financingOption);
+					}
+				}		
 			}
 
 			// * 22 update current stat year (necessary because we apply renewable at year recap of previous year) 
@@ -616,8 +638,7 @@ export class ProjectControl implements ProjectControlParams {
 	 * Applies this project's stat changes by mutating the provided TrackedStats object.
 	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
 	 */
-	applyStatChanges(mutableStats: TrackedStats, financingOption: FinancingOption) {
-		// todo 143 which appiers should heed the financing option if any?
+	applyStatChanges(mutableStats: TrackedStats) {
 		for (let key in this.statsActualAppliers) {
 			let thisApplier = this.statsActualAppliers[key];
 			if (!thisApplier) return;
@@ -627,15 +648,13 @@ export class ProjectControl implements ProjectControlParams {
 			}
 			mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
 		}
-		// Now, apply the change to finances
-		this.applyCost(mutableStats, financingOption);
 	}
 
 	/**
 	 * Un-applies this project's stat changes by mutating the provided TrackedStats object.
 	 * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
 	 */
-	unApplyStatChanges(mutableStats: TrackedStats, financingOption: FinancingOption, shouldUnapplyCosts: boolean = true) {
+	unApplyStatChanges(mutableStats: TrackedStats) {
 		for (let key in this.statsActualAppliers) {
 			let thisApplier = this.statsActualAppliers[key];
 			if (!thisApplier) return;
@@ -645,9 +664,6 @@ export class ProjectControl implements ProjectControlParams {
 				yearMultiplier = mutableStats.gameYearInterval;
 			}
 			mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
-		}
-		if (shouldUnapplyCosts) {
-			this.unApplyCost(mutableStats, financingOption);
 		}
 	}
 
@@ -662,7 +678,7 @@ export class ProjectControl implements ProjectControlParams {
 			rebates = this.getRebates();
 		}
 		let financingId: FinancingId = financingOption? financingOption.financingType.id : 'budget';
-		let cost = this.getImplementationCost(financingId, mutableStats.gameYearInterval)
+		let cost = this.getImplementationCost(financingId, mutableStats.gameYearInterval);
 		mutableStats.financesAvailable -= cost - rebates;
 		mutableStats.implementationSpending += cost;
 		mutableStats.yearBudget += rebates;
@@ -675,7 +691,7 @@ export class ProjectControl implements ProjectControlParams {
 	 */
 	unApplyCost(mutableStats: TrackedStats, financingOption: FinancingOption) {
 		let rebates = this.getRebates();
-		let cost = this.getImplementationCost(financingOption.financingType.id, mutableStats.gameYearInterval)
+		let cost = this.getImplementationCost(financingOption.financingType.id, mutableStats.gameYearInterval);
 		if (this.isRenewable) {
 			// todo 22 should get every year?
 			rebates = rebates * mutableStats.gameYearInterval;
@@ -690,14 +706,19 @@ export class ProjectControl implements ProjectControlParams {
 	 */
 	getImplementationCost(financingId: FinancingId, gameYearInterval: number) {
 		let projectCost = this.baseCost;
-		let isAnnuallyFinanced = financingId !== 'budget';
+		let isAnnuallyFinanced = getIsAnnuallyFinanced(financingId);
+		let intervalMultiplier = gameYearInterval;
+		if (this.isSinglePaymentRenewable && !isAnnuallyFinanced) {
+			intervalMultiplier = 1
+		}
+
 		if (financingId && financingId === 'capital-funding') {
 			projectCost = 0;
 		} else if (financingId && isAnnuallyFinanced) {
 			projectCost = this.financedAnnualCost;
 		}
 		if (this.isRenewable || isAnnuallyFinanced) {
-			projectCost *= gameYearInterval;
+			projectCost *= intervalMultiplier;
 		}
 
 		return projectCost;
@@ -887,7 +908,7 @@ declare interface ProjectControlParams {
 	*/
 	isRenewable?: boolean;
 	customBudgetType?: FinancingType;
-	isOneTimePayment?: boolean;
+	isSinglePaymentRenewable?: boolean;
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
