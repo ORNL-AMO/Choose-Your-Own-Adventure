@@ -408,7 +408,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 		// todo this will eventually handle renwables
 		recapResults.yearEndTotalSpending += this.getOngoingFinancingCosts(props.completedProjects, mutableStats);
-		// setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
+		setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
 		this.addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 		mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
 		this.setCostPerCarbonSavings(mutableStats);
