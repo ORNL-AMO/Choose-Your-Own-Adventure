@@ -46,17 +46,21 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
 		});
+		const threeDecimalFormatter = Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 1,
+			maximumFractionDigits: 3,
+		});
 		
 		const carbonSavingsPercent = this.props.carbonSavingsPercent * 100;
 		const carbonSavingsFractionValue = clampRatio(this.props.carbonSavingsPercent, 1);
 		const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 		
-		const naturalGasEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
-		const electricityEmissionRateFormatted: string = singleDecimalFormatter.format(getElectricityEmissionsFactor(this.props.currentGameYear, this.props.gameYearInterval, this.props.gameYearDisplayOffset));
-		const hydrogenEmissionRateFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU);
+		const naturalGasEmissionRateFormatted: string = threeDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU);
+		const electricityEmissionRateFormatted: string = threeDecimalFormatter.format(getElectricityEmissionsFactor(this.props.currentGameYear, this.props.gameYearInterval, this.props.gameYearDisplayOffset));
+		const hydrogenEmissionRateFormatted: string = threeDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU);
 
 		const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(this.props.naturalGasEmissionsPerMMBTU * this.props.naturalGasMMBTU / 1000);
-		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format((this.props.currentGameYear, this.props.gameYearInterval) * this.props.electricityUseKWh / 1000);
+		const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(getElectricityEmissionsFactor(this.props.currentGameYear, this.props.gameYearInterval, this.props.gameYearDisplayOffset) * this.props.electricityUseKWh / 1000);
 		const emissionsFromHydrogenFormatted: string = singleDecimalFormatter.format(this.props.hydrogenEmissionsPerMMBTU * this.props.hydrogenMMBTU / 1000);
 
 		const electricityCost = noDecimalsFormatter.format(this.props.electricityCostPerKWh * this.props.electricityUseKWh);
