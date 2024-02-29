@@ -188,16 +188,27 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
 }
 
 /**
- * Reset capital funding state from future year
+ * Reset capital funding state when returning to prev year from future year
  */
 export function resetCapitalFundingState(capitalFundingState: CapitalFundingState, prevYearStats: TrackedStats) {
-	if (capitalFundingState.roundA.eligibleYear === prevYearStats.currentGameYear + 1) {
-        capitalFundingState.roundA.isEarned = false;
-        capitalFundingState.roundA.eligibleYear = undefined;
+    // expired in previous year
+    if (capitalFundingState.roundB.isExpired && !capitalFundingState.roundB.usedOnProjectId && capitalFundingState.roundB.eligibleYear === prevYearStats.currentGameYear) {
+        capitalFundingState.roundB.isExpired = false;
 	}
+
+    if (capitalFundingState.roundA.isExpired && !capitalFundingState.roundA.usedOnProjectId && capitalFundingState.roundA.eligibleYear === prevYearStats.currentGameYear) {
+        capitalFundingState.roundA.isExpired = false;
+	}
+    
+    // reset if earned in the future year
     if (capitalFundingState.roundB.eligibleYear === prevYearStats.currentGameYear + 1) {
         capitalFundingState.roundB.isEarned = false;
         capitalFundingState.roundB.eligibleYear = undefined;
+    }
+
+	if (capitalFundingState.roundA.eligibleYear === prevYearStats.currentGameYear + 1) {
+        capitalFundingState.roundA.isEarned = false;
+        capitalFundingState.roundA.eligibleYear = undefined;
 	}
 }
 
