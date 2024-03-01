@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
@@ -201,6 +201,7 @@ export class ProjectControl implements ProjectControlParams {
 		addCompareProjectButton(choiceCardButtons);
 		choiceCardButtons.push(infoButtonWithProjectDialog(this.projectDialogControl));
 		addImplementProjectCheckedButton(choiceCardButtons, hasFinancingOptions);
+		addDropdownFinancingType(choiceCardButtons, hasFinancingOptions, financingOptionCards);
 
 		if (self.energySavingsPreviewIcon) {
 			energySavingsPreviewIcons.push(self.energySavingsPreviewIcon);
@@ -288,6 +289,7 @@ export class ProjectControl implements ProjectControlParams {
 			let defaultFinancingOption: FinancingOption = getDefaultFinancingOption(self, hasFinancingOptions, self.baseCost)
 			let financedButton: ButtonGroupButton = {
 					text: 'Implement Project',
+					inputType: 'button',
 					variant: 'contained',
 					color: 'success',
 					startIcon: function (...params) {
@@ -314,6 +316,7 @@ export class ProjectControl implements ProjectControlParams {
 		function getFinancingTypeImplementButton(financingOption: FinancingOption): ButtonGroupButton {
 			return {
 				text: 'Implement Project',
+				inputType: 'button',
 				variant: 'contained',
 				color: 'success',
 				onClick: function (state, nextState) {
@@ -343,6 +346,100 @@ export class ProjectControl implements ProjectControlParams {
 				}
 			}
 		}
+
+		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptionCards: DialogFinancingOptionCard[]) {
+			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
+			let hasFinancingStarted = (props) => {
+				return props.trackedStats.currentGameYear >= gameSettings.financingStartYear;
+				//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			};
+			// let capitalFundingState = (props) => {
+			// 	return props.capitalFundingState;
+			// 	//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
+			// };
+			let selectOptions: string[] = [];
+			selectOptions.push('Select Financing');			
+			selectOptions.push('Budget');
+			
+			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
+				let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
+				//let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
+				if (option.financingType.id === 'budget') {
+					return true;
+				}
+				return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true);
+			});
+
+			financingOptionCards.forEach(option => {
+				if (option.financedAnnualCost !== undefined) {
+					selectOptions.push(option.financingType.name);
+				}
+			});
+
+			let dropdownSelect: ButtonGroupButton =  {
+				text: 'Implement Project',
+				inputType: 'select',
+				variant: 'contained',
+				color: 'success',
+				value: 'Select Financing',
+				selectOptions: selectOptions,
+				// disabled when the project is implemented
+				disabled: (state) => {
+					if (self.isRenewable) {
+						return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+					} else {
+						return state.implementedProjectsIds.includes(self.pageId);
+					}
+				}
+			}
+
+			buttons.push(dropdownSelect);
+		}
+
+
+
+		// function addDropdownFinancingType(buttons: ButtonGroupButton[]) {
+			
+		// 	// todo selectOptions callback function - should return an array of FinancingId type's that you'll use in onChange() and as selected value, 
+		// 	// OR FinancingOption[] depending on what MUI MenuItem accepts
+		// 	let selectOptions = function (state, nextState) {
+		// 		// todo set financing options based on state that resolveToValue() will give you in Buttons.tsx at render time
+		// 		let financingIds: FinancingId[] = [];
+		// 		return financingIds;
+		// 	}
+
+			
+
+		// 	let dropdownSelect: ButtonGroupButton =  {
+		// 		text: 'Implement Project',
+		// 		inputType: 'select',
+		// 		variant: 'contained',
+		// 		color: 'success',
+
+		// 		// todo 'budget' (FinancingId type)
+		// 		value: 'Select Financing',
+		// 		// todo make selectOptions property a Resolvable<WhateverType this method will return>
+		// 		// * think of a Resolvable as saying "Hey I want to call this method when you update the page with new data".
+		// 		selectOptions: selectOptions,
+
+		// 		// todo - onChange should have similar structure to onClick for getFinancingTypeImplementButton
+		// 		// * onChange should probably use the FinancingId type so you can .find() the correct financingOption in the financingOptions - see Buttons.tsx onChange
+		// 		onChange: (state) => {
+					
+		// 		}
+				
+		// 		// todo don't even worry about this right now, just set always true till you're finished devving other stuff 
+		// 		disabled: (state) => {
+		// 			if (self.isRenewable) {
+		// 				return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+		// 			} else {
+		// 				return state.implementedProjectsIds.includes(self.pageId);
+		// 			}
+		// 		}
+		// 	}
+
+		// 	buttons.push(dropdownSelect);
+		// }
 
 		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
 			let availableProjectIds = [...state.availableProjectIds];

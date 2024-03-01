@@ -179,6 +179,7 @@ export function getDefaultWarningDialogProps(): InfoDialogControlProps {
 				closeDialogButton(),
 				{
 					text: 'Proceed anyway',
+					inputType: 'button',
 					variant: 'text',
 					endIcon: rightArrow(),
 					onClick: () => {

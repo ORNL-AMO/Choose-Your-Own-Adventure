@@ -29,6 +29,7 @@ PageControls[Pages.start] = newStartPageControl({
     buttons: [
         {
             text: 'Start Playing',
+            inputType: 'button',
             variant: 'contained',
             onClick: function () {
                 return Pages.introduction;
@@ -62,6 +63,7 @@ PageControls[Pages.winScreen] = newAppPageDialogControl({
 	buttons: [
 		{
 			text: 'Play again',
+            inputType: 'button',
 			variant: 'text',
             size: 'large',
 			onClick: (state) => {
@@ -79,6 +81,7 @@ PageControls[Pages.loseScreen] = newAppPageDialogControl({
     buttons: [
         {
             text: 'Try again',
+            inputType: 'button',
             variant: 'text',
             onClick: (state) => {
                 location.href = String(location.href); // Reload the page

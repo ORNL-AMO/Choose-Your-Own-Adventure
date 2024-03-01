@@ -65,6 +65,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewIcon: {
 		text: '12%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
@@ -141,6 +142,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '1.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -181,6 +183,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '??%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -358,11 +361,41 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '1.8%',
+		inputType: 'button',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
+	visible: state => {
+		const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
+		return !isCarportCompleted;
+	},
+});
+Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
+	pageId: Pages.solarPanelsCarPortMaintenance,
+	isCapitalFundsEligible: true,
+	isRenewable: true,
+	baseCost: 10_000,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-537_000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-537_000),
+	},
+	title: 'Carport Solar - Maintenance',
+	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue receiving the energy credits.'],
+	choiceInfoImg: 'images/solar-panels.png',
+	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
+	choiceInfoImgObjectFit: 'cover',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewIcon: {
+		text: '1.8%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
-
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
@@ -413,6 +446,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '18%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -457,6 +491,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '3.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -499,6 +534,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -571,6 +607,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '8.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -603,6 +640,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '1.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -635,6 +673,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.75%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -679,6 +718,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '7.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -748,6 +788,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '3.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -814,6 +855,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -857,6 +899,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '1.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -889,6 +932,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.75%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -925,6 +969,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '1.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -962,6 +1007,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '2.0%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1006,6 +1052,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '3.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1038,6 +1085,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.25%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1070,6 +1118,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	},
 	energySavingsPreviewIcon: {
 		text: '0.50%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
@@ -1101,6 +1150,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
 		text: '6.5%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1132,6 +1182,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
 		text: '13%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1163,6 +1214,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
 		text: '20%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1207,6 +1259,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
 		text: '9.3%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1291,6 +1344,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
 		text: '23%',
+		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
