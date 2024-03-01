@@ -370,32 +370,6 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		return !isCarportCompleted;
 	},
 });
-Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
-	pageId: Pages.solarPanelsCarPortMaintenance,
-	isCapitalFundsEligible: true,
-	isRenewable: true,
-	baseCost: 10_000,
-	statsInfoAppliers: {
-		electricityUseKWh: absolute(-537_000),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: absolute(-537_000),
-	},
-	title: 'Carport Solar - Maintenance',
-	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue receiving the energy credits.'],
-	choiceInfoImg: 'images/solar-panels.png',
-	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '1.8%',
-		inputType: 'button',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-});
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
@@ -1304,6 +1278,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	energySavingsPreviewIcon: {
 		text: '23%',
 		variant: 'text',
+		inputType: 'button',
 		startIcon: <Co2Icon />,
 	},
 	visible: (state) => {

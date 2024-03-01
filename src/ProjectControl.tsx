@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
