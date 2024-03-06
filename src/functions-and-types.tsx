@@ -44,6 +44,16 @@ export function clampRatio(value: number, max: number) {
 	return Math.min(value / max, 1);
 }
 
+export function truncate(text: string, specifiedLimit?: number) {
+    let limit = specifiedLimit ? specifiedLimit : 50;
+    if (text.length > limit) {
+        return text.slice(0, limit) + '...'
+    } else {
+        return text;
+    }
+}
+
+
 /**
  * Returns the number with a + or - sign depending on its sign.
  * @param value value

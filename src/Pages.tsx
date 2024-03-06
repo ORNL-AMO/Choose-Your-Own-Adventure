@@ -15,6 +15,7 @@ const Pages = {
 	yearRecap: Symbol('year-recap'),
 	winScreen: Symbol('win-screen'),
 	loseScreen: Symbol('lose-screen'),
+	endGameReport: Symbol('end-game-report'),
 	// below: scope 1 projects
 	wasteHeatRecovery: Symbol('waste-heat-recovery'),
 	wasteHeatRecoveryRebate: Symbol('waste-heat-recovery-rebate'),

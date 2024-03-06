@@ -814,7 +814,7 @@ export const Scope2Projects = [
 
 export declare interface CaseStudy {
 	title: string;
-	text: string | string[];
+	text: string;
 	url: string;
 }
 
@@ -855,7 +855,6 @@ export interface SelectedProject extends Project {
 
 /**
  * Project that must be renewed each year 
- * @param gameYearsImplemented - which game years was the project implemented
  */
 export interface RenewableProject extends ImplementedProject {
 	yearlyFinancialSavings?: {
@@ -873,7 +872,6 @@ export interface ImplementedProject extends Project {
 	// todo 200 just get from gameYearsImpelmented?
 	yearStarted?: number;
 	financingOption?: FinancingOption;
-
 }
 
 export interface Project {

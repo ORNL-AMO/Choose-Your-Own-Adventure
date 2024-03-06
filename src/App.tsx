@@ -714,7 +714,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				<ThemeProvider theme={theme}>
 					<Container maxWidth='xl'>
 						<Box className='row' sx={{ bgcolor: '#ffffff80', minHeight: '100vh' }}>
-							{this.state.currentPage == Pages.yearRecap || this.state.showDashboard ?
+							{this.state.currentPage == Pages.yearRecap || this.state.currentPage == Pages.endGameReport || this.state.showDashboard ?
 								<>
 									<Box sx={{ flexGrow: 1 }}>
 										<AppBar position='relative' 
