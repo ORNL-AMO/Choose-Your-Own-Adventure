@@ -25,7 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: CI=false npm run build
+        run: |
+             if [[ ${{ github.ref_name }} == "develop" ]]; then
+               CI=false npm run build:development
+             elif [[ ${{ github.ref_name }} == "main" ]]; then
+               CI=false npm run build:production    
+             fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

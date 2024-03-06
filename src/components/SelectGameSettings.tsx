@@ -82,7 +82,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogTitle>
 
                 <DialogContent>
-                    {process.env.NODE_ENV == 'development' && 
+                    {process.env.REACT_APP_SERVER_ENV == 'development' && 
                         <Box m={2} p='16px' sx={{background: '#ff000052'}}>
                             <FormGroup>
                                 <FormControlLabel control={
@@ -248,7 +248,6 @@ export function newSelectGameSettingsControl(props: SelectGameSettingsControlPro
 }
 
 export function getFinancingStartYear() {
-    // return process.env.NODE_ENV == 'development' ? 1 : 3;
     return 3;
 }
 
