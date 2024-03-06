@@ -63,13 +63,13 @@ function EndGameReportPDF(props: ReportPDFProps): JSX.Element {
 						<div>
 							<ReactPDF.Text style={styles.textTitle}>{implementedProject.title}
 							</ReactPDF.Text>
-							<ReactPDF.Text style={styles.textDesc}>{implementedProject.shortTitle} </ReactPDF.Text>
+							<ReactPDF.Text style={styles.textDesc}>{implementedProject.shortTitleRawText} </ReactPDF.Text>
 							<ReactPDF.Link style={styles.link} src={implementedProject.caseStudy.url}>Case Study - {truncate(implementedProject.caseStudy.text)}</ReactPDF.Link>
 						</div>
 						:
 						<div>
 							<ReactPDF.Text style={styles.textTitle}>{implementedProject.title}</ReactPDF.Text>
-							<ReactPDF.Text style={styles.textDesc}>{implementedProject.shortTitle} </ReactPDF.Text>
+							<ReactPDF.Text style={styles.textDesc}>{implementedProject.shortTitleRawText} </ReactPDF.Text>
 							<ReactPDF.Text style={styles.textDesc}>No case study available </ReactPDF.Text>
 						</div>
 					}

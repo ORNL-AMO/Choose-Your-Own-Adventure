@@ -38,6 +38,7 @@ export class ProjectControl implements ProjectControlParams {
 	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
+	shortTitleRawText: string;
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
@@ -72,6 +73,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
+		this.shortTitleRawText = params.shortTitleRawText;
 		this.choiceInfoText = params.choiceInfoText;
 		this.choiceInfoImg = params.choiceInfoImg;
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
@@ -904,7 +906,8 @@ declare interface ProjectControlParams {
 	isRenewable?: boolean;
 	customBudgetType?: FinancingType;
 	isSinglePaymentRenewable?: boolean;
-	financingOptions?: FinancingOption[]
+	financingOptions?: FinancingOption[];
+	shortTitleRawText?: string,
 	/**
 	 * Project that only gets energy $ savings for 1 year
 	*/
