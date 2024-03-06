@@ -175,7 +175,6 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
         }
 	} else if (!capitalFundingState.roundB.isEarned) {
         let roundBMilestonePercent = 35;
-        // let roundBMilestone = process.env.NODE_ENV == 'development' ? .8: 40;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
 		if (savingsMilestone) {
             capitalFundingState.roundB.isEarned = true;

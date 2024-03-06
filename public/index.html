@@ -28,14 +28,14 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3HGPY51FT0"></script>
     <script>
-      if('%NODE_ENV%' === 'production') {
+      if('%REACT_APP_SERVER_ENV%' === 'production') {
         console.log('production');
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-3HGPY51FT0');        
       } else {
-        console.log('develop');
+        console.log('development');
         //don't set ga config        
       }
     </script>

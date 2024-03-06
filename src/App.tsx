@@ -120,9 +120,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	getInitialAppState(): AppState {
 		let startPage = Pages.start; 
-		// if (process.env.NODE_ENV == 'development') {
-		// 	startPage = Pages.selectGameSettings;
-		// }
+		if (process.env.REACT_APP_SERVER_ENV == 'development') {
+			startPage = Pages.selectGameSettings;
+		}
 		let showDashboardAtStart = false;
 		return {
 			currentPage: startPage,
