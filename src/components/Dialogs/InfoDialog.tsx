@@ -131,6 +131,7 @@ function InfoDialogFunc (props: InfoDialogProps) {
 					doAppStateCallback={props.doAppStateCallback} 
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
+					doPageCallbackDropdown={props.doPageCallbackDropdown}
 				/>
 			</DialogActions>
 		</Dialog>

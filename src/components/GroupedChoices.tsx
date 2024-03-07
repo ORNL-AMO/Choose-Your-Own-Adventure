@@ -63,6 +63,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 										displayProjectDialog={props.displayProjectDialog}
 										resolveToValue={props.resolveToValue}
 										isProjectGroupChoice={props.isProjectGroupChoice}
+										doPageCallbackDropdown={props.doPageCallbackDropdown}
+										
 									/>
 							}
 							title={props.resolveToValue(choice.title)}
@@ -80,6 +82,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							resolveToValue={props.resolveToValue}
 							doAppStateCallback={props.doAppStateCallback}
 							isProjectGroupChoice={props.isProjectGroupChoice}
+							doPageCallbackDropdown={props.doPageCallbackDropdown}
 						/>
 					</PaperGridItem>
 				</Grid>);

@@ -266,6 +266,28 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setPage(nextPage);
 	}
 
+	handlePageCallbackDropdown(callbackOrPage?: PageCallbackDropdown) {
+		let nextPage;
+		if (typeof callbackOrPage === 'symbol') {
+			nextPage = callbackOrPage;
+		} else if (typeof callbackOrPage === 'function') {
+			// Mutable params to update
+			let newStateParams: Pick<AppState, never> = {};
+			debugger;
+			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
+			if (newStateParams['trackedStats']) {
+				let newTrackedStats = newStateParams['trackedStats'];
+				newStateParams['trackedStats'] = newTrackedStats;
+				// Update max values for gauges in case they increased
+				updateStatsGaugeMaxValues(newTrackedStats);
+			}
+			this.setState(newStateParams);
+		}
+		else return;
+
+		this.setPage(nextPage);
+	}
+
 	/**
 	 * Handdle state changes without setting page (i.e. when in dialog avoid closing dialog)
 	 */
@@ -703,6 +725,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			doAppStateCallback: (callback) => this.handleAppStateCallback(callback),
 			displayProjectDialog: (props) => this.displayProjectDialog(props),
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
+			doPageCallbackDropdown: (callback) => this.handlePageCallbackDropdown(callback),
 		};
 
 		// const NativeEventContext = createContext(null);

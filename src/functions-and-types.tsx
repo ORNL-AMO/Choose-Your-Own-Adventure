@@ -3,7 +3,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import React from 'react';
 import type { App, AppState, NextAppState } from './App';
 import { theme } from './components/theme';
-import { FinancingOption } from './Financing';
+import { FinancingOption, FinancingType } from './Financing';
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
@@ -70,6 +70,7 @@ export function toPercent(value: number): string {
  * @returns Resolved value.
  */
 export function resolveToValue(item: unknown, whenUndefined?: unknown, params?: unknown[], bindObj?: unknown) {
+	debugger;
 	if (typeof item === 'function') {
 		if (bindObj)
 			return item.apply(bindObj, params);
@@ -246,6 +247,16 @@ declare global {
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
 	type PageCallback = ((this: App, state: AppState, nextState: NextAppState, financingOption: FinancingOption) => symbol)|symbol;
+
+
+	/**
+	 * Data type that must resolve into a Page symbol. You can either provide a Page symbol by itself, or provide a function which returns a Page symbol.
+	 * It is mostly used for button clicks, to determine which page to display next.
+	 * IF YOU WANT TO DO OTHER LOGIC AND DO NOT WANT THE PAGE TO CHANGE, SIMPLY RETURN `state.currentPage`
+	 * @param state Read-only, immutable state of the main app
+	 * @param nextState Mutable object containing properties to assign to the app's state next.
+	 */
+	type PageCallbackDropdown = ((this: App, state: AppState, nextState: NextAppState, financingType: FinancingType) => symbol)|symbol;
 	
 	/**
 	 * Make state changes without Page navigation
