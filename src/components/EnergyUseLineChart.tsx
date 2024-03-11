@@ -1,5 +1,5 @@
 import Plot from 'react-plotly.js';
-import { TrackedStats } from '../trackedStats';
+import { TrackedStats, getElectricityEmissionsFactor } from '../trackedStats';
 import { theme } from './theme';
 import React from 'react';
 
@@ -16,13 +16,14 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 		landfillGases: [],
 	}
 	props.yearRangeInitialStats.forEach(statYear => {
-		energyTypeYearValues.electricity.push(statYear.electricityUseKWh);
 		// 1 MMBTU = 293.07107kw
 		let conversionFactorKwH = 293.07107;
-		let natGasInKwH = statYear.naturalGasMMBTU * conversionFactorKwH;
-		let landfillGasInKwH = statYear.hydrogenMMBTU * conversionFactorKwH;
-		energyTypeYearValues.naturalGas.push(natGasInKwH);
-		energyTypeYearValues.landfillGases.push(landfillGasInKwH);
+		let electricityEmissions = statYear.electricityUseKWh * getElectricityEmissionsFactor(statYear.currentGameYear, statYear.gameYearInterval, statYear.gameYearDisplayOffset);
+		let natGasEmissions = statYear.naturalGasMMBTU * statYear.naturalGasEmissionsPerMMBTU;
+		let landfillGasEmissions = statYear.hydrogenMMBTU * statYear.hydrogenEmissionsPerMMBTU;
+		energyTypeYearValues.electricity.push(electricityEmissions);
+		energyTypeYearValues.naturalGas.push(natGasEmissions);
+		energyTypeYearValues.landfillGases.push(landfillGasEmissions);
 	});
 
     data.push({
@@ -66,7 +67,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const layout = {
 		width: props.parentElement.width,
 		title: {
-			text: `${xYears.length} Year Energy Use`,
+			text: `${xYears.length} Year GHG Reduction`,
 			font: {
 				family: 'Roboto',
 				size: 24
@@ -87,7 +88,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 			tickmode: 'array',
 		},
 		yaxis: {
-			title: 'Energy Used (kWh)',
+			title: 'GHG Emissions (kg CO<sub>2</sub>e)',
 			showline: false,
 			automargin: true,
 			standoff: 25,
