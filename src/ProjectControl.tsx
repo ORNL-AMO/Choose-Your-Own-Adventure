@@ -29,6 +29,7 @@ export class ProjectControl implements ProjectControlParams {
 	isCapitalFundsEligible?: boolean;
 	mustAnnuallyFinance?: boolean;
 	isSinglePaymentRenewable?: boolean;
+	isPPA?: boolean;
 	baseCost: number;
 	customBudgetType?: FinancingType;
 	financedAnnualCost: number;
@@ -64,6 +65,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.isRenewable = params.isRenewable;
 		this.mustAnnuallyFinance = params.mustAnnuallyFinance;
 		this.isSinglePaymentRenewable = params.isSinglePaymentRenewable;
+		this.isPPA = params.isPPA;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
@@ -906,6 +908,7 @@ declare interface ProjectControlParams {
 	isRenewable?: boolean;
 	customBudgetType?: FinancingType;
 	isSinglePaymentRenewable?: boolean;
+	isPPA?: boolean;
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
