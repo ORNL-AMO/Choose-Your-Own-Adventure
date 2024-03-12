@@ -149,6 +149,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
 	baseCost: 150_000,
 	isEnergyEfficiency: true,
+	isCapitalFundsEligible: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -157,10 +158,10 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		},
 	],
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	title: 'More efficient batteries for forklifts',
 	shortTitle: 'Switch forklifts to lithium-ion batteries',
@@ -180,11 +181,12 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		text: 'Better Buildings, Better Plants SUMMIT'
 	},
 	energySavingsPreviewIcon: {
-		text: '??%',
+		text: '1%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
+
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -1078,6 +1080,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 75_000,
 	statsInfoAppliers: {
@@ -1109,6 +1112,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 150_000,
 	statsInfoAppliers: {
@@ -1140,6 +1144,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 225_000,
 	statsInfoAppliers: {
@@ -1172,8 +1177,8 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: false,
-	mustAnnuallyFinance: true,
 	isRenewable: true,
+	isPPA: true,
 	baseCost: 210_000,
 	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
@@ -1182,11 +1187,6 @@ Projects[Pages.midSolar] = new ProjectControl({
 		description: "Pay Annually",
 		id: 'budget'
 	},
-	financingOptions: [
-		{
-			financingType: getEaaSFinancing(10),
-		},
-	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
@@ -1220,6 +1220,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 537_000,
 	financedAnnualCost: 268_000,
@@ -1265,7 +1266,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	mustAnnuallyFinance: true,
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
-	financedTotalCost: 660_000,
+	financedTotalCost: 4_000_000,
 	financingOptions: [
 		{
 			financingType: getGreenBondsFinancing(10),

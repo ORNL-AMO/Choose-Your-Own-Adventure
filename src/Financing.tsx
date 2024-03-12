@@ -269,9 +269,13 @@ export function getHasFinancingStarted(currentGameYear: number, financingStartYe
  * check whether budget, capital funding, or payoff year
  */
 export function isProjectFullyFunded(project: ImplementedProject, currentGameYear: number) {
-    let financingPayoffYear: number = project.yearStarted + project.financingOption.financingType.loanTerm;
     let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
-    return !isAnnuallyFinanced || currentGameYear >= financingPayoffYear;
+    if (isAnnuallyFinanced) {
+        let financingPayoffYear: number = project.yearStarted + project.financingOption.financingType.loanTerm;
+        return currentGameYear >= financingPayoffYear;
+    } else {
+        return true;
+    }
 }
 
 /**
