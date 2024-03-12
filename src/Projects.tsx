@@ -659,12 +659,22 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		electricityUseKWh: absolute(-2_250_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-2_250_000),
+		electricityUseKWh: absolute(-2_000_000),
 	},
 	statsRecapAppliers: {
 		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
+	recapSurprises: [{
+		title: 'Uh oh - Replacing the compressors did save as much electricity as estimated!',
+		text: 'blah blah blah',
+		className: 'year-recap-negative-surprise',
+		avatar: {
+			icon: <BoltIcon />,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
+	}],
 	title: 'Replace old compressors',
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
