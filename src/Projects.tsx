@@ -149,6 +149,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
 	baseCost: 150_000,
 	isEnergyEfficiency: true,
+	isCapitalFundsEligible: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
