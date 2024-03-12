@@ -558,7 +558,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			});
 
 		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
-			newBudget += yearCostSavings.electricity + yearCostSavings.naturalGas;
+			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * 0.5;
+			newBudget += energyCostSavings;
 
 		}
 		
