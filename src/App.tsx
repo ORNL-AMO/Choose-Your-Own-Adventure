@@ -558,7 +558,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 			});
 
 		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
-			newBudget += yearCostSavings.electricity + yearCostSavings.naturalGas;
+			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * 0.5;
+			newBudget += energyCostSavings;
 
 		}
 		
@@ -579,15 +580,17 @@ export class App extends React.PureComponent<unknown, AppState> {
 				financingOption: implementedFinancedProjects[financingIndex] ? implementedFinancedProjects[financingIndex].financingOption : undefined
 			});
 		});
+		let preScope1Charges = newYearTrackedStats.financesAvailable;
 		this.handleNewYearFinancedProjects(implementedFinancedProjects, newYearTrackedStats);
+		console.log('Scope 1 Financed costs', preScope1Charges - newYearTrackedStats.financesAvailable);
 		
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
+		let preScope2Charges = newYearTrackedStats.financesAvailable;
 		this.applyRenewableCosts(implementedRenewableProjects, newYearTrackedStats);
-
+		console.log('Scope 2 REC/Financed/PPA cost', preScope2Charges - newYearTrackedStats.financesAvailable);
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
-		// console.log('new year range initial stats', newYearRangeInitialStats);
 		console.log('==============================');
-		console.log('Total new year budget (financing/renewable charges applied)', newYearTrackedStats.financesAvailable);
+		console.log('Total new year budget (financing/renewable costs applied)', newYearTrackedStats.financesAvailable);
 		console.log('======== END =================');
 
 		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
@@ -635,7 +638,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 	applyRenewableCosts(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
 		renewableProjects.map(project => {
 			let projectControl = Projects[project.page];
-			if (!isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
+			let isfullyFunded = isProjectFullyFunded(project, newYearTrackedStats.currentGameYear);
+			if (!isfullyFunded || projectControl.isPPA) {
 				let hasActiveRebates = project.yearStarted === newYearTrackedStats.currentGameYear;
 				// console.log(`Apply ${String(project.page)} cost`);
 				projectControl.applyCost(newYearTrackedStats, project.financingOption, hasActiveRebates);
