@@ -495,31 +495,47 @@ export class ProjectControl implements ProjectControlParams {
 
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
 			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
-			let canImplement = true;
 			let projectImplementationLimit = gameSettings.useGodMode? 1000 : 4;
-			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
+			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 2;
+
+			let limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			if (state.gameSettings.totalGameYears === 5) {
 				projectImplementationLimit = 6;
-				overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
+				limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			}
-
 			const startedRenewableProjects = state.implementedRenewableProjects.filter(project => {
 				return project.yearStarted === state.trackedStats.currentGameYear;
 			}).length;
 
 			const currentProjectCount = startedRenewableProjects + state.implementedProjectsIds.length;
-			const projectCounts = `year ${state.trackedStats.currentGameYear} - reg projects: ${state.implementedProjectsIds.length}, started renewables: ${startedRenewableProjects}`;
 			if (currentProjectCount >= projectImplementationLimit) {
-				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
-				canImplement = false;
+				this.summonSnackbar(<Alert severity='error'>{limitMsg}</Alert>);
+				return false;
+			}
+
+			let isAnnuallyFinanced = getIsAnnuallyFinanced(financingId);
+			let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
+			let implementedRenewableProjects: ImplementedProject[] = [...this.state.implementedRenewableProjects];
+			let financedProjects = implementedFinancedProjects.filter(project => {
+				return project.yearStarted === state.trackedStats.currentGameYear && getIsAnnuallyFinanced(project.financingOption.financingType.id);
+			});
+			financedProjects = financedProjects.concat(implementedRenewableProjects.filter(project => {
+				return project.yearStarted === state.trackedStats.currentGameYear && getIsAnnuallyFinanced(project.financingOption.financingType.id);
+			}));
+			console.log('Projects financed this year', financedProjects.length)
+			if (isAnnuallyFinanced && financedProjects.length === financedImplementationLimit) {
+				limitMsg = `You cannot finance more than ${financedImplementationLimit} projects per budget period`;
+				this.summonSnackbar(<Alert severity='error'>{limitMsg}</Alert>);
+				return false;
 			}
 
 			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
 			if (projectCost > 0 && projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
-				canImplement = false;
+				return false;
 			}
-			return canImplement;
+
+			return true;
 		}
 
 		function toggleRenewableProject(this: App, state: AppState, nextState: NextAppState, financingOption?: FinancingOption) {
