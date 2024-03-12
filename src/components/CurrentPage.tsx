@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import type { ImplementedProject, RenewableProject} from '../ProjectControl';
 import type { CompletedProject, SelectedProject} from '../ProjectControl';
 import { PureComponentIgnoreFuncs } from '../functions-and-types';
@@ -11,6 +11,7 @@ import type { StartPageProps } from './StartPage';
 import { YearRecap } from './YearRecap';
 import type { PageControlProps, ControlCallbacks } from './controls';
 import { CapitalFundingState } from '../Financing';
+import EndGameReport from './EndGameReport/EndGameReportPage';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
@@ -84,6 +85,21 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
 					handleNewYearSetup={this.props.handleNewYearSetupOnProceed}
 				/>;
+			case EndGameReport:
+				return (
+					<Fragment>
+						<EndGameReport
+							{...controlCallbacks}
+							{...this.props.gameSettings}
+							trackedStats={this.props.trackedStats}
+							capitalFundingState={this.props.capitalFundingState}
+							implementedRenewableProjects={this.props.implementedRenewableProjects}
+							implementedFinancedProjects={this.props.implementedFinancedProjects}
+							completedProjects={this.props.completedProjects}
+							yearRangeInitialStats={this.props.yearRangeInitialStats}
+						/>
+					</Fragment>
+				);
 			default:
 				return <></>;
 		}

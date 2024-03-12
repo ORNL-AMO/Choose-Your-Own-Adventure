@@ -396,14 +396,27 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			recapResults.unspentBudget += implementedProject.getYearEndRebates();
 			mutableStats.financesAvailable = recapResults.unspentBudget;
 
-			this.addImplementedProjectRecapCard(
-				implementedProject,
-				props,
-				mutableStats,
-				recapResults,
-				gaugeCharts,
-				projectNetCost,
-				totalProjectExtraCosts);
+			const projects = implementedProject.isRenewable ? props.implementedRenewableProjects : props.implementedFinancedProjects;
+			let implementationFinancing: FinancingOption = findFinancingOptionFromProject(projects, implementedProject.pageId);
+			let financingData: ImplementedFinancingData = {
+				option: implementationFinancing,
+				isPaidOff: undefined,
+				isFinanced: implementationFinancing.financingType.id !== 'budget',
+
+			}
+			if (financingData.isFinanced) {
+				let financedProject = projects.find(project => project.page === implementedProject.pageId);
+				financingData.isPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
+			}
+			recapResults.projectRecapCards.push(
+				getProjectCardWithGauges(
+					implementedProject,
+					mutableStats,
+					projectNetCost,
+					totalProjectExtraCosts,
+					financingData,
+					gaugeCharts,
+				));
 		});
 
 		// todo this will eventually handle renwables
@@ -970,7 +983,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 							1
 						) + '%'
 					}
-					backgroundColor={'#88888820'}
+					backgroundColor={'#888888'}
 					label='GHG Reduction'
 					ticks={[
 						{
@@ -1082,6 +1095,239 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 }
 
+	/**
+* Get card for an implemented project
+*/
+export function getProjectCardWithGauges(implementedProject: ProjectControl,
+	mutableStats: TrackedStats,
+	projectNetCost: number,
+	totalExtraCosts: number,
+	financingData: ImplementedFinancingData,
+	gaugeCharts?: JSX.Element[]
+): JSX.Element {
+
+	let headerStyle = {
+		'& .MuiCardHeader-title': {
+			textAlign: 'left',
+			fontSize: '26px',
+			fontWeight: 'bold'
+		},
+		'& .MuiCardHeader-subheader': {
+			textAlign: 'left',
+			fontSize: '22px',
+			fontWeight: '400',
+			color: '#000000',
+		},
+	};
+
+	let yearMultiplier = 1;
+	if (implementedProject.isRenewable) {
+		yearMultiplier = mutableStats.gameYearInterval;
+	}
+	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
+	initialCost *= yearMultiplier;
+
+	let financingCardContent: DialogFinancingOptionCard = {
+		...financingData.option,
+		financedTotalCost: implementedProject.financedTotalCost ? implementedProject.financedTotalCost : implementedProject.baseCost,
+		financedAnnualCost: implementedProject.financedAnnualCost,
+		implementButton: undefined
+	}
+	let listItemSx = { paddingLeft: '8px' }
+
+	return (
+		<ListItem key={String(implementedProject.pageId)}>
+			<Card sx={{ width: '100%' }}>
+				<CardHeader
+					title={implementedProject.title}
+					subheader={
+						<Typography dangerouslySetInnerHTML={parseSpecialText(implementedProject.shortTitle)} />
+					}
+					sx={headerStyle}
+				/>
+				<CardContent sx={{ paddingTop: '0' }}>
+					{implementedProject.caseStudy && (
+						<Link href={implementedProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
+							<p style={{ margin: 0, color: '#1D428A', fontSize: '20px', fontWeight: '500' }}>
+								Case Study - {implementedProject.caseStudy.title}
+							</p>
+						</Link>
+					)}
+
+
+					<Grid
+						container
+						spacing={1}
+						justifyContent={gaugeCharts ? 'center' : 'flex-start'}
+						alignItems='center'>
+
+						{financingData.isFinanced &&
+							<Grid item
+								xs={12}
+								md={6}
+								lg={3}>
+
+								<List 
+									dense={true} 
+									sx={{ 
+										paddingLeft: 0,
+										display: 'flex',
+										flexDirection: gaugeCharts? 'column' : 'row'
+									}}
+										>
+									<ListItem sx={listItemSx}>
+										<ListItemText
+											sx={{ marginTop: 0, marginBottom: 0 }}
+											primary={
+												<>
+													<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
+														Financing
+													</Typography>
+													<Typography variant='h6'>
+														{financingCardContent.financingType.name}
+													</Typography>
+												</>
+											}
+											secondary={
+												<span>{financingCardContent.financingType.detailedInfo}</span>
+											}
+										/>
+									</ListItem>
+									{!financingData.isPaidOff
+										&&
+										<ListItem sx={listItemSx}>
+											<ListItemText
+												sx={{ marginTop: 0, marginBottom: 0 }}
+												primary={
+													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
+														Annual {' '}
+														<Emphasis money>
+															${financingCardContent.financedAnnualCost.toLocaleString('en-US')}
+														</Emphasis>
+													</Typography>
+												}
+												secondary={
+													<Typography sx={{ fontSize: '1rem', fontWeight: '500' }}>
+														Total {' '} ${financingCardContent.financedTotalCost.toLocaleString('en-US')}
+													</Typography>
+												}
+											/>
+										</ListItem>
+									}
+									{financingData.isPaidOff
+										&&
+										<ListItem sx={listItemSx}>
+											<ListItemText
+												primary={
+													<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
+														<Emphasis money>
+															Paid Off
+														</Emphasis>
+													</Typography>
+												}
+											/>
+										</ListItem>
+									}
+
+								</List>
+							</Grid>
+						}
+
+						<Grid item
+							flexDirection={gaugeCharts ? 'column' : 'row'}
+							justifyContent={gaugeCharts ? 'center' : 'flex-start'}
+							xs={financingData.isFinanced ? 12 : 12}
+							md={financingData.isFinanced ? 6 : 3}
+							lg={financingData.isFinanced ? 3 : 3}>
+
+							<List 
+								dense={true} 
+								sx={{ 
+									paddingLeft: 0,
+									display: 'flex',
+									flexDirection: gaugeCharts? 'column' : 'row' 
+								}}
+							>
+								{!financingData.isFinanced &&
+									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+										<ListItemText
+											primary={
+												<Typography>
+													Initial Project Cost:{' '}
+													<Emphasis money>
+														${initialCost.toLocaleString('en-US')}
+													</Emphasis>
+												</Typography>
+											}
+										/>
+									</ListItem>
+								}
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+									<ListItemText
+										primary={
+											<Typography >
+												Rebates: {' '}
+												<Emphasis money>
+													${implementedProject.getYearEndRebates().toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+
+									/>
+								</ListItem>
+								<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
+									<ListItemText
+										primary={
+											<Typography>
+												Extra Costs:{' '}
+												<Emphasis money>
+													${totalExtraCosts.toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+									/>
+								</ListItem>
+								<ListItem sx={listItemSx}>
+									<ListItemText
+										primary={
+											<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
+												Year Net Cost:{' '}
+												<Emphasis money>
+													${projectNetCost.toLocaleString('en-US')}
+												</Emphasis>
+											</Typography>
+										}
+									/>
+								</ListItem>
+							</List>
+						</Grid>
+
+						{gaugeCharts &&
+							<Grid item
+								xs={financingData.isFinanced ? 12 : 12}
+								md={financingData.isFinanced ? 12 : 9}
+								lg={financingData.isFinanced ? 6 : 9}
+								className='year-recap-charts'>
+								<Grid
+									container
+									spacing={1}
+									justifyContent='space-evenly'
+									alignItems='center'>
+									{gaugeCharts}
+								</Grid>
+							</Grid>
+						}
+
+					</Grid>
+
+				</CardContent>
+
+			</Card>
+		</ListItem>
+	);
+}
+
+
 export function getHasActiveHiddenCost(project: ProjectControl, implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], currentGameYear: number): boolean {
 	let hasActiveHiddenCosts = true;
 	let renewableProject = renewableProjects.find(renewable => renewable.page === project.pageId);
@@ -1102,12 +1348,11 @@ export function getHasActiveHiddenCost(project: ProjectControl, implementedFinan
  * Use this when definining a PageControl for code autocompletion and props checking.
  */
 export function newYearRecapControl(
-	props: YearRecapControlProps,
 	onBack: PageCallback
 ): PageControl {
 	return {
 		componentClass: YearRecap,
-		controlProps: props,
+		controlProps: {},
 		onBack,
 		hideDashboard: true,
 	};
@@ -1115,8 +1360,7 @@ export function newYearRecapControl(
 
 export interface YearRecapControlProps { } // eslint-disable-line 
 
-export interface YearRecapProps
-	extends YearRecapControlProps,
+export interface YearRecapProps extends
 	ControlCallbacks,
 	TrackedStats,
 	GameSettings {
@@ -1133,6 +1377,14 @@ export interface YearRecapProps
 	handleNewYearSetup: (yearFinalStats: TrackedStats, capitalFundingState: CapitalFundingState) => void;
 }
 
+
+export interface ImplementedFinancingData {
+    option: FinancingOption,
+	isPaidOff: boolean,
+	isFinanced: boolean
+}
+
+
 export interface YearRecapResults {
 	projectRecapCards: JSX.Element[],
 	unspentBudget: number,
@@ -1148,4 +1400,3 @@ export interface BarGraphData {
 	hydrogen: number[],
 	totalSpending: number[],
 }
-
