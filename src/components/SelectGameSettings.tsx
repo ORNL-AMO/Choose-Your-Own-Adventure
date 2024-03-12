@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, Link, List, ListItem, ListItemText, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -131,29 +131,11 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         </Select>                        
                     </Box>
                     <Divider variant='middle'/>
-                    <Box m={2}>
-                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
-                            Choose the year in which project financing options should be introduced:</InputLabel>
-                        <Select
-                            labelId='selectFinancingStartYear'
-                            id='selectFinancingStartYear'
-                            value={financingStartYear}
-                            label='financingStartYear'
-                            onChange={handleFinancingStartYear}
-                        >
-                            <MenuItem value={1}> First Year </MenuItem>
-                            <MenuItem value={2}> Second Year</MenuItem>
-                            <MenuItem value={3}> Third Year</MenuItem>
-                            <MenuItem value={4}> Fourth Year</MenuItem>
-                            <MenuItem value={5}> Fifth Year</MenuItem>
-                            {/* // TODO 150 check game interval for more options */}
-                        </Select>                        
-                    </Box>
-                    <Divider variant='middle'/>
-      
-
+    
                     <FormControl sx={{ m: 2 }} component='fieldset' error={invalidFinancingOptionsError} variant='standard'>
-                        <FormLabel component='legend'>Pick <b>two</b> financing options to be made available for project implementation.</FormLabel>
+                        <FormLabel component='legend'>You can choose to explore two alternative project financing options beyond using your corporate budget. 
+                        <Link sx={{ paddingLeft: '8px' }} href="https://betterbuildingssolutioncenter.energy.gov/financing-navigator/explore">Find out more here!</Link>
+                        </FormLabel>
                         <FormGroup>
                             <FormControlLabel
                                 control={
@@ -177,7 +159,25 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <FormHelperText>Select 2 options</FormHelperText>
                     </FormControl>
                     <Divider variant='middle' />
-
+                    <Box m={2}>
+                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
+                            Choose the year in which project financing options should be introduced:</InputLabel>
+                        <Select
+                            labelId='selectFinancingStartYear'
+                            id='selectFinancingStartYear'
+                            value={financingStartYear}
+                            label='financingStartYear'
+                            onChange={handleFinancingStartYear}
+                        >
+                            <MenuItem value={1}> First Year </MenuItem>
+                            <MenuItem value={2}> Second Year</MenuItem>
+                            <MenuItem value={3}> Third Year</MenuItem>
+                            <MenuItem value={4}> Fourth Year</MenuItem>
+                            <MenuItem value={5}> Fifth Year</MenuItem>
+                            {/* // TODO 150 check game interval for more options */}
+                        </Select>                        
+                    </Box>
+                    <Divider variant='middle'/>
                     <Box m={2}>
                         <InputLabel id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
                         <Select
