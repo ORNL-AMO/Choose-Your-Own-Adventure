@@ -38,6 +38,7 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 			doAppStateCallback: this.props.doAppStateCallback,
 			displayProjectDialog: this.props.displayProjectDialog,
 			resolveToValue: this.props.resolveToValue,
+			doPageCallbackDropdown: this.props.doPageCallbackDropdown,
 		};
 
 		switch (this.props.componentClass) {

@@ -123,6 +123,7 @@ function ProjectInfoCardFunc(props: ProjectDialogProps) {
 							displayProjectDialog={props.displayProjectDialog}
 							resolveToValue={props.resolveToValue}
 							doAppStateCallback={props.doAppStateCallback}
+							doPageCallbackDropdown={props.doPageCallbackDropdown}
 						/>
 					</CardActions>
 				</>

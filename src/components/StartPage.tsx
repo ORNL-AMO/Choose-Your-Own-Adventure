@@ -25,6 +25,7 @@ export function StartPage(props: StartPageProps) {
 				buttons={props.buttons} 
 				doPageCallback={props.doPageCallback} 
 				resolveToValue={props.resolveToValue}
+				doPageCallbackDropdown={props.doPageCallbackDropdown}
 			/>
 		</React.Fragment>
 	);

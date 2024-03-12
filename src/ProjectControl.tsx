@@ -16,7 +16,7 @@ import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats
 import { DialogCardContent } from './components/Dialogs/dialog-functions-and-types';
 import { DialogFinancingOptionCard, ProjectDialogControlProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
+import { CapitalFundingState, FinancingId, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, getCapitalFundingOption, getDefaultFinancingOption, getHasFinancingStarted, getIsAnnuallyFinanced, removeCapitalFundingRoundUsed, setCapitalFundingRoundUsed } from './Financing';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { resolveToValue } from './functions-and-types';
@@ -346,43 +346,61 @@ export class ProjectControl implements ProjectControlParams {
 				}
 			}
 		}
+	
+		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptions: DialogFinancingOptionCard[]) {
+			console.log('financingOptions: ', financingOptions);
+			let selectDropdownOptions = function(state: AppState) {
+				const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
+				let financingTypes: FinancingType[] = [];
+				
+				let hasFinancingStarted = getHasFinancingStarted(state.trackedStats.currentGameYear, gameSettings.financingStartYear, gameSettings.gameYearInterval);
+				if (gameSettings.financingOptions){
+					financingOptions = financingOptions.filter((option: DialogFinancingOptionCard) => {
+						let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
+						let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(state.capitalFundingState);
+						if (option.financingType.id === 'budget') {
+							return true;
+						}
+						return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true) || hasCapitalFunding;
+					});
+					console.log('financingOptions line366: ', financingOptions);
+				}		
+				
+				financingOptions.forEach(option => {
+					financingTypes.push(option.financingType);
+				});
+				
+				return financingTypes;
+			}	
 
-		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptionCards: DialogFinancingOptionCard[]) {
-			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
-			let hasFinancingStarted = (props) => {
-				return props.trackedStats.currentGameYear >= gameSettings.financingStartYear;
-				//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
-			};
-			// let capitalFundingState = (props) => {
-			// 	return props.capitalFundingState;
-			// 	//return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
-			// };
-			let selectOptions: string[] = [];
-			selectOptions.push('Select Financing');			
-			selectOptions.push('Budget');
-			
-			financingOptionCards = financingOptionCards.filter((option: DialogFinancingOptionCard) => {
-				let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
-				//let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(props.capitalFundingState);
-				if (option.financingType.id === 'budget') {
-					return true;
-				}
-				return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true);
-			});
-
-			financingOptionCards.forEach(option => {
-				if (option.financedAnnualCost !== undefined) {
-					selectOptions.push(option.financingType.name);
-				}
-			});
 
 			let dropdownSelect: ButtonGroupButton =  {
 				text: 'Implement Project',
 				inputType: 'select',
 				variant: 'contained',
 				color: 'success',
-				value: 'Select Financing',
-				selectOptions: selectOptions,
+				dropDownValue: financingOptions[0].financingType,
+				selectOptions: selectDropdownOptions,
+				onChange: function (state, nextState, financingType) {
+					let financingOption: FinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);
+					console.log('financingType ', financingType);
+					console.log('financingOption: ', financingOption);
+					if (self.isRenewable) {
+						let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+							if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+								return true
+							}
+							return false;
+						});
+						if (isProjectImplemented) {
+							return state.currentPage;
+						}
+
+						return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
+					} else {
+						return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
+					}
+				},
 				// disabled when the project is implemented
 				disabled: (state) => {
 					if (self.isRenewable) {
@@ -403,6 +421,7 @@ export class ProjectControl implements ProjectControlParams {
 		// 	// todo selectOptions callback function - should return an array of FinancingId type's that you'll use in onChange() and as selected value, 
 		// 	// OR FinancingOption[] depending on what MUI MenuItem accepts
 		// 	let selectOptions = function (state, nextState) {
+		// 		debugger
 		// 		// todo set financing options based on state that resolveToValue() will give you in Buttons.tsx at render time
 		// 		let financingIds: FinancingId[] = [];
 		// 		return financingIds;

@@ -9,6 +9,7 @@ import type { ControlCallbacks } from './controls';
 import type App from '../App';
 import { DialogControlProps, DialogStateProps } from './Dialogs/dialog-functions-and-types';
 import { fillProjectDialogProps } from './Dialogs/ProjectDialog';
+import { FinancingId, FinancingType } from '../Financing';
 
 /**
  * Button control for use inside a ButtonGroup component's `buttons` prop.
@@ -56,8 +57,10 @@ export declare interface ButtonGroupButton {
 	 */
 	value?: string;
 	// todo onChange, selectOptions should be Resolvable<whatever-type>
-	onChange?: SelectChangeEvent<string>;
-	selectOptions?: string[];
+	dropDownValue?: FinancingType;
+	onClose?: SelectChangeEvent<FinancingType>;
+	selectOptions?: Resolvable<FinancingType[]>;
+	onChange?: PageCallbackDropdown;
 }
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
@@ -68,6 +71,7 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 	 */
 	disabled?: Resolvable<boolean>;
 	doPageCallback: (callback?: PageCallback) => void;
+	doPageCallbackDropdown?: (callback?: PageCallbackDropdown, financingType?: FinancingType) => void;
 	/**
 	 * Whether to use a MUI Stack component to space the buttons, or just include the array of buttons "raw".
 	 * @default true
@@ -166,54 +170,56 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		}
 	} 
 	if (button.inputType === 'select') {
+		const [dropdownSelectFinancing, setDropdownSelectFinancing ] = React.useState(button.dropDownValue);
+
+		const handleDropdownSelectFinancing = (event: SelectChangeEvent<FinancingType>) => {
+			console.log('financingType event.target.value: ', event.target.value);
+			setDropdownSelectFinancing(event.target.value as FinancingType);
+		};
+
+		let selectOptions = props.resolveToValue(button.selectOptions);
+
+		let menuItems = selectOptions.map((selectOption, index ) => {
+			return (
+				<MenuItem key={selectOption.id} value={selectOption.id}>{selectOption.name}</MenuItem>
+			);
+		});
+
+		/**
+		 * onChange={() => {
+					handleDropdownSelectFinancing
+					// if (button.onChange) {
+					// 	props.doPageCallbackDropdown(button.onChange, button.dropDownValue);
+					// }
+				
+				}}
+				onChange={() => {
+					if (button.onChange) {
+						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
+					}
+				
+				}}
+		 */
+
+
+
 		return (
 			<Select
 				key={idx}
-				value={button.value}
-				//onChange={}
+				value={dropdownSelectFinancing}
+				onClose={() => {
+					if (button.onChange) {
+						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
+					}
+				
+				}}
+				onChange={handleDropdownSelectFinancing}
 			>
-				{button.selectOptions.map((selectOption, index ) => {
-					return (
-						<MenuItem key={selectOption} value={selectOption}>{selectOption}</MenuItem>
-					);
-				})}
+				{menuItems}
 		
 			</Select>
-
+		
 		);
-
-
-
-		// 		// * resolveToValue - give  (state, nextState) values to the selectOptions() callback you defined in ProjectControl
-		// 		let selectOptions = props.resolveToValue(button.selectOptions);
-		// 		// todo selectOptions will either be FinancingId[] or FinancingOption
-		// 		let menuItems = selectOptions.map((selectOption, index ) => {
-		// 			return (
-		// 				<MenuItem key={selectOption} value={selectOption}>{selectOption}</MenuItem>
-		// 			);
-		// 		})
-		
-		// 		return (
-		// 			<Select
-		// 				key={idx}
-		// 				value={''}
-		// 				onChange={(newValue) => {
-		// 					// this is where your button.onchange will do it's thing with the newValue it receives from the Select
-		// 				}}
-		// 			>
-		// 				{menuItems}
-				
-		// 			</Select>
-		
-		// );
-
-
-
-
-
-
-
-
 	}
 }
 

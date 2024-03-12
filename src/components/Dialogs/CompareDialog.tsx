@@ -117,7 +117,8 @@ function getProjectInfoCards(props: CompareDialogProps, theme) {
 		doPageCallback: props.doPageCallback,
 		doAppStateCallback: props.doAppStateCallback,
 		displayProjectDialog: props.displayProjectDialog,
-		resolveToValue: props.resolveToValue
+		resolveToValue: props.resolveToValue,
+		doPageCallbackDropdown: props.doPageCallbackDropdown
 	};
 
 	let projectDialogs: JSX.Element[] = [];
