@@ -406,7 +406,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			}
 			if (financingData.isFinanced) {
 				let financedProject = projects.find(project => project.page === implementedProject.pageId);
-				financingData.isPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
+				financingData.isPaidOff = isProjectFullyFunded(financedProject, mutableStats);
 			}
 			recapResults.projectRecapCards.push(
 				getProjectCardWithGauges(

@@ -51,7 +51,7 @@ function EndGameReport(props: ReportProps) {
 		let isFinanced = implementationFinancing.financingType.id !== 'budget';
 		let financingData: ImplementedFinancingData = {
 			option: implementationFinancing,
-			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.mutableStats.currentGameYear) : false,
+			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.mutableStats) : false,
 			isFinanced: isFinanced,
 
 		}
