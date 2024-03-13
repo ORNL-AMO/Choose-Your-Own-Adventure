@@ -1,4 +1,5 @@
 import type { ImplementedProject, ProjectControl, RecapSurprise } from './ProjectControl';
+import Projects from './Projects';
 import type { TrackedStats } from './trackedStats';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import React from 'react';
@@ -275,6 +276,8 @@ export function isProjectFullyFunded(project: ImplementedProject, stats: Tracked
         // if 2 year take the later year
         let currentGameYear = stats.gameYearInterval > 1? stats.gameYearDisplayOffset + 1 : stats.currentGameYear;
         return currentGameYear >= financingPayoffYear;
+    } else if (Projects[project.page].isPPA) {
+        return false;
     } else {
         return true;
     }
