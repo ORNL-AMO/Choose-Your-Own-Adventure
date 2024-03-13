@@ -888,8 +888,7 @@ export interface RenewableProject extends ImplementedProject {
  */
 export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
-	// todo 200 just get from gameYearsImpelmented?
-	yearStarted?: number;
+	yearStarted: number;
 	financingOption?: FinancingOption;
 
 }

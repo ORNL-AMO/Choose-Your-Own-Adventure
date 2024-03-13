@@ -576,6 +576,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				completedYear: currentYearStats.currentGameYear,
 				gameYearsImplemented: [currentYearStats.currentGameYear],
 				page: id,
+				yearStarted: currentYearStats.currentGameYear,
 				financingOption: implementedFinancedProjects[financingIndex] ? implementedFinancedProjects[financingIndex].financingOption : undefined
 			});
 		});
@@ -619,7 +620,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	handleNewYearFinancedProjects(financedProjects: ImplementedProject[], newYearTrackedStats: TrackedStats) {
 		let completedFinancedIndicies = [];
 		financedProjects.forEach((project: ImplementedProject, index) => {
-			if (isProjectFullyFunded(project, newYearTrackedStats.currentGameYear)) {
+			if (isProjectFullyFunded(project, newYearTrackedStats)) {
 				completedFinancedIndicies.push(index);
 			} else {
 				// console.log(`Apply ${String(project.page)} cost`);
@@ -637,7 +638,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 	applyRenewableCosts(renewableProjects: RenewableProject[], newYearTrackedStats: TrackedStats) {
 		renewableProjects.map(project => {
 			let projectControl = Projects[project.page];
-			let isfullyFunded = isProjectFullyFunded(project, newYearTrackedStats.currentGameYear);
+			let isfullyFunded = isProjectFullyFunded(project, newYearTrackedStats);
 			if (!isfullyFunded || projectControl.isPPA) {
 				let hasActiveRebates = project.yearStarted === newYearTrackedStats.currentGameYear;
 				// console.log(`Apply ${String(project.page)} cost`);
