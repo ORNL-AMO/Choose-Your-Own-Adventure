@@ -368,8 +368,8 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				hasAppliedFirstYearSavings = renewableProject.yearStarted !== mutableStats.currentGameYear;
 				let renewableProjectIndex: number = implementedRenewableProjectsCopy.findIndex(project => project.page === implementedProject.pageId);
 				financingOption = implementedRenewableProjectsCopy[renewableProjectIndex].financingOption;
-				let isAnnuallyFinanced = getIsAnnuallyFinanced(financingOption.financingType.id);
-				shouldApplyCosts = isAnnuallyFinanced || !implementedProject.isSinglePaymentRenewable || (implementedProject.isSinglePaymentRenewable && renewableProject.yearStarted === mutableStats.currentGameYear);
+				let isFullyFunded = isProjectFullyFunded(renewableProject, mutableStats);
+				shouldApplyCosts = !isFullyFunded || (implementedProject.isSinglePaymentRenewable && renewableProject.yearStarted === mutableStats.currentGameYear);
 				shouldApplyHiddenCosts = renewableProject.yearStarted === mutableStats.currentGameYear;
 			} else {
 				let financedIndex: number = implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
@@ -419,7 +419,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				));
 		});
 
-		// todo this will eventually handle renwables
 		recapResults.yearEndTotalSpending += this.getOngoingFinancingCosts(props.completedProjects, mutableStats);
 		setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
 		this.addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
@@ -449,7 +448,11 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		let yearFinancingCosts: number = 0;
 		completedProjects.forEach((completedProject: CompletedProject) => {
 			if (completedProject.financingOption) {
-				yearFinancingCosts += Projects[completedProject.page].getYearEndTotalSpending(completedProject.financingOption, mutableStats.gameYearInterval, false);
+				let isFullyFunded = isProjectFullyFunded(completedProject, mutableStats);
+				if (!isFullyFunded) {
+					let yearEndTotalSpending = Projects[completedProject.page].getImplementationCost(completedProject.financingOption.financingType.id, mutableStats.gameYearInterval);
+					yearFinancingCosts += yearEndTotalSpending
+				}
 			}
 
 		});
@@ -527,7 +530,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		let isFinancingPaidOff;
 		if (isFinanced) {
 			let financedProject = implementedProjects.find(project => project.page === implementedProject.pageId);
-			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats.currentGameYear);
+			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats);
 		}
 
 		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.gameYearInterval)
