@@ -39,6 +39,7 @@ export class ProjectControl implements ProjectControlParams {
 	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
+	shortTitleRawText: string;
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
@@ -74,6 +75,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
+		this.shortTitleRawText = params.shortTitleRawText;
 		this.choiceInfoText = params.choiceInfoText;
 		this.choiceInfoImg = params.choiceInfoImg;
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
@@ -832,7 +834,7 @@ export const Scope2Projects = [
 
 export declare interface CaseStudy {
 	title: string;
-	text: string | string[];
+	text: string;
 	url: string;
 }
 
@@ -873,7 +875,6 @@ export interface SelectedProject extends Project {
 
 /**
  * Project that must be renewed each year 
- * @param gameYearsImplemented - which game years was the project implemented
  */
 export interface RenewableProject extends ImplementedProject {
 	yearlyFinancialSavings?: {
@@ -890,7 +891,6 @@ export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
 	yearStarted: number;
 	financingOption?: FinancingOption;
-
 }
 
 export interface Project {
@@ -924,7 +924,8 @@ declare interface ProjectControlParams {
 	customBudgetType?: FinancingType;
 	isSinglePaymentRenewable?: boolean;
 	isPPA?: boolean;
-	financingOptions?: FinancingOption[]
+	financingOptions?: FinancingOption[];
+	shortTitleRawText?: string,
 	/**
 	 * Project that only gets energy $ savings for 1 year
 	*/

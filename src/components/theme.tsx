@@ -6,14 +6,17 @@ export const theme = createTheme({
 	palette: {
 		mode: 'light',
 		primary: {
+			// blue
 			main: '#1d459d',
 			// main: '#ff0000',
 		},
 		secondary: {
+			// green
 			main: '#70b94a',
 			// main: '#00ff00',
 		},
 		warning: {
+			// yellow
 			main: '#e9bc18',
 		}
 	},
