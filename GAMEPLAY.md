@@ -56,6 +56,9 @@
 	Are paid for once, regardless of 1 or 2 year gameplay, and are renewed each year
 	- Solar Panels Carport, Rooftop mid-sized Solar
 
+	###### Power Purchase Agreements (PPA):
+	Are paid for annually over a 10-year term. This is a special payment type and should not be included in most of the gameplay mechanisms and logic related to financing.
+
 	###### Always Carryover cost Savings:
 	Regardless of game settings, these projects carryover cost savings every year
 	- Small solar carport, Rooftop mid-sized Solar, Community Wind
@@ -82,7 +85,7 @@ Shows completed projects after their implementation year, as well non-renewable 
 Are only applied in the first year that the project is implemented.
 
 ### Capital Funding Rewards
-Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 5% and 35% throughout the game. Each Capital Funding reward must be used in the following new year. VPPA projects are ineligible. 
+Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 5% and 35% throughout the game. Each Capital Funding reward must be used in the following new year. PPA projects are ineligible. 
 
 ---
 

@@ -591,6 +591,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 		console.log('==============================');
 		console.log('Total new year budget (financing/renewable costs applied)', newYearTrackedStats.financesAvailable);
+		console.log('Game Total Spending', newYearTrackedStats.gameTotalSpending);
 		console.log('======== END =================');
 
 		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
