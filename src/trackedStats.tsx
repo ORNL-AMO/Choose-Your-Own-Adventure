@@ -83,7 +83,6 @@ export interface TrackedStats {
 	hiddenSpending: number;
 	/**
 	 * End of year total spending, adusted for hidden costs and  rebates
-	 * NOTE: at YearRecap this value is the cumulative spend for the whole game
 	 */
 	yearEndTotalSpending: number;
 	/**
