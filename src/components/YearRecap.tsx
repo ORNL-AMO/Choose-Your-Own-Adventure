@@ -787,7 +787,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 					projectRecapCards.push(
 						...project.recapSurprises.map((projectSurprise, index) => {
 							return (
-								this.getSurpriseEventCard(projectSurprise, project.title, project.shortTitle, index)
+								this.getSurpriseEventCard(projectSurprise, project.title, index)
 							);
 						})
 					);
@@ -799,8 +799,8 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	/**
 	* Add card for negative/positive surprises.
 	*/
-	getSurpriseEventCard(surprise: RecapSurprise, title: string, subHeader: string | undefined, index?: number): JSX.Element {
-		let keyId = index !== undefined ? index : title;
+	getSurpriseEventCard(surprise: RecapSurprise, projectTitle: string, index?: number): JSX.Element {
+		let keyId = index !== undefined ? index : projectTitle;
 		return <ListItem key={`year-recap-surprise_${keyId}`}>
 			<ThemeProvider theme={darkTheme}>
 				<Card className={surprise.className} sx={{ width: '100%' }}>
@@ -812,8 +812,8 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 								{surprise.avatar.icon}
 							</Avatar>
 						}
-						title={title}
-						subheader={subHeader}
+						title={surprise.title}
+						subheader={projectTitle}
 					/>
 					<CardContent>
 						<Typography variant='body1' dangerouslySetInnerHTML={parseSpecialText(surprise.text)} />
