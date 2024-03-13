@@ -666,8 +666,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	},
 	utilityRebateValue: 5000,
 	recapSurprises: [{
-		title: 'Uh oh - Replacing the compressors did not save as much electricity as estimated!',
-		text: 'Uh oh - Replacing the compressors did not save as much electricity as estimated! Only 2,000,000 kWh was saved.',
+		title: 'Uh oh - Replacing the compressors did not save as much electricity as estimated! ',
+		text: 'While replacing old compressors, you only saved 2,000,000 kWh instead of the estimated 2,250,000 kWh',
 		className: 'year-recap-negative-surprise',
 		avatar: {
 			icon: <BoltIcon />,
