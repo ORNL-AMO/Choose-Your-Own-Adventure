@@ -369,7 +369,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
-	isCapitalFundsEligible: true,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,

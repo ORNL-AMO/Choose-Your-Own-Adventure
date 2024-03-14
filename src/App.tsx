@@ -164,6 +164,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				totalGameYears: 10,
 				gameYearInterval: 1,
 				budget: 150_000,
+				devBudget: 10000000,
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
 				hydrogenUse: 2_000,
@@ -668,7 +669,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 		}
 
 		if (userSettings.useGodMode) {
-			budget = 100_000_000 * userSettings.gameYearInterval;
+			if (userSettings.devBudget !== undefined) {
+				budget = userSettings.devBudget;
+			} else {
+				budget = 10_000_000;
+			}
 		}
 		updatingInitialTrackedStats.yearBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;

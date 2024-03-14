@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputAdornment, InputLabel, List, ListItem, ListItemText, MenuItem, OutlinedInput, Paper, Select, styled, TextField, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -28,6 +28,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [gameYearInterval, setGameYearInterval] = React.useState(props.gameYearInterval);
     const [financingStartYear, setFinancingStartYear] = React.useState(getFinancingStartYear());
     const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('no');    
+    const [devBudget, setDevBudget ] = React.useState(10000000);    
     const [costSavingsCarryoverYears, setCostSavingsCarryoverOption ] = React.useState(props.costSavingsCarryoverYears);
     const [financingOptions, setFinancingOptions] = React.useState({
         eaas: true,
@@ -52,6 +53,10 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const handleCostSavingsCarryoverChange = (event: SelectChangeEvent<CostSavingsCarryoverId>) => {
         setCostSavingsCarryoverOption(event.target.value as CostSavingsCarryoverId);
     };
+
+    const handleDevBudgetChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDevBudget(Number(event.target.value));
+      }
     
     const handleFinancingOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFinancingOptions({
@@ -92,12 +97,30 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         inputProps={{ 'aria-label': 'controlled' }}
                                     />
                                 } label='Activate law-less mode (DEVELOPMENT ONLY)' />
+                                {/* <TextField 
+                                id="outlined-basic" 
+                                label="Budget" 
+                                variant="outlined" 
+                                defaultValue="10000000" 
+                                startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                onChange={handleDevBudgetChange}/> */}
+
+                            <FormControl fullWidth sx={{ m: 1 }}>
+                                    <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-basic" 
+                                        label="Budget" 
+                                        defaultValue="10000000" 
+                                        startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                        onChange={handleDevBudgetChange}
+                                    />
+                                    </FormControl>
                             </FormGroup>
                              <List dense={true}>
                                 <ListItem>
                                     <ListItemText
                                         primary="Inflated budget"
-                                        secondary={'$100,000,000 a year'}
+                                        secondary={devBudget}
                                     />
                                 </ListItem>
                                 <ListItem>
@@ -225,7 +248,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         costSavingsCarryoverYears,
                                         allowBudgetCarryover,
                                         financingOptions,
-                                        useGodMode
+                                        useGodMode,
+                                        devBudget
                                     })
                             }
                         }} >
@@ -280,6 +304,7 @@ export interface UserSettings {
 	costSavingsCarryoverYears: CostSavingsCarryoverId,
 	allowBudgetCarryover: string,
     useGodMode: boolean,
+    devBudget: number,
 	financingOptions: GameFinancingOptions
 }
 
