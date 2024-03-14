@@ -182,6 +182,17 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	return newStats;
 }
 
+/**
+* Set mutable stats costPerCarbonSavings
+*/
+export function setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number) {
+	let costPerCarbonSavings = 0;
+	if (gameCurrentAndProjectedSpending > 0 && mutableStats.carbonSavingsPerKg > 0) {
+		costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
+	}
+	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
 export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {
 	let oldNgCost = oldStats.naturalGasCostPerMMBTU * oldStats.naturalGasMMBTU;
 	let newNgCost = newStats.naturalGasCostPerMMBTU * newStats.naturalGasMMBTU;

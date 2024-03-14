@@ -32,7 +32,7 @@ import {
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats, YearCostSavings } from '../trackedStats';
-import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
+import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings, setCostPerCarbonSavings } from '../trackedStats';
 import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise, ImplementedProject } from '../ProjectControl';
 import {
 	clampRatio,
@@ -50,7 +50,7 @@ import YearRecapCharts from './YearRecapCharts';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
-import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
+import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
@@ -228,8 +228,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									<ListItemText
 										primary={
 											<Typography variant={'h5'}>
-												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects for the
-												remaining years of the game. You are projected to spend {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>{' '} total over the course of the game.
+												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects. Your total projected spend is {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>{' '}.
 											</Typography>
 										}
 									/>
@@ -443,25 +442,15 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		this.addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
 		mutableStats.yearEndTotalSpending = recapResults.yearEndTotalSpending;
 		mutableStats.gameTotalSpending = initialCurrentYearStats.gameTotalSpending + recapResults.yearEndTotalSpending;
-		recapResults.projectedFinancedSpending = this.getProjectedFinancedSpending(implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats);
+		recapResults.projectedFinancedSpending = getProjectedFinancedSpending(implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats);
 		recapResults.gameCurrentAndProjectedSpending = mutableStats.gameTotalSpending + recapResults.projectedFinancedSpending;
-		this.setCostPerCarbonSavings(mutableStats, recapResults.gameCurrentAndProjectedSpending);
+		setCostPerCarbonSavings(mutableStats, recapResults.gameCurrentAndProjectedSpending);
 		recapResults.yearCostSavings = getYearCostSavings(initialCurrentYearStats, mutableStats);
 		this.setRenewableProjectResults(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
 
 		return recapResults;
 	}
 
-	/**
-	* Set mutable stats costPerCarbonSavings
-	*/
-	setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number) {
-		let costPerCarbonSavings = 0;
-		if (gameCurrentAndProjectedSpending > 0 && mutableStats.carbonSavingsPerKg > 0) {
-			costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
-		}
-		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
-	}
 
 	/**
 	* Costs from completed projects still in financing
@@ -479,32 +468,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 		});
 		return yearFinancingCosts;
-	}
-
-	/**
-	* Future costs from financed projects and renewed PPAs still being paid on
-	*/
-	getProjectedFinancedSpending(implementedFinancedProjects: ImplementedProject[], renewableProjects: ImplementedProject[], mutableStats: TrackedStats) {
-		let futureFinancedSpending: number = implementedFinancedProjects.reduce((totalFutureSpending: number, project: ImplementedProject) => {
-			return this.getRemainingProjectCosts(project, mutableStats, totalFutureSpending);
-		}, 0);
-		let PPAProjects = renewableProjects.filter(project => Projects[project.page].isPPA);
-		futureFinancedSpending += PPAProjects.reduce((totalFutureSpending: number, project: ImplementedProject) => {
-			return this.getRemainingProjectCosts(project, mutableStats, totalFutureSpending);
-		}, 0);
-		return futureFinancedSpending;
-	}
-
-	getRemainingProjectCosts(project: ImplementedProject, mutableStats: TrackedStats, totalFutureSpending: number) {
-		let yearsRemaining = 10 - mutableStats.currentGameYear;
-		let projectControl = Projects[project.page];
-		let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
-		if ((isAnnuallyFinanced || projectControl.isPPA) && yearsRemaining) {
-			let annualCost = projectControl.getImplementationCost(project.financingOption.financingType.id, mutableStats.gameYearInterval);
-			let futureCosts = annualCost * yearsRemaining;
-			totalFutureSpending += futureCosts;
-		}
-		return totalFutureSpending;
 	}
 
 	/**

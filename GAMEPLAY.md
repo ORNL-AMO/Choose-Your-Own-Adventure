@@ -53,14 +53,14 @@
 	- Mid-Sized Solar, Community Wind, Utility-PPPA Wind
 
 	###### One-time Payment Renewables:
-	Are paid for once, regardless of 1 or 2 year gameplay, and are renewed each year
+	Can be paid for once (or financed), regardless of 1 or 2 year gameplay, and are renewed each year
 	- Solar Panels Carport, Rooftop mid-sized Solar
 
 	###### Power Purchase Agreements (PPA):
 	Are paid for annually over a 10-year term. This is a special payment type and should not be included in most of the gameplay mechanisms and logic related to financing.
 
 	###### Always Carryover cost Savings:
-	Regardless of game settings, these projects carryover cost savings every year
+	**!!!!** Regardless of game settings, these projects carryover cost savings every year
 	- Small solar carport, Rooftop mid-sized Solar, Community Wind
 
 
