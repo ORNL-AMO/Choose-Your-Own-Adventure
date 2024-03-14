@@ -32,7 +32,7 @@ import {
 import type { ControlCallbacks, PageControl } from './controls';
 import { Emphasis } from './controls';
 import type { TrackedStats, YearCostSavings } from '../trackedStats';
-import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings } from '../trackedStats';
+import { statsGaugeProperties, getYearCostSavings, setCarbonEmissionsAndSavings, setCostPerCarbonSavings } from '../trackedStats';
 import type { CompletedProject, NumberApplier, RenewableProject, ProjectControl, RecapSurprise, ImplementedProject } from '../ProjectControl';
 import {
 	clampRatio,
@@ -50,7 +50,7 @@ import YearRecapCharts from './YearRecapCharts';
 import Projects from '../Projects';
 import { ParentSize } from '@visx/responsive';
 import { GameSettings } from './SelectGameSettings';
-import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
+import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
@@ -114,7 +114,9 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		const unspentBudgetFormatted: string = noDecimalsFormatter.format(recapResults.unspentBudget);
 		const yearEndTotalSpendingFormatted: string = noDecimalsFormatter.format(recapResults.yearEndTotalSpending);
 		// formatting new value? or existing
-		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.yearEndTotalSpending);
+		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(mutableStats.gameTotalSpending);
+		const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(recapResults.projectedFinancedSpending);
+		const gameCurrentAndProjectedSpendingFormatted: string = noDecimalsFormatter.format(recapResults.gameCurrentAndProjectedSpending);
 		const costPerCarbonSavingsFormatted: string = mutableStats.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 2,
@@ -218,6 +220,20 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									}
 								/>
 							</ListItem>
+							{recapResults.projectedFinancedSpending > 0 &&
+								<ListItem >
+									<ListItemIcon>
+										<InfoIcon />
+									</ListItemIcon>
+									<ListItemText
+										primary={
+											<Typography variant={'h5'}>
+												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects. Your total projected spend is {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>{' '}.
+											</Typography>
+										}
+									/>
+								</ListItem>
+							}
 							<ListItem>
 								<ListItemIcon>
 									<InfoIcon />
@@ -335,6 +351,8 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			projectRecapCards: [],
 			unspentBudget: props.financesAvailable,
 			yearEndTotalSpending: 0,
+			projectedFinancedSpending: 0,
+			gameCurrentAndProjectedSpending: 0,
 			yearCostSavings: {
 				naturalGas: 0,
 				electricity: 0,
@@ -422,24 +440,17 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		recapResults.yearEndTotalSpending += this.getOngoingFinancingCosts(props.completedProjects, mutableStats);
 		setCapitalFundingExpired(mutableCapitalFundingState, mutableStats);
 		this.addCapitalFundingRewardCard(recapResults.projectRecapCards, mutableCapitalFundingState, mutableStats);
-		mutableStats.yearEndTotalSpending = initialCurrentYearStats.yearEndTotalSpending + recapResults.yearEndTotalSpending;
-		this.setCostPerCarbonSavings(mutableStats);
+		mutableStats.yearEndTotalSpending = recapResults.yearEndTotalSpending;
+		mutableStats.gameTotalSpending = initialCurrentYearStats.gameTotalSpending + recapResults.yearEndTotalSpending;
+		recapResults.projectedFinancedSpending = getProjectedFinancedSpending(implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats);
+		recapResults.gameCurrentAndProjectedSpending = mutableStats.gameTotalSpending + recapResults.projectedFinancedSpending;
+		setCostPerCarbonSavings(mutableStats, recapResults.gameCurrentAndProjectedSpending);
 		recapResults.yearCostSavings = getYearCostSavings(initialCurrentYearStats, mutableStats);
 		this.setRenewableProjectResults(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
 
 		return recapResults;
 	}
 
-	/**
-	* Set mutable stats costPerCarbonSavings
-	*/
-	setCostPerCarbonSavings(mutableStats: TrackedStats) {
-		let costPerCarbonSavings = 0;
-		if (mutableStats.yearEndTotalSpending > 0 && mutableStats.carbonSavingsPerKg > 0) {
-			costPerCarbonSavings = mutableStats.yearEndTotalSpending / mutableStats.carbonSavingsPerKg;
-		}
-		mutableStats.costPerCarbonSavings = costPerCarbonSavings;
-	}
 
 	/**
 	* Costs from completed projects still in financing
@@ -458,7 +469,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		});
 		return yearFinancingCosts;
 	}
-
 
 	/**
 	* WARNING - Directly mutates renewable project in first year. This is a workaround to get correct stats display and state given some of the other game mechanics and logic
@@ -1392,6 +1402,10 @@ export interface YearRecapResults {
 	projectRecapCards: JSX.Element[],
 	unspentBudget: number,
 	yearEndTotalSpending: number,
+	// projects costs of financing projects still being paid on
+	projectedFinancedSpending: number,
+	// all past and future projected spending, including above
+	gameCurrentAndProjectedSpending: number,
 	yearCostSavings: YearCostSavings
 }
 

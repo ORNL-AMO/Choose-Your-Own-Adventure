@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { TrackedStats } from '../../trackedStats';
+import { TrackedStats, setCarbonEmissionsAndSavings, setCostPerCarbonSavings } from '../../trackedStats';
 import { GameSettings } from '../SelectGameSettings';
-import { CapitalFundingState, FinancingOption, isProjectFullyFunded } from '../../Financing';
+import { CapitalFundingState, FinancingOption, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded } from '../../Financing';
 import { ControlCallbacks, Emphasis, PageControl } from '../controls';
-import { Box, Button, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemText, Tooltip, TooltipProps, Typography, styled, tooltipClasses } from '@mui/material';
+import { Box, Button, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemIcon, ListItemText, Tooltip, TooltipProps, Typography, styled, tooltipClasses } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
 import { CompletedProject, ImplementedProject, ProjectControl, RenewableProject } from '../../ProjectControl';
 import { ImplementedFinancingData } from '../YearRecap';
@@ -12,6 +12,7 @@ import { DialogFinancingOptionCard } from '../Dialogs/ProjectDialog';
 import { parseSpecialText, truncate } from '../../functions-and-types';
 import EnergyUseLineChart from '../EnergyUseLineChart';
 import DownloadPDF, { ReportPDFProps } from './DownloadPDF';
+import InfoIcon from '@mui/icons-material/Info';
 
 
 export default class EndGameReportPage extends React.Component<EndGameReportPageProps> {
@@ -29,13 +30,15 @@ export default class EndGameReportPage extends React.Component<EndGameReportPage
 		});
 
 		let completedProjects = this.props.completedProjects.concat(completedRenewables);
-
 		return (
 			<Box m={2}>
 				<EndGameReport
 					yearRangeInitialStats={yearRangeInitialStats}
+					implementedFinancedProjects={this.props.implementedFinancedProjects}
+					renewableProjects={this.props.implementedRenewableProjects}
 					completedProjects={completedProjects}
 					mutableStats={mutableStats}
+					defaultTrackedStats={this.props.defaultTrackedStats}
 				/>
 			</Box>
 		);
@@ -69,6 +72,31 @@ function EndGameReport(props: ReportProps) {
 
 	});
 
+	let projectedFinancedSpending = getProjectedFinancedSpending(props.implementedFinancedProjects, props.renewableProjects, props.mutableStats);
+	let gameCurrentAndProjectedSpending = props.mutableStats.gameTotalSpending + projectedFinancedSpending;
+	setCarbonEmissionsAndSavings(props.mutableStats, props.defaultTrackedStats);
+
+	setCostPerCarbonSavings(props.mutableStats, gameCurrentAndProjectedSpending);
+	
+	let endOfGameResults = {
+		carbonSavingsPercent: props.mutableStats.carbonSavingsPercent,
+		gameTotalSpending: props.mutableStats.gameTotalSpending,
+		projectedFinancedSpending: projectedFinancedSpending,
+		gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpending,
+		costPerCarbonSavings: props.mutableStats.costPerCarbonSavings
+	}
+	const noDecimalsFormatter = Intl.NumberFormat('en-US', {
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
+	});
+	const carbonSavingsPercentFormatted: string = (endOfGameResults.carbonSavingsPercent * 100).toFixed(2);
+	const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endOfGameResults.gameTotalSpending);
+	const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(endOfGameResults.projectedFinancedSpending);
+	const costPerCarbonSavingsFormatted: string = endOfGameResults.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2,
+	}).format(endOfGameResults.costPerCarbonSavings) : '0';
+
 	return (
 		<Fragment>
 			<ParentSize>
@@ -78,6 +106,64 @@ function EndGameReport(props: ReportProps) {
 					parentElement={parent}/>
 				)}
 			</ParentSize>
+			<Box m={2}>
+					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
+						<List dense={true}>
+							<ListItem >
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant='h5'>
+											Your company has reduced CO<sub>2</sub>e Emissions by{' '}
+											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem>
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant={'h5'}>
+											You have spent{' '}<Emphasis>${gameTotalNetCostFormatted}</Emphasis>{' '} throughout the game.
+										</Typography>
+									}
+								/>
+							</ListItem>
+							<ListItem>
+								<ListItemIcon>
+									<InfoIcon />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<Typography variant={'h5'}>
+											Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub>e</Emphasis>{' '}
+										</Typography>
+									}
+								/>
+							</ListItem>
+							{endOfGameResults.projectedFinancedSpending > 0 &&
+								<ListItem >
+									<ListItemIcon>
+										<InfoIcon />
+									</ListItemIcon>
+									<ListItemText
+										primary={
+											<Typography variant={'h5'}>
+												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects in future years
+											</Typography>
+										}
+									/>
+								</ListItem>
+							}
+						</List>
+					</Box>
+			</Box>
+					
 			<Box sx={{ display: 'flex', justifyContent: 'end', marginY: '1rem' }}>
 					<DownloadPDF yearRangeInitialStats={props.yearRangeInitialStats}
 						completedProjects={props.completedProjects}
@@ -106,7 +192,10 @@ function EndGameReport(props: ReportProps) {
 }
 
 interface ReportProps extends ReportPDFProps {
-	mutableStats: TrackedStats
+	mutableStats: TrackedStats,
+	defaultTrackedStats: TrackedStats,
+	implementedFinancedProjects: ImplementedProject[],
+	renewableProjects: RenewableProject[]
 }
 
 
@@ -334,6 +423,7 @@ export interface EndGameReportPageProps extends
 	GameSettings {
 	capitalFundingState: CapitalFundingState,
 	trackedStats: TrackedStats,
+	defaultTrackedStats: TrackedStats,
 	completedProjects: CompletedProject[];
 	implementedRenewableProjects: RenewableProject[];
 	implementedFinancedProjects: ImplementedProject[];

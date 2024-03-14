@@ -86,6 +86,10 @@ export interface TrackedStats {
 	 */
 	yearEndTotalSpending: number;
 	/**
+	 * Total spending so far throughout the game
+	 */
+	gameTotalSpending: number;
+	/**
 	 * Current year of game
 	 */
 	currentGameYear: number;
@@ -141,6 +145,7 @@ export const initialTrackedStats: TrackedStats = {
 	implementationSpending: 0,
 	hiddenSpending: 0,
 	yearEndTotalSpending: 0,
+	gameTotalSpending: 0,
 	currentGameYear: 1,
 	gameYearDisplayOffset: 1,
 	gameYearInterval: 1
@@ -172,10 +177,20 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	}
 
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
-	// * % CO2 saved * total initial emissions;
 	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
+}
+
+/**
+* Set mutable stats costPerCarbonSavings
+*/
+export function setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number) {
+	let costPerCarbonSavings = 0;
+	if (gameCurrentAndProjectedSpending > 0 && mutableStats.carbonSavingsPerKg > 0) {
+		costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
+	}
+	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
 }
 
 export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {

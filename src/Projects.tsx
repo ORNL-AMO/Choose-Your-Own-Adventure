@@ -1103,7 +1103,8 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
@@ -1136,7 +1137,8 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
@@ -1169,7 +1171,8 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
@@ -1199,7 +1202,8 @@ Projects[Pages.midSolar] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
@@ -1243,7 +1247,8 @@ Projects[Pages.largeWind] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)

@@ -16,8 +16,6 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 		landfillGases: [],
 	}
 	props.yearRangeInitialStats.forEach(statYear => {
-		// 1 MMBTU = 293.07107kw
-		let conversionFactorKwH = 293.07107;
 		let electricityEmissions = statYear.electricityUseKWh * getElectricityEmissionsFactor(statYear.currentGameYear, statYear.gameYearInterval, statYear.gameYearDisplayOffset);
 		let natGasEmissions = statYear.naturalGasMMBTU * statYear.naturalGasEmissionsPerMMBTU;
 		let landfillGasEmissions = statYear.hydrogenMMBTU * statYear.hydrogenEmissionsPerMMBTU;
