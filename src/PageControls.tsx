@@ -87,6 +87,14 @@ PageControls[Pages.loseScreen] = newAppPageDialogControl({
     text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years. Try again?`,
     buttons: [
         {
+			text: 'View Report',
+			variant: 'text',
+            size: 'large',
+			onClick: function () {
+                return Pages.endGameReport;
+            }
+		},
+        {
             text: 'Try again',
             variant: 'text',
             onClick: (state) => {
