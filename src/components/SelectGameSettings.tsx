@@ -98,8 +98,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                     />
                                 } label='Activate law-less mode (DEVELOPMENT ONLY)' />
 
-                            <FormControl fullWidth sx={{ m: 1 }}>
-                                    <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
+                                <FormControl fullWidth sx={{ m: 1 }}>
+                                    <InputLabel htmlFor="outlined-adornment-amount">Budget</InputLabel>
                                     <OutlinedInput
                                         id="outlined-basic" 
                                         label="Budget" 
@@ -108,7 +108,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         onChange={handleDevBudgetChange}
                                     />
-                                    </FormControl>
+                                </FormControl>
                             </FormGroup>
                              <List dense={true}>
                                 <ListItem>
