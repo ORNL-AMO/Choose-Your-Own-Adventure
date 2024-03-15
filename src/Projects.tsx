@@ -149,6 +149,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
 	baseCost: 150_000,
 	isEnergyEfficiency: true,
+	isCapitalFundsEligible: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -157,10 +158,10 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		},
 	],
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	title: 'More efficient batteries for forklifts',
 	shortTitle: 'Switch forklifts to lithium-ion batteries',
@@ -180,11 +181,12 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		text: 'Better Buildings, Better Plants SUMMIT'
 	},
 	energySavingsPreviewIcon: {
-		text: '??%',
+		text: '1%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
+
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -343,6 +345,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	}],
 	title: 'Small Carport Solar Installation',
 	shortTitle: 'Install solar panels on new facility carport. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Install solar panels on new facility carport. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`You decided to look into installing a small covered carport with a solar electricity generation system. 
 		Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use parking in the carport as an incentive to well-performing or energy-saving employees. 
@@ -366,7 +369,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
-	isCapitalFundsEligible: true,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
 	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,
@@ -656,12 +659,22 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		electricityUseKWh: absolute(-2_250_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-2_250_000),
+		electricityUseKWh: absolute(-2_000_000),
 	},
 	statsRecapAppliers: {
 		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
+	recapSurprises: [{
+		title: 'Uh oh - Replacing the compressors did not save as much electricity as estimated! ',
+		text: 'While replacing old compressors, you only saved 2,000,000 kWh instead of the estimated 2,250,000 kWh',
+		className: 'year-recap-negative-surprise',
+		avatar: {
+			icon: <BoltIcon />,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
+	}],
 	title: 'Replace old compressors',
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
@@ -1078,6 +1091,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 75_000,
 	statsInfoAppliers: {
@@ -1089,10 +1103,12 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 10% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1109,6 +1125,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 150_000,
 	statsInfoAppliers: {
@@ -1120,10 +1137,12 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 20% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1140,6 +1159,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 225_000,
 	statsInfoAppliers: {
@@ -1151,10 +1171,12 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 30% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1172,21 +1194,17 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: false,
-	mustAnnuallyFinance: true,
 	isRenewable: true,
+	isPPA: true,
 	baseCost: 210_000,
 	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
-	financingOptions: [
-		{
-			financingType: getEaaSFinancing(10),
-		},
-	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
@@ -1195,6 +1213,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	},
 	title: 'Mid-sized Solar PPPA',
 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with your local utility to build a 2MW solar array. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
 		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  
@@ -1220,6 +1239,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 537_000,
 	financedAnnualCost: 268_000,
@@ -1227,7 +1247,8 @@ Projects[Pages.largeWind] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
@@ -1237,6 +1258,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	},
 	title: 'Utility-PPPA Wind Project',
 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
 		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
@@ -1265,7 +1287,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	mustAnnuallyFinance: true,
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
-	financedTotalCost: 660_000,
+	financedTotalCost: 4_000_000,
 	financingOptions: [
 		{
 			financingType: getGreenBondsFinancing(10),
@@ -1279,6 +1301,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	},
 	title: 'Community Wind Project',
 	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in community wind project. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
 		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 

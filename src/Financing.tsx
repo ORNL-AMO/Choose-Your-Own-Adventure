@@ -1,4 +1,5 @@
-import type { ImplementedProject, ProjectControl, RecapSurprise } from './ProjectControl';
+import type { ImplementedProject, ProjectControl, RecapSurprise, RenewableProject } from './ProjectControl';
+import Projects from './Projects';
 import type { TrackedStats } from './trackedStats';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import React from 'react';
@@ -143,19 +144,51 @@ export function getRoundIsExpired(round: FundingRound, stats: TrackedStats) {
 export function getDefaultFinancingOption(projectControl: ProjectControl, hasFinancingOptions: boolean, baseCost: number): FinancingOption {
     let name = 'Pay with Existing Budget';
     let description = hasFinancingOptions ? 'Reduce energy use with a one-time payment' : 'Pay for project with funds from current budget';
+    let term;
     if (projectControl.customBudgetType) {
         name = projectControl.customBudgetType.name;
         description = projectControl.customBudgetType.description;
+        term = projectControl.customBudgetType.loanTerm;
     }
     return {
         financingType: {
             name: name,
             description: description,
             id: 'budget',
+            loanTerm: term
         },
         financedTotalCost: baseCost,
         financedAnnualCost: undefined,
     }
+}
+
+export function getProjectedFinancedSpending(implementedFinancedProjects: ImplementedProject[], renewableProjects: RenewableProject[], mutableStats: TrackedStats) {
+    let futureFinancedSpending: number = 0;
+    futureFinancedSpending = implementedFinancedProjects.reduce((totalFutureSpending: number, project: ImplementedProject) => {
+        return getRemainingProjectCosts(project, mutableStats, totalFutureSpending);
+    }, 0);
+    futureFinancedSpending += renewableProjects.reduce((totalFutureSpending: number, project: ImplementedProject) => {
+        return getRemainingProjectCosts(project, mutableStats, totalFutureSpending);
+    }, 0);
+    return futureFinancedSpending;
+}
+
+
+export function getRemainingProjectCosts(project: ImplementedProject, mutableStats: TrackedStats, totalFutureSpending: number) {
+    let finishedGameYear = mutableStats.currentGameYear + 1; 
+    let yearsPaid = finishedGameYear - project.yearStarted;
+    yearsPaid = yearsPaid * mutableStats.gameYearInterval
+    let yearsRemaining = project.financingOption.financingType.loanTerm - yearsPaid;
+    let projectControl = Projects[project.page];
+    let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
+    if ((isAnnuallyFinanced || projectControl.isPPA) && yearsRemaining) {
+        // we always want this cost to be expressed in single year 
+        let yearInterval = 1
+        let annualCost = projectControl.getImplementationCost(project.financingOption.financingType.id, yearInterval);
+        let futureCosts = annualCost * yearsRemaining;
+        totalFutureSpending += futureCosts;
+    }
+    return totalFutureSpending;
 }
 
 
@@ -268,10 +301,20 @@ export function getHasFinancingStarted(currentGameYear: number, financingStartYe
 /**
  * check whether budget, capital funding, or payoff year
  */
-export function isProjectFullyFunded(project: ImplementedProject, currentGameYear: number) {
-    let financingPayoffYear: number = project.yearStarted + project.financingOption.financingType.loanTerm;
+export function isProjectFullyFunded(project: ImplementedProject, stats: TrackedStats) {
     let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
-    return !isAnnuallyFinanced || currentGameYear >= financingPayoffYear;
+    if (isAnnuallyFinanced) {
+        let financingPayoffYear = project.yearStarted + project.financingOption.financingType.loanTerm;
+        if (stats.gameYearInterval !== 1) {
+            financingPayoffYear = project.yearStarted +  (project.financingOption.financingType.loanTerm / stats.gameYearInterval);
+        }
+        let currentGameYear = stats.currentGameYear;
+        return currentGameYear >= financingPayoffYear;
+    } else if (Projects[project.page].isPPA) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /**

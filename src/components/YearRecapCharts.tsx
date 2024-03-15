@@ -80,12 +80,26 @@ export default function YearRecapChart(props: BarsProps) {
             }),
         [xMax],
     );
+
+    let yDomain: number = 0;
+    let barGraphDataMax: number = 0;
+    props.barGraphData.forEach(data => {
+        if(data > barGraphDataMax){
+            barGraphDataMax = data;
+        }
+    });
+    if (barGraphDataMax > props.domainYaxis){
+        yDomain = Math.ceil(barGraphDataMax);        
+    } else {
+        yDomain = props.domainYaxis;
+    }
+
     const yScale = useMemo(
         () =>
             scaleLinear<number>({
                 range: [yMax, 0],
                 round: true,
-                domain: [0, props.domainYaxis],
+                domain: [0, yDomain],
             }),
         [yMax],
     );
