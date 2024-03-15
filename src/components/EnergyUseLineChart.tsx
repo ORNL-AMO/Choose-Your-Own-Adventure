@@ -7,7 +7,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const data = [];
 	let xYears: number[] = Array.from([...props.yearRangeInitialStats], statYear => statYear.currentGameYear);
 	let xTicks: string[] = Array.from(xYears, year => {
-		return 'Year ' + String(year);
+		return 'Budget Period ' + String(year);
 	});
 
 	let energyTypeYearValues = {
@@ -65,7 +65,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const layout = {
 		width: props.parentElement.width,
 		title: {
-			text: `${xYears.length} Year GHG Reduction`,
+			text: `Budget Period ${xYears.length} GHG Reduction`,
 			font: {
 				family: 'Roboto',
 				size: 24
