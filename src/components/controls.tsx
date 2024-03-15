@@ -1,5 +1,5 @@
 import React from 'react';
-import { FinancingType } from '../Financing';
+import { FinancingOption, FinancingType } from '../Financing';
 
 /* -======================================================- */
 //                         CONTROLS
@@ -26,7 +26,8 @@ export interface ControlCallbacks {
 	doPageCallback: (callback?: PageCallback) => void;
 	doAppStateCallback?: (callback?: AppStateCallback) => void;
 	displayProjectDialog?: (props) => void;
-	doPageCallbackDropdown?:(callback?: PageCallbackDropdown, financingType?: FinancingType) => void;
+	// * you'll always need callback param, not optional, same with financing type
+	doPageCallbackDropdown?:(callback: PageCallbackDropdown, financingType: FinancingType) => void;
 	resolveToValue: <T> (value: Resolvable<T>, whenUndefined?: T) => T;
 }
 

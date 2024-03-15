@@ -348,7 +348,6 @@ export class ProjectControl implements ProjectControlParams {
 		}
 	
 		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptions: DialogFinancingOptionCard[]) {
-			console.log('financingOptions: ', financingOptions);
 			let selectDropdownOptions = function(state: AppState) {
 				const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 				let financingTypes: FinancingType[] = [];
@@ -363,13 +362,15 @@ export class ProjectControl implements ProjectControlParams {
 						}
 						return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true) || hasCapitalFunding;
 					});
-					console.log('financingOptions line366: ', financingOptions);
+					console.log('financingOptions', financingOptions);
 				}		
 				
 				financingOptions.forEach(option => {
 					financingTypes.push(option.financingType);
 				});
 				
+
+				// todo do an .unshift() to add a placeholder select option
 				return financingTypes;
 			}	
 
@@ -381,9 +382,9 @@ export class ProjectControl implements ProjectControlParams {
 				color: 'success',
 				dropDownValue: financingOptions[0].financingType,
 				selectOptions: selectDropdownOptions,
-				onChange: function (state, nextState, financingType) {
+				onChange: function (state, nextState, financingType: FinancingType) {
+					// todo - you MUST make sure the below financingOptions are the same as what is sent to the select list in selectDropdownOptions
 					let financingOption: FinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);
-					console.log('financingType ', financingType);
 					console.log('financingOption: ', financingOption);
 					if (self.isRenewable) {
 						let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {

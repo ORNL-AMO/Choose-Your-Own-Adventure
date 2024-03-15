@@ -54,7 +54,6 @@ function ProjectDialogFunc(props: ProjectDialogProps) {
 		doAppStateCallback: props.doAppStateCallback,
 		displayProjectDialog: props.displayProjectDialog,
 		resolveToValue: props.resolveToValue,
-		doPageCallbackDropdown: props.doPageCallbackDropdown
 	};
 
 	return (
@@ -90,7 +89,6 @@ function ProjectDialogFunc(props: ProjectDialogProps) {
 					displayProjectDialog={props.displayProjectDialog}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
-					doPageCallbackDropdown={props.doPageCallbackDropdown}
 				/>
 			</DialogActions>
 		</Dialog>

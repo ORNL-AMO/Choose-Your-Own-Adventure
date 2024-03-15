@@ -71,7 +71,8 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 	 */
 	disabled?: Resolvable<boolean>;
 	doPageCallback: (callback?: PageCallback) => void;
-	doPageCallbackDropdown?: (callback?: PageCallbackDropdown, financingType?: FinancingType) => void;
+	// * always need callback, financing type
+	doPageCallbackDropdown?: (callback: PageCallbackDropdown, financingType: FinancingType) => void;
 	/**
 	 * Whether to use a MUI Stack component to space the buttons, or just include the array of buttons "raw".
 	 * @default true
@@ -170,50 +171,42 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		}
 	} 
 	if (button.inputType === 'select') {
-		const [dropdownSelectFinancing, setDropdownSelectFinancing ] = React.useState(button.dropDownValue);
+		const [selectedFinancingId, setSelectedFinancingId ] = React.useState(button.dropDownValue.id);
 
-		const handleDropdownSelectFinancing = (event: SelectChangeEvent<FinancingType>) => {
-			console.log('financingType event.target.value: ', event.target.value);
-			setDropdownSelectFinancing(event.target.value as FinancingType);
+		// * don't need the handler to set the value (the native select form control does it). Unless we wanted to perform side effects, other logic
+		const handleDropdownSelectFinancing = (event: SelectChangeEvent<FinancingId>) => {
+			console.log('event.target.value: ', event.target.value);
+			// * event.target.value is actually FinancingId, not FinancingType
+			setSelectedFinancingId(event.target.value as FinancingId);
 		};
 
-		let selectOptions = props.resolveToValue(button.selectOptions);
-
-		let menuItems = selectOptions.map((selectOption, index ) => {
+		let financingTypeOptions = props.resolveToValue(button.selectOptions);
+		let menuItems = financingTypeOptions.map((financingType: FinancingType, index) => {
 			return (
-				<MenuItem key={selectOption.id} value={selectOption.id}>{selectOption.name}</MenuItem>
+				<MenuItem key={financingType.id} value={financingType.id}>{financingType.name}</MenuItem>
 			);
 		});
-
-		/**
-		 * onChange={() => {
-					handleDropdownSelectFinancing
-					// if (button.onChange) {
-					// 	props.doPageCallbackDropdown(button.onChange, button.dropDownValue);
-					// }
-				
-				}}
-				onChange={() => {
-					if (button.onChange) {
-						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
-					}
-				
-				}}
-		 */
-
-
 
 		return (
 			<Select
 				key={idx}
-				value={dropdownSelectFinancing}
-				onClose={() => {
-					if (button.onChange) {
-						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
-					}
+				// * this was the cause of your MUI warning. You were passing an object. 
+				value={button.dropDownValue.id}
+				// * we currently don't need to do anything on close, do it on change
+				// onClose={() => {
+				// 	debugger;
+				// 	if (button.onChange) {
+				// 		props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
+				// 	}
 				
+				// }}
+				// onChange={handleDropdownSelectFinancing}
+				onChange={(onChangeEvent) => {
+					// todo need to coordinate what values are being passed in this select 
+					let newFinancingId = onChangeEvent.target.value;
+					let newSelectedFinancingType: FinancingType = financingTypeOptions.find(option => option.id === newFinancingId);
+					props.doPageCallbackDropdown(button.onChange, newSelectedFinancingType);
 				}}
-				onChange={handleDropdownSelectFinancing}
 			>
 				{menuItems}
 		

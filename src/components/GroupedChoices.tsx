@@ -63,7 +63,6 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 										displayProjectDialog={props.displayProjectDialog}
 										resolveToValue={props.resolveToValue}
 										isProjectGroupChoice={props.isProjectGroupChoice}
-										doPageCallbackDropdown={props.doPageCallbackDropdown}
 										
 									/>
 							}
