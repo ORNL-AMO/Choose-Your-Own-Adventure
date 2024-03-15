@@ -101,9 +101,10 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                 <FormControl fullWidth sx={{ m: 1 }}>
                                     <InputLabel htmlFor="outlined-adornment-amount">Budget</InputLabel>
                                     <OutlinedInput
-                                        id="outlined-basic"
-                                        label="Budget"
-                                        defaultValue="10000000"
+                                        id="outlined-basic" 
+                                        label="Budget" 
+                                        type="number"
+                                        defaultValue="10000000" 
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         onChange={handleDevBudgetChange}
                                     />
