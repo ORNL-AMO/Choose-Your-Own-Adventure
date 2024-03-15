@@ -97,19 +97,13 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         inputProps={{ 'aria-label': 'controlled' }}
                                     />
                                 } label='Activate law-less mode (DEVELOPMENT ONLY)' />
-                                {/* <TextField 
-                                id="outlined-basic" 
-                                label="Budget" 
-                                variant="outlined" 
-                                defaultValue="10000000" 
-                                startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                onChange={handleDevBudgetChange}/> */}
 
                             <FormControl fullWidth sx={{ m: 1 }}>
                                     <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
                                     <OutlinedInput
                                         id="outlined-basic" 
                                         label="Budget" 
+                                        type="number"
                                         defaultValue="10000000" 
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         onChange={handleDevBudgetChange}
