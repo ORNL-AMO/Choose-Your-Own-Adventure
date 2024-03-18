@@ -59,8 +59,8 @@
 	###### Power Purchase Agreements (PPA):
 	Are paid for annually over a 10-year term. This is a special payment type and should not be included in most of the gameplay mechanisms and logic related to financing.
 
-	###### Always Carryover cost Savings:
-	**!!!!** Regardless of game settings, these projects carryover cost savings every year
+	###### Always Carryover Cost Savings:
+	Regardless of game settings, these projects carryover cost savings every year
 	- Small solar carport, Rooftop mid-sized Solar, Community Wind
 
 
@@ -106,7 +106,8 @@ Capital Funding pays projects in full and has it's own state object, but is also
 Implemented projects are being added to a number of arrays to track state between years, including implementedProjectIds, implementedFinancedProjects, implementedRenewableProjects, and so on. This was done to stay within existing app patterns. We should refactor for a single source of truth where implemented project objects have knowledge of their own state.
 
 
-
+#### TODO
+- gameYearsImplemented - renewable projects cannot be unimplemented after first year so we shouldn't need this anymore
 
 
 

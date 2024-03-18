@@ -403,7 +403,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				projectNetCost = implementedProject.getYearEndTotalSpending(financingOption, mutableStats.gameYearInterval, shouldApplyHiddenCosts);
 			}
 			if (renewableProject && !hasAppliedFirstYearSavings) {
-				this.mutateRenewableFirstYearStats(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+				this.setRenewableYearlyCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			}
 
 			recapResults.yearEndTotalSpending += projectNetCost;
@@ -446,7 +446,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		recapResults.gameCurrentAndProjectedSpending = mutableStats.gameTotalSpending + recapResults.projectedFinancedSpending;
 		setCostPerCarbonSavings(mutableStats, recapResults.gameCurrentAndProjectedSpending);
 		recapResults.yearCostSavings = getYearCostSavings(initialCurrentYearStats, mutableStats);
-		this.setRenewableProjectResults(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
+		this.applyRenewableYearlyCostSavings(implementedRenewableProjectsCopy, mutableStats, initialCurrentYearStats, recapResults.yearCostSavings);
 
 		return recapResults;
 	}
@@ -470,37 +470,34 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		return yearFinancingCosts;
 	}
 
+
+	// todo 237 - remove when project states are refactored
+	// todo why can't we just pass a state handler here
 	/**
-	* WARNING - Directly mutates renewable project in first year. This is a workaround to get correct stats display and state given some of the other game mechanics and logic
-	* we need to assign/save individualized project savings to be applied in each renewable year recap - later years don't change savings state, only display values
+	* * WARNING - Directly mutates renewable project in first year. Assigns/save savings for project that need to be applied in each renewable year recap. 
+	* * They must be calculated from INDIVIDUALIZED* TrackedStats (these stats have not been modified by any of the other projects)
 	*/
-	mutateRenewableFirstYearStats(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
+	setRenewableYearlyCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
 		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
-			// todo 143 ignore for some financed projects
 			props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
-			// console.log(`${String(props.implementedRenewableProjects[renewableProjectIndex].page)} budget period savings, ${props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings?.electricity}`);
 		}
 	}
 
+	// todo 237 - remove when project states are refactored
 	/**
-	* Set savings and costs related to renewable projects 
+	* Set savings and costs related to renewable projects
+	* For display only 
 	*/
-	setRenewableProjectResults(implementedRenewableProjectsCopy: RenewableProject[], mutableStats: TrackedStats, initialCurrentYearStats: TrackedStats, yearCostSavings: YearCostSavings) {
+	applyRenewableYearlyCostSavings(implementedRenewableProjectsCopy: RenewableProject[], mutableStats: TrackedStats, initialCurrentYearStats: TrackedStats, yearCostSavings: YearCostSavings) {
 		implementedRenewableProjectsCopy.forEach((project: RenewableProject) => {
-			// * on first year of renewable project implementation :
-			// * YearRecap displays savings accurately, subsequent years don't - so we're appending to savings
-			// * onProceed accurately adds savings, so don't add savings to financesAvailable 
-			if (project.yearlyFinancialSavings && project.gameYearsImplemented.includes(initialCurrentYearStats.currentGameYear)
+			if (project.yearlyFinancialSavings
 				&& project.yearStarted !== initialCurrentYearStats.currentGameYear
-				&& initialCurrentYearStats.currentGameYear !== 1) {
-				// console.log(`${String(project.page)} renewable savings added', ${project.yearlyFinancialSavings.electricity}`);
+				&& initialCurrentYearStats.currentGameYear !== 1
+				) {
 				yearCostSavings.electricity += project.yearlyFinancialSavings.electricity;
 				yearCostSavings.naturalGas += project.yearlyFinancialSavings.naturalGas;
-
-				// * only update financesAvailable with renewable savings (other savings applied at recap)
-				mutableStats.financesAvailable += project.yearlyFinancialSavings.electricity;
-				mutableStats.financesAvailable += project.yearlyFinancialSavings.naturalGas;
+				yearCostSavings.hydrogen += project.yearlyFinancialSavings.hydrogen;
 			}
 		});
 	}
