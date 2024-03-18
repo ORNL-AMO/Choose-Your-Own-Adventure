@@ -314,6 +314,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
 	isSinglePaymentRenewable: true,
+	hasYearlyCostSavings: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -371,6 +372,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
 	isCapitalFundsEligible: false,
 	isRenewable: true,
+	hasYearlyCostSavings: true,
 	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,
 	financedAnnualCost: 460_000,
@@ -538,7 +540,6 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 //  },
 // });
 
-// todo eaas
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
 	isCapitalFundsEligible: true,
@@ -1285,6 +1286,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	isCapitalFundsEligible: false,
 	isRenewable: true,
 	mustAnnuallyFinance: true,
+	hasYearlyCostSavings: true,
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
 	financedTotalCost: 4_000_000,

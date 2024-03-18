@@ -28,6 +28,7 @@ export class ProjectControl implements ProjectControlParams {
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	mustAnnuallyFinance?: boolean;
+	hasYearlyCostSavings?: boolean;
 	isSinglePaymentRenewable?: boolean;
 	isPPA?: boolean;
 	baseCost: number;
@@ -72,6 +73,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
+		this.hasYearlyCostSavings = params.hasYearlyCostSavings;
 		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
@@ -875,11 +877,13 @@ export interface SelectedProject extends Project {
 
 /**
  * Project that must be renewed each year 
+ * @param yearlyFinancialSavings - which game years was the project implemented
  */
 export interface RenewableProject extends ImplementedProject {
 	yearlyFinancialSavings?: {
 		naturalGas: number,
-		electricity: number
+		electricity: number,
+		hydrogen: number
 	}
 }
 
@@ -924,8 +928,9 @@ declare interface ProjectControlParams {
 	customBudgetType?: FinancingType;
 	isSinglePaymentRenewable?: boolean;
 	isPPA?: boolean;
-	financingOptions?: FinancingOption[];
 	shortTitleRawText?: string,
+	hasYearlyCostSavings?: boolean;
+	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
 	*/

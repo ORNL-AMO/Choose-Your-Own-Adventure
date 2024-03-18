@@ -79,7 +79,7 @@ export type AppState = {
 	snackbarContent?: JSX.Element;
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
-	energyCostSavingsList: YearCostSavings[];
+	yearlyCostSavings: YearCostSavings[];
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -179,7 +179,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 				}
 			},
 			defaultTrackedStats : { ...initialTrackedStats },
-			energyCostSavingsList: []
+			yearlyCostSavings: []
 		};
 	}
 
@@ -529,49 +529,21 @@ export class App extends React.PureComponent<unknown, AppState> {
 	 * Start new year/budget period
 	 */
 	setupNewYearOnProceed(currentYearStats: TrackedStats, capitalFundingState: CapitalFundingState) {
-		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
 		let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
 		let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
 		let newCapitalFundingState: CapitalFundingState = {...capitalFundingState}
 		let newCompletedProjects: CompletedProject[] = [...this.state.completedProjects];
-		let newEnergyCostSavingsList: YearCostSavings[] = [...this.state.energyCostSavingsList];
-
-		// * has accurate RenewableProjects savings only in first year of implementation
-		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
-		newEnergyCostSavingsList.push(yearCostSavings);
+		let yearlyCostSavings: YearCostSavings[] = [...this.state.yearlyCostSavings];
 		let newBudget: number = getYearlyBudget(currentYearStats.currentGameYear + 1, currentYearStats.gameYearInterval, currentYearStats.gameYearDisplayOffset);
 		console.log('Finances available from last year:', currentYearStats.financesAvailable);
-		console.log('New year awarded budget:', newBudget)
-		console.log('electricity cost savings', yearCostSavings.electricity);
-		console.log('nat gas cost savings', yearCostSavings.naturalGas);
-		if (this.state.gameSettings.allowBudgetCarryover == 'no') {
-			if (currentYearStats.financesAvailable < 0 ) {				
-				newBudget += currentYearStats.financesAvailable;
-			} 
-		} else if (this.state.gameSettings.allowBudgetCarryover == 'yes') {
-			newBudget += currentYearStats.financesAvailable;
-		} 
-		
-		if (this.state.gameSettings.costSavingsCarryoverYears == 'always') {
-			newEnergyCostSavingsList.forEach(costSavings => {
-				newBudget += costSavings.electricity + costSavings.naturalGas;
-			});
+		console.log('New year awarded budget:', newBudget);
+		newBudget = this.applyBudgetCarryover(newBudget, currentYearStats);
+		newBudget = this.applyNewYearCostSavings(newBudget, implementedRenewableProjects, , currentYearStats);
 
-		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
-			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * 0.5;
-			newBudget += energyCostSavings;
-
-		}
-		
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
-		newYearTrackedStats.yearBudget = newBudget;
-		console.log('Total new year budget: ', newBudget);
-		newYearTrackedStats.financesAvailable = newBudget;
-		newYearTrackedStats.implementationSpending = 0;
-		newYearTrackedStats.hiddenSpending = 0;
-		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
-		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
+		this.setNewYearStats(newYearTrackedStats, newBudget, currentYearStats);
+
 		implementedProjectsIds.forEach((id, index) => {
 			const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
 			newCompletedProjects.push({
@@ -585,18 +557,17 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let preScope1Charges = newYearTrackedStats.financesAvailable;
 		this.handleNewYearFinancedProjects(implementedFinancedProjects, newYearTrackedStats);
 		console.log('Scope 1 Financed costs', preScope1Charges - newYearTrackedStats.financesAvailable);
-		
 		newYearTrackedStats = setCarbonEmissionsAndSavings(newYearTrackedStats, this.state.defaultTrackedStats); 
 		let preScope2Charges = newYearTrackedStats.financesAvailable;
 		this.applyRenewableCosts(implementedRenewableProjects, newYearTrackedStats);
 		console.log('Scope 2 REC/Financed/PPA cost', preScope2Charges - newYearTrackedStats.financesAvailable);
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
+		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
 		console.log('==============================');
 		console.log('Total new year budget (financing/renewable costs applied)', newYearTrackedStats.financesAvailable);
 		console.log('Game Total Spending', newYearTrackedStats.gameTotalSpending);
 		console.log('======== END =================');
 
-		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
 		this.setState({
 			completedProjects: newCompletedProjects,
 			completedYears: completedYears,
@@ -607,7 +578,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
 			capitalFundingState: newCapitalFundingState,
-			energyCostSavingsList: newEnergyCostSavingsList
+			yearlyCostSavings: yearlyCostSavings
 		});
 
 		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
@@ -618,6 +589,57 @@ export class App extends React.PureComponent<unknown, AppState> {
 			this.setPage(Pages.scope1Projects);
 		}
 
+	}
+
+	setNewYearStats(newYearTrackedStats: TrackedStats, newBudget: number, currentYearStats: TrackedStats) {
+		newYearTrackedStats.yearBudget = newBudget;
+		console.log('Total new year budget: ', newBudget);
+		newYearTrackedStats.financesAvailable = newBudget;
+		newYearTrackedStats.implementationSpending = 0;
+		newYearTrackedStats.hiddenSpending = 0;
+		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
+		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
+	}
+
+	applyBudgetCarryover(newBudget: number, currentYearStats: TrackedStats) {
+		if (this.state.gameSettings.allowBudgetCarryover == 'no') {
+			if (currentYearStats.financesAvailable < 0 ) {				
+				newBudget += currentYearStats.financesAvailable;
+			} 
+		} else if (this.state.gameSettings.allowBudgetCarryover == 'yes') {
+			newBudget += currentYearStats.financesAvailable;
+		}
+		return newBudget
+	}
+
+	applyNewYearCostSavings(newBudget: number, implementedRenewableProjects: RenewableProject[], currentYearStats: TrackedStats) {
+		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
+		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
+		
+		if (this.state.gameSettings.costSavingsCarryoverYears == 'always') {
+			// todo look over projects and apply yearlyFinancingSavings properties
+			// todo 237/213 look over all projects and ignore projects that are specifically never (fuel switching)
+
+		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
+			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * 0.5;
+			newBudget += energyCostSavings;
+
+		}
+		
+		// * patch in cost savings from select renewables
+		let projectSpecificCostSavings: number = implementedRenewableProjects.reduce((projectSpecificCostSavings: number, project) => {
+			let hasAppliedFirstYearSavings = project.yearStarted === currentYearStats.currentGameYear && (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear' || this.state.gameSettings.costSavingsCarryoverYears == 'always');
+			if (project.yearlyFinancialSavings && !hasAppliedFirstYearSavings) {
+				projectSpecificCostSavings += project.yearlyFinancialSavings.electricity; 
+				projectSpecificCostSavings += project.yearlyFinancialSavings.naturalGas; 
+				projectSpecificCostSavings += project.yearlyFinancialSavings.hydrogen; 
+			}
+			return projectSpecificCostSavings;
+		}, 0);
+
+		newBudget += projectSpecificCostSavings;
+
+		return newBudget; 
 	}
 
 	handleNewYearFinancedProjects(financedProjects: ImplementedProject[], newYearTrackedStats: TrackedStats) {
