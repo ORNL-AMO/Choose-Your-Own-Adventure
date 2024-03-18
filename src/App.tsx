@@ -539,7 +539,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		console.log('Finances available from last year:', currentYearStats.financesAvailable);
 		console.log('New year awarded budget:', newBudget);
 		newBudget = this.applyBudgetCarryover(newBudget, currentYearStats);
-		newBudget = this.applyNewYearCostSavings(newBudget, implementedRenewableProjects, , currentYearStats);
+		newBudget = this.applyNewYearCostSavings(newBudget, implementedRenewableProjects, currentYearStats);
 
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		this.setNewYearStats(newYearTrackedStats, newBudget, currentYearStats);
