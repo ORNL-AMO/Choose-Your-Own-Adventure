@@ -65,7 +65,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const layout = {
 		width: props.parentElement.width,
 		title: {
-			text: `Budget Period ${xYears.length} GHG Reduction`,
+			text: `GHG Reductions through Budget Period ${xYears.length}`,
 			font: {
 				family: 'Roboto',
 				size: 24
