@@ -404,6 +404,8 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			}
 			if (renewableProject && !hasAppliedFirstYearSavings) {
 				this.setRenewableYearlyCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+			} else if (!renewableProject) {
+				this.setNeverCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			}
 
 			recapResults.yearEndTotalSpending += projectNetCost;
@@ -470,6 +472,13 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		return yearFinancingCosts;
 	}
 
+	// todo 275 - will break when 'always' setting is implemented
+	setNeverCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
+		const projectIndex = props.implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
+		if (props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+			props.implementedFinancedProjects[projectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
+		}
+	}
 
 	// todo 237 - remove when project states are refactored
 	// todo why can't we just pass a state handler here
@@ -480,7 +489,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	setRenewableYearlyCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
 		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
-			props.implementedRenewableProjects[renewableProjectIndex].yearlyFinancialSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
+			props.implementedRenewableProjects[renewableProjectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
 
@@ -491,13 +500,13 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	*/
 	applyRenewableYearlyCostSavings(implementedRenewableProjectsCopy: RenewableProject[], mutableStats: TrackedStats, initialCurrentYearStats: TrackedStats, yearCostSavings: YearCostSavings) {
 		implementedRenewableProjectsCopy.forEach((project: RenewableProject) => {
-			if (project.yearlyFinancialSavings
+			if (project.costSavings.carryOver === 'always'
 				&& project.yearStarted !== initialCurrentYearStats.currentGameYear
 				&& initialCurrentYearStats.currentGameYear !== 1
 				) {
-				yearCostSavings.electricity += project.yearlyFinancialSavings.electricity;
-				yearCostSavings.naturalGas += project.yearlyFinancialSavings.naturalGas;
-				yearCostSavings.hydrogen += project.yearlyFinancialSavings.hydrogen;
+				yearCostSavings.electricity += project.costSavings.budgetPeriodCostSavings.electricity;
+				yearCostSavings.naturalGas += project.costSavings.budgetPeriodCostSavings.naturalGas;
+				// yearCostSavings.hydrogen += project.costSavings.budgetPeriodCostSavings.hydrogen;
 			}
 		});
 	}

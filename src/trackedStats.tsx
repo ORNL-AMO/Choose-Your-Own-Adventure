@@ -101,6 +101,11 @@ export interface TrackedStats {
 	 * Game years are playable in increments of 1 or 2
 	 */
 	gameYearInterval: number;
+	/**
+	 * Multiplier to adjust game difficulty
+	 */
+	projectCostSavingsMultiplier: number;
+	renewedProjectCostSavingsMultiplier: number;
 }
 
 export interface YearCostSavings {
@@ -148,7 +153,9 @@ export const initialTrackedStats: TrackedStats = {
 	gameTotalSpending: 0,
 	currentGameYear: 1,
 	gameYearDisplayOffset: 1,
-	gameYearInterval: 1
+	gameYearInterval: 1,
+	projectCostSavingsMultiplier: .5,
+	renewedProjectCostSavingsMultiplier: 1
 };
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
