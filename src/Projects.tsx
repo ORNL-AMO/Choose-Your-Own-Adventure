@@ -55,13 +55,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	utilityRebateValue: 5000,
-	// Case study to show in the year recap
-	caseStudy: {
-		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
-		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
-	},
+	utilityRebateValue: 5000,	
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewIcon: {
 		text: '12%',
@@ -292,11 +286,11 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	baseCost: 500_000,
 	isEnergyEfficiency: true,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000),
 	},
 	title: 'Fossil Fuel to Electric Boiler',
