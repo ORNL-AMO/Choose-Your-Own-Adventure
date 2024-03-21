@@ -475,7 +475,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	// todo 275 - will break when 'always' setting is implemented
 	setNeverCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const projectIndex = props.implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		if (props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'never' && props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
 			props.implementedFinancedProjects[projectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
