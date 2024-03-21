@@ -58,7 +58,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	utilityRebateValue: 5000,	
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewIcon: {
-		text: '12%',
+		text: '9.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
@@ -455,7 +455,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		text: 'Nissan’s Canton, Mississippi plant is one of four of the company’s manufacturing facilities in the United States. Opened in 2003, the Canton plant is a 4.5 million square foot plant that can produce up to 410,000 vehicles annually.'
 	},
 	energySavingsPreviewIcon: {
-		text: '3.0%',
+		text: '2.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -568,7 +568,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		text: 'Bentley Mills uses a large quantity of steam throughout their manufacturing process chain. In 2014, Bentley Mills began implementing a project to upgrade the control system for one of its largest natural gas fired boilers (Boiler #1) at its facility in the City of Industry, Los Angeles. Bentley Mills has been operating the facility since 1979 and employs over 300 people. The facility makes commercial modular carpet tile, broadloom and area rugs in its 280,000 square feet of manufacturing space.'
 	},
 	energySavingsPreviewIcon: {
-		text: '8.0%',
+		text: '6.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -600,7 +600,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewIcon: {
-		text: '1.5%',
+		text: '1%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -632,7 +632,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewIcon: {
-		text: '0.75%',
+		text: '0.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
