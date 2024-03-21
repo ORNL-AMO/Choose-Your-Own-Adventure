@@ -56,9 +56,7 @@ export declare interface ButtonGroupButton {
 	 * Below properties are for Select input type
 	 */
 	value?: string;
-	// todo onChange, selectOptions should be Resolvable<whatever-type>
 	dropDownValue?: FinancingType;
-	onClose?: SelectChangeEvent<FinancingType>;
 	selectOptions?: Resolvable<FinancingType[]>;
 	onChange?: PageCallbackDropdown;
 }
@@ -71,7 +69,7 @@ export declare interface ButtonGroupProps extends ControlCallbacks {
 	 */
 	disabled?: Resolvable<boolean>;
 	doPageCallback: (callback?: PageCallback) => void;
-	doPageCallbackDropdown?: (callback?: PageCallbackDropdown, financingType?: FinancingType) => void;
+	doPageCallbackDropdown?: (callback: PageCallbackDropdown, financingType: FinancingType) => void;
 	/**
 	 * Whether to use a MUI Stack component to space the buttons, or just include the array of buttons "raw".
 	 * @default true
@@ -170,50 +168,36 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 		}
 	} 
 	if (button.inputType === 'select') {
-		const [dropdownSelectFinancing, setDropdownSelectFinancing ] = React.useState(button.dropDownValue);
+		if (button.disabled) {
+			thisDisabled = thisDisabled || props.resolveToValue(button.disabled);
+		}
+		const [selectedFinancingId, setDropdownSelectFinancing ] = React.useState(button.dropDownValue.id);
 
-		const handleDropdownSelectFinancing = (event: SelectChangeEvent<FinancingType>) => {
+		const handleDropdownSelectFinancing = (event: SelectChangeEvent<FinancingId>) => {
 			console.log('financingType event.target.value: ', event.target.value);
-			setDropdownSelectFinancing(event.target.value as FinancingType);
+			setDropdownSelectFinancing(event.target.value as FinancingId);
 		};
 
-		let selectOptions = props.resolveToValue(button.selectOptions);
+		let financingTypeOptions = props.resolveToValue(button.selectOptions);
 
-		let menuItems = selectOptions.map((selectOption, index ) => {
+		let menuItems = financingTypeOptions.map((financingType: FinancingType, index ) => {
 			return (
-				<MenuItem key={selectOption.id} value={selectOption.id}>{selectOption.name}</MenuItem>
+				<MenuItem key={financingType.id} value={financingType.id}>{financingType.name}</MenuItem>
 			);
 		});
-
-		/**
-		 * onChange={() => {
-					handleDropdownSelectFinancing
-					// if (button.onChange) {
-					// 	props.doPageCallbackDropdown(button.onChange, button.dropDownValue);
-					// }
-				
-				}}
-				onChange={() => {
-					if (button.onChange) {
-						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
-					}
-				
-				}}
-		 */
-
-
 
 		return (
 			<Select
 				key={idx}
-				value={dropdownSelectFinancing}
-				onClose={() => {
-					if (button.onChange) {
-						props.doPageCallbackDropdown(button.onChange, dropdownSelectFinancing);
-					}
-				
+				value={selectedFinancingId}
+				disabled={thisDisabled}
+				onChange={(onChangeEvent) => {
+					// todo need to coordinate what values are being passed in this select 
+					let newFinancingId = onChangeEvent.target.value;
+					handleDropdownSelectFinancing(onChangeEvent);
+					let newSelectedFinancingType: FinancingType = financingTypeOptions.find(option => option.id === newFinancingId);
+					props.doPageCallbackDropdown(button.onChange, newSelectedFinancingType);
 				}}
-				onChange={handleDropdownSelectFinancing}
 			>
 				{menuItems}
 		

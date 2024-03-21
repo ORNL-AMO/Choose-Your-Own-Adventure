@@ -29,7 +29,7 @@ import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
-import { CapitalFundingState, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
+import { CapitalFundingState, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
 
 
 export type AppState = {
@@ -266,26 +266,22 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.setPage(nextPage);
 	}
 
-	handlePageCallbackDropdown(callbackOrPage?: PageCallbackDropdown) {
-		let nextPage;
-		if (typeof callbackOrPage === 'symbol') {
-			nextPage = callbackOrPage;
-		} else if (typeof callbackOrPage === 'function') {
-			// Mutable params to update
-			let newStateParams: Pick<AppState, never> = {};
-			debugger;
-			nextPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams], this);
-			if (newStateParams['trackedStats']) {
-				let newTrackedStats = newStateParams['trackedStats'];
-				newStateParams['trackedStats'] = newTrackedStats;
-				// Update max values for gauges in case they increased
-				updateStatsGaugeMaxValues(newTrackedStats);
-			}
-			this.setState(newStateParams);
-		}
-		else return;
+	handlePageCallbackDropdown(callbackOrPage: PageCallbackDropdown, financingType: FinancingType) {
+		let currentPage;
+		// Mutable params to update
+		let newStateParams: Pick<AppState, never> = {};
+		currentPage = resolveToValue(callbackOrPage, undefined, [this.state, newStateParams, financingType], this);
 
-		this.setPage(nextPage);
+		// * if state should be updated, which properties?
+		if (newStateParams['trackedStats']) {
+			let newTrackedStats = newStateParams['trackedStats'];
+			newStateParams['trackedStats'] = newTrackedStats;
+			// Update max values for gauges in case they increased
+			updateStatsGaugeMaxValues(newTrackedStats);
+		}
+		this.setState(newStateParams);
+
+		this.setPage(currentPage);
 	}
 
 	/**
@@ -725,7 +721,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			doAppStateCallback: (callback) => this.handleAppStateCallback(callback),
 			displayProjectDialog: (props) => this.displayProjectDialog(props),
 			resolveToValue: (item, whenUndefined?) => this.resolveToValue(item, whenUndefined),
-			doPageCallbackDropdown: (callback) => this.handlePageCallbackDropdown(callback),
+			doPageCallbackDropdown: (callback, financingType: FinancingType) => this.handlePageCallbackDropdown(callback, financingType),
 		};
 
 		// const NativeEventContext = createContext(null);

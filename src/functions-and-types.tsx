@@ -70,7 +70,7 @@ export function toPercent(value: number): string {
  * @returns Resolved value.
  */
 export function resolveToValue(item: unknown, whenUndefined?: unknown, params?: unknown[], bindObj?: unknown) {
-	debugger;
+	
 	if (typeof item === 'function') {
 		if (bindObj)
 			return item.apply(bindObj, params);

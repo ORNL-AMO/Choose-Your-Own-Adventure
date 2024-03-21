@@ -10,7 +10,7 @@ export declare interface FinancingOption {
     financedAnnualCost?: number,
 }
 
-export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'eaas';
+export type FinancingId = 'budget' | 'greenBond' | 'capital-funding' | 'loan' | 'eaas' | 'placeholder';
 
 /**
  * Capital Funding state - track user carbon/ghg savings and rewards related to capital funding

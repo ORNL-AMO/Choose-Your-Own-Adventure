@@ -348,13 +348,17 @@ export class ProjectControl implements ProjectControlParams {
 		}
 	
 		function addDropdownFinancingType(buttons: ButtonGroupButton[], hasFinancingOptions: boolean, financingOptions: DialogFinancingOptionCard[]) {
-			console.log('financingOptions: ', financingOptions);
-			let selectDropdownOptions = function(state: AppState) {
+			let placeholderType: FinancingType = {
+				name: 'Select Option',
+				id: 'placeholder',
+				description: 'placeholder'
+			}
+			let selectDropdownOptions = function (state: AppState) {
 				const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 				let financingTypes: FinancingType[] = [];
-				
+
 				let hasFinancingStarted = getHasFinancingStarted(state.trackedStats.currentGameYear, gameSettings.financingStartYear, gameSettings.gameYearInterval);
-				if (gameSettings.financingOptions){
+				if (gameSettings.financingOptions) {
 					financingOptions = financingOptions.filter((option: DialogFinancingOptionCard) => {
 						let canFinanceAnnually = hasFinancingStarted && getIsAnnuallyFinanced(option.financingType.id);
 						let hasCapitalFunding = option.financingType.id === 'capital-funding' && getCanUseCapitalFunding(state.capitalFundingState);
@@ -363,102 +367,57 @@ export class ProjectControl implements ProjectControlParams {
 						}
 						return (canFinanceAnnually && gameSettings.financingOptions[option.financingType.id] == true) || hasCapitalFunding;
 					});
-					console.log('financingOptions line366: ', financingOptions);
-				}		
-				
+				}
 				financingOptions.forEach(option => {
 					financingTypes.push(option.financingType);
-				});
-				
+				});				
+				financingTypes.unshift(placeholderType);
 				return financingTypes;
-			}	
-
-
-			let dropdownSelect: ButtonGroupButton =  {
+			}
+			let dropdownSelect: ButtonGroupButton = {
 				text: 'Implement Project',
 				inputType: 'select',
 				variant: 'contained',
 				color: 'success',
-				dropDownValue: financingOptions[0].financingType,
+				dropDownValue: placeholderType,
 				selectOptions: selectDropdownOptions,
-				onChange: function (state, nextState, financingType) {
-					let financingOption: FinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);
-					console.log('financingType ', financingType);
-					console.log('financingOption: ', financingOption);
-					if (self.isRenewable) {
-						let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-							if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-								return true
-							}
-							return false;
-						});
-						if (isProjectImplemented) {
-							return state.currentPage;
-						}
-
-						return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
+				onChange: function (state, nextState, financingType: FinancingType) {
+					if(financingType.id === 'placeholder'){
+						// todo unimpleanemt 	
 					} else {
-						return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
+						// todo - you MUST make sure the below financingOptions are the same as what is sent to the select list in selectDropdownOptions
+						let financingOption: FinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);
+						console.log('financingOption: ', financingOption);
+						if (self.isRenewable) {
+							let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+									return true
+								}
+								return false;
+							});
+							if (isProjectImplemented) {
+								return state.currentPage;
+							}
+	
+							console.log('toggleRenewableProject:');
+							return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
+						} else {
+							console.log('toggleProjectImplemented:');
+							return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
+						}
 					}
 				},
 				// disabled when the project is implemented
 				disabled: (state) => {
 					if (self.isRenewable) {
 						return state.implementedRenewableProjects.some(project => project.page === self.pageId);
-					} else {
-						return state.implementedProjectsIds.includes(self.pageId);
 					}
+					
 				}
 			}
 
 			buttons.push(dropdownSelect);
 		}
-
-
-
-		// function addDropdownFinancingType(buttons: ButtonGroupButton[]) {
-			
-		// 	// todo selectOptions callback function - should return an array of FinancingId type's that you'll use in onChange() and as selected value, 
-		// 	// OR FinancingOption[] depending on what MUI MenuItem accepts
-		// 	let selectOptions = function (state, nextState) {
-		// 		debugger
-		// 		// todo set financing options based on state that resolveToValue() will give you in Buttons.tsx at render time
-		// 		let financingIds: FinancingId[] = [];
-		// 		return financingIds;
-		// 	}
-
-			
-
-		// 	let dropdownSelect: ButtonGroupButton =  {
-		// 		text: 'Implement Project',
-		// 		inputType: 'select',
-		// 		variant: 'contained',
-		// 		color: 'success',
-
-		// 		// todo 'budget' (FinancingId type)
-		// 		value: 'Select Financing',
-		// 		// todo make selectOptions property a Resolvable<WhateverType this method will return>
-		// 		// * think of a Resolvable as saying "Hey I want to call this method when you update the page with new data".
-		// 		selectOptions: selectOptions,
-
-		// 		// todo - onChange should have similar structure to onClick for getFinancingTypeImplementButton
-		// 		// * onChange should probably use the FinancingId type so you can .find() the correct financingOption in the financingOptions - see Buttons.tsx onChange
-		// 		onChange: (state) => {
-					
-		// 		}
-				
-		// 		// todo don't even worry about this right now, just set always true till you're finished devving other stuff 
-		// 		disabled: (state) => {
-		// 			if (self.isRenewable) {
-		// 				return state.implementedRenewableProjects.some(project => project.page === self.pageId);
-		// 			} else {
-		// 				return state.implementedProjectsIds.includes(self.pageId);
-		// 			}
-		// 		}
-		// 	}
-
-		// 	buttons.push(dropdownSelect);
-		// }
 
 		function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
 			let availableProjectIds = [...state.availableProjectIds];
