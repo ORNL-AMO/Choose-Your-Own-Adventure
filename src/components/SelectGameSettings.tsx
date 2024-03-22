@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, styled, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, InputAdornment, InputLabel, Link, List, ListItem, ListItemText, MenuItem, OutlinedInput, Paper, Select, styled, TextField, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { ButtonGroupButton } from './Buttons';
 import type { ControlCallbacks, PageControl } from './controls';
@@ -28,6 +28,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const [gameYearInterval, setGameYearInterval] = React.useState(props.gameYearInterval);
     const [financingStartYear, setFinancingStartYear] = React.useState(getFinancingStartYear());
     const [allowBudgetCarryover, setBudgetCarryoverOption ] = React.useState('no');    
+    const [devBudget, setDevBudget ] = React.useState(10000000);    
     const [costSavingsCarryoverYears, setCostSavingsCarryoverOption ] = React.useState(props.costSavingsCarryoverYears);
     const [financingOptions, setFinancingOptions] = React.useState({
         eaas: true,
@@ -52,6 +53,10 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
     const handleCostSavingsCarryoverChange = (event: SelectChangeEvent<CostSavingsCarryoverId>) => {
         setCostSavingsCarryoverOption(event.target.value as CostSavingsCarryoverId);
     };
+
+    const handleDevBudgetChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDevBudget(Number(event.target.value));
+      }
     
     const handleFinancingOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFinancingOptions({
@@ -82,7 +87,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                 </DialogTitle>
 
                 <DialogContent>
-                    {/* {process.env.NODE_ENV == 'development' && 
+                    {process.env.REACT_APP_SERVER_ENV == 'development' && 
                         <Box m={2} p='16px' sx={{background: '#ff000052'}}>
                             <FormGroup>
                                 <FormControlLabel control={
@@ -92,12 +97,24 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         inputProps={{ 'aria-label': 'controlled' }}
                                     />
                                 } label='Activate law-less mode (DEVELOPMENT ONLY)' />
+
+                                <FormControl fullWidth sx={{ m: 1 }}>
+                                    <InputLabel htmlFor="outlined-adornment-amount">Budget</InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-basic" 
+                                        label="Budget" 
+                                        type="number"
+                                        defaultValue="10000000" 
+                                        startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                        onChange={handleDevBudgetChange}
+                                    />
+                                </FormControl>
                             </FormGroup>
                              <List dense={true}>
                                 <ListItem>
                                     <ListItemText
                                         primary="Inflated budget"
-                                        secondary={'$100,000,000 a year'}
+                                        secondary={devBudget}
                                     />
                                 </ListItem>
                                 <ListItem>
@@ -112,7 +129,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                 </ListItem>
                             </List>              
                         </Box>
-                    } */}
+                    }
                     <Box m={2}>
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
                             You have the option to play through in 1 OR 2-year intervals.
@@ -131,29 +148,11 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         </Select>                        
                     </Box>
                     <Divider variant='middle'/>
-                    <Box m={2}>
-                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
-                            Choose the year in which project financing options should be introduced:</InputLabel>
-                        <Select
-                            labelId='selectFinancingStartYear'
-                            id='selectFinancingStartYear'
-                            value={financingStartYear}
-                            label='financingStartYear'
-                            onChange={handleFinancingStartYear}
-                        >
-                            <MenuItem value={1}> First Year </MenuItem>
-                            <MenuItem value={2}> Second Year</MenuItem>
-                            <MenuItem value={3}> Third Year</MenuItem>
-                            <MenuItem value={4}> Fourth Year</MenuItem>
-                            <MenuItem value={5}> Fifth Year</MenuItem>
-                            {/* // TODO 150 check game interval for more options */}
-                        </Select>                        
-                    </Box>
-                    <Divider variant='middle'/>
-      
-
+    
                     <FormControl sx={{ m: 2 }} component='fieldset' error={invalidFinancingOptionsError} variant='standard'>
-                        <FormLabel component='legend'>Pick <b>two</b> financing options to be made available for project implementation.</FormLabel>
+                        <FormLabel component='legend'>You can choose to explore two alternative project financing options beyond using your corporate budget. 
+                        <Link sx={{ paddingLeft: '8px' }} href="https://betterbuildingssolutioncenter.energy.gov/financing-navigator/explore">Find out more here!</Link>
+                        </FormLabel>
                         <FormGroup>
                             <FormControlLabel
                                 control={
@@ -177,7 +176,25 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <FormHelperText>Select 2 options</FormHelperText>
                     </FormControl>
                     <Divider variant='middle' />
-
+                    <Box m={2}>
+                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
+                            Choose the year in which project financing options should be introduced:</InputLabel>
+                        <Select
+                            labelId='selectFinancingStartYear'
+                            id='selectFinancingStartYear'
+                            value={financingStartYear}
+                            label='financingStartYear'
+                            onChange={handleFinancingStartYear}
+                        >
+                            <MenuItem value={1}> First Year </MenuItem>
+                            <MenuItem value={2}> Second Year</MenuItem>
+                            <MenuItem value={3}> Third Year</MenuItem>
+                            <MenuItem value={4}> Fourth Year</MenuItem>
+                            <MenuItem value={5}> Fifth Year</MenuItem>
+                            {/* // TODO 150 check game interval for more options */}
+                        </Select>                        
+                    </Box>
+                    <Divider variant='middle'/>
                     <Box m={2}>
                         <InputLabel id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
                         <Select
@@ -225,7 +242,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                                         costSavingsCarryoverYears,
                                         allowBudgetCarryover,
                                         financingOptions,
-                                        useGodMode
+                                        useGodMode,
+                                        devBudget
                                     })
                             }
                         }} >
@@ -248,7 +266,6 @@ export function newSelectGameSettingsControl(props: SelectGameSettingsControlPro
 }
 
 export function getFinancingStartYear() {
-    // return process.env.NODE_ENV == 'development' ? 1 : 3;
     return 3;
 }
 
@@ -281,6 +298,7 @@ export interface UserSettings {
 	costSavingsCarryoverYears: CostSavingsCarryoverId,
 	allowBudgetCarryover: string,
     useGodMode: boolean,
+    devBudget: number,
 	financingOptions: GameFinancingOptions
 }
 

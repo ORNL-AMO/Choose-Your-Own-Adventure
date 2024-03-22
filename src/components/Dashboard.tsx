@@ -191,7 +191,7 @@ export class Dashboard extends PureComponentIgnoreFuncs<DashboardProps> {
 								text={hydrogenFormatted}
 								label='Landfill Gas (MMBTU)'
 								textFontSize={0.85}
-								color1={theme.palette.primary.light}
+								color1={'#f06807'}
 								ticks={[{
 									value: .5,
 									label: shortenNumber(statsGaugeProperties.hydrogenMMBTU.maxValue * 0.5),

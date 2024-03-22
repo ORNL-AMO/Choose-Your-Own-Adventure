@@ -55,16 +55,10 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	utilityRebateValue: 5000,
-	// Case study to show in the year recap
-	caseStudy: {
-		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
-		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
-	},
+	utilityRebateValue: 5000,	
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewIcon: {
-		text: '12%',
+		text: '9.5%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />
@@ -151,6 +145,7 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	pageId: Pages.hydrogenPoweredForklifts,
 	baseCost: 150_000,
 	isEnergyEfficiency: true,
+	isCapitalFundsEligible: true,
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -159,10 +154,10 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		},
 	],
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(280_000),
+		electricityUseKWh: absolute(-280_000),
 	},
 	title: 'More efficient batteries for forklifts',
 	shortTitle: 'Switch forklifts to lithium-ion batteries',
@@ -182,12 +177,13 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 		text: 'Better Buildings, Better Plants SUMMIT'
 	},
 	energySavingsPreviewIcon: {
-		text: '??%',
+		text: '1%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
+
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -219,6 +215,7 @@ Projects[Pages.blendedFuel] = new ProjectControl({
 	pageId: Pages.blendedFuel,
 	isCapitalFundsEligible: true,
 	baseCost: 500_000,
+	costSavingsCarryover: 'never',
 	isEnergyEfficiency: true,
 	financedAnnualCost: 50_000,
 	financedTotalCost: 500_000,
@@ -254,6 +251,7 @@ Projects[Pages.landfillGasForOven] = new ProjectControl({
 	pageId: Pages.landfillGasForOven,
 	isCapitalFundsEligible: true,
 	isEnergyEfficiency: true,
+	costSavingsCarryover: 'never',
 	baseCost: 200_000,
 	financedAnnualCost: 20_000,
 	financedTotalCost: 200_000,
@@ -291,13 +289,14 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	isCapitalFundsEligible: true,
 	baseCost: 500_000,
+	costSavingsCarryover: 'never',
 	isEnergyEfficiency: true,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000),
 	},
 	title: 'Fossil Fuel to Electric Boiler',
@@ -315,6 +314,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	isCapitalFundsEligible: true,
 	baseCost: 150_000,
 	isSinglePaymentRenewable: true,
+	costSavingsCarryover: 'always',
 	financedAnnualCost: 37_500,
 	financedTotalCost: 150_000,
 	financingOptions: [
@@ -346,6 +346,7 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	}],
 	title: 'Small Carport Solar Installation',
 	shortTitle: 'Install solar panels on new facility carport. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Install solar panels on new facility carport. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`You decided to look into installing a small covered carport with a solar electricity generation system. 
 		Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use parking in the carport as an incentive to well-performing or energy-saving employees. 
@@ -373,8 +374,9 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
-	isCapitalFundsEligible: true,
+	isCapitalFundsEligible: false,
 	isRenewable: true,
+	costSavingsCarryover: 'always',
 	isSinglePaymentRenewable: true,
 	baseCost: 3_750_000,
 	financedAnnualCost: 460_000,
@@ -464,7 +466,7 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		text: 'Nissan’s Canton, Mississippi plant is one of four of the company’s manufacturing facilities in the United States. Opened in 2003, the Canton plant is a 4.5 million square foot plant that can produce up to 410,000 vehicles annually.'
 	},
 	energySavingsPreviewIcon: {
-		text: '3.0%',
+		text: '2.5%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -545,7 +547,6 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 //  },
 // });
 
-// todo eaas
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
 	isCapitalFundsEligible: true,
@@ -580,7 +581,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		text: 'Bentley Mills uses a large quantity of steam throughout their manufacturing process chain. In 2014, Bentley Mills began implementing a project to upgrade the control system for one of its largest natural gas fired boilers (Boiler #1) at its facility in the City of Industry, Los Angeles. Bentley Mills has been operating the facility since 1979 and employs over 300 people. The facility makes commercial modular carpet tile, broadloom and area rugs in its 280,000 square feet of manufacturing space.'
 	},
 	energySavingsPreviewIcon: {
-		text: '8.0%',
+		text: '6.5%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -613,7 +614,7 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewIcon: {
-		text: '1.5%',
+		text: '1%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -646,7 +647,7 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
 	energySavingsPreviewIcon: {
-		text: '0.75%',
+		text: '0.5%',
 		inputType: 'button',
 		variant: 'text',
 		startIcon: <FlameIcon />,
@@ -669,12 +670,22 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		electricityUseKWh: absolute(-2_250_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-2_250_000),
+		electricityUseKWh: absolute(-2_000_000),
 	},
 	statsRecapAppliers: {
 		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
+	recapSurprises: [{
+		title: 'Uh oh - Replacing the compressors did not save as much electricity as estimated! ',
+		text: 'While replacing old compressors, you only saved 2,000,000 kWh instead of the estimated 2,250,000 kWh',
+		className: 'year-recap-negative-surprise',
+		avatar: {
+			icon: <BoltIcon />,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
+	}],
 	title: 'Replace old compressors',
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
@@ -1101,6 +1112,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 75_000,
 	statsInfoAppliers: {
@@ -1112,10 +1124,12 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 10% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1133,6 +1147,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 150_000,
 	statsInfoAppliers: {
@@ -1144,10 +1159,12 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 20% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1165,6 +1182,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 225_000,
 	statsInfoAppliers: {
@@ -1176,10 +1194,12 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 30% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
@@ -1198,21 +1218,17 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
 	isCapitalFundsEligible: false,
-	mustAnnuallyFinance: true,
 	isRenewable: true,
+	isPPA: true,
 	baseCost: 210_000,
 	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
-	financingOptions: [
-		{
-			financingType: getEaaSFinancing(10),
-		},
-	],
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
@@ -1221,6 +1237,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	},
 	title: 'Mid-sized Solar PPPA',
 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with your local utility to build a 2MW solar array. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
 		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  
@@ -1247,6 +1264,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
 	isCapitalFundsEligible: false,
+	isPPA: true,
 	isRenewable: true,
 	baseCost: 537_000,
 	financedAnnualCost: 268_000,
@@ -1254,7 +1272,8 @@ Projects[Pages.largeWind] = new ProjectControl({
 	customBudgetType: {
 		name: "Power Purchase Agreement",
 		description: "Pay Annually",
-		id: 'budget'
+		id: 'budget',
+		loanTerm: 10
 	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
@@ -1264,6 +1283,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	},
 	title: 'Utility-PPPA Wind Project',
 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
 		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
@@ -1291,9 +1311,10 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	isCapitalFundsEligible: false,
 	isRenewable: true,
 	mustAnnuallyFinance: true,
+	costSavingsCarryover: 'always',
 	baseCost: 537_000,
 	financedAnnualCost: 400_000,
-	financedTotalCost: 660_000,
+	financedTotalCost: 4_000_000,
 	financingOptions: [
 		{
 			financingType: getGreenBondsFinancing(10),
@@ -1307,6 +1328,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 	},
 	title: 'Community Wind Project',
 	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in community wind project. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
 		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
 		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 

@@ -28,7 +28,9 @@ export class ProjectControl implements ProjectControlParams {
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	mustAnnuallyFinance?: boolean;
+	costSavingsCarryover?: CostSavingsCarryover;
 	isSinglePaymentRenewable?: boolean;
+	isPPA?: boolean;
 	baseCost: number;
 	customBudgetType?: FinancingType;
 	financedAnnualCost: number;
@@ -38,6 +40,7 @@ export class ProjectControl implements ProjectControlParams {
 	statsRecapAppliers?: TrackedStatsApplier;
 	title: string;
 	shortTitle: string;
+	shortTitleRawText: string;
 	choiceInfoText: string | string[];
 	choiceInfoImg?: string;
 	choiceInfoImgAlt?: string;
@@ -64,14 +67,17 @@ export class ProjectControl implements ProjectControlParams {
 		this.isRenewable = params.isRenewable;
 		this.mustAnnuallyFinance = params.mustAnnuallyFinance;
 		this.isSinglePaymentRenewable = params.isSinglePaymentRenewable;
+		this.isPPA = params.isPPA;
 		this.financingOptions = params.financingOptions;
 		this.isCapitalFundsEligible = params.isCapitalFundsEligible;
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
+		this.costSavingsCarryover = params.costSavingsCarryover;
 		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
+		this.shortTitleRawText = params.shortTitleRawText;
 		this.choiceInfoText = params.choiceInfoText;
 		this.choiceInfoImg = params.choiceInfoImg;
 		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
@@ -495,12 +501,18 @@ export class ProjectControl implements ProjectControlParams {
 					nextState.capitalFundingState = capitalFundingState;
 				}
 				implementedProjectsIds.push(self.pageId);
-				implementedFinancedProjects.push({
+
+				let implementedProject: ImplementedProject = {
 					page: self.pageId,
 					gameYearsImplemented: [newTrackedStats.currentGameYear],
 					yearStarted: newTrackedStats.currentGameYear,
-					financingOption: implementationFinancing
-				});
+					financingOption: implementationFinancing,
+					costSavings: {
+						carryOver: self.costSavingsCarryover,
+						budgetPeriodCostSavings: undefined
+					}
+				}
+				implementedFinancedProjects.push(implementedProject);
 
 				self.applyStatChanges(newTrackedStats);
 				self.applyCost(newTrackedStats, implementationFinancing);
@@ -568,31 +580,47 @@ export class ProjectControl implements ProjectControlParams {
 
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
 			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
-			let canImplement = true;
 			let projectImplementationLimit = gameSettings.useGodMode? 1000 : 4;
-			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
+			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 2;
+
+			let limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			if (state.gameSettings.totalGameYears === 5) {
 				projectImplementationLimit = 6;
-				overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
+				limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			}
-
 			const startedRenewableProjects = state.implementedRenewableProjects.filter(project => {
 				return project.yearStarted === state.trackedStats.currentGameYear;
 			}).length;
 
 			const currentProjectCount = startedRenewableProjects + state.implementedProjectsIds.length;
-			const projectCounts = `year ${state.trackedStats.currentGameYear} - reg projects: ${state.implementedProjectsIds.length}, started renewables: ${startedRenewableProjects}`;
 			if (currentProjectCount >= projectImplementationLimit) {
-				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
-				canImplement = false;
+				this.summonSnackbar(<Alert severity='error'>{limitMsg}</Alert>);
+				return false;
+			}
+
+			let isAnnuallyFinanced = getIsAnnuallyFinanced(financingId);
+			let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
+			let implementedRenewableProjects: ImplementedProject[] = [...this.state.implementedRenewableProjects];
+			let financedProjects = implementedFinancedProjects.filter(project => {
+				return project.yearStarted === state.trackedStats.currentGameYear && getIsAnnuallyFinanced(project.financingOption.financingType.id);
+			});
+			financedProjects = financedProjects.concat(implementedRenewableProjects.filter(project => {
+				return project.yearStarted === state.trackedStats.currentGameYear && getIsAnnuallyFinanced(project.financingOption.financingType.id);
+			}));
+			console.log('Projects financed this year', financedProjects.length)
+			if (isAnnuallyFinanced && financedProjects.length === financedImplementationLimit) {
+				limitMsg = `You cannot finance more than ${financedImplementationLimit} projects per budget period`;
+				this.summonSnackbar(<Alert severity='error'>{limitMsg}</Alert>);
+				return false;
 			}
 
 			let projectCost = self.getImplementationCost(financingId, state.trackedStats.gameYearInterval);
 			if (projectCost > 0 && projectCost > state.trackedStats.financesAvailable) {
 				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
-				canImplement = false;
+				return false;
 			}
-			return canImplement;
+
+			return true;
 		}
 
 		function toggleRenewableProject(this: App, state: AppState, nextState: NextAppState, financingOption?: FinancingOption) {
@@ -618,12 +646,19 @@ export class ProjectControl implements ProjectControlParams {
 				if (existingRenewableProjectIndex >= 0) {
 					reImplementRenewable(implementedRenewableProjects, existingRenewableProjectIndex, yearRangeInitialStats, newTrackedStats)
 				} else {
-					implementedRenewableProjects.push({
+
+					let renewableProject: ImplementedProject = 
+					{
 						page: self.pageId,
 						gameYearsImplemented: [newTrackedStats.currentGameYear],
 						yearStarted: newTrackedStats.currentGameYear,
-						financingOption: financingOption
-					});
+						financingOption: financingOption,
+						costSavings: {
+							carryOver: self.costSavingsCarryover,
+							budgetPeriodCostSavings: undefined
+						}
+					}
+					implementedRenewableProjects.push(renewableProject);
 					self.applyStatChanges(newTrackedStats);
 					self.applyCost(newTrackedStats, financingOption);
 				}
@@ -889,7 +924,7 @@ export const Scope2Projects = [
 
 export declare interface CaseStudy {
 	title: string;
-	text: string | string[];
+	text: string;
 	url: string;
 }
 
@@ -917,6 +952,22 @@ export interface RecapSurprise {
 	imgAlt?: string;
 }
 
+export interface CostSavings {
+	carryOver: CostSavingsCarryover,
+	budgetPeriodCostSavings: BudgetPeriodCostSavings
+}
+
+/**
+ * Cost Savings carry-over behavior
+ */
+export type CostSavingsCarryover = 'never' | 'one-year' | 'always';
+
+export interface BudgetPeriodCostSavings {
+	naturalGas: number,
+	electricity: number,
+	hydrogen: number
+}
+
 /**
  * Used for tracking completed project related state throughout the view/pages
  */
@@ -930,13 +981,9 @@ export interface SelectedProject extends Project {
 
 /**
  * Project that must be renewed each year 
- * @param gameYearsImplemented - which game years was the project implemented
  */
 export interface RenewableProject extends ImplementedProject {
-	yearlyFinancialSavings?: {
-		naturalGas: number,
-		electricity: number
-	}
+
 }
 
 /**
@@ -945,10 +992,9 @@ export interface RenewableProject extends ImplementedProject {
  */
 export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
-	// todo 200 just get from gameYearsImpelmented?
-	yearStarted?: number;
+	yearStarted: number;
 	financingOption?: FinancingOption;
-
+	costSavings?: CostSavings;
 }
 
 export interface Project {
@@ -981,6 +1027,9 @@ declare interface ProjectControlParams {
 	isRenewable?: boolean;
 	customBudgetType?: FinancingType;
 	isSinglePaymentRenewable?: boolean;
+	isPPA?: boolean;
+	shortTitleRawText?: string,
+	costSavingsCarryover?: CostSavingsCarryover,
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year

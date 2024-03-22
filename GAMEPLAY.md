@@ -53,10 +53,13 @@
 	- Mid-Sized Solar, Community Wind, Utility-PPPA Wind
 
 	###### One-time Payment Renewables:
-	Are paid for once, regardless of 1 or 2 year gameplay, and are renewed each year
+	Can be paid for once (or financed), regardless of 1 or 2 year gameplay, and are renewed each year
 	- Solar Panels Carport, Rooftop mid-sized Solar
 
-	###### Always Carryover cost Savings:
+	###### Power Purchase Agreements (PPA):
+	Are paid for annually over a 10-year term. This is a special payment type and should not be included in most of the gameplay mechanisms and logic related to financing.
+
+	###### Always Carryover Cost Savings:
 	Regardless of game settings, these projects carryover cost savings every year
 	- Small solar carport, Rooftop mid-sized Solar, Community Wind
 
@@ -82,7 +85,7 @@ Shows completed projects after their implementation year, as well non-renewable 
 Are only applied in the first year that the project is implemented.
 
 ### Capital Funding Rewards
-Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 5% and 35% throughout the game. Each Capital Funding reward must be used in the following new year. VPPA projects are ineligible. 
+Players will be awarded Capital Funding rewards (one free project) for reaching savings milestones of 5% and 35% throughout the game. Each Capital Funding reward must be used in the following new year. PPA projects are ineligible. 
 
 ---
 
@@ -103,7 +106,8 @@ Capital Funding pays projects in full and has it's own state object, but is also
 Implemented projects are being added to a number of arrays to track state between years, including implementedProjectIds, implementedFinancedProjects, implementedRenewableProjects, and so on. This was done to stay within existing app patterns. We should refactor for a single source of truth where implemented project objects have knowledge of their own state.
 
 
-
+#### TODO
+- gameYearsImplemented - renewable projects cannot be unimplemented after first year so we shouldn't need this anymore
 
 
 
