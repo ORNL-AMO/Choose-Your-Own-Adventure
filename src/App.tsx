@@ -539,7 +539,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		console.log('Finances available from last year:', currentYearStats.financesAvailable);
 		console.log('New year awarded budget:', newBudget);
 		newBudget = this.applyBudgetCarryover(newBudget, currentYearStats);
-		newBudget = this.applyNewYearCostSavings(newBudget, implementedRenewableProjects, currentYearStats);
+		newBudget = this.applyNewYearCostSavings(newBudget, implementedFinancedProjects, implementedRenewableProjects, currentYearStats);
 
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		this.setNewYearStats(newYearTrackedStats, newBudget, currentYearStats);
@@ -612,31 +612,45 @@ export class App extends React.PureComponent<unknown, AppState> {
 		return newBudget
 	}
 
-	applyNewYearCostSavings(newBudget: number, implementedRenewableProjects: RenewableProject[], currentYearStats: TrackedStats) {
+	applyNewYearCostSavings(newBudget: number, implementedFinancedProjects: ImplementedProject[], implementedRenewableProjects: RenewableProject[], currentYearStats: TrackedStats) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
 		
 		if (this.state.gameSettings.costSavingsCarryoverYears == 'always') {
-			// todo look over projects and apply yearlyFinancingSavings properties
-			// todo 237/213 look over all projects and ignore projects that are specifically never (fuel switching)
-
+			// todo
 		} else if (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear') {
-			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * 0.5;
+			// todo are we incorporating hydrogen/landfill?
+			let energyCostSavings: number = (yearCostSavings.electricity + yearCostSavings.naturalGas) * initialTrackedStats.projectCostSavingsMultiplier;
 			newBudget += energyCostSavings;
-
 		}
-		
+
+		// todo 275 this will break when 'always' is implemented
+		// * remove applied costsavings from projects that should not get carryover
+		let projectCostSavingsDeduction: number = implementedFinancedProjects.reduce((projectCostSavingsDeduction: number, project) => {
+			let hasAppliedFirstYearSavings = project.yearStarted === currentYearStats.currentGameYear && (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear' || this.state.gameSettings.costSavingsCarryoverYears == 'always');
+			if (project.costSavings && project.costSavings.carryOver === 'never' && hasAppliedFirstYearSavings) {
+				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.electricity; 
+				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.naturalGas; 
+				// projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.hydrogen; 
+				projectCostSavingsDeduction *= initialTrackedStats.projectCostSavingsMultiplier;
+			}
+			return projectCostSavingsDeduction;
+		}, 0);
+		newBudget -= projectCostSavingsDeduction;
+
 		// * patch in cost savings from select renewables
 		let projectSpecificCostSavings: number = implementedRenewableProjects.reduce((projectSpecificCostSavings: number, project) => {
 			let hasAppliedFirstYearSavings = project.yearStarted === currentYearStats.currentGameYear && (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear' || this.state.gameSettings.costSavingsCarryoverYears == 'always');
-			if (project.yearlyFinancialSavings && !hasAppliedFirstYearSavings) {
-				projectSpecificCostSavings += project.yearlyFinancialSavings.electricity; 
-				projectSpecificCostSavings += project.yearlyFinancialSavings.naturalGas; 
-				projectSpecificCostSavings += project.yearlyFinancialSavings.hydrogen; 
+			if (project.costSavings.carryOver === 'always' && !hasAppliedFirstYearSavings) {
+				projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.electricity; 
+				projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.naturalGas; 
+				// projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.hydrogen;
+				// todo renewedProjectCostSavingsMultiplier will yield different results than multiplier first applied to all projects above
+				// projectSpecificCostSavings *= initialTrackedStats.renewedProjectCostSavingsMultiplier;
+				projectSpecificCostSavings *= initialTrackedStats.projectCostSavingsMultiplier;
 			}
 			return projectSpecificCostSavings;
 		}, 0);
-
 		newBudget += projectSpecificCostSavings;
 
 		return newBudget; 
