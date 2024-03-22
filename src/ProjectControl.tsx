@@ -28,7 +28,7 @@ export class ProjectControl implements ProjectControlParams {
 	financingOptions: FinancingOption[];
 	isCapitalFundsEligible?: boolean;
 	mustAnnuallyFinance?: boolean;
-	hasYearlyCostSavings?: boolean;
+	costSavingsCarryover?: CostSavingsCarryover;
 	isSinglePaymentRenewable?: boolean;
 	isPPA?: boolean;
 	baseCost: number;
@@ -73,7 +73,7 @@ export class ProjectControl implements ProjectControlParams {
 		this.statsInfoAppliers = params.statsInfoAppliers;
 		this.statsActualAppliers = params.statsActualAppliers;
 		this.statsRecapAppliers = params.statsRecapAppliers;
-		this.hasYearlyCostSavings = params.hasYearlyCostSavings;
+		this.costSavingsCarryover = params.costSavingsCarryover;
 		this.customBudgetType = params.customBudgetType,
 		this.title = params.title;
 		this.shortTitle = params.shortTitle;
@@ -426,12 +426,18 @@ export class ProjectControl implements ProjectControlParams {
 					nextState.capitalFundingState = capitalFundingState;
 				}
 				implementedProjectsIds.push(self.pageId);
-				implementedFinancedProjects.push({
+
+				let implementedProject: ImplementedProject = {
 					page: self.pageId,
 					gameYearsImplemented: [newTrackedStats.currentGameYear],
 					yearStarted: newTrackedStats.currentGameYear,
-					financingOption: implementationFinancing
-				});
+					financingOption: implementationFinancing,
+					costSavings: {
+						carryOver: self.costSavingsCarryover,
+						budgetPeriodCostSavings: undefined
+					}
+				}
+				implementedFinancedProjects.push(implementedProject);
 
 				self.applyStatChanges(newTrackedStats);
 				self.applyCost(newTrackedStats, implementationFinancing);
@@ -565,12 +571,19 @@ export class ProjectControl implements ProjectControlParams {
 				if (existingRenewableProjectIndex >= 0) {
 					reImplementRenewable(implementedRenewableProjects, existingRenewableProjectIndex, yearRangeInitialStats, newTrackedStats)
 				} else {
-					implementedRenewableProjects.push({
+
+					let renewableProject: ImplementedProject = 
+					{
 						page: self.pageId,
 						gameYearsImplemented: [newTrackedStats.currentGameYear],
 						yearStarted: newTrackedStats.currentGameYear,
-						financingOption: financingOption
-					});
+						financingOption: financingOption,
+						costSavings: {
+							carryOver: self.costSavingsCarryover,
+							budgetPeriodCostSavings: undefined
+						}
+					}
+					implementedRenewableProjects.push(renewableProject);
 					self.applyStatChanges(newTrackedStats);
 					self.applyCost(newTrackedStats, financingOption);
 				}
@@ -864,6 +877,22 @@ export interface RecapSurprise {
 	imgAlt?: string;
 }
 
+export interface CostSavings {
+	carryOver: CostSavingsCarryover,
+	budgetPeriodCostSavings: BudgetPeriodCostSavings
+}
+
+/**
+ * Cost Savings carry-over behavior
+ */
+export type CostSavingsCarryover = 'never' | 'one-year' | 'always';
+
+export interface BudgetPeriodCostSavings {
+	naturalGas: number,
+	electricity: number,
+	hydrogen: number
+}
+
 /**
  * Used for tracking completed project related state throughout the view/pages
  */
@@ -877,14 +906,9 @@ export interface SelectedProject extends Project {
 
 /**
  * Project that must be renewed each year 
- * @param yearlyFinancialSavings - which game years was the project implemented
  */
 export interface RenewableProject extends ImplementedProject {
-	yearlyFinancialSavings?: {
-		naturalGas: number,
-		electricity: number,
-		hydrogen: number
-	}
+
 }
 
 /**
@@ -895,6 +919,7 @@ export interface ImplementedProject extends Project {
 	gameYearsImplemented: number[],
 	yearStarted: number;
 	financingOption?: FinancingOption;
+	costSavings?: CostSavings;
 }
 
 export interface Project {
@@ -929,7 +954,7 @@ declare interface ProjectControlParams {
 	isSinglePaymentRenewable?: boolean;
 	isPPA?: boolean;
 	shortTitleRawText?: string,
-	hasYearlyCostSavings?: boolean;
+	costSavingsCarryover?: CostSavingsCarryover,
 	financingOptions?: FinancingOption[]
 	/**
 	 * Project that only gets energy $ savings for 1 year
