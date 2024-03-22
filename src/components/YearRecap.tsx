@@ -103,7 +103,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		let mutableStats: TrackedStats = { ...initialCurrentYearStats };
 		let mutableCapitalFundingState: CapitalFundingState = { ...this.props.capitalFundingState };
 		let recapResults: YearRecapResults = this.buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats, mutableCapitalFundingState);
-		const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
@@ -176,20 +175,31 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									}
 								/>
 							</ListItem>
-							{gameSettings.allowBudgetCarryover === 'yes' ?
+							{this.props.allowBudgetCarryover === 'yes' ?
 								<ListItem >
 									<ListItemIcon>
 										<InfoIcon />
 									</ListItemIcon>
-									<ListItemText
-										primary={
-											<Typography variant={'h5'}>
-												This will be added to your budget for the next period, as well as the{' '}
-												<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
-												that was not yet spent.
-											</Typography>
-										}
-									/>
+
+									{this.props.costSavingsCarryoverYears == 'oneYear' && 
+										<ListItemText
+											primary={
+												<Typography variant={'h5'}>
+													You will receive half the energy cost savings from any implemented Energy Efficiency projects, as well as 
+													all cost savings from any implemented renewable projects.
+												</Typography>
+											}
+										/>
+									}
+									{this.props.costSavingsCarryoverYears == 'never' &&
+										<ListItemText
+											primary={
+												<Typography variant={'h5'}>
+													You will receive cost savings from any implemented renewable projects
+												</Typography>
+											}
+										/>
+									}
 								</ListItem> 
 								:
 								<ListItem >
