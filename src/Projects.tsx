@@ -1325,6 +1325,7 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 Projects[Pages.heatPumpForOffice] = new ProjectControl({
 	pageId: Pages.heatPumpForOffice,
 	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'never',
 	baseCost: 500_000,
 	financedAnnualCost: 192_000,
 	financedTotalCost: 768_000,
@@ -1358,6 +1359,7 @@ Projects[Pages.heatPumpForOffice] = new ProjectControl({
 Projects[Pages.solarThermalHotWater] = new ProjectControl({
 	pageId: Pages.solarThermalHotWater,
 	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'never',
 	baseCost: 550_000,
 	financedAnnualCost: 55_000,
 	financedTotalCost: 550_000,
