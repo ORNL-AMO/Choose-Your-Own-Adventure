@@ -1320,3 +1320,69 @@ Projects[Pages.communityWindProject] = new ProjectControl({
 		return state.gameSettings.financingOptions.greenBond && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
 	}
 });
+
+
+Projects[Pages.heatPumpForOffice] = new ProjectControl({
+	pageId: Pages.heatPumpForOffice,
+	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'never',
+	baseCost: 500_000,
+	financedAnnualCost: 192_000,
+	financedTotalCost: 768_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(351_000),
+		naturalGasMMBTU: absolute(-4_000), // since the flavor text says No. 2 oil... maybe add a new stat later
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(351_000),
+		naturalGasMMBTU: absolute(-4_000),
+	},
+	title: 'Heat Pump for Office Conditioning',
+	shortTitle: 'Heat pump for office conditioning',
+	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into electrifying your building conditioning systems. 
+		Your on-campus offices use about {4,000 MMBty/yr} of natural gas to heat.
+		You think you can get an equivalent output heat pump system that will take care of heating and cooling and will be about {155-ton system}.
+		As your AC system is not new, but also not at the end of it's life, the corporate management team has agreed that they will pay for {25%} of the capital and installation costs.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
+Projects[Pages.solarThermalHotWater] = new ProjectControl({
+	pageId: Pages.solarThermalHotWater,
+	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'never',
+	baseCost: 550_000,
+	financedAnnualCost: 55_000,
+	financedTotalCost: 550_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-3_750), // since the flavor text says No. 2 oil... maybe add a new stat later
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-3_750),
+	},
+	title: 'Solar Thermal for Hot Water',
+	shortTitle: 'Solar thermal for hot water',
+	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into a solar thermal field for some hot water needs.
+		As you do not wish to install water storage, you are sized for a field to match your lowest demand, leading to a system that can 
+		deliver {2.5 MMBtu/hr}, about {1,500 hours per year}.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});

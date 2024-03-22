@@ -188,6 +188,8 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
                 Projects[Pages.electricBoiler].getProjectChoiceControl(),  
                 Projects[Pages.blendedFuel].getProjectChoiceControl(),                
                 Projects[Pages.landfillGasForOven].getProjectChoiceControl(),
+                Projects[Pages.heatPumpForOffice].getProjectChoiceControl(),
+                Projects[Pages.solarThermalHotWater].getProjectChoiceControl()
             ]
         }
     ],
