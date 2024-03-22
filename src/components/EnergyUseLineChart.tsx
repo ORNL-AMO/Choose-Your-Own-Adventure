@@ -5,9 +5,14 @@ import React from 'react';
 
 export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const data = [];
-	let xYears: number[] = Array.from([...props.yearRangeInitialStats], statYear => statYear.currentGameYear);
+	const yearlyStats = [...props.yearRangeInitialStats]
+	// remove end of game year
+	yearlyStats.pop()
+	let xYears: number[] = Array.from(yearlyStats, statYear => {
+		return statYear.currentGameYear;
+	});
 	let xTicks: string[] = Array.from(xYears, year => {
-		return 'Year ' + String(year);
+		return 'Year ' + String(year * props.yearRangeInitialStats[0].gameYearInterval);
 	});
 
 	let energyTypeYearValues = {
@@ -15,7 +20,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 		naturalGas: [],
 		landfillGases: [],
 	}
-	props.yearRangeInitialStats.forEach(statYear => {
+	yearlyStats.forEach(statYear => {
 		let electricityEmissions = statYear.electricityUseKWh * getElectricityEmissionsFactor(statYear.currentGameYear, statYear.gameYearInterval, statYear.gameYearDisplayOffset);
 		let natGasEmissions = statYear.naturalGasMMBTU * statYear.naturalGasEmissionsPerMMBTU;
 		let landfillGasEmissions = statYear.hydrogenMMBTU * statYear.hydrogenEmissionsPerMMBTU;
@@ -65,7 +70,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	const layout = {
 		width: props.parentElement.width,
 		title: {
-			text: `${xYears.length} Year GHG Reduction`,
+			text: `${xYears.length * props.yearRangeInitialStats[0].gameYearInterval} Year GHG Reduction`,
 			font: {
 				family: 'Roboto',
 				size: 24

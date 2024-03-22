@@ -568,7 +568,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		console.log('Game Total Spending', newYearTrackedStats.gameTotalSpending);
 		console.log('======== END =================');
 
-		this.setState({
+		let nextState = {
 			completedProjects: newCompletedProjects,
 			completedYears: completedYears,
 			implementedProjectsIds: [],
@@ -579,16 +579,28 @@ export class App extends React.PureComponent<unknown, AppState> {
 			yearRangeInitialStats: newYearRangeInitialStats,
 			capitalFundingState: newCapitalFundingState,
 			yearlyCostSavings: yearlyCostSavings
-		});
+		};
 
-		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
-			this.setPage(Pages.winScreen);
-		} else if (newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1) {
-			this.setPage(Pages.loseScreen);
+		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.5;
+		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1
+
+		if (isGameWon) {
+			this.endGame(Pages.winScreen, newYearTrackedStats, nextState);
+		} else if (isEndOfGame) {
+			this.endGame(Pages.loseScreen, newYearTrackedStats, nextState);
 		} else {
+			this.setState(nextState);
 			this.setPage(Pages.scope1Projects);
 		}
 
+	}
+
+	endGame(page: symbol, newYearTrackedStats: TrackedStats, nextState) {
+		// Game is over - don't advance year
+		newYearTrackedStats.currentGameYear -= 1;
+		nextState.trackedStats = newYearTrackedStats;
+		this.setState(nextState);
+		this.setPage(page);
 	}
 
 	setNewYearStats(newYearTrackedStats: TrackedStats, newBudget: number, currentYearStats: TrackedStats) {

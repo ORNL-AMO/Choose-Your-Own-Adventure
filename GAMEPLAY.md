@@ -5,6 +5,7 @@
 ## General
 
 - The game is played in 1 or 2 year budget periods (intervals)
+	- Project info cards will always display the annual cost
 - Players may move backwards a single budget period to make changes.
 - Players receive additional budget at each year start:
 	1: 75_000,
@@ -18,7 +19,7 @@
 	9: 112_500,
 	10: 112_500
 
-- Yearly emissions factor defaults are used to calculate emissions. For 2 year gameplay the later year is used (i.e. year 4 in 3/4)
+- Yearly emissions factor defaults are used to calculate emissions. For 2 year gameplay the later year is used (i.e. year 4 in 3/4).
 	1: .371,
 	2: .358,
 	3: .324,
@@ -101,13 +102,10 @@ All normal projects are now added to `implementedFinancedProjects` and `implemen
 
 Capital Funding pays projects in full and has it's own state object, but is also considered a financing type so that the feature can follow the app's pattern for project implementation. 
 
-#### Opportunities
+#### Game Gotcha's / Quirks
+**!!!!** For 2 year gameplay the later emissions factor year is used (i.e. year 4 in 3/4). This leads to slightly different emissions calculations given the same inputs
 
-Implemented projects are being added to a number of arrays to track state between years, including implementedProjectIds, implementedFinancedProjects, implementedRenewableProjects, and so on. This was done to stay within existing app patterns. We should refactor for a single source of truth where implemented project objects have knowledge of their own state.
 
-
-#### TODO
-- gameYearsImplemented - renewable projects cannot be unimplemented after first year so we shouldn't need this anymore
 
 
 

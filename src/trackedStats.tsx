@@ -154,14 +154,15 @@ export const initialTrackedStats: TrackedStats = {
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
 export function getElectricityEmissionsFactor(currentGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
-	let isEndOfGame = gameYearInterval > 1? currentGameYear > 5 : currentGameYear > 10; 
+	let isEndOfGame = gameYearInterval > 1? gameYearDisplayOffset >= 10 : currentGameYear > 10; 
 	let year = currentGameYear;
 	if (isEndOfGame) {
 		year = 10;
 	} else if (gameYearInterval > 1) {
 		year = gameYearDisplayOffset + 1;
     }
-	return ElectricityEmissionsFactors[year];
+	let emissionsFactor = ElectricityEmissionsFactors[year];
+	return emissionsFactor;
 }
 
 export function calculateEmissions(stats: TrackedStats): number {
