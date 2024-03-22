@@ -92,28 +92,13 @@ function EndGameReport(props: ReportProps) {
 	const carbonSavingsPercentFormatted: string = (endOfGameResults.carbonSavingsPercent * 100).toFixed(2);
 	const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endOfGameResults.gameTotalSpending);
 	const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(endOfGameResults.projectedFinancedSpending);
-	const gameCurrentAndProjectedSpendingFormatted: string = noDecimalsFormatter.format(endOfGameResults.gameCurrentAndProjectedSpending);
 	const costPerCarbonSavingsFormatted: string = endOfGameResults.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 2,
 	}).format(endOfGameResults.costPerCarbonSavings) : '0';
-	
-	console.log('props.mutableStats.currentGameYear '+ props.mutableStats.currentGameYear);
-	console.log('props.mutableStats.gameYearInterval '+ props.mutableStats.gameYearInterval);
-	console.log('props.mutableStats.gameYearDisplayOffset '+ props.mutableStats.gameYearDisplayOffset);
-	
+
 	return (
 		<Fragment>
-			{props.mutableStats.gameYearInterval == 1 &&
-				<Typography variant='h3'>
-					Looking Forward - Year {props.mutableStats.currentGameYear}
-				</Typography>
-			}
-			{props.mutableStats.gameYearInterval == 2 &&
-				<Typography variant='h3'>
-					Looking Forward - Years {props.mutableStats.gameYearDisplayOffset} & {props.mutableStats.gameYearDisplayOffset + 1}
-				</Typography>
-			}
 			<ParentSize>
 				{(parent) => (
 					<EnergyUseLineChart
@@ -144,7 +129,7 @@ function EndGameReport(props: ReportProps) {
 								<ListItemText
 									primary={
 										<Typography variant={'h5'}>
-											You have spent{' '}<Emphasis>${gameTotalNetCostFormatted}</Emphasis>{' '} on GHG reduction measures.
+											You have spent{' '}<Emphasis>${gameTotalNetCostFormatted}</Emphasis>{' '} throughout the game.
 										</Typography>
 									}
 								/>
@@ -169,7 +154,7 @@ function EndGameReport(props: ReportProps) {
 									<ListItemText
 										primary={
 											<Typography variant={'h5'}>
-												After this budget period, you still have {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>{' '} on financed and renewable projects in the coming years.
+												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects in future years
 											</Typography>
 										}
 									/>
