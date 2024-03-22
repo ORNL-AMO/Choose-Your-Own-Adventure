@@ -64,6 +64,7 @@ PageControls[Pages.winScreen] = newAppPageDialogControl({
 	buttons: [
         {
 			text: 'View Report',
+            inputType: 'button',
 			variant: 'text',
             size: 'large',
 			onClick: function () {
@@ -90,6 +91,7 @@ PageControls[Pages.loseScreen] = newAppPageDialogControl({
     buttons: [
         {
 			text: 'View Report',
+            inputType: 'button',
 			variant: 'text',
             size: 'large',
 			onClick: function () {
