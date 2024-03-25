@@ -644,10 +644,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.electricity; 
 				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.naturalGas; 
 				// projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.hydrogen; 
-				projectCostSavingsDeduction *= initialTrackedStats.projectCostSavingsMultiplier;
 			}
 			return projectCostSavingsDeduction;
 		}, 0);
+		
+		projectCostSavingsDeduction *= initialTrackedStats.projectCostSavingsMultiplier;
 		newBudget -= projectCostSavingsDeduction;
 
 		// * patch in cost savings from select renewables
@@ -658,11 +659,11 @@ export class App extends React.PureComponent<unknown, AppState> {
 				projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.naturalGas; 
 				// projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.hydrogen;
 				// todo renewedProjectCostSavingsMultiplier will yield different results than multiplier first applied to all projects above
-				// projectSpecificCostSavings *= initialTrackedStats.renewedProjectCostSavingsMultiplier;
-				projectSpecificCostSavings *= initialTrackedStats.projectCostSavingsMultiplier;
 			}
 			return projectSpecificCostSavings;
 		}, 0);
+
+		projectSpecificCostSavings *= initialTrackedStats.projectCostSavingsMultiplier;
 		newBudget += projectSpecificCostSavings;
 
 		return newBudget; 
