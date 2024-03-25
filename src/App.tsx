@@ -684,7 +684,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		if(userSettings.gameYearInterval == 2) {
 			budget = 150_000;
-			naturalGas = 240_000;
+			naturalGas = 300_000;
 			electricity = 60_000_000;
 			hydrogen = 0;
 			totalGameYears = 5;
