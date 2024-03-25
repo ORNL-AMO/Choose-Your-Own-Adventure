@@ -1114,7 +1114,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '6.5%',
+		text: '1.2M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1148,7 +1148,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '13%',
+		text: '2.4M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1182,7 +1182,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '20%',
+		text: '3.6M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
