@@ -415,7 +415,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			if (renewableProject && !hasAppliedFirstYearSavings) {
 				this.setRenewableYearlyCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			} else if (!renewableProject) {
-				this.setNeverCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+				this.setProjectSpecificCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			}
 
 			recapResults.yearEndTotalSpending += projectNetCost;
@@ -483,9 +483,10 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	}
 
 	// todo 275 - will break when 'always' setting is implemented
-	setNeverCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
+	setProjectSpecificCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const projectIndex = props.implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'never' && props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		if (props.implementedFinancedProjects[projectIndex].costSavings && props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear 
+			&& (props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'never' || props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'always')) {
 			props.implementedFinancedProjects[projectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
@@ -498,7 +499,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	*/
 	setRenewableYearlyCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		if (props.implementedRenewableProjects[renewableProjectIndex].costSavings && props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
 			props.implementedRenewableProjects[renewableProjectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
@@ -995,6 +996,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 		let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 		mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
+		console.log('EOY carbon emissions', mutableStats.carbonEmissions);
 		let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 
 		gaugeCharts.push(
