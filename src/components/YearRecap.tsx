@@ -379,10 +379,10 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		this.addRebateRecapCard(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
 		this.addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
 
-		let projectNetCost = 0;
-		let totalProjectExtraCosts = 0;
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats with current projects modifiers, not the cumulative stats for the year
 		implementedProjects.forEach((implementedProject: ProjectControl, index) => {
+			let projectNetCost = 0;
+			let totalProjectExtraCosts = 0;
 			// * projectIndividualizedStats === renewable project savings calculations need project stats which are ONLY 
 			// * mutated by the current renewable project (instead of mutatedStats which tracks all projects)
 			const projectIndividualizedStats: TrackedStats = { ...initialCurrentYearStats };
@@ -519,228 +519,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				// yearCostSavings.hydrogen += project.costSavings.budgetPeriodCostSavings.hydrogen;
 			}
 		});
-	}
-
-	/**
-	* Add card for an implemented project
-	*/
-	addImplementedProjectRecapCard(implementedProject: ProjectControl,
-		props: YearRecapProps,
-		mutableStats: TrackedStats,
-		recapResults: YearRecapResults,
-		gaugeCharts: JSX.Element[],
-		projectNetCost: number,
-		totalExtraCosts: number) {
-
-		let headerStyle = {
-			'& .MuiCardHeader-title': {
-				textAlign: 'left',
-				fontSize: '26px',
-				fontWeight: 'bold'
-			},
-			'& .MuiCardHeader-subheader': {
-				textAlign: 'left',
-				fontSize: '22px',
-				fontWeight: '400',
-				color: '#000000',
-			},
-		};
-
-		let yearMultiplier = 1;
-		if (implementedProject.isRenewable) {
-			yearMultiplier = mutableStats.gameYearInterval;
-		}
-		const implementedProjects = implementedProject.isRenewable ? props.implementedRenewableProjects : props.implementedFinancedProjects
-		let implementationFinancing: FinancingOption = findFinancingOptionFromProject(implementedProjects, implementedProject.pageId);
-		let isFinanced = implementationFinancing.financingType.id !== 'budget';
-		let isFinancingPaidOff;
-		if (isFinanced) {
-			let financedProject = implementedProjects.find(project => project.page === implementedProject.pageId);
-			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats);
-		}
-
-		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.gameYearInterval)
-
-		let financingCardContent: DialogFinancingOptionCard = {
-			...implementationFinancing,
-			financedTotalCost: implementedProject.financedTotalCost ? implementedProject.financedTotalCost : implementedProject.baseCost,
-			financedAnnualCost: implementedProject.financedAnnualCost,
-			implementButton: undefined
-		}
-		let listItemSx = { paddingLeft: '8px' }
-		recapResults.projectRecapCards.push(
-			<ListItem key={String(implementedProject.pageId)}>
-				<Card sx={{ width: '100%' }}>
-					<CardHeader
-						title={implementedProject.title}
-						subheader={
-							<Typography dangerouslySetInnerHTML={parseSpecialText(implementedProject.shortTitle)} />
-						}
-						sx={headerStyle}
-					/>
-					<CardContent sx={{ paddingTop: '0' }}>
-						{implementedProject.caseStudy && (
-							<Link href={implementedProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
-								<p style={{ margin: 0, color: '#1D428A', fontSize: '20px', fontWeight: '500' }}>
-									Case Study - {implementedProject.caseStudy.title}
-								</p>
-							</Link>
-						)}
-
-
-						<Grid
-							container
-							spacing={1}
-							justifyContent='center'
-							alignItems='center'>
-
-							{isFinanced &&
-								<Grid item
-									xs={12}
-									md={6}
-									lg={3}>
-
-									<List dense={true} sx={{ paddingLeft: 0 }}>
-										<ListItem sx={listItemSx}>
-											<ListItemText
-												sx={{ marginTop: 0, marginBottom: 0 }}
-												primary={
-													<>
-														<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
-															Financing
-														</Typography>
-														<Typography variant='h6'>
-															{financingCardContent.financingType.name}
-														</Typography>
-													</>
-												}
-												secondary={
-													<span>{financingCardContent.financingType.detailedInfo}</span>
-												}
-											/>
-										</ListItem>
-										{!isFinancingPaidOff
-											&&
-											<ListItem sx={listItemSx}>
-												<ListItemText
-													sx={{ marginTop: 0, marginBottom: 0 }}
-													primary={
-														<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
-															Annual {' '}
-															<Emphasis money>
-																${financingCardContent.financedAnnualCost.toLocaleString('en-US')}
-															</Emphasis>
-														</Typography>
-													}
-													secondary={
-														<Typography sx={{ fontSize: '1rem', fontWeight: '500' }}>
-															Total {' '} ${financingCardContent.financedTotalCost.toLocaleString('en-US')}
-														</Typography>
-													}
-												/>
-											</ListItem>
-										}
-										{isFinancingPaidOff
-											&&
-											<ListItem sx={listItemSx}>
-												<ListItemText
-													primary={
-														<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
-															<Emphasis money>
-																Paid Off
-															</Emphasis>
-														</Typography>
-													}
-												/>
-											</ListItem>
-										}
-
-									</List>
-								</Grid>
-							}
-
-							<Grid item
-								xs={isFinanced ? 12 : 12}
-								md={isFinanced ? 6 : 3}
-								lg={isFinanced ? 3 : 3}>
-
-								<List dense={true} sx={{ paddingLeft: 0 }}>
-									{!isFinanced &&
-										<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-											<ListItemText
-												primary={
-													<Typography>
-														Initial Project Cost:{' '}
-														<Emphasis money>
-															${initialCost.toLocaleString('en-US')}
-														</Emphasis>
-													</Typography>
-												}
-											/>
-										</ListItem>
-									}
-									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-										<ListItemText
-											primary={
-												<Typography >
-													Rebates: {' '}
-													<Emphasis money>
-														${implementedProject.getYearEndRebates().toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-
-										/>
-									</ListItem>
-									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-										<ListItemText
-											primary={
-												<Typography>
-													Extra Costs:{' '}
-													<Emphasis money>
-														${totalExtraCosts.toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-										/>
-									</ListItem>
-									<ListItem sx={listItemSx}>
-										<ListItemText
-											primary={
-												<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
-													Year Net Cost:{' '}
-													<Emphasis money>
-														${projectNetCost.toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-										/>
-									</ListItem>
-								</List>
-							</Grid>
-
-
-							<Grid item
-								xs={isFinanced ? 12 : 12}
-								md={isFinanced ? 12 : 9}
-								lg={isFinanced ? 6 : 9}
-								className='year-recap-charts'>
-								<Grid
-									container
-									spacing={1}
-									justifyContent='space-evenly'
-									alignItems='center'>
-									{gaugeCharts}
-								</Grid>
-							</Grid>
-
-						</Grid>
-
-					</CardContent>
-
-				</Card>
-			</ListItem>
-		);
 	}
 
 
@@ -1149,12 +927,7 @@ export function getProjectCardWithGauges(implementedProject: ProjectControl,
 		},
 	};
 
-	let yearMultiplier = 1;
-	if (implementedProject.isRenewable) {
-		yearMultiplier = mutableStats.gameYearInterval;
-	}
-	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
-	initialCost *= yearMultiplier;
+	let initialCost = implementedProject.getImplementationCost(financingData.option.financingType.id, mutableStats.gameYearInterval)
 
 	let financingCardContent: DialogFinancingOptionCard = {
 		...financingData.option,
