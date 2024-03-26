@@ -18,10 +18,10 @@ import InfoIcon from '@mui/icons-material/Info';
 export default class EndGameReportPage extends React.Component<EndGameReportPageProps> {
 	render() {
 		const yearRangeInitialStats: TrackedStats[] = [...this.props.yearRangeInitialStats];
-		const year10Stats: TrackedStats = { ...this.props.trackedStats}
+		const endYearStats: TrackedStats = { ...this.props.trackedStats}
 		let completedRenewables = [...this.props.implementedRenewableProjects].map(renewable => {
 			return {
-				completedYear: year10Stats.currentGameYear - 1,
+				completedYear: endYearStats.currentGameYear - 1,
 				gameYearsImplemented: renewable.gameYearsImplemented,
 				yearStarted: renewable.yearStarted,
 				financingOption: renewable.financingOption,
@@ -37,7 +37,7 @@ export default class EndGameReportPage extends React.Component<EndGameReportPage
 					implementedFinancedProjects={this.props.implementedFinancedProjects}
 					renewableProjects={this.props.implementedRenewableProjects}
 					completedProjects={completedProjects}
-					year10Stats={year10Stats}
+					endYearStats={endYearStats}
 					defaultTrackedStats={this.props.defaultTrackedStats}
 				/>
 			</Box>
@@ -54,17 +54,17 @@ function EndGameReport(props: ReportProps) {
 		let isFinanced = implementationFinancing.financingType.id !== 'budget';
 		let financingData: ImplementedFinancingData = {
 			option: implementationFinancing,
-			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.year10Stats) : false,
+			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.endYearStats) : false,
 			isFinanced: isFinanced,
 
 		}
-		let projectNetCost = implementedProject.getYearEndTotalSpending(financingData.option, props.year10Stats.gameYearInterval);
+		let projectNetCost = implementedProject.getYearEndTotalSpending(financingData.option, props.endYearStats.gameYearInterval);
 		let totalProjectExtraCosts = implementedProject.getHiddenCost();
 
 		projectRecapCards.push(
 			getProjectCard(
 				implementedProject,
-				props.year10Stats,
+				props.endYearStats,
 				projectNetCost,
 				totalProjectExtraCosts,
 				financingData,
@@ -73,17 +73,17 @@ function EndGameReport(props: ReportProps) {
 	});
 
 	// * sub year to get projections
-	props.year10Stats.currentGameYear - 1;
-	let projectedFinancedSpending = getProjectedFinancedSpending(props.implementedFinancedProjects, props.renewableProjects, props.year10Stats);
-	let gameCurrentAndProjectedSpending = props.year10Stats.gameTotalSpending + projectedFinancedSpending;
-	setCarbonEmissionsAndSavings(props.year10Stats, props.defaultTrackedStats);
-	setCostPerCarbonSavings(props.year10Stats, gameCurrentAndProjectedSpending);
+	props.endYearStats.currentGameYear - 1;
+	let projectedFinancedSpending = getProjectedFinancedSpending(props.implementedFinancedProjects, props.renewableProjects, props.endYearStats);
+	let gameCurrentAndProjectedSpending = props.endYearStats.gameTotalSpending + projectedFinancedSpending;
+	setCarbonEmissionsAndSavings(props.endYearStats, props.defaultTrackedStats);
+	setCostPerCarbonSavings(props.endYearStats, gameCurrentAndProjectedSpending);
 	let endOfGameResults = {
-		carbonSavingsPercent: props.year10Stats.carbonSavingsPercent,
-		gameTotalSpending: props.year10Stats.gameTotalSpending,
+		carbonSavingsPercent: props.endYearStats.carbonSavingsPercent,
+		gameTotalSpending: props.endYearStats.gameTotalSpending,
 		projectedFinancedSpending: projectedFinancedSpending,
 		gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpending,
-		costPerCarbonSavings: props.year10Stats.costPerCarbonSavings
+		costPerCarbonSavings: props.endYearStats.costPerCarbonSavings
 	}
 	const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
@@ -192,7 +192,7 @@ function EndGameReport(props: ReportProps) {
 }
 
 interface ReportProps extends ReportPDFProps {
-	year10Stats: TrackedStats,
+	endYearStats: TrackedStats,
 	defaultTrackedStats: TrackedStats,
 	implementedFinancedProjects: ImplementedProject[],
 	renewableProjects: RenewableProject[]
@@ -200,7 +200,7 @@ interface ReportProps extends ReportPDFProps {
 
 
 function getProjectCard(implementedProject: ProjectControl,
-	year10Stats: TrackedStats,
+	endYearStats: TrackedStats,
 	projectNetCost: number,
 	totalExtraCosts: number,
 	financingData: ImplementedFinancingData
@@ -220,12 +220,7 @@ function getProjectCard(implementedProject: ProjectControl,
 		},
 	};
 
-	let yearMultiplier = 1;
-	if (implementedProject.isRenewable) {
-		yearMultiplier = year10Stats.gameYearInterval;
-	}
-	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
-	initialCost *= yearMultiplier;
+	let initialCost = implementedProject.getImplementationCost(financingData.option.financingType.id, endYearStats.gameYearInterval)
 
 	let financingCardContent: DialogFinancingOptionCard = {
 		...financingData.option,
