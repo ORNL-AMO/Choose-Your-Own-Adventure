@@ -380,6 +380,23 @@ export class ProjectControl implements ProjectControlParams {
 				financingTypes.unshift(placeholderType);
 				return financingTypes;
 			}
+			const isProjectImplemented = (props) => {
+				if (self.isRenewable) {
+					let isImplemented = props.implementedRenewableProjects.some((project: RenewableProject) => {
+						if (project.page === self.pageId && project.gameYearsImplemented.includes(props.trackedStats.currentGameYear)) {
+							return true
+						}
+						return false;
+					});
+					return isImplemented;
+				}
+				return props.implementedProjectsIds.includes(self.pageId);
+			};
+			const shouldDisable = (props) => {
+				return !props.availableProjectIds.includes(self.pageId) || (hasFinancingOptions && !isProjectImplemented(props))
+			};
+
+			let selectedFinancingOption: FinancingOption;
 			let dropdownSelect: ButtonGroupButton = {
 				text: 'Implement Project',
 				inputType: 'select',
@@ -388,38 +405,39 @@ export class ProjectControl implements ProjectControlParams {
 				dropDownValue: placeholderType,
 				selectOptions: selectDropdownOptions,
 				onChange: function (state, nextState, financingType: FinancingType) {
-					if(financingType.id === 'placeholder'){
-						// todo unimpleanemt 	
-					} else {
+					if(financingType.id !== 'placeholder'){
 						// todo - you MUST make sure the below financingOptions are the same as what is sent to the select list in selectDropdownOptions
-						let financingOption: FinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);
-						console.log('financingOption: ', financingOption);
-						if (self.isRenewable) {
-							let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
-								if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
-									return true
-								}
-								return false;
-							});
-							if (isProjectImplemented) {
-								return state.currentPage;
+						selectedFinancingOption = financingOptions.find((financingOption) => financingOption.financingType == financingType);			
+
+						console.log('financingOption: ', selectedFinancingOption);						
+					} 						
+					if (self.isRenewable) {
+						let isProjectImplemented = state.implementedRenewableProjects.some((project: RenewableProject) => {
+							if (project.page === self.pageId && project.gameYearsImplemented.includes(state.trackedStats.currentGameYear)) {
+								return true
 							}
-	
-							console.log('toggleRenewableProject:');
-							return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
-						} else {
-							console.log('toggleProjectImplemented:');
-							return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
+							return false;
+						});
+						if (isProjectImplemented) {
+							return state.currentPage;
 						}
+
+						console.log('toggleRenewableProject:');
+						return toggleRenewableProject.apply(this, [state, nextState, selectedFinancingOption]);
+					} else {
+						console.log('toggleProjectImplemented:');
+						return toggleProjectImplemented.apply(this, [state, nextState, selectedFinancingOption]);
 					}
 				},
+				disabled: shouldDisable,
 				// disabled when the project is implemented
-				disabled: (state) => {
-					if (self.isRenewable) {
-						return state.implementedRenewableProjects.some(project => project.page === self.pageId);
-					}
-					
-				}
+				// disabled: (state) => {
+				// 	if (self.isRenewable) {
+				// 		return state.implementedRenewableProjects.some(project => project.page === self.pageId);
+				// 	} else {
+				// 		return state.implementedProjectsIds.includes(self.pageId);
+				// 	}
+				// }
 			}
 
 			buttons.push(dropdownSelect);

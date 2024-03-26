@@ -188,6 +188,9 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 
 		return (
 			<Select
+				sx={{
+					color: button.color,
+				}}
 				key={idx}
 				value={selectedFinancingId}
 				disabled={thisDisabled}
