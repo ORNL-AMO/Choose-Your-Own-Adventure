@@ -25,6 +25,8 @@ const Pages = {
 	electricBoiler: Symbol('electric-boiler'),
 	blendedFuel: Symbol('blended-fuel'),
 	landfillGasForOven: Symbol('landfill-gas-for-oven'),
+	heatPumpForOffice: Symbol('heat-pump-for-office'),
+	solarThermalHotWater: Symbol('solar-thermal-for-hot-water'),
 	// below: scope 2 projects
 	lightingUpgrades: Symbol('explore-lighting-upgrades'),
 	greenPowerTariff: Symbol('green-power-tariff'),

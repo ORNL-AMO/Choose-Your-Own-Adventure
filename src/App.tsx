@@ -16,7 +16,7 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import { Scope1Projects, Scope2Projects } from './ProjectControl';
-import type { ImplementedProject, RenewableProject} from './ProjectControl';
+import type { CostSavings, ImplementedProject, RenewableProject} from './ProjectControl';
 import type { CompletedProject, SelectedProject} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
@@ -29,7 +29,7 @@ import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
-import { CapitalFundingState, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
+import { CapitalFundingState, FinancingOption, FinancingType, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
 
 
 export type AppState = {
@@ -557,19 +557,26 @@ export class App extends React.PureComponent<unknown, AppState> {
 		console.log('Finances available from last year:', currentYearStats.financesAvailable);
 		console.log('New year awarded budget:', newBudget);
 		newBudget = this.applyBudgetCarryover(newBudget, currentYearStats);
-		newBudget = this.applyNewYearCostSavings(newBudget, implementedFinancedProjects, implementedRenewableProjects, currentYearStats);
+		newBudget = this.applyNewYearCostSavings(newBudget, implementedFinancedProjects, implementedRenewableProjects, newCompletedProjects, currentYearStats);
 
 		let newYearTrackedStats: TrackedStats = { ...currentYearStats };
 		this.setNewYearStats(newYearTrackedStats, newBudget, currentYearStats);
 
 		implementedProjectsIds.forEach((id, index) => {
 			const financingIndex = implementedFinancedProjects.findIndex(project => project.page === id);
+			let financingsOption: FinancingOption;
+			let costSavings: CostSavings;
+			if (implementedFinancedProjects[financingIndex]) {
+				financingsOption = implementedFinancedProjects[financingIndex].financingOption;
+				costSavings = implementedFinancedProjects[financingIndex].costSavings;
+			}
 			newCompletedProjects.push({
 				completedYear: currentYearStats.currentGameYear,
 				gameYearsImplemented: [currentYearStats.currentGameYear],
 				page: id,
 				yearStarted: currentYearStats.currentGameYear,
-				financingOption: implementedFinancedProjects[financingIndex] ? implementedFinancedProjects[financingIndex].financingOption : undefined
+				costSavings: costSavings,
+				financingOption: financingsOption
 			});
 		});
 		let preScope1Charges = newYearTrackedStats.financesAvailable;
@@ -581,12 +588,13 @@ export class App extends React.PureComponent<unknown, AppState> {
 		console.log('Scope 2 REC/Financed/PPA cost', preScope2Charges - newYearTrackedStats.financesAvailable);
 		let newYearRangeInitialStats = [...this.state.yearRangeInitialStats, { ...newYearTrackedStats }];
 		const completedYears = this.state.completedYears < this.state.trackedStats.currentGameYear? this.state.completedYears + 1 : this.state.completedYears; 
+		console.log('New year carbon emissions', newYearTrackedStats.carbonEmissions)
 		console.log('==============================');
 		console.log('Total new year budget (financing/renewable costs applied)', newYearTrackedStats.financesAvailable);
 		console.log('Game Total Spending', newYearTrackedStats.gameTotalSpending);
 		console.log('======== END =================');
 
-		this.setState({
+		let nextState = {
 			completedProjects: newCompletedProjects,
 			completedYears: completedYears,
 			implementedProjectsIds: [],
@@ -597,16 +605,28 @@ export class App extends React.PureComponent<unknown, AppState> {
 			yearRangeInitialStats: newYearRangeInitialStats,
 			capitalFundingState: newCapitalFundingState,
 			yearlyCostSavings: yearlyCostSavings
-		});
+		};
 
-		if (newYearTrackedStats.carbonSavingsPercent >= 0.5) {
-			this.setPage(Pages.winScreen);
-		} else if (newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1) {
-			this.setPage(Pages.loseScreen);
+		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.5;
+		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1
+
+		if (isGameWon) {
+			this.endGame(Pages.winScreen, newYearTrackedStats, nextState);
+		} else if (isEndOfGame) {
+			this.endGame(Pages.loseScreen, newYearTrackedStats, nextState);
 		} else {
+			this.setState(nextState);
 			this.setPage(Pages.scope1Projects);
 		}
 
+	}
+
+	endGame(page: symbol, newYearTrackedStats: TrackedStats, nextState) {
+		// Game is over - don't advance year
+		newYearTrackedStats.currentGameYear -= 1;
+		nextState.trackedStats = newYearTrackedStats;
+		this.setState(nextState);
+		this.setPage(page);
 	}
 
 	setNewYearStats(newYearTrackedStats: TrackedStats, newBudget: number, currentYearStats: TrackedStats) {
@@ -630,7 +650,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		return newBudget
 	}
 
-	applyNewYearCostSavings(newBudget: number, implementedFinancedProjects: ImplementedProject[], implementedRenewableProjects: RenewableProject[], currentYearStats: TrackedStats) {
+	applyNewYearCostSavings(newBudget: number, implementedFinancedProjects: ImplementedProject[], implementedRenewableProjects: RenewableProject[], completedProjects, currentYearStats: TrackedStats) {
 		let thisYearStart: TrackedStats = this.state.yearRangeInitialStats[currentYearStats.currentGameYear - 1];
 		let yearCostSavings: YearCostSavings = getYearCostSavings(thisYearStart, currentYearStats);
 		
@@ -650,25 +670,29 @@ export class App extends React.PureComponent<unknown, AppState> {
 				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.electricity; 
 				projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.naturalGas; 
 				// projectCostSavingsDeduction += project.costSavings.budgetPeriodCostSavings.hydrogen; 
-				projectCostSavingsDeduction *= initialTrackedStats.projectCostSavingsMultiplier;
 			}
 			return projectCostSavingsDeduction;
 		}, 0);
+		
+		projectCostSavingsDeduction *= initialTrackedStats.projectCostSavingsMultiplier;
 		newBudget -= projectCostSavingsDeduction;
 
-		// * patch in cost savings from select renewables
-		let projectSpecificCostSavings: number = implementedRenewableProjects.reduce((projectSpecificCostSavings: number, project) => {
+		let projectsAlwaysCostSavings: ImplementedProject[] = implementedFinancedProjects.filter(project => project.costSavings && project.costSavings.carryOver === 'always');
+		projectsAlwaysCostSavings = projectsAlwaysCostSavings.concat(implementedRenewableProjects.filter(project => project.costSavings && project.costSavings.carryOver === 'always').map(project => project as ImplementedProject));		
+		projectsAlwaysCostSavings = projectsAlwaysCostSavings.concat(completedProjects.filter(project => project.costSavings && project.costSavings.carryOver === 'always').map(project => project as ImplementedProject));		
+		// * patch in 'always' cost savings from projects
+		let projectSpecificCostSavings: number = projectsAlwaysCostSavings.reduce((projectSpecificCostSavings: number, project) => {
 			let hasAppliedFirstYearSavings = project.yearStarted === currentYearStats.currentGameYear && (this.state.gameSettings.costSavingsCarryoverYears == 'oneYear' || this.state.gameSettings.costSavingsCarryoverYears == 'always');
-			if (project.costSavings.carryOver === 'always' && !hasAppliedFirstYearSavings) {
+			if (!hasAppliedFirstYearSavings) {
 				projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.electricity; 
 				projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.naturalGas; 
 				// projectSpecificCostSavings += project.costSavings.budgetPeriodCostSavings.hydrogen;
 				// todo renewedProjectCostSavingsMultiplier will yield different results than multiplier first applied to all projects above
-				// projectSpecificCostSavings *= initialTrackedStats.renewedProjectCostSavingsMultiplier;
-				projectSpecificCostSavings *= initialTrackedStats.projectCostSavingsMultiplier;
 			}
 			return projectSpecificCostSavings;
 		}, 0);
+
+		projectSpecificCostSavings *= initialTrackedStats.projectCostSavingsMultiplier;
 		newBudget += projectSpecificCostSavings;
 
 		return newBudget; 
@@ -716,7 +740,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 		if(userSettings.gameYearInterval == 2) {
 			budget = 150_000;
-			naturalGas = 240_000;
+			naturalGas = 300_000;
 			electricity = 60_000_000;
 			hydrogen = 0;
 			totalGameYears = 5;

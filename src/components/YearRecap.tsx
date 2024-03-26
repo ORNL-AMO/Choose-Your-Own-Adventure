@@ -103,7 +103,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		let mutableStats: TrackedStats = { ...initialCurrentYearStats };
 		let mutableCapitalFundingState: CapitalFundingState = { ...this.props.capitalFundingState };
 		let recapResults: YearRecapResults = this.buildRecapCardsAndResults(this.props, initialCurrentYearStats, mutableStats, mutableCapitalFundingState);
-		const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
@@ -176,20 +175,31 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									}
 								/>
 							</ListItem>
-							{gameSettings.allowBudgetCarryover === 'yes' ?
+							{this.props.allowBudgetCarryover === 'yes' ?
 								<ListItem >
 									<ListItemIcon>
 										<InfoIcon />
 									</ListItemIcon>
-									<ListItemText
-										primary={
-											<Typography variant={'h5'}>
-												This will be added to your budget for the next period, as well as the{' '}
-												<Emphasis>${unspentBudgetFormatted}</Emphasis> of your budget
-												that was not yet spent.
-											</Typography>
-										}
-									/>
+
+									{this.props.costSavingsCarryoverYears == 'oneYear' && 
+										<ListItemText
+											primary={
+												<Typography variant={'h5'}>
+													You will receive half the energy cost savings from any implemented Energy Efficiency projects, as well as 
+													all cost savings from any implemented renewable projects.
+												</Typography>
+											}
+										/>
+									}
+									{this.props.costSavingsCarryoverYears == 'never' &&
+										<ListItemText
+											primary={
+												<Typography variant={'h5'}>
+													You will receive cost savings from any implemented renewable projects
+												</Typography>
+											}
+										/>
+									}
 								</ListItem> 
 								:
 								<ListItem >
@@ -282,7 +292,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
 									<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
 									<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'} />
-									<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'hydrogen'} backgroundFill={'#f5f5f5'} />
+									<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (K MMBtu)'} unitLable={'K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'hydrogen'} backgroundFill={'#f5f5f5'} />
 								</>
 							)}
 						</ParentSize>
@@ -369,10 +379,10 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		this.addRebateRecapCard(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
 		this.addSurpriseEventCards(implementedProjects, recapResults.projectRecapCards, implementedFinancedProjects, implementedRenewableProjectsCopy, mutableStats.currentGameYear);
 
-		let projectNetCost = 0;
-		let totalProjectExtraCosts = 0;
 		// * WARNING - mutableStats: TrackedStats for each iteration below represents the stats with current projects modifiers, not the cumulative stats for the year
 		implementedProjects.forEach((implementedProject: ProjectControl, index) => {
+			let projectNetCost = 0;
+			let totalProjectExtraCosts = 0;
 			// * projectIndividualizedStats === renewable project savings calculations need project stats which are ONLY 
 			// * mutated by the current renewable project (instead of mutatedStats which tracks all projects)
 			const projectIndividualizedStats: TrackedStats = { ...initialCurrentYearStats };
@@ -405,7 +415,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 			if (renewableProject && !hasAppliedFirstYearSavings) {
 				this.setRenewableYearlyCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			} else if (!renewableProject) {
-				this.setNeverCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
+				this.setProjectSpecificCostSavings(implementedProject, props, initialCurrentYearStats, projectIndividualizedStats);
 			}
 
 			recapResults.yearEndTotalSpending += projectNetCost;
@@ -473,9 +483,10 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	}
 
 	// todo 275 - will break when 'always' setting is implemented
-	setNeverCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
+	setProjectSpecificCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const projectIndex = props.implementedFinancedProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'never' && props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		if (props.implementedFinancedProjects[projectIndex].costSavings && props.implementedFinancedProjects[projectIndex].yearStarted === initialCurrentYearStats.currentGameYear 
+			&& (props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'never' || props.implementedFinancedProjects[projectIndex].costSavings.carryOver === 'always')) {
 			props.implementedFinancedProjects[projectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
@@ -488,7 +499,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 	*/
 	setRenewableYearlyCostSavings(implementedProject: ProjectControl, props: YearRecapProps, initialCurrentYearStats: TrackedStats, projectIndividualizedStats: TrackedStats) {
 		const renewableProjectIndex = props.implementedRenewableProjects.findIndex(project => project.page === implementedProject.pageId);
-		if (props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
+		if (props.implementedRenewableProjects[renewableProjectIndex].costSavings && props.implementedRenewableProjects[renewableProjectIndex].yearStarted === initialCurrentYearStats.currentGameYear) {
 			props.implementedRenewableProjects[renewableProjectIndex].costSavings.budgetPeriodCostSavings = getYearCostSavings(initialCurrentYearStats, projectIndividualizedStats);
 		}
 	}
@@ -509,228 +520,6 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				// yearCostSavings.hydrogen += project.costSavings.budgetPeriodCostSavings.hydrogen;
 			}
 		});
-	}
-
-	/**
-	* Add card for an implemented project
-	*/
-	addImplementedProjectRecapCard(implementedProject: ProjectControl,
-		props: YearRecapProps,
-		mutableStats: TrackedStats,
-		recapResults: YearRecapResults,
-		gaugeCharts: JSX.Element[],
-		projectNetCost: number,
-		totalExtraCosts: number) {
-
-		let headerStyle = {
-			'& .MuiCardHeader-title': {
-				textAlign: 'left',
-				fontSize: '26px',
-				fontWeight: 'bold'
-			},
-			'& .MuiCardHeader-subheader': {
-				textAlign: 'left',
-				fontSize: '22px',
-				fontWeight: '400',
-				color: '#000000',
-			},
-		};
-
-		let yearMultiplier = 1;
-		if (implementedProject.isRenewable) {
-			yearMultiplier = mutableStats.gameYearInterval;
-		}
-		const implementedProjects = implementedProject.isRenewable ? props.implementedRenewableProjects : props.implementedFinancedProjects
-		let implementationFinancing: FinancingOption = findFinancingOptionFromProject(implementedProjects, implementedProject.pageId);
-		let isFinanced = implementationFinancing.financingType.id !== 'budget';
-		let isFinancingPaidOff;
-		if (isFinanced) {
-			let financedProject = implementedProjects.find(project => project.page === implementedProject.pageId);
-			isFinancingPaidOff = isProjectFullyFunded(financedProject, mutableStats);
-		}
-
-		let initialCost = implementedProject.getImplementationCost(implementationFinancing.financingType.id, mutableStats.gameYearInterval)
-
-		let financingCardContent: DialogFinancingOptionCard = {
-			...implementationFinancing,
-			financedTotalCost: implementedProject.financedTotalCost ? implementedProject.financedTotalCost : implementedProject.baseCost,
-			financedAnnualCost: implementedProject.financedAnnualCost,
-			implementButton: undefined
-		}
-		let listItemSx = { paddingLeft: '8px' }
-		recapResults.projectRecapCards.push(
-			<ListItem key={String(implementedProject.pageId)}>
-				<Card sx={{ width: '100%' }}>
-					<CardHeader
-						title={implementedProject.title}
-						subheader={
-							<Typography dangerouslySetInnerHTML={parseSpecialText(implementedProject.shortTitle)} />
-						}
-						sx={headerStyle}
-					/>
-					<CardContent sx={{ paddingTop: '0' }}>
-						{implementedProject.caseStudy && (
-							<Link href={implementedProject.caseStudy.url} underline='always' target='_blank' rel='noopener'>
-								<p style={{ margin: 0, color: '#1D428A', fontSize: '20px', fontWeight: '500' }}>
-									Case Study - {implementedProject.caseStudy.title}
-								</p>
-							</Link>
-						)}
-
-
-						<Grid
-							container
-							spacing={1}
-							justifyContent='center'
-							alignItems='center'>
-
-							{isFinanced &&
-								<Grid item
-									xs={12}
-									md={6}
-									lg={3}>
-
-									<List dense={true} sx={{ paddingLeft: 0 }}>
-										<ListItem sx={listItemSx}>
-											<ListItemText
-												sx={{ marginTop: 0, marginBottom: 0 }}
-												primary={
-													<>
-														<Typography variant="h5" sx={{ color: 'black', fontWeight: '500' }}>
-															Financing
-														</Typography>
-														<Typography variant='h6'>
-															{financingCardContent.financingType.name}
-														</Typography>
-													</>
-												}
-												secondary={
-													<span>{financingCardContent.financingType.detailedInfo}</span>
-												}
-											/>
-										</ListItem>
-										{!isFinancingPaidOff
-											&&
-											<ListItem sx={listItemSx}>
-												<ListItemText
-													sx={{ marginTop: 0, marginBottom: 0 }}
-													primary={
-														<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
-															Annual {' '}
-															<Emphasis money>
-																${financingCardContent.financedAnnualCost.toLocaleString('en-US')}
-															</Emphasis>
-														</Typography>
-													}
-													secondary={
-														<Typography sx={{ fontSize: '1rem', fontWeight: '500' }}>
-															Total {' '} ${financingCardContent.financedTotalCost.toLocaleString('en-US')}
-														</Typography>
-													}
-												/>
-											</ListItem>
-										}
-										{isFinancingPaidOff
-											&&
-											<ListItem sx={listItemSx}>
-												<ListItemText
-													primary={
-														<Typography sx={{ fontSize: '1.25rem', fontWeight: '500' }}>
-															<Emphasis money>
-																Paid Off
-															</Emphasis>
-														</Typography>
-													}
-												/>
-											</ListItem>
-										}
-
-									</List>
-								</Grid>
-							}
-
-							<Grid item
-								xs={isFinanced ? 12 : 12}
-								md={isFinanced ? 6 : 3}
-								lg={isFinanced ? 3 : 3}>
-
-								<List dense={true} sx={{ paddingLeft: 0 }}>
-									{!isFinanced &&
-										<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-											<ListItemText
-												primary={
-													<Typography>
-														Initial Project Cost:{' '}
-														<Emphasis money>
-															${initialCost.toLocaleString('en-US')}
-														</Emphasis>
-													</Typography>
-												}
-											/>
-										</ListItem>
-									}
-									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-										<ListItemText
-											primary={
-												<Typography >
-													Rebates: {' '}
-													<Emphasis money>
-														${implementedProject.getYearEndRebates().toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-
-										/>
-									</ListItem>
-									<ListItem sx={{ padding: 0, fontSize: '1.25rem', paddingLeft: '8px' }}>
-										<ListItemText
-											primary={
-												<Typography>
-													Extra Costs:{' '}
-													<Emphasis money>
-														${totalExtraCosts.toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-										/>
-									</ListItem>
-									<ListItem sx={listItemSx}>
-										<ListItemText
-											primary={
-												<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
-													Year Net Cost:{' '}
-													<Emphasis money>
-														${projectNetCost.toLocaleString('en-US')}
-													</Emphasis>
-												</Typography>
-											}
-										/>
-									</ListItem>
-								</List>
-							</Grid>
-
-
-							<Grid item
-								xs={isFinanced ? 12 : 12}
-								md={isFinanced ? 12 : 9}
-								lg={isFinanced ? 6 : 9}
-								className='year-recap-charts'>
-								<Grid
-									container
-									spacing={1}
-									justifyContent='space-evenly'
-									alignItems='center'>
-									{gaugeCharts}
-								</Grid>
-							</Grid>
-
-						</Grid>
-
-					</CardContent>
-
-				</Card>
-			</ListItem>
-		);
 	}
 
 
@@ -985,6 +774,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 
 		let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 		mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
+		console.log('EOY carbon emissions', mutableStats.carbonEmissions);
 		let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
 
 		gaugeCharts.push(
@@ -1061,11 +851,11 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		}
 
 		props.yearRangeInitialStats.forEach(year => {
-			barGraphData.hydrogen.push(year.hydrogenMMBTU / 10000);
+			barGraphData.hydrogen.push(year.hydrogenMMBTU / 1000);
 		});
-		barGraphData.hydrogen.push(mutableStats.hydrogenMMBTU / 10000);
+		barGraphData.hydrogen.push(mutableStats.hydrogenMMBTU / 1000);
 		for (let i = props.currentGameYear; i < props.totalGameYears; i++) {
-			barGraphData.hydrogen.push(mutableStats.hydrogenMMBTU / 10000);
+			barGraphData.hydrogen.push(mutableStats.hydrogenMMBTU / 1000);
 		}
 
 		props.yearRangeInitialStats.forEach(year => {
@@ -1139,12 +929,7 @@ export function getProjectCardWithGauges(implementedProject: ProjectControl,
 		},
 	};
 
-	let yearMultiplier = 1;
-	if (implementedProject.isRenewable) {
-		yearMultiplier = mutableStats.gameYearInterval;
-	}
-	let initialCost = implementedProject.financedAnnualCost ? implementedProject.financedAnnualCost : implementedProject.baseCost;
-	initialCost *= yearMultiplier;
+	let initialCost = implementedProject.getImplementationCost(financingData.option.financingType.id, mutableStats.gameYearInterval)
 
 	let financingCardContent: DialogFinancingOptionCard = {
 		...financingData.option,
