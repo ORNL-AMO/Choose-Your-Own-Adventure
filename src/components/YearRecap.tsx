@@ -129,10 +129,13 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 				<MobileStepper
 					variant='progress'
 					steps={this.props.totalGameYears}
-					position='static'
+					position='top'
 					activeStep={this.props.currentGameYear - 1}
 					LinearProgressProps={{ sx: { height: '16px', width: '50%' } }}
-					sx={{ padding: '.75rem' }}
+					sx={{ 
+						padding: '.75rem', 
+						height: '48px'
+					}}
 					backButton={<Box sx={{ width: 180 }}></Box>}
 					nextButton={this.getNextButton(this.props, mutableStats, mutableCapitalFundingState)}
 				/>
