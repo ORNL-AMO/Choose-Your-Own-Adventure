@@ -18,6 +18,8 @@ import { newAppPageDialogControl } from './components/Dialogs/InfoDialog';
 import Projects from './Projects';
 import { newYearRecapControl } from './components/YearRecap';
 import { newEndGameReportPageControl } from './components/EndGameReport/EndGameReportPage';
+import { newWinGameControl } from './components/WinGame';
+import { newEndGameDialogControl } from './components/Dialogs/EndGameDialog';
 declare interface PageControls {
     [key: symbol]: PageControl;
 }
@@ -55,57 +57,6 @@ PageControls[Pages.introduction] = newAppPageDialogControl({
 });
 
 PageControls[Pages.selectGameSettings] = newSelectGameSettingsControl({});
-
-PageControls[Pages.winScreen] = newAppPageDialogControl({
-	title: 'CONGRATULATIONS!',
-    text: (state) => `You succeeded at the goal! \n You managed to decarbonize {${state.companyName}} by {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years or less! \n You reduced CO<sub>2</sub>e Emissions by a total of {${state.trackedStats.carbonSavingsPerKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO<sub>2</sub>e}! \n You saved a total of {$${state.trackedStats.costPerCarbonSavings.toFixed(2)}/kg CO<sub>2</sub>e}! \n You spent a total of {$${state.trackedStats.yearEndTotalSpending.toLocaleString()}} and completed {${state.completedProjects.length}} projects!`,
-	img: 'images/confetti.png',
-	buttons: [
-        {
-			text: 'View Report',
-			variant: 'text',
-            size: 'large',
-			onClick: function () {
-                return Pages.endGameReport;
-            }
-		},
-		{
-			text: 'Play again',
-			variant: 'text',
-            size: 'large',
-			onClick: (state) => {
-				location.href = String(location.href); // Reload the page
-
-				return state.currentPage; // The page returned doesn't really matter
-			}
-		}
-	]
-});
-
-PageControls[Pages.loseScreen] = newAppPageDialogControl({
-    title: 'Sorry...',
-    text: (state) => `Sorry, looks like you didn't succeed at decarbonizing {${state.companyName}} by 50%. You got to {${(state.trackedStats.carbonSavingsPercent * 100).toFixed(1)}%} in 10 years. Try again?`,
-    buttons: [
-        {
-			text: 'View Report',
-			variant: 'text',
-            size: 'large',
-			onClick: function () {
-                return Pages.endGameReport;
-            }
-		},
-        {
-            text: 'Try again',
-            variant: 'text',
-            onClick: (state) => {
-                location.href = String(location.href); // Reload the page
-                
-                return state.currentPage; // The page returned doesn't really matter
-            }
-        }
-    ]
-});
-
 
 PageControls[Pages.selectScope] = newGroupedChoicesControl({
     title: function (state, nextState) {
@@ -243,6 +194,8 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
     hideDashboard: false,
 }, Pages.selectScope);
 
+
+PageControls[Pages.endGameDialog] = newEndGameDialogControl();
 PageControls[Pages.yearRecap] = newYearRecapControl(Pages.selectScope);
 PageControls[Pages.endGameReport] = newEndGameReportPageControl();
 

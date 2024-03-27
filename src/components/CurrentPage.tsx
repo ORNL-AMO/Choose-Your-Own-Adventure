@@ -12,6 +12,7 @@ import { YearRecap } from './YearRecap';
 import type { PageControlProps, ControlCallbacks } from './controls';
 import { CapitalFundingState } from '../Financing';
 import EndGameReportPage from './EndGameReport/EndGameReportPage';
+import EndGameDialog from './Dialogs/EndGameDialog';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
@@ -28,6 +29,7 @@ interface CurrentPageProps extends ControlCallbacks, PageControlProps {
 	yearRangeInitialStats: TrackedStats[];
 	gameSettings: GameSettings;	
 	defaultTrackedStats :TrackedStats;
+	endGamePage: Component;
 	handleGameSettingsOnProceed: (userSettings: UserSettings) => void;
 	handleNewYearSetupOnProceed: (yearFinalStats: TrackedStats, capitalFundingState: CapitalFundingState) => void;
 }
@@ -85,19 +87,34 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 					yearRangeInitialStats={this.props.yearRangeInitialStats}
 					handleNewYearSetup={this.props.handleNewYearSetupOnProceed}
 				/>;
+			case EndGameDialog:
+				return (
+					<EndGameDialog
+						{...controlCallbacks}
+						{...this.props.gameSettings}
+						trackedStats={this.props.trackedStats}
+						defaultTrackedStats={this.props.defaultTrackedStats}
+						capitalFundingState={this.props.capitalFundingState}
+						implementedRenewableProjects={this.props.implementedRenewableProjects}
+						implementedFinancedProjects={this.props.implementedFinancedProjects}
+						completedProjects={this.props.completedProjects}
+						yearRangeInitialStats={this.props.yearRangeInitialStats}
+						endGamePage={this.props.endGamePage}
+					/>
+				);
 			case EndGameReportPage:
 				return (
-						<EndGameReportPage
-							{...controlCallbacks}
-							{...this.props.gameSettings}
-							trackedStats={this.props.trackedStats}
-							defaultTrackedStats={this.props.defaultTrackedStats}
-							capitalFundingState={this.props.capitalFundingState}
-							implementedRenewableProjects={this.props.implementedRenewableProjects}
-							implementedFinancedProjects={this.props.implementedFinancedProjects}
-							completedProjects={this.props.completedProjects}
-							yearRangeInitialStats={this.props.yearRangeInitialStats}
-						/>
+					<EndGameReportPage
+						{...controlCallbacks}
+						{...this.props.gameSettings}
+						trackedStats={this.props.trackedStats}
+						defaultTrackedStats={this.props.defaultTrackedStats}
+						capitalFundingState={this.props.capitalFundingState}
+						implementedRenewableProjects={this.props.implementedRenewableProjects}
+						implementedFinancedProjects={this.props.implementedFinancedProjects}
+						completedProjects={this.props.completedProjects}
+						yearRangeInitialStats={this.props.yearRangeInitialStats}
+					/>
 				);
 			default:
 				return <></>;

@@ -6,6 +6,10 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
+import '@fontsource/lato/400.css';
+import '@fontsource/lato/700.css';
+import '@fontsource/lato/900.css';
+
 import type { ControlCallbacks } from './components/controls';
 import { calculateEmissions } from './trackedStats';
 import type { TrackedStats, YearCostSavings } from './trackedStats';
@@ -30,6 +34,8 @@ import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fill
 import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
 import { CapitalFundingState, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
+import WinGame from './components/WinGame';
+import LoseGame from './components/LoseGame';
 
 
 export type AppState = {
@@ -80,6 +86,7 @@ export type AppState = {
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
 	yearlyCostSavings: YearCostSavings[];
+	endGamePage?: Component;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -221,8 +228,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		if (componentClass === InfoDialog) {
 			infoDialog = fillInfoDialogProps(controlProps);
 			infoDialog.isOpen = true;
-		} 
-		else {
+		} else {
 			// * If navigating back to project menu or other from a dialog, close dialog
 			infoDialog = cloneAndModify(this.state.infoDialog, { isOpen: false });
 			projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
@@ -586,16 +592,19 @@ export class App extends React.PureComponent<unknown, AppState> {
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
 			capitalFundingState: newCapitalFundingState,
-			yearlyCostSavings: yearlyCostSavings
+			yearlyCostSavings: yearlyCostSavings,
+			endGamePage: undefined
 		};
 
 		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.5;
-		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1
-
+		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1;
+		
 		if (isGameWon) {
-			this.endGame(Pages.winScreen, newYearTrackedStats, nextState);
+			nextState.endGamePage = WinGame; 
+			this.endGame(newYearTrackedStats, nextState);
 		} else if (isEndOfGame) {
-			this.endGame(Pages.loseScreen, newYearTrackedStats, nextState);
+			nextState.endGamePage = LoseGame; 
+			this.endGame(newYearTrackedStats, nextState);
 		} else {
 			this.setState(nextState);
 			this.setPage(Pages.scope1Projects);
@@ -603,12 +612,12 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	}
 
-	endGame(page: symbol, newYearTrackedStats: TrackedStats, nextState) {
+	endGame(newYearTrackedStats: TrackedStats, nextState) {
 		// Game is over - don't advance year
 		newYearTrackedStats.currentGameYear -= 1;
 		nextState.trackedStats = newYearTrackedStats;
 		this.setState(nextState);
-		this.setPage(page);
+		this.setPage(Pages.endGameDialog);
 	}
 
 	setNewYearStats(newYearTrackedStats: TrackedStats, newBudget: number, currentYearStats: TrackedStats) {
@@ -762,6 +771,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		localStorage.setItem('gameSettings', JSON.stringify(gameStartState.gameSettings));
 		updateStatsGaugeMaxValues(updatingInitialTrackedStats);
 
+		// this.setPage(Pages.endGameDialog);
 		this.setPage(Pages.scope1Projects);
 	}
 	
@@ -846,6 +856,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleGameSettingsOnProceed={(userSettings) => this.handleGameSettingsOnProceed(userSettings)}
 									handleNewYearSetupOnProceed={(yearFinalStats, capitalFundingState) => this.setupNewYearOnProceed(yearFinalStats, capitalFundingState)}
+									endGamePage={this.state.endGamePage}
 								/>
 								: <></>}
 						</Box>

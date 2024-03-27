@@ -13,8 +13,9 @@ const Pages = {
 	scope1Projects: Symbol('scope1Projects'),
 	scope2Projects: Symbol('scope2Projects'),
 	yearRecap: Symbol('year-recap'),
-	winScreen: Symbol('win-screen'),
-	loseScreen: Symbol('lose-screen'),
+	winGame: Symbol('win-game'),
+	loseGame: Symbol('lose-game'),
+	endGameDialog: Symbol('end-game-dialog'),
 	endGameReport: Symbol('end-game-report'),
 	// below: scope 1 projects
 	wasteHeatRecovery: Symbol('waste-heat-recovery'),

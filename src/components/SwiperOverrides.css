@@ -1,0 +1,28 @@
+
+:root {
+    --swiper-theme-color: #fff;
+    --swiper-pagination-bullet-inactive-color: #e6e6e6;
+    --swiper-pagination-bullet-inactive-opacity: .4;
+    --swiper-navigation-size: 84px;
+    --swiper-navigation-top-offset: 50%;
+    --swiper-navigation-sides-offset: 10px;
+    --swiper-navigation-color: var(--swiper-theme-color);
+}
+
+.swiper-pagination-bullet {
+    width: 24px;
+    height: 24px;
+}
+
+.swiper-pagination-bullet-active {
+    color: #fff !important;
+}
+
+
+/* .swiper-button-prev,
+.swiper-button-next {
+    color: #fff ; 
+	width: calc(var(--swiper-navigation-size) / 44*75) ;
+	height: calc(var(--swiper-navigation-size) * 3);
+    font-weight: 1000;
+} */
