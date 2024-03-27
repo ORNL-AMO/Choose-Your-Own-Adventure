@@ -385,7 +385,7 @@ function getProjectCard(implementedProject: ProjectControl,
 									<ListItemText
 										primary={
 											<Typography sx={{ fontSize: '1.25rem', color: 'black', fontWeight: '500' }}>
-												Year Net Cost:{' '}
+												Budget Period Net Cost:{' '}
 												<Emphasis money>
 													${projectNetCost.toLocaleString('en-US')}
 												</Emphasis>
