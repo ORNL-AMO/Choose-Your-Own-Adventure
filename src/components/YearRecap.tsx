@@ -241,7 +241,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 									<ListItemText
 										primary={
 											<Typography variant={'h5'}>
-												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects. Your total projected spend is {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>{' '}.
+												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects. Your total projected spend is {' '}<Emphasis>${gameCurrentAndProjectedSpendingFormatted}</Emphasis>.
 											</Typography>
 										}
 									/>
