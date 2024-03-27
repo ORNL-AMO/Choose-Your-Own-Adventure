@@ -132,7 +132,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     }
                     <Box m={2}>
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
-                            You have the option to play through in 1 OR 2-year intervals.
+                            You have the option to play through in 1 OR 2-year intervals, which will be referred to as a Budget Period.
                         </DialogContentText>
                         <InputLabel id='selectGameYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
                         <Select

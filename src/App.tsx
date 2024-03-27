@@ -414,9 +414,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 				return this.state.implementedProjectsIds.includes(page) || renewableProjectSymbols.includes(page);
 			});
 			if (!hasSelectedScope1Projects) {
-				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this budget period. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
 			} else if (!hasSelectedScope2Projects) {
-				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this year. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
+				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this budget period. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
 			}
 			hasScopesWarning = !hasSelectedScope1Projects || !hasSelectedScope2Projects;
 		}

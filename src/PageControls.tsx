@@ -165,7 +165,7 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 });
 
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-    title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this year.`,
+    title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this budget period.`,
     isProjectGroupChoice: true,
     groups: [
         {
@@ -196,7 +196,7 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
     hideDashboard: false,
 }, Pages.selectScope);
 PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
-    title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this year.`,
+    title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this budget period.`,
     isProjectGroupChoice: true,
     groups: [
         {
