@@ -103,8 +103,8 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
 	isCapitalFundsEligible: true,
 	baseCost: 80_000,
-	financedAnnualCost: 31_000,
-	financedTotalCost: 124_000,
+	financedAnnualCost: 20_000,
+	financedTotalCost: 80_000,
 	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-300_000),
@@ -144,8 +144,8 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 	baseCost: 150_000,
 	isEnergyEfficiency: true,
 	isCapitalFundsEligible: true,
-	financedAnnualCost: 37_500,
-	financedTotalCost: 150_000,
+	financedAnnualCost: 42_500,
+	financedTotalCost: 168_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -286,6 +286,13 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
 	isCapitalFundsEligible: true,
 	baseCost: 500_000,
+	financedAnnualCost: 50_000,
+	financedTotalCost: 500_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
 	costSavingsCarryover: 'never',
 	isEnergyEfficiency: true,
 	statsInfoAppliers: {
@@ -309,11 +316,11 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
 	isCapitalFundsEligible: true,
-	baseCost: 150_000,
+	baseCost: 180_000,
 	isSinglePaymentRenewable: true,
 	costSavingsCarryover: 'always',
-	financedAnnualCost: 37_500,
-	financedTotalCost: 150_000,
+	financedAnnualCost: 50_000,
+	financedTotalCost: 200_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -327,20 +334,21 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	statsActualAppliers: {
 		electricityUseKWh: absolute(-537_000),
 	},
-	statsRecapAppliers: {
-		financesAvailable: absolute(-30_000),
-		hiddenSpending: absolute(30_000),
-	},
-	recapSurprises: [{
-		title: 'Uh oh - Bad Asphalt!',
-		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
-		className: 'year-recap-negative-surprise',
-		avatar: {
-			icon: <TrafficConeIcon />,
-			backgroundColor: 'rgba(54,31,6,0.6)',
-			color: 'rgb(255 135 33)',
-		}
-	}],
+	//*keeping hidden surprise code in for now; might need in future
+	// statsRecapAppliers: {
+	// 	financesAvailable: absolute(-30_000),
+	// 	hiddenSpending: absolute(30_000),
+	// },
+	// recapSurprises: [{
+	// 	title: 'Uh oh - Bad Asphalt!',
+	// 	text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
+	// 	className: 'year-recap-negative-surprise',
+	// 	avatar: {
+	// 		icon: <TrafficConeIcon />,
+	// 		backgroundColor: 'rgba(54,31,6,0.6)',
+	// 		color: 'rgb(255 135 33)',
+	// 	}
+	// }],
 	title: 'Small Carport Solar Installation',
 	shortTitle: 'Install solar panels on new facility carport. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
 	shortTitleRawText: 'Install solar panels on new facility carport. THIS PROJECT WILL BE RENEWED ANNUALLY.',
@@ -425,8 +433,8 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	pageId: Pages.airHandingUnitUpgrades,
 	isCapitalFundsEligible: true,
 	baseCost: 175_000,
-	financedAnnualCost: 67_000,
-	financedTotalCost: 268_000,
+	financedAnnualCost: 48_000,
+	financedTotalCost: 192_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -467,8 +475,8 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
 	isCapitalFundsEligible: true,
 	baseCost: 60_000,
-	financedAnnualCost: 23_000,
-	financedTotalCost: 92_000,
+	financedAnnualCost: 17_000,
+	financedTotalCost: 68_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -541,8 +549,8 @@ Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
 	isCapitalFundsEligible: true,
 	baseCost: 100_000,
-	financedAnnualCost: 38_000,
-	financedTotalCost: 152_000,
+	financedAnnualCost: 28_000,
+	financedTotalCost: 112_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -645,8 +653,8 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	pageId: Pages.compressedAirSystemImprovemnt,
 	isCapitalFundsEligible: true,
 	baseCost: 210_000,
-	financedAnnualCost: 81_000,
-	financedTotalCost: 324_000,
+	financedAnnualCost: 58_000,
+	financedTotalCost: 232_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -728,8 +736,8 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	pageId: Pages.chilledWaterMonitoringSystem,
 	isCapitalFundsEligible: true,
 	baseCost: 40_000,
-	financedAnnualCost: 15_000,
-	financedTotalCost: 60_000,
+	financedAnnualCost: 11_000,
+	financedTotalCost: 44_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -833,8 +841,8 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
 	isCapitalFundsEligible: true,
 	baseCost: 50_000,
-	financedAnnualCost: 19_000,
-	financedTotalCost: 76_000,
+	financedAnnualCost: 14_000,
+	financedTotalCost: 56_000,
 	financingOptions: [
 		{
 			financingType: getEaaSFinancing(4),
@@ -982,8 +990,8 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
 	isCapitalFundsEligible: true,
 	baseCost: 100_000,
-	financedAnnualCost: 38_000,
-	financedTotalCost: 152_000,
+	financedAnnualCost: 25_000,
+	financedTotalCost: 100_000,
 	financingOptions: [
 		{
 			financingType: getGreenBondsFinancing(4),
@@ -1223,7 +1231,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '9.3%',
+		text: '1.7M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1269,7 +1277,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '23%',
+		text: '4.3M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},

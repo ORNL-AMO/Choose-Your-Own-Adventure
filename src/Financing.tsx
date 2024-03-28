@@ -77,7 +77,7 @@ export function getEaaSFinancing(years: number): FinancingType {
         id: 'eaas',
         loanTerm: years,
         description: 'Finance your energy use reduction',
-        detailedInfo: `0% interest. Loan term: ${years} years`
+        detailedInfo: `5% interest. Loan term: ${years} years`
     }
 }
 
@@ -207,7 +207,7 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
             console.log('Capital Funding - earned round A, for year:', stats.currentGameYear + 1)
         }
 	} else if (!capitalFundingState.roundB.isEarned) {
-        let roundBMilestonePercent = 35;
+        let roundBMilestonePercent = 30;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
 		if (savingsMilestone) {
             capitalFundingState.roundB.isEarned = true;
