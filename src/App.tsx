@@ -162,7 +162,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			isCompareDialogOpen: false,
 			gameSettings: {
 				totalGameYears: 10,
-				gameYearInterval: 1,
+				gameYearInterval: 2,
 				budget: 150_000,
 				devBudget: 10000000,
 				naturalGasUse: 4_000,
