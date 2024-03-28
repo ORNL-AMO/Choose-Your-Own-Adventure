@@ -244,7 +244,7 @@ $landfill-gasses:  #f06807;
 	&::before {
 		position: fixed;
 		z-index: -1;
-		background: url('images/lose-image-bg-2.jpg');
+		background: url('images/lose-image-opt.jpg');
 		// filter: blur($blur-radius);
 		background-size: cover;
 		top: -1 * $blur-radius;
@@ -259,7 +259,7 @@ $landfill-gasses:  #f06807;
 	&::before {
 		position: fixed;
 		z-index: -1;
-		background: url('images/turbine2.jpg') ;
+		background: url('images/turbine2-opt.jpg') ;
 		// filter: blur($blur-radius);
 		background-size: cover;
 		top: -1 * $blur-radius;
@@ -274,7 +274,7 @@ $landfill-gasses:  #f06807;
 	&::before {
 	position: fixed !important;
 	z-index: -1;
-	background: url('images/solar-array2.jpg') !important;
+	background: url('images/solar-array2-opt.jpg') !important;
 	background-size: cover !important;
 
 	// filter: blur($blur-radius);
@@ -307,7 +307,7 @@ $landfill-gasses:  #f06807;
 	&::before {
 	position: fixed !important;
 	z-index: -1;
-	background: url('images/field.jpeg') !important;
+	background: url('images/field-opt.jpg') !important;
 	background-size: cover !important;
 
 	// filter: blur($blur-radius);
@@ -356,7 +356,7 @@ $landfill-gasses:  #f06807;
 	color: #fff;
 	font-weight: 900;
 	border-radius: 10px;
-	letter-spacing: -.5px;
+	letter-spacing: 1.5px;
 	text-align: center;
 	text-transform: uppercase;
 	font-family: "Lato", sans-serif;

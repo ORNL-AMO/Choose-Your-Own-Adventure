@@ -1,10 +1,7 @@
 import React from 'react';
 import { Dialog, DialogActions } from '@mui/material';
-import { PureComponentIgnoreFuncs } from '../../functions-and-types';
 import { ControlCallbacks, PageControl } from '../controls';
-import { CapitalFundingState } from '../../Financing';
-import { CompletedProject, RenewableProject, ImplementedProject } from '../../ProjectControl';
-import { TrackedStats } from '../../trackedStats';
+import { EndGameResults, TrackedStats } from '../../trackedStats';
 import { GameSettings } from '../SelectGameSettings';
 import WinGame from '../WinGame';
 import Pages from '../../Pages';
@@ -12,7 +9,7 @@ import { ButtonGroup, ButtonGroupButton } from '../Buttons';
 import LoseGame from '../LoseGame';
 
 
-export default function EndGameDialog(props: EndGameProps) {
+export default function EndGameDialog(props: EndGameDialogProps) {
 	const buttons: ButtonGroupButton[] = [{
 		text: 'View Report',
 		variant: 'text',
@@ -26,12 +23,11 @@ export default function EndGameDialog(props: EndGameProps) {
 		variant: 'text',
 		size: 'large',
 		onClick: (state) => {
-			location.href = String(location.href); // Reload the page
-			return state.currentPage; // The page returned doesn't really matter
+			location.href = String(location.href);
+			return state.currentPage; 
 		}
 	}];
 
-	debugger;
 	return (
 		<Dialog
 			fullScreen={true}
@@ -41,13 +37,9 @@ export default function EndGameDialog(props: EndGameProps) {
 			sx={{
 				backdropFilter: 'blur(10px)'
 			}}
-		>
-
-			{/* <WinGame {...props}></WinGame> */}
-			{/* <LoseGame {...props}></LoseGame> */}
-			
-			{props.endGamePage === WinGame && <WinGame {...props}></WinGame>}
-			{props.endGamePage === LoseGame && <LoseGame {...props}></LoseGame>}
+		>	
+			{props.endGameResults.isWinningGame && <WinGame {...props}></WinGame>}
+			{!props.endGameResults.isWinningGame && <LoseGame {...props}></LoseGame>}
 
 			<DialogActions>
 				<ButtonGroup
@@ -62,17 +54,11 @@ export default function EndGameDialog(props: EndGameProps) {
 	);
 }
 
-export interface EndGameProps extends
+export interface EndGameDialogProps extends
 	ControlCallbacks,
 	GameSettings {
-	capitalFundingState: CapitalFundingState,
-	trackedStats: TrackedStats,
-	defaultTrackedStats: TrackedStats,
-	completedProjects: CompletedProject[];
-	implementedRenewableProjects: RenewableProject[];
-	implementedFinancedProjects: ImplementedProject[];
 	yearRangeInitialStats: TrackedStats[];
-	endGamePage: Component;
+	endGameResults: EndGameResults;
 }
 
 export function newEndGameDialogControl(): PageControl {

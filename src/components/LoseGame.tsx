@@ -7,7 +7,7 @@ import 'swiper/css/effect-fade';
 import './SwiperOverrides.css';
 import 'animate.css';
 import { PageControl } from './controls';
-import { EndGameProps } from './Dialogs/EndGameDialog';
+import { EndGameResults } from '../trackedStats';
 
 
 export default class LoseGame extends React.Component<LoseGameProps> {
@@ -41,7 +41,7 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                             <div
                                 className='lose-game-text animate__animated animate__fadeIn animate__slower'
                                 style={{ animationDelay: '500ms' }}>
-                                <span>Your company has reduced CO2e emissions by 23.7% in 10 years</span>
+                                <span>Your company has reduced CO2e emissions by {`${this.props.endGameResults.carbonSavingsPercent}%`} in 10 years</span>
                             </div>
 
                             <div
@@ -73,7 +73,9 @@ export default class LoseGame extends React.Component<LoseGameProps> {
 
 }
 
-export interface LoseGameProps extends EndGameProps { }
+export interface LoseGameProps {
+    endGameResults: EndGameResults;
+}
 
 export function newLoseGameControl(): PageControl {
     return {

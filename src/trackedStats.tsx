@@ -1,3 +1,4 @@
+import { CompletedProject } from './ProjectControl';
 import { theme } from './components/theme';
 
 /**
@@ -106,6 +107,17 @@ export interface TrackedStats {
 	 */
 	projectCostSavingsMultiplier: number;
 	renewedProjectCostSavingsMultiplier: number;
+}
+
+export interface EndGameResults {
+	carbonSavingsPercent: string,
+	gameTotalSpending: string,
+	projectedFinancedSpending: string,
+	gameCurrentAndProjectedSpending: string,
+	costPerCarbonSavings: string,
+	completedProjects: CompletedProject[];
+	endYearStats: TrackedStats;
+	isWinningGame: boolean;
 }
 
 export interface YearCostSavings {

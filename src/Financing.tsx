@@ -181,7 +181,7 @@ export function getRemainingProjectCosts(project: ImplementedProject, mutableSta
     let yearsRemaining = project.financingOption.financingType.loanTerm - yearsPaid;
     let projectControl = Projects[project.page];
     let isAnnuallyFinanced = getIsAnnuallyFinanced(project.financingOption.financingType.id);
-    if ((isAnnuallyFinanced || projectControl.isPPA) && yearsRemaining) {
+    if ((isAnnuallyFinanced || projectControl.isPPA) && yearsRemaining > 0) {
         // we always want this cost to be expressed in single year 
         let yearInterval = 1
         let annualCost = projectControl.getImplementationCost(project.financingOption.financingType.id, yearInterval);
