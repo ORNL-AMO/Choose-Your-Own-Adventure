@@ -1101,10 +1101,10 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	isRenewable: true,
 	baseCost: 75_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-1_200_000)
+		absoluteCarbonSavings: absolute(-900_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-1_200_000)
+		absoluteCarbonSavings: absolute(-900_000)
 	},
 	customBudgetType: {
 		name: "Power Purchase Agreement",
@@ -1122,7 +1122,7 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '1.2M kg',
+		text: '0.9M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1135,10 +1135,10 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	isRenewable: true,
 	baseCost: 150_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-2_400_000)
+		absoluteCarbonSavings: absolute(-1_800_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-2_400_000)
+		absoluteCarbonSavings: absolute(-1_800_000)
 	},
 	customBudgetType: {
 		name: "Power Purchase Agreement",
@@ -1156,7 +1156,7 @@ Projects[Pages.midVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '2.4M kg',
+		text: '1.8M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1169,10 +1169,10 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	isRenewable: true,
 	baseCost: 225_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-3_600_000)
+		absoluteCarbonSavings: absolute(-2_700_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-3_600_000)
+		absoluteCarbonSavings: absolute(-2_700_000)
 	},
 	customBudgetType: {
 		name: "Power Purchase Agreement",
@@ -1190,7 +1190,7 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
 	energySavingsPreviewIcon: {
-		text: '3.6M kg',
+		text: '2.7M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1202,7 +1202,7 @@ Projects[Pages.midSolar] = new ProjectControl({
 	isCapitalFundsEligible: false,
 	isRenewable: true,
 	isPPA: true,
-	baseCost: 210_000,
+	baseCost: 105_000,
 	financedAnnualCost: 105_000,
 	financedTotalCost: 260_000,
 	customBudgetType: {
@@ -1247,7 +1247,7 @@ Projects[Pages.largeWind] = new ProjectControl({
 	isCapitalFundsEligible: false,
 	isPPA: true,
 	isRenewable: true,
-	baseCost: 537_000,
+	baseCost: 268_500,
 	financedAnnualCost: 268_000,
 	financedTotalCost: 660_000,
 	customBudgetType: {
