@@ -1,7 +1,5 @@
-// Import Swiper React components
-import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
+import { Swiper, SwiperSlide, useSwiper, useSwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay, EffectFade } from 'swiper/modules';
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -34,13 +32,11 @@ export default class WinGame extends React.Component<WinGameProps> {
     render() {
         return (
             <div style={{width: '100%', height: '100vh', position: 'relative'}}>
-                {/*  // todo deal with prefers reduced motion */}
                  <Swiper
                  modules={[Pagination, Navigation, Autoplay, EffectFade]} 
                  spaceBetween={30}
                  effect='fade'
-                 speed={500}
-                //  onSlideChange={() => }
+                 speed={1000}
                  centeredSlides={true}
                  autoplay={{
                     delay: 9000,
@@ -49,8 +45,6 @@ export default class WinGame extends React.Component<WinGameProps> {
                  pagination={{
                     clickable: true 
                   }}
-                // onAutoplay={(swiper) => {
-                // }}
                 onAutoplayTimeLeft={this.onAutoplayTimeLeft}
                 navigation={true}
                  className='mySwiper'
@@ -62,8 +56,9 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     key={'slide1'}
                                     className='slide-stat-div'
                                     style={{marginTop: 0}}>
-                                    <span>Your company has met the decarbonization goal, reducing CO2e emissions by</span>
-                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}%`} animationClass='animate-underline-emphasis'></UnderlineSpan> 
+                                    <span>Your company has met the decarbonization goal, reducing CO<sub>2</sub>e emissions by</span>
+                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}% `} 
+                                    animationClass='animate-underline-emphasis'></UnderlineSpan> 
 
                                 </div>
                                 ]
@@ -77,9 +72,11 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     key={'slide2'}
                                     className='slide-stat-div'>
                                     <span>While spending 
-                                    <UnderlineSpan text={`$${this.props.endGameResults.gameTotalSpending}`} animationClass='animate-underline-emphasis'></UnderlineSpan> 
+                                    <UnderlineSpan text={`$${this.props.endGameResults.gameTotalSpending}`} 
+                                    animationClass='animate-underline-emphasis'></UnderlineSpan> 
                                     on GHG reduction measures, your cost per kg reduced was 
-                                    <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO2e`} animationClass='animate-underline-emphasis'></UnderlineSpan> 
+                                    <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e`} 
+                                    animationClass='animate-underline-emphasis'></UnderlineSpan> 
                                     </span>
                                     
                                 </div>
@@ -95,7 +92,8 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     className='slide-stat-div'>
                                     {this.props.endGameResults.projectedFinancedSpending?  
                                     <span>You are projected to spend
-                                        <UnderlineSpan text={`$${this.props.endGameResults.projectedFinancedSpending}`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                        <UnderlineSpan text={`$${this.props.endGameResults.projectedFinancedSpending}`} 
+                                        animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         on financed and renewed projects.
                                     </span>
                                     :
@@ -107,7 +105,8 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         className='slide-stat-div'
                                         style={{marginTop: '3rem'}}>
                                         <span>Your total spend including projections is
-                                            <UnderlineSpan text={`$${this.props.endGameResults.gameCurrentAndProjectedSpending}`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            <UnderlineSpan text={`$${this.props.endGameResults.gameCurrentAndProjectedSpending}`} 
+                                            animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
 
                                     </div>
@@ -129,7 +128,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                             marginRight: 'auto',
                                             lineHeight: '3rem'
                                         }}>
-                                        You reduced CO<sub>2</sub>e emissions by <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}%`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                        You reduced CO<sub>2</sub><small>e</small> emissions by {this.props.endGameResults.carbonSavingsPercent} 
                                     </div>,
                                     <div
                                         key={'slide4b'}
@@ -141,7 +140,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                             marginRight: 'auto',
                                             lineHeight: '3rem'
                                         }}>
-                                        Cost per kg was reduced to <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO2e`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                        Cost per kg was reduced to {this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e
                                     </div>,
                                     <div
                                         key={'slide4'}
@@ -182,16 +181,14 @@ export function newWinGameControl(): PageControl {
 export interface UnderlineProps {text: string, animationClass: string}
 
 function UnderlineSpan(props: UnderlineProps) {
-    // todo animationClass was ID animate-underline-emphasis
+    const swiperSlide = useSwiperSlide();
+    const animationCSS = swiperSlide.isActive? `${props.animationClass} animate-color` : '';
+    const underlinedText = {__html: props.text};
  return (
      <Fragment>
-         <span>&nbsp;&nbsp;</span>
-         <span
-             onAnimationStart={e => console.log('onAnimationStart', e)}
-             onAnimationIteration={e => console.log('onAnimationIteration', e)}
-             onAnimationEnd={e => console.log('onAnimationEnd', e)}
-             className={`${props.animationClass} animate-color`}>{props.text}</span>
-         <span>&nbsp;&nbsp;</span>
+         <span>&nbsp;</span>
+         <span className={animationCSS} dangerouslySetInnerHTML={underlinedText}></span>
+         <span>&nbsp;</span>
      </Fragment>
  )
 }
@@ -200,6 +197,9 @@ function UnderlineSpan(props: UnderlineProps) {
 export interface SlideProps {statDivs: ReactNode[]}
 
 function SlideContent(props: SlideProps) {
+    const swiperSlide = useSwiperSlide();
+    const animationCSS = swiperSlide.isActive? `animate__animated animate__fadeIn animate__fast` : '';
+
     return (
         <div style={{
             marginTop: '200px',
@@ -230,7 +230,7 @@ function SlideContent(props: SlideProps) {
                     animationDelay: '500ms',
                     opacity: 0,
                 }}
-                className='animate__animated animate__fadeInLeft animate__fast'
+                className={animationCSS}
             >
                 {props.statDivs.map(div => {
                     return (div)
