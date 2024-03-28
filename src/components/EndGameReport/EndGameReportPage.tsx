@@ -1,70 +1,39 @@
 import React, { Fragment } from 'react';
-import { TrackedStats, setCarbonEmissionsAndSavings, setCostPerCarbonSavings } from '../../trackedStats';
+import { EndGameResults, TrackedStats } from '../../trackedStats';
 import { GameSettings } from '../SelectGameSettings';
-import { CapitalFundingState, FinancingOption, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded } from '../../Financing';
+import { FinancingOption, isProjectFullyFunded } from '../../Financing';
 import { ControlCallbacks, Emphasis, PageControl } from '../controls';
-import { Box, Button, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemIcon, ListItemText, Tooltip, TooltipProps, Typography, styled, tooltipClasses } from '@mui/material';
+import { Box, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import { CompletedProject, ImplementedProject, ProjectControl, RenewableProject } from '../../ProjectControl';
+import { ProjectControl } from '../../ProjectControl';
 import { ImplementedFinancingData } from '../YearRecap';
 import Projects from '../../Projects';
 import { DialogFinancingOptionCard } from '../Dialogs/ProjectDialog';
-import { parseSpecialText, truncate } from '../../functions-and-types';
+import { parseSpecialText } from '../../functions-and-types';
 import EnergyUseLineChart from '../EnergyUseLineChart';
-import DownloadPDF, { ReportPDFProps } from './DownloadPDF';
+import DownloadPDF from './DownloadPDF';
 import InfoIcon from '@mui/icons-material/Info';
 
 
-export default class EndGameReportPage extends React.Component<EndGameReportPageProps> {
-	render() {
-		const yearRangeInitialStats: TrackedStats[] = [...this.props.yearRangeInitialStats];
-		const endYearStats: TrackedStats = { ...this.props.trackedStats}
-		let completedRenewables = [...this.props.implementedRenewableProjects].map(renewable => {
-			return {
-				completedYear: endYearStats.currentGameYear - 1,
-				gameYearsImplemented: renewable.gameYearsImplemented,
-				yearStarted: renewable.yearStarted,
-				financingOption: renewable.financingOption,
-				page: renewable.page
-			}
-		});
-
-		let completedProjects = this.props.completedProjects.concat(completedRenewables);
-		return (
-			<Box m={2}>
-				<EndGameReport
-					yearRangeInitialStats={yearRangeInitialStats}
-					implementedFinancedProjects={this.props.implementedFinancedProjects}
-					renewableProjects={this.props.implementedRenewableProjects}
-					completedProjects={completedProjects}
-					endYearStats={endYearStats}
-					defaultTrackedStats={this.props.defaultTrackedStats}
-				/>
-			</Box>
-		);
-	}
-
-}
-
-function EndGameReport(props: ReportProps) {
+export default function EndGameReport(props: ReportProps) {
 	let projectRecapCards: JSX.Element[] = [];
-	props.completedProjects.forEach(project => {
+	props.endGameResults.completedProjects.forEach(project => {
 		let implementedProject: ProjectControl = Projects[project.page];
 		let implementationFinancing: FinancingOption = project.financingOption;
 		let isFinanced = implementationFinancing.financingType.id !== 'budget';
 		let financingData: ImplementedFinancingData = {
 			option: implementationFinancing,
-			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.endYearStats) : false,
+			isPaidOff: isFinanced ? isProjectFullyFunded(project, props.endGameResults.endYearStats) : false,
 			isFinanced: isFinanced,
 
 		}
-		let projectNetCost = implementedProject.getYearEndTotalSpending(financingData.option, props.endYearStats.gameYearInterval);
+		let projectNetCost = implementedProject.getYearEndTotalSpending(financingData.option, props.endGameResults.endYearStats.gameYearInterval);
 		let totalProjectExtraCosts = implementedProject.getHiddenCost();
 
 		projectRecapCards.push(
 			getProjectCard(
 				implementedProject,
-				props.endYearStats,
+				props.endGameResults.endYearStats,
 				projectNetCost,
 				totalProjectExtraCosts,
 				financingData,
@@ -72,33 +41,9 @@ function EndGameReport(props: ReportProps) {
 
 	});
 
-	// * sub year to get projections
-	props.endYearStats.currentGameYear - 1;
-	let projectedFinancedSpending = getProjectedFinancedSpending(props.implementedFinancedProjects, props.renewableProjects, props.endYearStats);
-	let gameCurrentAndProjectedSpending = props.endYearStats.gameTotalSpending + projectedFinancedSpending;
-	setCarbonEmissionsAndSavings(props.endYearStats, props.defaultTrackedStats);
-	setCostPerCarbonSavings(props.endYearStats, gameCurrentAndProjectedSpending);
-	let endOfGameResults = {
-		carbonSavingsPercent: props.endYearStats.carbonSavingsPercent,
-		gameTotalSpending: props.endYearStats.gameTotalSpending,
-		projectedFinancedSpending: projectedFinancedSpending,
-		gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpending,
-		costPerCarbonSavings: props.endYearStats.costPerCarbonSavings
-	}
-	const noDecimalsFormatter = Intl.NumberFormat('en-US', {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	});
-	const carbonSavingsPercentFormatted: string = (endOfGameResults.carbonSavingsPercent * 100).toFixed(2);
-	const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endOfGameResults.gameTotalSpending);
-	const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(endOfGameResults.projectedFinancedSpending);
-	const costPerCarbonSavingsFormatted: string = endOfGameResults.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(endOfGameResults.costPerCarbonSavings) : '0';
-
 	return (
-		<Fragment>
+		<Box m={2}>
+
 			<ParentSize>
 				{(parent) => (
 					<EnergyUseLineChart
@@ -117,7 +62,7 @@ function EndGameReport(props: ReportProps) {
 									primary={
 										<Typography variant='h5'>
 											Your company has reduced CO<sub>2</sub>e Emissions by{' '}
-											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+											<Emphasis>{props.endGameResults.carbonSavingsPercent}%</Emphasis>{' '}
 										</Typography>
 									}
 								/>
@@ -129,7 +74,7 @@ function EndGameReport(props: ReportProps) {
 								<ListItemText
 									primary={
 										<Typography variant={'h5'}>
-											You have spent{' '}<Emphasis>${gameTotalNetCostFormatted}</Emphasis>{' '} throughout the game.
+											You have spent{' '}<Emphasis>${props.endGameResults.gameTotalSpending}</Emphasis>{' '} throughout the game.
 										</Typography>
 									}
 								/>
@@ -141,12 +86,12 @@ function EndGameReport(props: ReportProps) {
 								<ListItemText
 									primary={
 										<Typography variant={'h5'}>
-											Your cost per kg reduced was{' '}<Emphasis>${costPerCarbonSavingsFormatted}/kg CO<sub>2</sub>e</Emphasis>{' '}
+											Your cost per kg reduced was{' '}<Emphasis>${props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e</Emphasis>{' '}
 										</Typography>
 									}
 								/>
 							</ListItem>
-							{endOfGameResults.projectedFinancedSpending > 0 &&
+							{props.endGameResults.projectedFinancedSpending &&
 								<ListItem >
 									<ListItemIcon>
 										<InfoIcon />
@@ -154,7 +99,7 @@ function EndGameReport(props: ReportProps) {
 									<ListItemText
 										primary={
 											<Typography variant={'h5'}>
-												You are projected to spend {' '}<Emphasis>${projectedFinancedSpendingFormatted}</Emphasis>{' '} on financed and renewed projects in future years
+												You are projected to spend {' '}<Emphasis>${props.endGameResults.projectedFinancedSpending}</Emphasis>{' '} on financed and renewed projects in future years
 											</Typography>
 										}
 									/>
@@ -166,7 +111,7 @@ function EndGameReport(props: ReportProps) {
 					
 			<Box sx={{ display: 'flex', justifyContent: 'end', marginY: '1rem' }}>
 					<DownloadPDF yearRangeInitialStats={props.yearRangeInitialStats}
-						completedProjects={props.completedProjects}
+						completedProjects={props.endGameResults.completedProjects}
 					/>
 				</Box>
 			{projectRecapCards.length > 0 &&
@@ -187,15 +132,13 @@ function EndGameReport(props: ReportProps) {
 
 				</Grid>
 			}
-		</Fragment>
+		</Box>
 	);
 }
 
-interface ReportProps extends ReportPDFProps {
-	endYearStats: TrackedStats,
-	defaultTrackedStats: TrackedStats,
-	implementedFinancedProjects: ImplementedProject[],
-	renewableProjects: RenewableProject[]
+interface ReportProps {
+	endGameResults: EndGameResults,
+	yearRangeInitialStats: TrackedStats[];
 }
 
 
@@ -407,7 +350,7 @@ function getProjectCard(implementedProject: ProjectControl,
 
 export function newEndGameReportPageControl(): PageControl {
 	return {
-		componentClass: EndGameReportPage,
+		componentClass: EndGameReport,
 		controlProps: {},
 		hideDashboard: true,
 	};
@@ -416,12 +359,7 @@ export function newEndGameReportPageControl(): PageControl {
 export interface EndGameReportPageProps extends
 	ControlCallbacks,
 	GameSettings {
-	capitalFundingState: CapitalFundingState,
-	trackedStats: TrackedStats,
-	defaultTrackedStats: TrackedStats,
-	completedProjects: CompletedProject[];
-	implementedRenewableProjects: RenewableProject[];
-	implementedFinancedProjects: ImplementedProject[];
+	endGameResults: EndGameResults;
 	yearRangeInitialStats: TrackedStats[];
 }
 

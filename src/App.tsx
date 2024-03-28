@@ -6,9 +6,13 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
+import '@fontsource/lato/400.css';
+import '@fontsource/lato/700.css';
+import '@fontsource/lato/900.css';
+
 import type { ControlCallbacks } from './components/controls';
-import { calculateEmissions } from './trackedStats';
-import type { TrackedStats, YearCostSavings } from './trackedStats';
+import { calculateEmissions, setCostPerCarbonSavings } from './trackedStats';
+import type { EndGameResults, TrackedStats, YearCostSavings } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { getYearCostSavings } from './trackedStats';
 import { initialTrackedStats, setCarbonEmissionsAndSavings } from './trackedStats';
@@ -16,12 +20,12 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import { Scope1Projects, Scope2Projects } from './ProjectControl';
-import type { CostSavings, ImplementedProject, RenewableProject} from './ProjectControl';
+import type { CostSavings, ImplementedProject, ProjectControl, RenewableProject} from './ProjectControl';
 import type { CompletedProject, SelectedProject} from './ProjectControl';
 import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
 import { theme } from './components/theme';
 import { closeDialogButton } from './components/Buttons';
-import { YearRecap, getHasActiveHiddenCost } from './components/YearRecap';
+import { ImplementedFinancingData, YearRecap, getHasActiveHiddenCost } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getDefaultWarningDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
@@ -29,7 +33,9 @@ import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
-import { CapitalFundingState, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
+import { CapitalFundingState, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getProjectedFinancedSpending, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
+import WinGame from './components/WinGame';
+import LoseGame from './components/LoseGame';
 
 
 export type AppState = {
@@ -80,6 +86,7 @@ export type AppState = {
 	gameSettings: GameSettings;
 	defaultTrackedStats : TrackedStats;
 	yearlyCostSavings: YearCostSavings[];
+	endGameResults?: EndGameResults;
 }
 
 // JL note: I could try and do some fancy TS magic to make all the AppState whatsits optional, but
@@ -107,6 +114,7 @@ export interface NextAppState {
 	snackbarOpen?: boolean;
 	snackbarContent?: JSX.Element;
 	isCompareDialogOpen?: boolean;
+	endGameResults: EndGameResults;
 }
 
 export class App extends React.PureComponent<unknown, AppState> {
@@ -221,8 +229,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		if (componentClass === InfoDialog) {
 			infoDialog = fillInfoDialogProps(controlProps);
 			infoDialog.isOpen = true;
-		} 
-		else {
+		} else {
 			// * If navigating back to project menu or other from a dialog, close dialog
 			infoDialog = cloneAndModify(this.state.infoDialog, { isOpen: false });
 			projectDialog = cloneAndModify(this.state.projectDialog, {isOpen: false});
@@ -586,16 +593,16 @@ export class App extends React.PureComponent<unknown, AppState> {
 			trackedStats: newYearTrackedStats,
 			yearRangeInitialStats: newYearRangeInitialStats,
 			capitalFundingState: newCapitalFundingState,
-			yearlyCostSavings: yearlyCostSavings
+			yearlyCostSavings: yearlyCostSavings,
 		};
 
 		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.5;
-		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1
-
+		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1;
+		
 		if (isGameWon) {
-			this.endGame(Pages.winScreen, newYearTrackedStats, nextState);
+			this.endGame(true, newYearTrackedStats, nextState);
 		} else if (isEndOfGame) {
-			this.endGame(Pages.loseScreen, newYearTrackedStats, nextState);
+			this.endGame(false, newYearTrackedStats, nextState);
 		} else {
 			this.setState(nextState);
 			this.setPage(Pages.scope1Projects);
@@ -603,12 +610,66 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	}
 
-	endGame(page: symbol, newYearTrackedStats: TrackedStats, nextState) {
+	// todo 279 - NextAppState vs AppState conflicts, whats the intent with these?
+	endGame(isWinningGame: boolean, newYearTrackedStats: TrackedStats, nextState) {
 		// Game is over - don't advance year
 		newYearTrackedStats.currentGameYear -= 1;
 		nextState.trackedStats = newYearTrackedStats;
+
+		const endYearStats: TrackedStats = nextState.trackedStats
+		const completedProjects: CompletedProject[] = nextState.completedProjects;
+		const implementedRenewableProjects: ImplementedProject[] = nextState.implementedRenewableProjects
+		const implementedFinancedProjects: ImplementedProject[] = nextState.implementedFinancedProjects
+		let completedRenewables = nextState.implementedRenewableProjects.map(renewable => {
+			return {
+				completedYear: endYearStats.currentGameYear - 1,
+				gameYearsImplemented: renewable.gameYearsImplemented,
+				yearStarted: renewable.yearStarted,
+				financingOption: renewable.financingOption,
+				page: renewable.page
+			}
+		});
+
+		const allCompletedProjects = completedProjects.concat(completedRenewables);
+
+		// * sub year to get projections
+		endYearStats.currentGameYear - 1;
+		let projectedFinancedSpending = getProjectedFinancedSpending(
+				implementedFinancedProjects, 
+				implementedRenewableProjects, 
+				endYearStats);
+		let gameCurrentAndProjectedSpending = endYearStats.gameTotalSpending + projectedFinancedSpending;
+		setCarbonEmissionsAndSavings(endYearStats, this.state.defaultTrackedStats);
+		setCostPerCarbonSavings(endYearStats, gameCurrentAndProjectedSpending);
+
+		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		});
+		const carbonSavingsPercentFormatted: string = (endYearStats.carbonSavingsPercent * 100).toFixed(2);
+		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endYearStats.gameTotalSpending);
+		const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(projectedFinancedSpending);
+		const gameCurrentAndProjectedSpendingFormatted: string = noDecimalsFormatter.format(projectedFinancedSpending + endYearStats.gameTotalSpending);
+		const costPerCarbonSavingsFormatted: string = endYearStats.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 2,
+		}).format(endYearStats.costPerCarbonSavings) : '0';
+
+		// todo add NAN / undefined defensives
+		let endGameResults: EndGameResults = {
+			carbonSavingsPercent: carbonSavingsPercentFormatted,
+			gameTotalSpending: gameTotalNetCostFormatted,
+			projectedFinancedSpending: projectedFinancedSpendingFormatted,
+			gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpendingFormatted,
+			costPerCarbonSavings: costPerCarbonSavingsFormatted,
+			completedProjects: allCompletedProjects,
+			endYearStats: endYearStats,
+			isWinningGame: isWinningGame
+		}
+
+		nextState.endGameResults = endGameResults;
 		this.setState(nextState);
-		this.setPage(page);
+		this.setPage(Pages.endGameDialog);
 	}
 
 	setNewYearStats(newYearTrackedStats: TrackedStats, newBudget: number, currentYearStats: TrackedStats) {
@@ -846,6 +907,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 									yearRangeInitialStats={this.state.yearRangeInitialStats}
 									handleGameSettingsOnProceed={(userSettings) => this.handleGameSettingsOnProceed(userSettings)}
 									handleNewYearSetupOnProceed={(yearFinalStats, capitalFundingState) => this.setupNewYearOnProceed(yearFinalStats, capitalFundingState)}
+									endGameResults={this.state.endGameResults}
 								/>
 								: <></>}
 						</Box>

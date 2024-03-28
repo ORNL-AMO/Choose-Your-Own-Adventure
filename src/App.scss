@@ -104,3 +104,262 @@ $landfill-gasses:  #f06807;
 #dashboardText {
 	font-weight: bold;
 }
+// EOG slider
+
+.swiper {
+	width: 100%;
+	height: 100%;
+}
+
+.swiper-slide {
+	text-align: center;
+	font-size: 18px;
+	background: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&::before {
+		content: '';
+		//todo problem with animations?
+		@extend .slide1-image;
+	}
+}
+
+.swiper-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.autoplay-progress {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	z-index: 10;
+	width: 48px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	color: var(--swiper-theme-color);
+  }
+  
+  .autoplay-progress svg {
+	--progress: 0;
+	position: absolute;
+	left: 0;
+	top: 0px;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	stroke-width: 4px;
+	stroke: var(--swiper-theme-color);
+	fill: none;
+	stroke-dashoffset: calc(125.6 * (1 - var(--progress)));
+	stroke-dasharray: 125.6;
+	transform: rotate(-90deg);
+  }
+
+  // Animations
+  
+// #animate-underline-emphasis {
+// 	display: inline-block;
+// 	position: relative;
+// 	padding-bottom: 3px;
+// }
+
+// @keyframes border {
+// 	from {
+// 		width: 0%;
+// 	}
+
+// 	to {
+// 		width: 100%;
+// 	}
+// }
+
+// #animate-underline-emphasis:after {
+// 	content: '';
+// 	display: block;
+// 	margin: auto;
+// 	height: 5px;
+// 	width: 0px;
+// 	background: #fff;
+// 	animation-name: border;
+// 	animation-duration: 1000ms;
+// 	animation-delay: 2s;
+// 	animation-fill-mode: both;
+// }
+
+// todo replace w above
+.animate-underline-emphasis {
+	border-bottom: 5px solid #fff;
+	padding-bottom: 3px;
+	margin: auto;
+	height: 5px;
+	padding-bottom: 0px;
+}
+
+// @keyframes fade-color {
+// 	0% { color: rgba(68,68,68,.6); }
+// 	100% { color: white; }
+// }
+
+
+// .animate-color {
+// 	color: rgba(68,68,68,.6);
+// 	padding-left: 12px;
+// 	padding-right: 12px;
+// 	font-weight: 1000;
+// 	font-size: 36px;
+// 	animation: fade-color 3s;
+// 	animation-delay: 1s;
+// 	animation-fill-mode: both;
+// }
+
+@keyframes fade-opacity {
+	0% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
+
+#fade-to-white {
+	&::before {
+	position: absolute;
+	background-color: #000;
+	display: flex;
+	// width: 100%;
+	height: 100%;
+	// animation: fade-opacity 10s;
+	// animation-delay: 6s;
+	// animation-fill-mode: forwards;
+	}
+}
+
+//    Slides
+.swiper-slide.swiper-slide-active.lose-game-bg {
+	&::before {
+		position: fixed;
+		z-index: -1;
+		background: url('images/lose-image-opt.jpg');
+		// filter: blur($blur-radius);
+		background-size: cover;
+		top: -1 * $blur-radius;
+		left: -1 * $blur-radius;
+		bottom: -1 * $blur-radius;
+		right: -1 * $blur-radius;
+		display: block;
+	}
+}
+
+.swiper-slide.swiper-slide-active.slide1-image {
+	&::before {
+		position: fixed;
+		z-index: -1;
+		background: url('images/turbine2-opt.jpg') ;
+		// filter: blur($blur-radius);
+		background-size: cover;
+		top: -1 * $blur-radius;
+		left: -1 * $blur-radius;
+		bottom: -1 * $blur-radius;
+		right: -1 * $blur-radius;
+		display: block;
+	}
+}
+
+.swiper-slide.swiper-slide-active.slide2-image {
+	&::before {
+	position: fixed !important;
+	z-index: -1;
+	background: url('images/solar-array2-opt.jpg') !important;
+	background-size: cover !important;
+
+	// filter: blur($blur-radius);
+	top: -1 * $blur-radius;
+	left: -1 * $blur-radius;
+	bottom: -1 * $blur-radius;
+	right: -1 * $blur-radius;
+	display: block;
+	}
+}
+
+.swiper-slide.swiper-slide-active.slide3-image {
+	&::before {
+	position: fixed !important;
+	z-index: -1;
+	background: url('images/electricity.jpg') !important;
+	background-size: cover !important;
+
+	// filter: blur($blur-radius);
+	top: -1 * $blur-radius;
+	left: -1 * $blur-radius;
+	bottom: -1 * $blur-radius;
+	right: -1 * $blur-radius;
+	display: block;
+	}
+	
+}
+
+.swiper-slide.swiper-slide-active.slide4-image {
+	&::before {
+	position: fixed !important;
+	z-index: -1;
+	background: url('images/field-opt.jpg') !important;
+	background-size: cover !important;
+
+	// filter: blur($blur-radius);
+	top: -1 * $blur-radius;
+	left: -1 * $blur-radius;
+	bottom: -1 * $blur-radius;
+	right: -1 * $blur-radius;
+	display: block;
+	}
+}
+
+// .lose-game-text {
+// 	display: 'flex';
+// 	flex-direction: 'column';
+// 	flex-grow: 1;
+// 	color: #000;
+// 	border-radius: 10px;
+// 	padding: 36px 128px;
+// 	animation-fill-mode: 'forwards';
+// 	opacity: 0;
+// 	font-size: 32px;
+// 	font-weight: 900;
+// 	text-transform: uppercase;
+// 	font-family:"Lato", sans-serif;
+// }
+
+.lose-game-text {
+	display: 'flex';
+	flex-direction: 'column';
+	flex-grow: 1;
+	color: #000;
+	border-radius: 10px;
+	padding: 36px 64px;
+	animation-fill-mode: 'forwards';
+	opacity: 0;
+	font-size: 36px;
+	letter-spacing: 0px;
+	line-height: 3rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	font-family:"Lato", sans-serif;
+}
+
+.slide-stat-div {
+	font-size: 42px;
+	color: #fff;
+	font-weight: 900;
+	border-radius: 10px;
+	letter-spacing: 1.5px;
+	text-align: center;
+	text-transform: uppercase;
+	font-family: "Lato", sans-serif;
+	line-height: 4rem;
+	margin-top: 0;
+}
