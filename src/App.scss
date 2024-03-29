@@ -170,8 +170,10 @@ $landfill-gasses:  #f06807;
 	&::before {
 		position: fixed;
 		z-index: -1;
-		background: url('images/lose-image-opt.jpg');
+		background: url('images/lose-image-opt-sm.jpg');
+		filter: none;
 		background-size: cover;
+		background-position: bottom;
 		top: -1 * $blur-radius;
 		left: -1 * $blur-radius;
 		bottom: -1 * $blur-radius;
@@ -187,6 +189,7 @@ $landfill-gasses:  #f06807;
 		background: url($image-url);
 		filter: blur(3px);
 		background-size: cover;
+		background-position: bottom;
 		top: -1 * $blur-radius;
 		left: -1 * $blur-radius;
 		bottom: -1 * $blur-radius;
@@ -290,7 +293,7 @@ $landfill-gasses:  #f06807;
 	font-weight: 1000;
 	font-size: 36px;
 	animation: fade-color 3s;
-	animation-delay: 0s;
+	animation-delay: 1s;
 	animation-fill-mode: both;
 }
 

@@ -17,7 +17,6 @@ export default class LoseGame extends React.Component<LoseGameProps> {
             <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
                 <Swiper
                     centeredSlides={true}
-                    className='mySwiper'
                 >
                     <SwiperSlide id='fade-to-white' className='lose-game-bg'>
                         <div style={{
