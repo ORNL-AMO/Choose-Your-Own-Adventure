@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import {
 	Avatar,
 	Box,
@@ -55,48 +55,35 @@ import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
 export class YearRecap extends React.Component<YearRecapProps, { inView }> {
-	// timeout: NodeJS.Timeout;
+	
+	state = {inView: false};
 
-	// constructor(props) {
-	// 	super(props);
+	handleScroll = () => {
+		const {inView} = this.state;
+		let positionY: number = document.documentElement.scrollTop;
+		if ( positionY > 200 ) {
+			!inView && this.setState({inView: true});
+			return true;
+		} else if ( positionY < 200 ) {
+			inView && this.setState({inView: false});
+			return false;
+		}
+	  };
+	
 
-	// 	this.state = {
-	// 		inView: false
-	// 	};
-	// 	// this.handleScroll = this.handleScroll.bind(this);
-	// }
+	componentDidMount() {
+		// Add scroll event listener when component mounts
+		window.addEventListener('scroll', this.handleScroll);
+	}
 
-	// componentDidMount() {
-	// 	debugger;
-	// 	// Add scroll event listener when component mounts
-	// 	window.addEventListener('scroll', this.handleScroll);
-	// }
 
-	// componentWillUnmount() {
-	// 	// Remove scroll event listener when component unmounts
-	// 	window.removeEventListener('scroll', this.handleScroll);
-	// }
+	componentWillUnmount() {
+		// Remove scroll event listener when component unmounts
+		window.removeEventListener('scroll', this.handleScroll);
+	}
 
-	// handleScroll() {
-	// 	function isElementInViewport(el: HTMLElement) {
-	// 		const rect = el.getBoundingClientRect()
-	// 		return (
-	// 			rect.top >= 0 &&
-	// 			rect.left >= 0 &&
-	// 			rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-	// 			rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-	// 		)
-	// 	}
-
-	// 	const surprise = document.querySelector('.year-recap-positive-surprise');
-	// 	const surpriseInView = isElementInViewport(surprise as HTMLElement);
-	// 	this.setState({ inView: surpriseInView });
-	// 	// clearTimeout(this.timeout);
-	// 	// this.timeout = setTimeout(() => {
-	// 	// }, 200);
-	// }
-
-	render() {
+	render() {		
+		const showFloatingHeader = this.state.inView;
 		// * initialCurrentYearStats - READ ONLY stats 
 		const initialCurrentYearStats = this.props.yearRangeInitialStats[this.props.currentGameYear - 1];
 		// * mutableStats - mutates as we calculate current year recap
@@ -126,15 +113,38 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		return (
 			<>
 				<Divider />
+				{showFloatingHeader &&
+					<MobileStepper
+						sx={{
+							position: "sticky",
+							display: "flex",
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							flexWrap: 'wrap',
+							top: '0px',
+							zIndex: 999,
+							background: '#fff',
+							boxShadow: '0px 25px 20px -20px rgba(0,0,0,0.45)',
+							padding: '.75rem',
+						}}
+						variant='progress'
+						steps={this.props.totalGameYears}
+						position='static'
+						activeStep={this.props.currentGameYear - 1}
+						LinearProgressProps={{ sx: { height: '16px', width: '50%' } }}
+						backButton={<Box sx={{ width: 180 }}></Box>}
+						nextButton={this.getNextButton(this.props, mutableStats, mutableCapitalFundingState)}
+					/>
+				}
 				<MobileStepper
 					variant='progress'
 					steps={this.props.totalGameYears}
-					position='top'
+					position='static'
 					activeStep={this.props.currentGameYear - 1}
 					LinearProgressProps={{ sx: { height: '16px', width: '50%' } }}
-					sx={{ 
-						padding: '.75rem', 
-						height: '48px'
+					sx={{
+						padding: '.75rem',
+						//height: '48px'
 					}}
 					backButton={<Box sx={{ width: 180 }}></Box>}
 					nextButton={this.getNextButton(this.props, mutableStats, mutableCapitalFundingState)}
