@@ -112,6 +112,7 @@ export interface TrackedStats {
 export interface EndGameResults {
 	carbonSavingsPercent: string,
 	gameTotalSpending: string,
+	carbonSavingsKg: string,
 	projectedFinancedSpending: string,
 	gameCurrentAndProjectedSpending: string,
 	costPerCarbonSavings: string,

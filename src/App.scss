@@ -171,7 +171,21 @@ $landfill-gasses:  #f06807;
 		position: fixed;
 		z-index: -1;
 		background: url('images/lose-image-opt.jpg');
-		// filter: blur($blur-radius);
+		background-size: cover;
+		top: -1 * $blur-radius;
+		left: -1 * $blur-radius;
+		bottom: -1 * $blur-radius;
+		right: -1 * $blur-radius;
+		display: block;
+	}
+}
+
+@mixin slide-psuedo-image($image-url) {
+	&::before {
+		position: fixed;
+		z-index: -1;
+		background: url($image-url);
+		filter: blur(3px);
 		background-size: cover;
 		top: -1 * $blur-radius;
 		left: -1 * $blur-radius;
@@ -182,67 +196,19 @@ $landfill-gasses:  #f06807;
 }
 
 .swiper-slide.swiper-slide-active.slide1-image {
-	&::before {
-		position: fixed;
-		z-index: -1;
-		background: url('images/turbine2-opt.jpg') ;
-		// filter: blur($blur-radius);
-		background-size: cover;
-		top: -1 * $blur-radius;
-		left: -1 * $blur-radius;
-		bottom: -1 * $blur-radius;
-		right: -1 * $blur-radius;
-		display: block;
-	}
+	@include slide-psuedo-image('images/turbine2-opt.jpg')
 }
 
 .swiper-slide.swiper-slide-active.slide2-image {
-	&::before {
-	position: fixed !important;
-	z-index: -1;
-	background: url('images/solar-array2-opt.jpg') !important;
-	background-size: cover !important;
-
-	// filter: blur($blur-radius);
-	top: -1 * $blur-radius;
-	left: -1 * $blur-radius;
-	bottom: -1 * $blur-radius;
-	right: -1 * $blur-radius;
-	display: block;
-	}
+	@include slide-psuedo-image('images/solar-array2-opt.jpg')
 }
 
 .swiper-slide.swiper-slide-active.slide3-image {
-	&::before {
-	position: fixed !important;
-	z-index: -1;
-	background: url('images/electricity.jpg') !important;
-	background-size: cover !important;
-
-	// filter: blur($blur-radius);
-	top: -1 * $blur-radius;
-	left: -1 * $blur-radius;
-	bottom: -1 * $blur-radius;
-	right: -1 * $blur-radius;
-	display: block;
-	}
-	
+	@include slide-psuedo-image('images/electricity.jpg')	
 }
 
 .swiper-slide.swiper-slide-active.slide4-image {
-	&::before {
-	position: fixed !important;
-	z-index: -1;
-	background: url('images/field-opt.jpg') !important;
-	background-size: cover !important;
-
-	// filter: blur($blur-radius);
-	top: -1 * $blur-radius;
-	left: -1 * $blur-radius;
-	bottom: -1 * $blur-radius;
-	right: -1 * $blur-radius;
-	display: block;
-	}
+	@include slide-psuedo-image('images/field-opt.jpg')	
 }
 
 .lose-game-text {
@@ -269,20 +235,17 @@ $landfill-gasses:  #f06807;
 	border-radius: 10px;
 	letter-spacing: 1.5px;
 	text-align: center;
-	text-transform: uppercase;
 	font-family: "Lato", sans-serif;
 	line-height: 4rem;
 	margin-top: 0;
 }
 
+.child-stat-div {
+	margin-top: 2rem;
+}
 
 
-
-
-
-
-  // Animations
-  
+// Animations  
   .animate-underline-emphasis {
 	display: inline-block;
 	position: relative;
@@ -310,7 +273,7 @@ $landfill-gasses:  #f06807;
 	background: #fff;
 	animation-name: border;
 	animation-duration: 500ms;
-	animation-delay: 1s;
+	animation-delay: 2s;
 	animation-fill-mode: both;
 }
 
