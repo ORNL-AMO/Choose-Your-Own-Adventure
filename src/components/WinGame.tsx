@@ -1,5 +1,5 @@
-import { Swiper, SwiperSlide, useSwiper, useSwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Scrollbar, A11y, Autoplay, EffectFade } from 'swiper/modules';
+import { Swiper, SwiperSlide, useSwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -46,9 +46,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                     clickable: true 
                   }}
                 onAutoplayTimeLeft={this.onAutoplayTimeLeft}
-                navigation={true}
-                 className='mySwiper'
-                 >
+                navigation={true}>
                     <SwiperSlide className='slide1-image'>
                         <SlideContent
                             statDivs={
@@ -178,9 +176,7 @@ function UnderlineSpan(props: UnderlineProps) {
     const underlinedText = {__html: props.text};
  return (
      <Fragment>
-         {/* <span>&nbsp;</span> */}
          <span className={animationCSS} dangerouslySetInnerHTML={underlinedText}></span>
-         {/* <span>&nbsp;</span> */}
      </Fragment>
  )
 }
@@ -194,7 +190,7 @@ function SlideContent(props: SlideProps) {
 
     return (
         <div style={{
-            marginTop: '200px',
+            marginTop: '100px',
             color: '#444',
             display: 'flex',
             flexDirection: 'row',
