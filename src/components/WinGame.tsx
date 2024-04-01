@@ -20,8 +20,7 @@ export default class WinGame extends React.Component<WinGameProps> {
         super(props);
         this.progressCircle = React.createRef();
         this.progressContent = React.createRef();
-      }
-    
+    }
 
     onAutoplayTimeLeft = (s, time, progress) => {
         this.progressCircle.current.style.setProperty('--progress', 1 - progress);
@@ -31,31 +30,37 @@ export default class WinGame extends React.Component<WinGameProps> {
 
     render() {
         return (
-            <div style={{width: '100%', height: '100vh', position: 'relative'}}>
-                 <Swiper
-                 modules={[Pagination, Navigation, Autoplay, EffectFade]} 
-                 spaceBetween={30}
-                 effect='fade'
-                 speed={1500}
-                 centeredSlides={true}
-                 autoplay={{
-                    delay: 10000,
-                    disableOnInteraction: true,
-                 }}
-                 pagination={{
-                    clickable: true 
-                  }}
-                onAutoplayTimeLeft={this.onAutoplayTimeLeft}
-                navigation={true}>
+            <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+                <Swiper
+                    modules={[Pagination, Navigation, Autoplay, EffectFade]}
+                    spaceBetween={30}
+                    effect='fade'
+                    speed={1500}
+                    centeredSlides={true}
+                    autoplay={{
+                        delay: 10000,
+                        disableOnInteraction: true,
+                    }}
+                    pagination={{
+                        clickable: true
+                    }}
+                    onAutoplayTimeLeft={this.onAutoplayTimeLeft}
+                    navigation={true}>
                     <SwiperSlide className='slide1-image'>
                         <SlideContent
                             statDivs={
                                 [<div
                                     key={'slide1'}
-                                    className='slide-stat-div'>
+                                    className='slide-stat-div'
+                                    style={{ fontSize: '48px', textTransform: 'uppercase' }}>
+                                    <span>Congratulations!</span>
+                                </div>,
+                                <div
+                                    key={'slide1b'}
+                                    className='slide-stat-div child-stat-div'>
                                     <span>Your company has met the decarbonization goal, reducing CO<sub>2</sub>e emissions by</span>
-                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}% `} 
-                                    animationClass='animate-underline-emphasis'></UnderlineSpan> 
+                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}% `}
+                                        animationClass='animate-underline-emphasis'></UnderlineSpan>
 
                                 </div>
                                 ]
@@ -107,13 +112,13 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         </span>
                                     </div>,
                                     <div
-                                    key={'slide3b'}
-                                    className='slide-stat-div child-stat-div'>
-                                    <span>
-                                        Your cost of carbon reduction is
-                                        <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e`} animationClass='animate-underline-emphasis'></UnderlineSpan>
-                                    </span>
-                                </div>
+                                        key={'slide3b'}
+                                        className='slide-stat-div child-stat-div'>
+                                        <span>
+                                            Your cost of carbon reduction is
+                                            <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                        </span>
+                                    </div>
                                 ]
                             }
                         />
@@ -161,79 +166,42 @@ export interface WinGameProps {
 }
 
 export function newWinGameControl(): PageControl {
-	return {
-		componentClass: WinGame,
-		controlProps: {},
-		hideDashboard: true,
-	};
+    return {
+        componentClass: WinGame,
+        controlProps: {},
+        hideDashboard: true,
+    };
 }
 
-export interface UnderlineProps {text: string, animationClass: string}
+export interface UnderlineProps { text: string, animationClass: string }
 
 function UnderlineSpan(props: UnderlineProps) {
     const swiperSlide = useSwiperSlide();
-    const animationCSS = swiperSlide.isActive? `${props.animationClass} animate-color` : '';
-    const underlinedText = {__html: props.text};
- return (
-     <Fragment>
-         <span className={animationCSS} dangerouslySetInnerHTML={underlinedText}></span>
-     </Fragment>
- )
+    const animationCSS = swiperSlide.isActive ? `${props.animationClass} animate-color` : '';
+    const underlinedText = { __html: props.text };
+    return (
+        <Fragment>
+            <span className={animationCSS} dangerouslySetInnerHTML={underlinedText}></span>
+        </Fragment>
+    )
 }
 
 
-export interface SlideProps {statDivs: ReactNode[]}
+export interface SlideProps { statDivs: ReactNode[] }
 
 function SlideContent(props: SlideProps) {
     const swiperSlide = useSwiperSlide();
-    const animationCSS = swiperSlide.isActive? `animate__animated animate__fadeIn animate__slow` : '';
+    const animationCSS = swiperSlide.isActive ? `animate__animated animate__fadeIn animate__slow` : '';
 
     return (
-        <div style={{
-            marginTop: '100px',
-            color: '#444',
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center'
-        }}>
-            <div
-                style={{
-                    display: 'flex',
-                    color: '#fff',
-                    borderRadius: '10px',
-                    width: '100px'
-                }}
-            ></div>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    backgroundColor: 'rgba(47,47,47,.75)',
-                    color: '#fff',
-                    maxWidth: '50%',
-                    borderRadius: '10px',
-                    padding: '64px',
-                    animationFillMode: 'forwards',
-                    animationDelay: '500ms',
-                    opacity: 0,
-                }}
-                className={animationCSS}
-            >
+        <div className="slide-overlay">
+            <div className='slide-flex-space'></div>
+            <div className={`slide-overlay-rect ${animationCSS}`}>
                 {props.statDivs.map(div => {
                     return (div)
                 })}
             </div>
-
-
-            <div
-                style={{
-                    display: 'flex',
-                    color: '#fff',
-                    borderRadius: '10px',
-                    width: '100px'
-                }}
-            ></div>
+            <div className='slide-flex-space'></div>
         </div>
-        )
+    )
 }

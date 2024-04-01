@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogActions } from '@mui/material';
+import { Dialog, DialogActions, Typography } from '@mui/material';
 import { ControlCallbacks, PageControl } from '../controls';
 import { EndGameResults, TrackedStats } from '../../trackedStats';
 import { GameSettings } from '../SelectGameSettings';
@@ -41,14 +41,21 @@ export default function EndGameDialog(props: EndGameDialogProps) {
 			{props.endGameResults.isWinningGame && <WinGame {...props}></WinGame>}
 			{!props.endGameResults.isWinningGame && <LoseGame {...props}></LoseGame>}
 
-			<DialogActions>
+			<DialogActions sx={{justifyContent: 'space-between'}}>
+				<Typography variant='h4' fontWeight='800'
+					textAlign='left' pl={2} component='div'
+					className='bp-font-color'>
+					Choose Your Own Solution
+				</Typography>
+				<div>
 				<ButtonGroup
 					buttons={buttons}
 					doPageCallback={props.doPageCallback}
 					doAppStateCallback={props.doAppStateCallback}
 					resolveToValue={props.resolveToValue}
 					useMUIStack={false}
-				/>
+					/>
+				</div>
 			</DialogActions>
 		</Dialog>
 	);
