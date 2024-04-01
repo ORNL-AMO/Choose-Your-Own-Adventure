@@ -187,7 +187,7 @@ $landfill-gasses:  #f06807;
 		position: fixed;
 		z-index: -1;
 		background: url($image-url);
-		filter: blur(3px);
+		// filter: blur(3px);
 		background-size: cover;
 		background-position: bottom;
 		top: -1 * $blur-radius;
@@ -220,23 +220,22 @@ $landfill-gasses:  #f06807;
 	flex-grow: 1;
 	color: #000;
 	border-radius: 10px;
-	padding: 36px 64px;
+	padding: 16px 64px;
 	animation-fill-mode: 'forwards';
 	opacity: 0;
 	font-size: 36px;
 	letter-spacing: 0px;
 	line-height: 3rem;
 	font-weight: 900;
-	text-transform: uppercase;
 	font-family:"Lato", sans-serif;
 }
 
 .slide-stat-div {
-	font-size: 42px;
+	font-size: 36px;
 	color: #fff;
 	font-weight: 900;
 	border-radius: 10px;
-	letter-spacing: 1.5px;
+	letter-spacing: 1px;
 	text-align: center;
 	font-family: "Lato", sans-serif;
 	line-height: 4rem;
@@ -246,6 +245,34 @@ $landfill-gasses:  #f06807;
 .child-stat-div {
 	margin-top: 2rem;
 }
+
+.slide-overlay {
+	margin-top: 100px;
+	color: #444;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.slide-overlay-rect {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	background-color: rgba(47,47,47,.75);
+	color: #fff;
+	max-width: 50%;
+	border-radius: 10px;
+	padding: 64px;
+	animation-fill-Mode: forwards;
+	animation-delay: 500ms;
+	opacity: 0
+}
+
+.slide-flex-space {
+	display: flex;
+	width: 100px;
+}
+
 
 
 // Animations  
@@ -314,4 +341,11 @@ $landfill-gasses:  #f06807;
 	// animation-delay: 6s;
 	// animation-fill-mode: forwards;
 	}
+}
+
+.lose-captioned {
+	color: #fff;
+	font-size: 24px;
+	text-align: left;
+	align-self: center;
 }
