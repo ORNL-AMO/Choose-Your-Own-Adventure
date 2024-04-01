@@ -54,19 +54,16 @@ import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapit
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
 
-export class YearRecap extends React.Component<YearRecapProps, { inView }> {
+export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar }> {
 	
-	state = {inView: false};
+	state = {showFloatingBar: false};
 
 	handleScroll = () => {
-		const {inView} = this.state;
 		let positionY: number = document.documentElement.scrollTop;
-		if ( positionY > 200 ) {
-			!inView && this.setState({inView: true});
-			return true;
-		} else if ( positionY < 200 ) {
-			inView && this.setState({inView: false});
-			return false;
+		if ( positionY > 134 ) {
+			this.setState({showFloatingBar: true});
+		} else if ( positionY < 134 ) {
+			this.setState({showFloatingBar: false});
 		}
 	  };
 	
@@ -82,8 +79,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		window.removeEventListener('scroll', this.handleScroll);
 	}
 
-	render() {		
-		const showFloatingHeader = this.state.inView;
+	render() {
 		// * initialCurrentYearStats - READ ONLY stats 
 		const initialCurrentYearStats = this.props.yearRangeInitialStats[this.props.currentGameYear - 1];
 		// * mutableStats - mutates as we calculate current year recap
@@ -113,7 +109,7 @@ export class YearRecap extends React.Component<YearRecapProps, { inView }> {
 		return (
 			<>
 				<Divider />
-				{showFloatingHeader &&
+				{this.state.showFloatingBar &&
 					<MobileStepper
 						sx={{
 							position: "sticky",
