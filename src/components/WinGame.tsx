@@ -77,7 +77,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         <span>In the game, you spent
                                             <UnderlineSpan text={`$${this.props.endGameResults.gameTotalSpending}`}
                                                 animationClass='animate-underline-emphasis'></UnderlineSpan>
-                                            on GHG reduction measures.
+                                            on GHG reduction measures
                                         </span>
 
                                     </div>,
@@ -86,7 +86,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         className='slide-stat-div child-stat-div'>
                                         {this.props.endGameResults.projectedFinancedSpending ?
                                             <span>In the years after the game, you will spend <UnderlineSpan text={`$${this.props.endGameResults.projectedFinancedSpending}`}
-                                                animationClass='animate-underline-emphasis'></UnderlineSpan> on financed and power purchase agreement projects.
+                                                animationClass='animate-underline-emphasis'></UnderlineSpan> on financed and power purchase agreement projects
                                             </span>
                                             :
                                             <></>
@@ -108,7 +108,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                             <UnderlineSpan text={`$${this.props.endGameResults.gameCurrentAndProjectedSpending}`}
                                                 animationClass='animate-underline-emphasis'></UnderlineSpan>
                                             and you will have reduced your GHG emissions by
-                                            <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsKg} kg/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPerTonne} tonne/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
                                     </div>,
                                     <div
@@ -130,7 +130,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     <div
                                         key={'slide4c'}
                                         className='slide-stat-div'>
-                                        Overall, You reduced your GHG emissions by {this.props.endGameResults.carbonSavingsPercent}%
+                                        Overall, you reduced your GHG emissions by {this.props.endGameResults.carbonSavingsPercent}%
                                     </div>,
                                     <div
                                         key={'slide4b'}

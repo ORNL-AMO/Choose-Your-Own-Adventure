@@ -648,7 +648,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 		});
 		const carbonSavingsPercentFormatted: string = (endYearStats.carbonSavingsPercent * 100).toFixed(2);
 		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endYearStats.gameTotalSpending);
-		const carbonSavingsKgFormatted: string = noDecimalsFormatter.format(endYearStats.carbonSavingsPerKg);
+
+        const carbonSavingsPerTonne = endYearStats.carbonSavingsPerKg / 1000;
+		const carbonSavingsPerTonneFormatted: string = noDecimalsFormatter.format(carbonSavingsPerTonne);
+
 		const projectedFinancedSpendingFormatted: string = noDecimalsFormatter.format(projectedFinancedSpending);
 		const gameCurrentAndProjectedSpendingFormatted: string = noDecimalsFormatter.format(projectedFinancedSpending + endYearStats.gameTotalSpending);
 		const costPerCarbonSavingsFormatted: string = endYearStats.costPerCarbonSavings !== undefined ? Intl.NumberFormat('en-US', {
@@ -659,7 +662,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 		// todo add NAN / undefined defensives
 		let endGameResults: EndGameResults = {
 			carbonSavingsPercent: carbonSavingsPercentFormatted,
-			carbonSavingsKg: carbonSavingsKgFormatted,
+			carbonSavingsPerTonne: carbonSavingsPerTonneFormatted,
 			gameTotalSpending: gameTotalNetCostFormatted,
 			projectedFinancedSpending: projectedFinancedSpendingFormatted,
 			gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpendingFormatted,
