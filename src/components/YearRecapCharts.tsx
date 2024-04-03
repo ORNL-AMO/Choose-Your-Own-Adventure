@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { Bar } from '@visx/shape';
 import { Group } from '@visx/group';
 import letterFrequency from '@visx/mock-data/lib/mocks/letterFrequency';
@@ -18,30 +18,32 @@ export type BarsProps = {
     barGraphData: number[];
     width: number;
     height: number;
-    totalIterations: number;
+    totalGameYears: number;
     graphTitle: string;
     unitLable: string;
     currentYear: number;
     domainYaxis: number;
     events?: boolean;
+    backgroundFill: string;
+    id: string;
 };
 
-export default function Example(props: BarsProps) {
+export default function YearRecapChart(props: BarsProps) {
     //'#1D428A' 96b1e9 d5e0f6
     let graphDataAndLables: BarData[] = [];
-    let yearCount: number = 0;    
-    let twoYearIntervalsCount: number = 0;
+    let yearCount = 0;    
+    let twoYearIncrementssCount = 0;
     props.barGraphData.forEach(data => {
         let dataLable: string;
         let fillColor: string;
         if (yearCount !== 0) {
-            if (props.totalIterations == 5) {
+            if (props.totalGameYears == 5) {
                 dataLable = 'Years ' + yearCount + ' and ' + (yearCount + 1);
                 fillColor = '#1D428A';
-                if (twoYearIntervalsCount > props.currentYear) {
-                    fillColor = 'url(#bar-hash)'
+                if (twoYearIncrementssCount > props.currentYear) {
+                    fillColor = 'url(#bar-hash)';
                 }
-                twoYearIntervalsCount++;
+                twoYearIncrementssCount++;
                 yearCount = yearCount + 2;
             } else {
                 dataLable = 'Year ' + yearCount;
@@ -57,7 +59,7 @@ export default function Example(props: BarsProps) {
                 fillColor: fillColor
             });
         } else {
-            twoYearIntervalsCount++;
+            twoYearIncrementssCount++;
             yearCount++;
         }
     });
@@ -78,12 +80,26 @@ export default function Example(props: BarsProps) {
             }),
         [xMax],
     );
+
+    let yDomain: number = 0;
+    let barGraphDataMax: number = 0;
+    props.barGraphData.forEach(data => {
+        if(data > barGraphDataMax){
+            barGraphDataMax = data;
+        }
+    });
+    if (barGraphDataMax > props.domainYaxis){
+        yDomain = Math.ceil(barGraphDataMax);        
+    } else {
+        yDomain = props.domainYaxis;
+    }
+
     const yScale = useMemo(
         () =>
             scaleLinear<number>({
                 range: [yMax, 0],
                 round: true,
-                domain: [0, props.domainYaxis],
+                domain: [0, yDomain],
             }),
         [yMax],
     );
@@ -92,6 +108,8 @@ export default function Example(props: BarsProps) {
     yScale.range([yMax, 0]);
 
     return props.width < 10 ? null : (
+        <div style={{ marginTop: '1rem', marginBottom: '1rem', }}>
+
         <svg width={props.width} height={props.height}>
             <PatternLines
                 id='bar-hash'
@@ -101,18 +119,17 @@ export default function Example(props: BarsProps) {
                 strokeWidth={1}
                 orientation={['diagonal']}
             />
-            <rect x={0} y={0} width={props.width} height={props.height} fill='#eaeffb' rx={14} />
+            <rect x={0} y={0} width={props.width} height={props.height} fill={props.backgroundFill} rx={14} />
             <Group top={verticalMargin / 2}>
-                {graphDataAndLables.map((d) => {
+                {graphDataAndLables.map((d, index) => {
                     const data = d.dataLables;
                     const barWidth = xScale.bandwidth();
                     const barHeight = yMax - (yScale(d.data) ?? 0);
                     const barX = xScale(data);
                     const barY = yMax - barHeight;
                     return (
-                        <>
+                        <Fragment key={`bar-${data}`}>
                             <Bar
-                                key={`bar-${data}`}
                                 x={barX}
                                 y={barY}
                                 width={barWidth}
@@ -125,7 +142,8 @@ export default function Example(props: BarsProps) {
                             <text x={barX} y={barY - 5} fontSize={12}>
                                 {d.data.toFixed(2)} {props.unitLable}
                             </text>
-                        </>
+
+                        </Fragment>
                     );
                 })}
             </Group>
@@ -174,6 +192,8 @@ export default function Example(props: BarsProps) {
                 }}
             />
         </svg>
+        </div>
+
     );
 }
 

@@ -25,15 +25,40 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: CI=false npm run build
+        run: |
+             if [[ ${{ github.ref_name }} == "develop" ]]; then
+               CI=false npm run build:development
+             elif [[ ${{ github.ref_name }} == "main" ]]; then
+               CI=false npm run build:production    
+             fi
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: build
           path: ./build
   
-  deploy:
-    runs-on: [self-hosted, amo-tools]
+  deploy-dev:
+    if: github.ref_name == 'develop'
+    runs-on: [self-hosted, dev]
+    needs: build
+    env:
+      APACHE_DIR: /var/www/html
+      BACKUP_DIR: /opt/actions-runner/backups
+    steps:
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+      - name: Deploy
+        run: |
+          tar -czf $BACKUP_DIR/cyos_$(printf '%(%Y-%m-%d)T\n' -1)_${GITHUB_SHA::7}.tar.gz $APACHE_DIR/cyos
+          rm -rf $APACHE_DIR/cyos/*
+          chgrp -R apache ./
+          mv ./* $APACHE_DIR/cyos/
+
+  deploy-prod:
+    if: github.ref_name == 'main'
+    runs-on: [self-hosted, prod]
     needs: build
     env:
       APACHE_DIR: /var/www/html

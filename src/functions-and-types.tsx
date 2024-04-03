@@ -3,6 +3,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import React from 'react';
 import type { App, AppState, NextAppState } from './App';
 import { theme } from './components/theme';
+import { FinancingOption } from './Financing';
 
 /**
  * Parse handcrafted text into pretty-printed HTML. Currently supported: 
@@ -13,12 +14,14 @@ import { theme } from './components/theme';
  * @param text Text to parse. If an array of strings is provided, then they will be joined by two newlines.
  * @returns Object for passing to "dangerouslySetInnerHTML" attribute (https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml)
  */
-export function parseSpecialText(text?: string|string[]): {__html: string} {
+export function parseSpecialText(text?: string|string[], shouldEmphasize: boolean = true): {__html: string} {
 	text = text || '';
+	let span = '<span>$1</span>';
+	if (shouldEmphasize) span = '<span class="emphasis">$1</span>';
 	if (text instanceof Array) text = text.join('\n\n'); // If text is an array, join it with two linebreaks into one string
 	let newText = text
 		.replace(/_{([^{}]*?)}/g, '<sub>$1</sub>')									// Subscript
-		.replace(/{([^{}]*?)}/g, '<span class="emphasis">$1</span>') 				// Emphasis
+		.replace(/{([^{}]*?)}/g, span) 				// Emphasis
 		.replace(/(\n)|(\\n)/g, '<br/>')											// Line break
         .replace(/\[(.*?)\]\((\S*?)\)/g, '<a href="$2" target="_blank">$1</a>');	// Links
     
@@ -28,11 +31,28 @@ export function parseSpecialText(text?: string|string[]): {__html: string} {
 }
 
 /**
+ * Use to pad strings for unique keys in React lists
+ */
+export function getIdString() {
+	return (Math.random() + 1).toString(36).substring(7);
+}
+
+/**
  * Return the ratio of one number to another, with a maximum of 1.
  */
 export function clampRatio(value: number, max: number) {
 	return Math.min(value / max, 1);
 }
+
+export function truncate(text: string, specifiedLimit?: number) {
+    let limit = specifiedLimit ? specifiedLimit : 50;
+    if (text.length > limit) {
+        return text.slice(0, limit) + '...'
+    } else {
+        return text;
+    }
+}
+
 
 /**
  * Returns the number with a + or - sign depending on its sign.
@@ -235,7 +255,7 @@ declare global {
 	 * @param state Read-only, immutable state of the main app
 	 * @param nextState Mutable object containing properties to assign to the app's state next.
 	 */
-	type PageCallback = ((this: App, state: AppState, nextState: NextAppState) => symbol)|symbol;
+	type PageCallback = ((this: App, state: AppState, nextState: NextAppState, financingOption: FinancingOption) => symbol)|symbol;
 	
 	/**
 	 * Make state changes without Page navigation
@@ -253,4 +273,7 @@ declare global {
 	
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	type Component = React.Component|Function;
+
+
+
 }
