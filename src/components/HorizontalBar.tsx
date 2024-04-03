@@ -13,6 +13,7 @@ type BarChartKeys = 'Finances available' | 'Money spent';
 export type BarStackHorizontalProps = {
 	width: number;
 	height: number;
+	inHeader: boolean;
 	margin?: { top: number; right: number; bottom: number; left: number };
 	events?: boolean;
 	data: [{
@@ -56,6 +57,7 @@ const colorScale = scaleOrdinal<BarChartKeys, string>({
 interface HorizontalBarPureProps extends BarStackHorizontalProps { //todo
 	containerRef: (element: SVGElement | HTMLElement | null) => void;
 	margin: Margin;
+	inHeader: boolean;
 	showTooltip: (args) => void;
 	hideTooltip: () => void;
 }
@@ -91,7 +93,8 @@ class HorizontalBarPure extends PureComponentIgnoreFuncs<HorizontalBarPureProps>
 		moneyScale.rangeRound([0, xMax]);
 		yearScale.rangeRound([yMax, 0]);
 	
-		return (<svg ref={this.props.containerRef} width={this.props.width} height={this.props.height}>
+		return (<svg ref={this.props.containerRef} width={this.props.width} height={this.props.height} 
+			style={{position: 'relative', top: '15px'}}>
 			{/* <rect width={props.width} height={props.height} fill={background} rx={14} /> */}
 			<Group top={this.props.margin.top} left={this.props.margin.left}>
 				<BarStackHorizontal<any, BarChartKeys>
@@ -128,20 +131,23 @@ class HorizontalBarPure extends PureComponentIgnoreFuncs<HorizontalBarPureProps>
 						)
 					}
 				</BarStackHorizontal>
-				<AxisBottom
-					top={yMax}
-					scale={moneyScale}
-					stroke={black}
-					tickStroke={black}
-					numTicks={4}
-					tickLabelProps={() => ({
-						fill: black,
-						fontSize: 11,
-						textAnchor: 'middle',
-					})}
-					label='Rebates are added to "Finances available".'
-					labelClassName='i'
-				/>
+				{!this.props.inHeader &&
+					<AxisBottom
+						top={yMax}
+						scale={moneyScale}
+						stroke={black}
+						tickStroke={black}
+						numTicks={4}
+						tickFormat={function tickFormat(d) {
+							return '$' + d.toLocaleString('en-US')
+						}}
+						tickLabelProps={() => ({
+							fill: black,
+							fontSize: 11,
+							textAnchor: 'middle',
+						})}
+					/>
+			}
 			</Group>
 		</svg>);
 	}
@@ -179,17 +185,18 @@ function HorizontalBarWithTooltip (props: BarStackHorizontalProps) {
 				hideTooltip={hideTooltip}
 				showTooltip={showTooltip}
 				margin={margin}
+				inHeader={props.inHeader}
 			/>
 			<div
 				style={{
 					position: 'absolute',
-					top: margin.top / 2 - 10,
+					top: '30px',
 					width: '100%',
 					display: 'flex',
 					justifyContent: 'center',
 					fontSize: '16px',
 				}}
-			>
+				>
 				<LegendOrdinal scale={colorScale} direction='row' labelMargin='0 15px 0 0' />
 			</div>
 			{tooltipOpen && tooltipData && (

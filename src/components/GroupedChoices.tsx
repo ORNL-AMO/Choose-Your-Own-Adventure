@@ -6,7 +6,8 @@ import { ButtonGroup } from './Buttons';
 import { PaperGridItem } from './theme';
 import type { ControlCallbacks, PageControl } from './controls';
 import { Stack } from '@mui/system';
-import type { SelectedProject } from '../Projects';
+import type { SelectedProject } from '../ProjectControl';
+import { FinancingOption } from '../Financing';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -23,7 +24,6 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			.filter(choice => {
 				return props.resolveToValue(choice.visible, true);}) // Filter out choices that are not currently visible
 			.map((choice, idx) => {
-				// todo 25 eventually implement success border
 				// let implemented = resolveToValue(choice.implemented, false);
 				let disabled = resolveToValue(choice.disabled, false);
 				let paperStyle = { 
@@ -57,10 +57,10 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 						<CardHeader
 							action={
 									<ButtonGroup
-										buttons={choice.choiceStats}
+										buttons={choice.energySavingsPreviewIcons}
 										disabled={disabled}
 										doPageCallback={props.doPageCallback}
-										summonInfoDialog={props.summonInfoDialog}
+										displayProjectDialog={props.displayProjectDialog}
 										resolveToValue={props.resolveToValue}
 										isProjectGroupChoice={props.isProjectGroupChoice}
 									/>
@@ -76,7 +76,7 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 							buttons={choiceButtons}
 							disabled={disabled}
 							doPageCallback={props.doPageCallback}
-							summonInfoDialog={props.summonInfoDialog}
+							displayProjectDialog={props.displayProjectDialog}
 							resolveToValue={props.resolveToValue}
 							doAppStateCallback={props.doAppStateCallback}
 							isProjectGroupChoice={props.isProjectGroupChoice}
@@ -168,7 +168,8 @@ export interface Choice {
 	disabled?: Resolvable<boolean>;
 	implemented?: Resolvable<boolean>;
 	// Quick/small stats to include in card headers or elsewhere 
-	choiceStats?: ButtonGroupButton[]
+	energySavingsPreviewIcons?: ButtonGroupButton[]
+	financingOption?: FinancingOption;
 	/**
 	 * Buttons to appear at the bottom of the choice.
 	 */
@@ -198,7 +199,7 @@ export interface GroupedChoicesControlProps {
 	/**
 	 * Title of the entire GroupedChoices page.
 	 */
-	allowImplementProjects?: symbol[]
+	availableProjectIds?: symbol[]
 	selectedProjectsForComparison?: SelectedProject[];
 	handleClearProjectsClick?: () => void;
 	handleCompareProjectsClick?: () => void;

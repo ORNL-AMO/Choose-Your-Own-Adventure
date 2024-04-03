@@ -3,6 +3,8 @@ $doe-green: #007a3e;
 $mui-success: #2e7d32;
 $blur-radius: 5px;
 
+$landfill-gasses:  #f06807;
+
   
 .bp-font-color {
 	color: $better-plants-blue
@@ -74,12 +76,11 @@ $blur-radius: 5px;
 		justify-content: center;
 		display: flex;
 	flex-wrap: wrap;
-	& > * {
-		padding: 8px;
-	}
+	padding-left: 0;
+
 }
 
-.year-recap-rebate-surprise {
+.year-recap-positive-surprise {
 	background: linear-gradient(to right bottom, rgba(63, 163, 0, 1), rgb(80, 161, 0) 120%)!important;
 	// color: rgba(255, 255, 255, 0.9)!important;
 	& .emphasis {
@@ -87,7 +88,7 @@ $blur-radius: 5px;
 	}
 }
 
-.year-recap-hidden-surprise {
+.year-recap-negative-surprise {
 	background: linear-gradient(to right bottom, rgba(251, 67, 67, 98%), rgb(147, 39, 39) 120%)!important;
 	// color: rgba(255, 255, 255, 0.9)!important;
 	& .emphasis {
@@ -96,10 +97,255 @@ $blur-radius: 5px;
 }
 
 
-#alert-dialog-slide-description, #selectYearInterval, #allowCarryover, #allowEnergyCarryover {
+#alert-dialog-slide-description, #selectGameYearInterval, #selectFinancingStartYear, #selectAllowBudgetCarryover, #selectCostSavingsCarryoverYears {
 	color: black;
 }
 
 #dashboardText {
 	font-weight: bold;
+}
+// EOG slider
+
+.swiper {
+	width: 100%;
+	height: 100%;
+}
+
+.swiper-slide {
+	text-align: center;
+	font-size: 18px;
+	background: #fff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&::before {
+		content: '';
+		//todo problem with animations?
+		@extend .slide1-image;
+	}
+}
+
+.swiper-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.autoplay-progress {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	z-index: 10;
+	width: 48px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	color: var(--swiper-theme-color);
+  }
+  
+  .autoplay-progress svg {
+	--progress: 0;
+	position: absolute;
+	left: 0;
+	top: 0px;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	stroke-width: 4px;
+	stroke: var(--swiper-theme-color);
+	fill: none;
+	stroke-dashoffset: calc(125.6 * (1 - var(--progress)));
+	stroke-dasharray: 125.6;
+	transform: rotate(-90deg);
+  }
+
+
+
+//    Slides
+.swiper-slide.swiper-slide-active.lose-game-bg {
+	&::before {
+		position: fixed;
+		z-index: -1;
+		background: url('images/lose-image-opt-sm.jpg');
+		filter: none;
+		background-size: cover;
+		background-position: bottom;
+		top: -1 * $blur-radius;
+		left: -1 * $blur-radius;
+		bottom: -1 * $blur-radius;
+		right: -1 * $blur-radius;
+		display: block;
+	}
+}
+
+@mixin slide-psuedo-image($image-url) {
+	&::before {
+		position: fixed;
+		z-index: -1;
+		background: url($image-url);
+		// filter: blur(3px);
+		background-size: cover;
+		background-position: bottom;
+		top: -1 * $blur-radius;
+		left: -1 * $blur-radius;
+		bottom: -1 * $blur-radius;
+		right: -1 * $blur-radius;
+		display: block;
+	}
+}
+
+.swiper-slide.swiper-slide-active.slide1-image {
+	@include slide-psuedo-image('images/turbine2-opt.jpg')
+}
+
+.swiper-slide.swiper-slide-active.slide2-image {
+	@include slide-psuedo-image('images/solar-array2-opt.jpg')
+}
+
+.swiper-slide.swiper-slide-active.slide3-image {
+	@include slide-psuedo-image('images/electricity.jpg')	
+}
+
+.swiper-slide.swiper-slide-active.slide4-image {
+	@include slide-psuedo-image('images/field-opt.jpg')	
+}
+
+.lose-game-text {
+	display: 'flex';
+	flex-direction: 'column';
+	flex-grow: 1;
+	color: #000;
+	border-radius: 10px;
+	padding: 16px 64px;
+	animation-fill-mode: 'forwards';
+	opacity: 0;
+	font-size: 36px;
+	letter-spacing: 0px;
+	line-height: 3rem;
+	font-weight: 900;
+	font-family:"Lato", sans-serif;
+}
+
+.slide-stat-div {
+	font-size: 36px;
+	color: #fff;
+	font-weight: 900;
+	border-radius: 10px;
+	letter-spacing: 1px;
+	text-align: center;
+	font-family: "Lato", sans-serif;
+	line-height: 4rem;
+	margin-top: 0;
+}
+
+.child-stat-div {
+	margin-top: 2rem;
+}
+
+.slide-overlay {
+	margin-top: 100px;
+	color: #444;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.slide-overlay-rect {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	background-color: rgba(47,47,47,.75);
+	color: #fff;
+	max-width: 50%;
+	border-radius: 10px;
+	padding: 64px;
+	animation-fill-Mode: forwards;
+	animation-delay: 500ms;
+	opacity: 0
+}
+
+.slide-flex-space {
+	display: flex;
+	width: 100px;
+}
+
+
+
+// Animations  
+  .animate-underline-emphasis {
+	display: inline-block;
+	position: relative;
+	padding-bottom: 3px;
+	line-height: 3rem;
+}
+
+@keyframes border {
+	from {
+		width: 0%;
+	}
+
+	to {
+		width: 100%;
+	}
+}
+
+
+.animate-underline-emphasis:after {
+	content: '';
+	display: block;
+	margin: auto;
+	height: 5px;
+	width: 0px;
+	background: #fff;
+	animation-name: border;
+	animation-duration: 500ms;
+	animation-delay: 2s;
+	animation-fill-mode: both;
+}
+
+@keyframes fade-color {
+	0% { color: rgba(68,68,68,.6); }
+	100% { color: white; }
+}
+
+
+.animate-color {
+	color: rgba(68,68,68,.6);
+	padding-left: 12px;
+	padding-right: 12px;
+	font-weight: 1000;
+	font-size: 36px;
+	animation: fade-color 3s;
+	animation-delay: 1s;
+	animation-fill-mode: both;
+}
+
+@keyframes fade-opacity {
+	0% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
+
+#fade-to-white {
+	&::before {
+	position: absolute;
+	background-color: #000;
+	display: flex;
+	// width: 100%;
+	height: 100%;
+	// animation: fade-opacity 10s;
+	// animation-delay: 6s;
+	// animation-fill-mode: forwards;
+	}
+}
+
+.lose-captioned {
+	color: #fff;
+	font-size: 24px;
+	text-align: left;
+	align-self: center;
 }

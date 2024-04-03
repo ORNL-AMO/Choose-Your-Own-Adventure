@@ -1,7 +1,10 @@
+import { CompletedProject } from './ProjectControl';
 import { theme } from './components/theme';
 
 /**
- * Stats that are tracked throughout gameplay.
+ * Stats that are tracked throughout gameplay. 
+ * 
+ * 
  */
 export interface TrackedStats {
 	/**
@@ -25,40 +28,118 @@ export interface TrackedStats {
 	 * Cost of electricity, per kWh.
 	 */
 	electricityCostPerKWh: number;
+
 	/**
-	 * Emissions of electricity production, per MMBTU.
+	 * Landfill Gas, in millions of British Thermal Units (MMBTU, for reasons)
 	 */
-	electricityEmissionsPerKWh: number;
+	hydrogenMMBTU: number;
 	/**
-	 * Keeps track of rebates from projects.
+	 * Cost of Landfill Gas, per MMBTU.
 	 */
-	totalRebates: number;
-	
-	totalBudget: number;
+	hydrogenCostPerMMBTU: number;
+	/**
+	 * Emissions of Landfill Gas, per MMBTU.
+	 */
+	hydrogenEmissionsPerMMBTU: number;
+
+	/**
+	 * Serves as rebate applier for statsRecapAppliers
+	 */
+	yearRebates?: number;
+	/**
+	 * Budget for the year
+	 */
+	yearBudget: number;
+	/**
+	 * Available finances at any time 
+	 */
 	financesAvailable: number;
+	/**
+	 * 
+	 */
 	carbonSavingsPercent: number;
+	/**
+	 * 
+	 */
 	carbonEmissions: number;
+	/**
+	 * 
+	 */
 	carbonSavingsPerKg: number;
 	/**
 	 * Emissions savings in kg coming from projects with absolute/static savings
 	 */
 	absoluteCarbonSavings: number;
+	/**
+	 * Cost per carbon kg savings
+	 */
 	costPerCarbonSavings: number;
-	moneySpent: number;
 	/**
-	 * Total money spent, across the whole run.
+	 * Year Costs applied IN-YEAR from project implementation. Does NOT include hidden costs or rebates
 	 */
-	totalMoneySpent: number;
+	implementationSpending: number;
 	/**
-	 * tracking year, 1 through 5.
+	 * Year Hidden costs applied at Year Recap 
 	 */
-	year: number;
+	hiddenSpending: number;
 	/**
-	 * year to display for two year intervals
+	 * End of year total spending, adusted for hidden costs and  rebates
 	 */
-	yearInterval: number;
-	gameYears: number;
+	yearEndTotalSpending: number;
+	/**
+	 * Total spending so far throughout the game
+	 */
+	gameTotalSpending: number;
+	/**
+	 * Current year of game
+	 */
+	currentGameYear: number;
+	/**
+	 * When in shortened game: apply value to curent year for display
+	 */
+	gameYearDisplayOffset: number;
+	/**
+	 * Game years are playable in increments of 1 or 2
+	 */
+	gameYearInterval: number;
+	/**
+	 * Multiplier to adjust game difficulty
+	 */
+	projectCostSavingsMultiplier: number;
+	renewedProjectCostSavingsMultiplier: number;
 }
+
+export interface EndGameResults {
+	carbonSavingsPercent: string,
+	gameTotalSpending: string,
+	carbonSavingsPerTonne: string,
+	projectedFinancedSpending: string,
+	gameCurrentAndProjectedSpending: string,
+	costPerCarbonSavings: string,
+	completedProjects: CompletedProject[];
+	endYearStats: TrackedStats;
+	isWinningGame: boolean;
+}
+
+export interface YearCostSavings {
+	naturalGas: number,
+	electricity: number,
+	hydrogen: number
+}
+
+
+const ElectricityEmissionsFactors: { [key: number]: number } = {
+	1: .371,
+	2: .358,
+	3: .324,
+	4: .311,
+	5: .305,
+	6: .302,
+	7: .300,
+	8: .291,
+	9: .285,
+	10: .276
+};
 
 /**
  * The initial state of TrackedStats
@@ -67,56 +148,46 @@ export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 4_000, 
 	naturalGasCostPerMMBTU: 5,
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
-	
 	electricityUseKWh: 4_000_000, 
 	electricityCostPerKWh: 0.10,
-	electricityEmissionsPerKWh: 0.40107, // electricity is 0.40107 kgCO2/kWh
+	hydrogenMMBTU: 2_000,
+	hydrogenCostPerMMBTU: 5,
+	hydrogenEmissionsPerMMBTU: 0.268,
 	carbonSavingsPercent: 0,
 	financesAvailable: 150_000,
-	totalBudget: 150_000,
+	yearBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
 	carbonSavingsPerKg: 0, 
 	absoluteCarbonSavings: 0,
 	costPerCarbonSavings: 0,
-	moneySpent: 0,
-	totalMoneySpent: 0,
-	totalRebates: 0,
-	year: 1,
-	yearInterval: 1,
-	gameYears: 1
-};
-
-/**
- * A new TrackedStats object where everything is zero.
- */
-export const emptyTrackedStats: TrackedStats = {
-	naturalGasMMBTU: 0, 
-	naturalGasCostPerMMBTU: 0,
-	naturalGasEmissionsPerMMBTU: 0,
-	electricityUseKWh: 0, 
-	electricityCostPerKWh: 0,
-	electricityEmissionsPerKWh: 0,
-	
-	financesAvailable: 0,
-	totalBudget: 0,
-	carbonSavingsPercent: 0,
-	carbonSavingsPerKg: 0,
-	carbonEmissions: 0,
-	absoluteCarbonSavings: 0,
-	costPerCarbonSavings: 0,
-	moneySpent: 0,
-	totalMoneySpent: 0,
-	totalRebates: 0,
-	year: 0,
-	yearInterval: 0,
-	gameYears: 1
+	implementationSpending: 0,
+	hiddenSpending: 0,
+	yearEndTotalSpending: 0,
+	gameTotalSpending: 0,
+	currentGameYear: 1,
+	gameYearDisplayOffset: 1,
+	gameYearInterval: 1,
+	projectCostSavingsMultiplier: .5,
+	renewedProjectCostSavingsMultiplier: 1
 };
 
 initialTrackedStats.carbonEmissions = calculateEmissions(initialTrackedStats);
 
+export function getElectricityEmissionsFactor(currentGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
+	let isEndOfGame = gameYearInterval > 1? gameYearDisplayOffset >= 10 : currentGameYear > 10; 
+	let year = currentGameYear;
+	if (isEndOfGame) {
+		year = 10;
+	} else if (gameYearInterval > 1) {
+		year = gameYearDisplayOffset + 1;
+    }
+	let emissionsFactor = ElectricityEmissionsFactors[year];
+	return emissionsFactor;
+}
+
 export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
-	let elecEmissions = stats.electricityUseKWh * stats.electricityEmissionsPerKWh;
+	let elecEmissions = stats.electricityUseKWh * getElectricityEmissionsFactor(stats.currentGameYear, stats.gameYearInterval, stats.gameYearDisplayOffset);
 	return ngEmissions + elecEmissions;
 }
 
@@ -124,30 +195,46 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	let newEmissions;
 	if (newStats.absoluteCarbonSavings) {
 		// WARNING - calculation assumes that projects with absoluteCarbonSavings will never have other emissions modifiers (nat gas, electricity)
-		 newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
+		newEmissions = calculateEmissions(newStats) + newStats.absoluteCarbonSavings;
 	} else {
 		newEmissions = calculateEmissions(newStats);
 	}
 
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
-	// * % CO2 saved * total initial emissions;
 	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
 	return newStats;
 }
 
-export function calculateYearSavings(oldStats: TrackedStats, newStats: TrackedStats) {
+/**
+* Set mutable stats costPerCarbonSavings
+*/
+export function setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number) {
+	let costPerCarbonSavings = 0;
+	if (gameCurrentAndProjectedSpending > 0 && mutableStats.carbonSavingsPerKg > 0) {
+		costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
+	}
+	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
+export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {
 	let oldNgCost = oldStats.naturalGasCostPerMMBTU * oldStats.naturalGasMMBTU;
 	let newNgCost = newStats.naturalGasCostPerMMBTU * newStats.naturalGasMMBTU;
 	
 	let oldElecCost = oldStats.electricityCostPerKWh * oldStats.electricityUseKWh;
 	let newElecCost = newStats.electricityCostPerKWh * newStats.electricityUseKWh;
+
+	
+	let oldHCost = oldStats.hydrogenCostPerMMBTU * oldStats.hydrogenMMBTU;
+	let newHCost = newStats.hydrogenCostPerMMBTU * newStats.hydrogenMMBTU;
 	
 	return {
 		naturalGas: oldNgCost - newNgCost,
 		electricity: oldElecCost - newElecCost,
+		hydrogen: oldHCost - newHCost
 	};
 }
+
 
 /**
  * exclusively for dashboardStatsGaugeProperties
@@ -179,8 +266,14 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		textFontSize: 0.85,
 		maxValue: 2_000_000,
 	},
+	hydrogenMMBTU: {
+		label: 'Landfill Gas use (MMBTU)',
+		color: theme.palette.primary.light,
+		textFontSize: 0.85,
+		maxValue: 2_000,
+	},
 	carbonSavings: {
-		label: 'Carbon savings',
+		label: 'GHG Reduction',
 		color: '#000000',
 		textFontSize: 1,
 		maxValue: 1,

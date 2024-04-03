@@ -1,846 +1,17 @@
 import React from 'react';
-import type { AppState, NextAppState } from './App';
-import type App from './App';
-import { compareButton, deselectButton } from './components/Buttons';
-import type { ButtonGroupButton } from './components/Buttons';
-import { closeDialogButton } from './components/Buttons';
-import { infoButtonWithDialog, implementButtonCheckbox } from './components/Buttons';
-import type { TrackedStats } from './trackedStats';
-import type { Choice } from './components/GroupedChoices';
-import type { DialogCardContent, DialogControlProps } from './components/InfoDialog';
-import { theme } from './components/theme';
 import FlameIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
-import FactoryIcon from '@mui/icons-material/Factory';
-import Pages from './Pages';
-import { Alert } from '@mui/material';
+import Pages from "./Pages";
 import TrafficConeIcon from './icons/TrafficConeIcon';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import Co2Icon from '@mui/icons-material/Co2';
-import { setCarbonEmissionsAndSavings, calculateEmissions } from './trackedStats';
+import { ProjectControl, absolute } from "./ProjectControl";
+import { getGreenBondsFinancing, getLoanFinancing, getEaaSFinancing, getHasFinancingStarted } from './Financing';
 
-
-// IMPORTANT: Keep Scope1Projects and Scope2Projects up to date as you add new projects!!!!!!
-// These lists (Scope1Projects and Scope2Projects) keep track of WHICH projects are in WHICH scope. Currently, they are used to give a warning to the user
-// 	when they click Proceed (to Year Recap) while only having selected projects from one scope.
-
-/**
- * List of Page symbols for projects that are in the SCOPE 1 list.
- */
-
-export const Scope1Projects = [
-	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
-	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler
-	//Pages.digitalTwinAnalysis, 
-	//Pages.hydrogenPoweredForklifts, 
-	//Pages.condensingEconomizerInstallation, 
-]
-/**
- * List of Page symbols for projects that are in the SCOPE 2 list.
- */
-
-export const Scope2Projects = [
-	Pages.advancedEnergyMonitoring,
-	Pages.reduceFanSpeeds, Pages.lightingOccupancySensors, Pages.improveLightingSystems, Pages.startShutOff,
-	Pages.airHandingUnitUpgrades, Pages.compressedAirSystemImprovemnt, Pages.loweringCompressorPressure,
-	Pages.chilledWaterMonitoringSystem,
-	Pages.installVFDs1, Pages.installVFDs2, Pages.installVFDs3,
-	Pages.solarPanelsCarPort,
-	Pages.solarPanelsCarPortMaintenance,
-	Pages.midSolar,
-	Pages.solarRooftop,
-	Pages.largeWind,
-	Pages.smallVPPA,
-	Pages.midVPPA,
-	Pages.largeVPPA,
-	// Pages.solarFieldOnSite, 
-	//Pages.lightingUpgrades, Pages.greenPowerTariff,
-	//Pages.compressedAirSystemOptimization, 
-	//Pages.refrigerationUpgrade, 
-];
-
-/**
- * Dictionary of ProjectControls. The key must be a `Page` symbol (see `Pages.tsx`), 
- * and make sure the associated ProjectControl's `pageId` is the same as that key.
- */
+declare interface ProjectControls {
+	[key: symbol]: ProjectControl;
+}
 const Projects: ProjectControls = {};
-
 export default Projects;
-
-export declare interface CaseStudy {
-	title: string;
-	text: string | string[];
-	url: string;
-}
-
-declare interface RecapAvatar {
-	icon: JSX.Element;
-	backgroundColor?: string;
-	color?: string,
-}
-
-/**
- * Hidden surprise to appear on the year recap page.
- */
-declare interface RecapSurprise {
-	title: string;
-	text: string | string[];
-	avatar: {
-		icon: JSX.Element,
-		backgroundColor: string,
-		color: string,
-	}
-	img?: string;
-	imgObjectFit?: 'cover' | 'contain';
-	imgAlt?: string;
-}
-
-/**
- * Used for tracking completed project related state throughout the view/pages
- */
-export interface CompletedProject extends Project {
-	selectedYear: number,
-}
-
-export interface SelectedProject extends Project {
-	infoDialog: DialogControlProps
-}
-
-export interface RenewalProject extends Project {
-	yearsImplemented: number[],
-    yearStarted: number;
-	yearlyFinancialSavings?: {
-		naturalGas: number,
-		electricity: number	
-	}
-}
-
-export interface Project {
-	page: symbol
-}
-
-/**
- * Used for tracking Game Settings  
- */
-export interface GameSettings {
-	totalIterations: number,
-	budget: number,
-	naturalGasUse: number,
-	electricityUse: number,
-}
-
-/**
- * Parameters to pass into a ProjectControl. See code definition in `projects.tsx` for all fields and params.
- */
-declare interface ProjectControlParams {
-	/**
-	 * Page symbol associated with this project.
-	 */
-	pageId: symbol;
-	/**
-	 * Project cost, exclusing rebates.
-	 */
-	cost: number;
-	/**
-	 * Project that has to be renewed (reimplemented) each year) - stat appliers are removed going into each year
-	*/
-	renewalRequired?: boolean;
-
-	/**
-	 * Numbers that appear on the INFO CARD, before checking the checkbox.
-	 */
-	statsInfoAppliers: TrackedStatsApplier;
-	/**
-	 * Numbers that affect the dashboard charts AND that apply when "Proceed" is clicked.
-	 */
-	statsActualAppliers: TrackedStatsApplier;
-	/**
-	 * Stats that are applied at year end (or year range) recap
-	 */
-	statsRecapAppliers?: TrackedStatsApplier;
-	/**
-	 * Full title of the project, displayed on the choice info popup and the recap page.
-	 */
-	title: string;
-	/**
-	 * Shorter title, displayed on the choice cards.
-	 */
-	shortTitle: string;
-	/**
-	 * Info text to display in the dialog when "INFO" is clicked on the choice card.
-	 */
-	choiceInfoText: string | string[];
-	/**
-	 * Image to display in the dialog when "INFO" is clicked on the choice card.
-	 */
-	choiceInfoImg?: string;
-	/**
-	 * "Alt text", i.e. image description, to display in the dialog when "INFO" is clicked on a choice card.
-	 */
-	choiceInfoImgAlt?: string;
-	/**
-	 * object-fit property in the image displayed in the dialog when "INFO" is clicked on the choice card.
-	 * `'cover'` makes it stretch to the boundaries of the card, and `'contain'` makes the entire image visible.
-	 * If `'contain'` is selected, then a larger, blurred version of the image will be visible behind the regular image (for visual appeal/interest)
-	 */
-	choiceInfoImgObjectFit?: 'cover' | 'contain';
-	/**
-	 * Extra text to display on the Year Recap page when the project has been selected.
-	 */
-	recapDescription: string | string[];
-	/**
-	 * Icon to be shown in the year recap page.
-	 */
-	recapAvatar?: RecapAvatar;
-	rebateAvatar?: RecapAvatar;
-	/**
-	 * Button to go between "INFO" and "SELECT" on the project selection page. 
-	 * 
-	 * Recommended: Include a visual startIcon to represent the **type** of project (e.g. flame, smoke, CO2)
-	 * and a number or percentage to represent the effect this project will have.
-	 */
-	energySavingsPreviewButton?: ButtonGroupButton;
-	utilityRebateValue?: number
-	/**
-	 * Surprises that appear AFTER PROCEED is clicked (after they've committed to the selected projects).
-	 */
-	recapSurprises?: RecapSurprise[];
-	/**
-	 * External case study for a project, i.e., example of a real company doing that project idea.
-	 * @param {string} title
-	 * @param {string|string[]} text
-	 * @param {string} url 
-	 */
-	caseStudy?: CaseStudy;
-	/**
-	 * Whether the project will be visible. For example, only show if a PREVIOUS Project has been selected, or if the year is at least 3.
-	 */
-	visible?: Resolvable<boolean>;
-	/**
-	 * Whether the project card should appear disabled.
-	 */
-	disabled?: Resolvable<boolean>;
-	/**
-	 * tracks the year the project is selected 
-	 */
-	yearSelected?: number;
-	projectDialogInfo?: DialogControlProps;
-	hasImplementationYearAppliers?: boolean;
-	relatedProjectSymbols?: symbol[];
-}
-
-export class ProjectControl implements ProjectControlParams {
-
-	pageId: symbol;
-	renewalRequired?: boolean;
-	cost: number;
-	statsInfoAppliers: TrackedStatsApplier;
-	statsActualAppliers: TrackedStatsApplier;
-	statsRecapAppliers?: TrackedStatsApplier;
-	title: string;
-	shortTitle: string;
-	choiceInfoText: string | string[];
-	choiceInfoImg?: string;
-	choiceInfoImgAlt?: string;
-	choiceInfoImgObjectFit?: 'cover' | 'contain';
-	recapDescription: string | string[];
-	energySavingsPreviewButton?: ButtonGroupButton;
-	utilityRebateValue?: number;
-	recapSurprises?: RecapSurprise[];
-	caseStudy?: CaseStudy;
-	recapAvatar: RecapAvatar;
-	rebateAvatar: RecapAvatar;
-	visible: Resolvable<boolean>;
-	disabled: Resolvable<boolean>;
-	yearSelected?: number;
-	projectDialogInfo: DialogControlProps;
-	hasImplementationYearAppliers?: boolean;
-	relatedProjectSymbols?: symbol[] | undefined;
-
-	/**
-	 * Project Control constructor. See `ProjectControlParams` for details on each parameter.
-	 * @param params 
-	 */
-	constructor(params: ProjectControlParams) {
-		this.pageId = params.pageId;
-		this.renewalRequired = params.renewalRequired;
-		this.statsInfoAppliers = params.statsInfoAppliers;
-		this.statsActualAppliers = params.statsActualAppliers;
-		this.statsRecapAppliers = params.statsRecapAppliers;
-		this.title = params.title;
-		this.shortTitle = params.shortTitle;
-		this.choiceInfoText = params.choiceInfoText;
-		this.choiceInfoImg = params.choiceInfoImg;
-		this.choiceInfoImgAlt = params.choiceInfoImgAlt;
-		this.choiceInfoImgObjectFit = params.choiceInfoImgObjectFit;
-		this.recapDescription = params.recapDescription;
-		this.recapAvatar = params.recapAvatar || {
-			backgroundColor: undefined,
-			icon: <FactoryIcon />
-		};
-		this.energySavingsPreviewButton = params.energySavingsPreviewButton;
-		this.rebateAvatar = params.rebateAvatar || {
-			icon: <ThumbUpAltIcon />,
-			backgroundColor: 'rgba(255,255,255,0.8)',
-			color: 'rgba(63, 163, 0, 1)',
-		};
-		this.caseStudy = params.caseStudy;
-		if (params.utilityRebateValue) this.utilityRebateValue = params.utilityRebateValue;
-		else this.utilityRebateValue = 0;
-		this.recapSurprises = params.recapSurprises;
-		this.visible = params.visible || true; // Default to true
-		this.disabled = params.disabled || false; // Default to false
-		this.cost = params.cost;
-		this.yearSelected = params.yearSelected;
-		this.projectDialogInfo = { title: '', text: '' };
-		this.hasImplementationYearAppliers = params.hasImplementationYearAppliers;
-		this.relatedProjectSymbols = params.relatedProjectSymbols;
-	}
-
-    /**
-     * Applies this project's stat changes by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    applyStatChanges(mutableStats: TrackedStats) {
-        for (let key in this.statsActualAppliers) {
-            let thisApplier = this.statsActualAppliers[key];
-            if (!thisApplier) return;
-			let yearMultiplier = 1;
-			if (thisApplier.isAbsolute) {
-				yearMultiplier = mutableStats.gameYears;
-			}
-            mutableStats[key] = thisApplier.applyValue(mutableStats[key], yearMultiplier);
-        }
-        // Now, apply the change to finances
-        this.applyCost(mutableStats);
-    }
-
-    /**
-     * Applies this project's cost & rebates by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    applyCost(mutableStats: TrackedStats) {
-        let rebates = this.getRebates();
-		let cost = this.cost;
-		if (this.renewalRequired) {
-			cost = cost * mutableStats.gameYears;
-			// todo 22 should get every year?
-			rebates = rebates * mutableStats.gameYears;
-		}
-        mutableStats.financesAvailable -= cost - rebates;
-        mutableStats.moneySpent += cost;
-        mutableStats.totalBudget += rebates;
-    }
-
-    /**
-     * Un-applies this project's stat changes by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    unApplyStatChanges(mutableStats: TrackedStats, shouldUnapplyCosts: boolean = true) {
-        for (let key in this.statsActualAppliers) {
-            let thisApplier = this.statsActualAppliers[key];
-            if (!thisApplier) return;
-
-			let yearMultiplier = 1;
-			if (thisApplier.isAbsolute) {
-				yearMultiplier = mutableStats.gameYears;
-			}
-            mutableStats[key] = thisApplier.unApplyValue(mutableStats[key], yearMultiplier);
-        }
-		if (shouldUnapplyCosts) {
-			this.unApplyCost(mutableStats);
-		}
-    }
-
-    /**
-     * Un-applies this project's cost & rebates by mutating the provided TrackedStats object.
-     * @param mutableStats A mutable version of a TrackedStats object. Must be created first via a shallow copy of app.state.trackedStats
-     */
-    unApplyCost(mutableStats: TrackedStats) {
-        let rebates = this.getRebates();
-		let cost = this.cost;
-		if (this.renewalRequired) {
-			cost = cost * mutableStats.gameYears;
-			// todo 22 should get every year?
-			rebates = rebates * mutableStats.gameYears;
-		}
-        mutableStats.financesAvailable += cost - rebates;
-        mutableStats.moneySpent -= cost;
-        mutableStats.totalBudget -= rebates;
-    }
-
-    /**
-     * Returns the total amount of rebates of this project.
-     */
-    getRebates(): number {
-        return (this.statsActualAppliers.totalRebates) ? this.statsActualAppliers.totalRebates.modifier : 0;
-    }
-
-    /**
-     * Returns the total amount of in-year and end-of-year rebates of this project.
-     */
-    getYearEndRebates(): number {
-        let total = 0;
-        if (this.statsActualAppliers.totalRebates) {
-            total += this.statsActualAppliers.totalRebates.modifier;
-        }
-        if (this.statsRecapAppliers?.totalRebates) {
-            total += this.statsRecapAppliers.totalRebates.modifier;
-        }
-        return total;
-    }
-
-    /**
-     * Returns the extra hidden costs of the projects (via the `moneySpent` stat key)
-     */
-    getHiddenCost(): number {
-        return (this.statsRecapAppliers && this.statsRecapAppliers.moneySpent) ? this.statsRecapAppliers.moneySpent.modifier : 0;
-    }
-
-    /**
-     * Returns the net cost of this project, including rebates (and in future, surprise hitches)
-     */
-    getYearEndNetCost(gameYears?: number): number {
-		let cost = this.cost;
-		let rebates = this.getYearEndRebates();
-		let hiddenCosts = this.getHiddenCost();
-		if (gameYears !== undefined) {
-			cost = gameYears * cost;
-			rebates = gameYears * rebates;
-			hiddenCosts = hiddenCosts * gameYears;
-		}
-        return cost - rebates + hiddenCosts;
-    }
-
-    /**
-     * Gets a Choice control for the GroupedChoices pages in PageControls.tsx
-     */
-    getProjectChoiceControl(): Choice {
-
-        const self = this; // for use in bound button handlers
-
-        let infoDialogStatCards: DialogCardContent[] = [];
-        let choiceStats: ButtonGroupButton[] = [];
-
-		let perYearAddOn: string = '';
-		if(this.renewalRequired == true){
-			perYearAddOn = 'per year';
-		}
-
-        infoDialogStatCards.push({
-            text: `Total project cost: {$${(this.cost).toLocaleString('en-US')} ${perYearAddOn}}`,
-            color: theme.palette.secondary.dark,
-        });
-
-        if (this.statsInfoAppliers.naturalGasMMBTU) {
-            infoDialogStatCards.push({
-                text: `Natural gas reduction: {${this.statsInfoAppliers.naturalGasMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
-                color: theme.palette.primary.light,
-            });
-        }
-        if (this.statsInfoAppliers.electricityUseKWh) {
-            infoDialogStatCards.push({
-                text: `Electricity reduction: {${this.statsInfoAppliers.electricityUseKWh.toString(true)} kWh ${perYearAddOn}}`,
-                color: theme.palette.warning.light,
-            });
-        }
-        if (this.statsInfoAppliers.absoluteCarbonSavings) {
-            infoDialogStatCards.push({
-                text: `Carbon Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub> ${perYearAddOn}}`,
-                color: theme.palette.primary.main,
-            });
-        }
-
-        let choiceCardButtons: ButtonGroupButton[] = [];
-        let comparisonDialogButtons: ButtonGroupButton[] = [];
-
-        this.projectDialogInfo = {
-            title: self.title,
-            text: self.choiceInfoText,
-            img: self.choiceInfoImg,
-            imgAlt: self.choiceInfoImgAlt,
-            imgObjectFit: self.choiceInfoImgObjectFit,
-            cards: infoDialogStatCards,
-            handleProjectInfoViewed: function (state, nextState) {
-                return setAllowImplementProject.apply(this, [state, nextState]);
-            },
-            buttons: [
-                closeDialogButton(),
-                {
-                    text: 'Implement Project',
-                    variant: 'contained',
-                    color: 'success',
-                    onClick: function (state, nextState) {
-                        let isProjectImplemented: boolean = state.implementedProjects.includes(self.pageId);
-                        if (self.renewalRequired) {
-                            isProjectImplemented = state.projectsRequireRenewal.some((project: RenewalProject) => {
-							     if (project.page === self.pageId && project.yearsImplemented.includes(state.trackedStats.year)) {
-                                    return true
-                                }
-                                return false;
-                            });
-                            if (isProjectImplemented) {
-                                return state.currentPage;
-                            }
-                            return toggleRenewalRequiredProject.apply(this, [state, nextState]);
-                        } else {
-                            return toggleProjectImplemented.apply(this, [state, nextState]);
-                        }
-                    },
-                    // disabled when the project is implemented
-                    disabled: (state) => {
-                        if (self.renewalRequired) {
-                            return state.projectsRequireRenewal.some(project => project.page === self.pageId);
-                        } else {
-                            return state.implementedProjects.includes(self.pageId);
-                        }
-                    }
-                }
-            ],
-        };
-
-        addCompareProjectButton(choiceCardButtons);
-        choiceCardButtons.push(infoButtonWithDialog(this.projectDialogInfo));
-        addImplementProjectButton(choiceCardButtons);
-
-        if (self.energySavingsPreviewButton) {
-            choiceStats.push(self.energySavingsPreviewButton);
-        }
-
-        comparisonDialogButtons.push(deselectButton(handleRemoveSelectedCompare));
-        addImplementProjectButton(comparisonDialogButtons);
-        this.projectDialogInfo.comparisonDialogButtons = comparisonDialogButtons;
-
-
-		// todo 88 visible is set directly onto the project ref from the display button, should default to visible() if exists
-        let projectControlChoice: Choice = {
-            title: this.title,
-            text: this.shortTitle,
-            choiceStats: choiceStats,
-            buttons: choiceCardButtons,
-            visible: function (state) {
-				if (self.pageId === Pages.solarPanelsCarPortMaintenance) {
-					// todo 88 bit of a bandaid until re-working visible()
-					return this.resolveToValue(getSolarCarportMaintenanceVisible(state));
-				} else if (state.projectsRequireRenewal.some(project => project.page === self.pageId)) {
-                    return true;
-                } else if (state.completedProjects.some(project => project.page === self.pageId)) {
-                    return false;
-                } else {
-					// todo 88 this block should be before all others for projects with visible() defined,
-					// except visible is resolved and assigned to itself so it falls through and ignores defaults
-					// keep original else block here and adding if bandaids for dependant projects above
-					return this.resolveToValue(self.visible, true);
-				} 
-               
-            },
-            key: this.pageId.description,
-            disabled: this.disabled,
-        };
-
-
-		return projectControlChoice;
-
-		function getSolarCarportMaintenanceVisible(state) {
-			const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
-			// hide if maintenance has been implemented and user navigates back to year carport implemented 
-			const carportImplementedYear = state.implementedProjects.find(project => project === Pages.solarPanelsCarPort);
-			const maintenanceImplemented = state.projectsRequireRenewal.some(project => {
-				return project.page === Pages.solarPanelsCarPortMaintenance;
-			})
-			// if going to previous year, project can be in both completed and implemented
-			return isCarportCompleted || (maintenanceImplemented && !carportImplementedYear);
-		}
-
-        function addCompareProjectButton(buttons: ButtonGroupButton[]) {
-            const isSelectedForCompare = (props) => {
-                return props.selectedProjectsForComparison.some(project => project.page == self.pageId);
-            };
-
-            const isDisabled = (props) => {
-                return props.selectedProjectsForComparison.length >= 3 && !isSelectedForCompare(props);
-            };
-
-            const getButtonText = (props) => {
-                let selected = isSelectedForCompare(props);
-                return selected ? 'Select another to compare' : 'Compare';
-            };
-
-            buttons.push(compareButton(
-                toggleSelectedProjectToCompare,
-                (props) => isSelectedForCompare(props),
-                (props) => isDisabled(props),
-                (props) => getButtonText(props)
-            ));
-        }
-
-        function addImplementProjectButton(buttons: ButtonGroupButton[]) {
-            // const shouldDisplayImplementButton = (props) => {
-            // 	return props.allowImplementProjects.includes(this.pageId);
-            // };
-            const shouldDisableImplementButton = (props) => {
-                return !props.allowImplementProjects.includes(self.pageId);
-            };
-            const isProjectImplemented = (props) => {
-                if (self.renewalRequired) {
-                    return props.projectsRequireRenewal.some((project: RenewalProject) => {
-                        if (project.page === self.pageId && project.yearsImplemented.includes(props.trackedStats.year)) {
-                            return true
-                        }
-                        return false;
-                    });
-                }
-                return props.implementedProjects.includes(self.pageId);
-            };
-            
-            buttons.push(implementButtonCheckbox(
-                self.renewalRequired? toggleRenewalRequiredProject : toggleProjectImplemented,
-                (props) => shouldDisableImplementButton(props),
-                (props) => isProjectImplemented(props),
-                // (props) => shouldDisplayImplementButton(props)
-            ));
-        }
-
-        function setAllowImplementProject(this: App, state: AppState, nextState: NextAppState) {
-            let allowImplementProjects = [...state.allowImplementProjects];
-            const existingIndex: number = allowImplementProjects.findIndex(projectPageId => projectPageId === self.pageId);
-            if (existingIndex === -1) {
-                allowImplementProjects.push(self.pageId);
-                nextState.allowImplementProjects = [...allowImplementProjects];
-            }
-        }
-
-        function removeSelectedForCompare(state): Array<SelectedProject> {
-            let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-            const removeProjectIndex: number = selectedProjectsForComparison.findIndex(project => project.page === self.pageId);
-            if (removeProjectIndex !== -1) {
-                selectedProjectsForComparison.splice(removeProjectIndex, 1);
-            }
-            return selectedProjectsForComparison;
-        }
-
-        function handleRemoveSelectedCompare(this: App, state: AppState, nextState: NextAppState) {
-            nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-            if (nextState.selectedProjectsForComparison.length === 0) {
-                nextState.isCompareDialogOpen = false;
-            }
-            return state.currentPage;
-        }
-
-        function toggleSelectedProjectToCompare(this: App, state: AppState, nextState: NextAppState) {
-            let selectedProjectsForComparison = [...state.selectedProjectsForComparison];
-            let isSelectingCompare = !selectedProjectsForComparison.some(project => project.page === self.pageId);
-            if (isSelectingCompare && selectedProjectsForComparison.length < 3) {
-                selectedProjectsForComparison.push({
-                    page: self.pageId,
-                    infoDialog: self.projectDialogInfo
-                });
-            } else {
-                selectedProjectsForComparison = removeSelectedForCompare(state);
-            }
-
-            let isCompareDialogOpen = false;
-            // Auto open when 3 selected
-            if (selectedProjectsForComparison.length == 3) {
-                isCompareDialogOpen = isSelectingCompare ? true : false;
-                this.handleCompareDialogDisplay(isCompareDialogOpen);
-            } else if (selectedProjectsForComparison.length < 2) {
-                isCompareDialogOpen = false;
-            }
-
-
-            nextState.isCompareDialogOpen = isCompareDialogOpen;
-            nextState.selectedProjectsForComparison = selectedProjectsForComparison;
-            return state.currentPage;
-        }
-        /**
-         * Action to toggle whether the project is selected, after a select button is clicked.
-         */
-        function toggleProjectImplemented(this: App, state: AppState, nextState: NextAppState) {
-            let implementedProjects = state.implementedProjects.slice();
-            let newTrackedStats = { ...state.trackedStats };
-            // IF PROJECT IS ALREADY SELECTED
-            let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
-            if (implementedProjects.includes(self.pageId)) {
-                // Since the order of projects matters, we can't simply unApplyChanges to ourself.
-                // 	We must first undo all the stat changes in REVERSE ORDER, then re-apply all but this one.
-                for (let i = implementedProjects.length - 1; i >= 0; i--) {
-                    let pageId = implementedProjects[i];
-                    Projects[pageId].unApplyStatChanges(newTrackedStats);
-                }
-
-                implementedProjects.splice(implementedProjects.indexOf(self.pageId), 1);
-
-
-				// * 88 check if associated maintenance project is implemented, remove then reset stats
-
-				let projectsRequireRenewal: RenewalProject[] = [...this.state.projectsRequireRenewal];
-				if (self.relatedProjectSymbols) {
-					const dependantChildProjectIndex = projectsRequireRenewal.findIndex(project => self.relatedProjectSymbols && self.relatedProjectSymbols.includes(project.page));	
-					if (dependantChildProjectIndex >= 0) {
-						let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
-						removeRenewalProject(projectsRequireRenewal, dependantChildProjectIndex, newTrackedStats, yearRangeInitialStats, true);
-
-						nextState.projectsRequireRenewal = projectsRequireRenewal;
-						nextState.yearRangeInitialStats = yearRangeInitialStats;
-					}
-				}
-
-
-                for (let i = 0; i < implementedProjects.length; i++) {
-                    let pageId = implementedProjects[i];
-                    Projects[pageId].applyStatChanges(newTrackedStats);
-                }
-            }
-            // IF PROJECT IS NOT ALREADY SELECTED
-            else {
-                if (!checkCanImplementProject.apply(this, [state])) {
-					return state.currentPage;
-				}
-
-                implementedProjects.push(self.pageId);
-                self.applyStatChanges(newTrackedStats);
-                if (!hasAbsoluteCarbonSavings) {
-                    newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
-                }
-                nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-				if (nextState.selectedProjectsForComparison.length === 0) {
-					nextState.isCompareDialogOpen = false;
-				}
-            }
-
-            newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
-            nextState.implementedProjects = implementedProjects;
-            nextState.trackedStats = newTrackedStats;
-
-            return state.currentPage; // no page change
-        }
-
-		function checkCanImplementProject(this: App, state: AppState): boolean {
-			let canImplement = true;
-			let projectImplementationLimit = 4;
-			let overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per year`;
-			if (state.gameSettings.totalIterations === 5) {
-				projectImplementationLimit = 6;
-				overLimitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
-			}
-
-			const startedRenewableProjects = state.projectsRequireRenewal.filter(project => {
-				return project.yearStarted === state.trackedStats.year;
-			}).length;
-
-			const currentProjectCount = startedRenewableProjects + state.implementedProjects.length;
-			const projectCounts = `year ${state.trackedStats.year} - reg projects: ${state.implementedProjects.length}, started renewables: ${startedRenewableProjects}`;
-			console.log(projectCounts);
-			if (currentProjectCount >= projectImplementationLimit) {
-				this.summonSnackbar(<Alert severity='error'>{overLimitMsg}</Alert>);
-				canImplement = false;
-			}
-			
-			console.log('cost', self.cost);
-			console.log('financesAvailable', state.trackedStats.financesAvailable);
-			let projectCost = self.cost;
-			// * renewal project self.costs are applied with gameYears multiplier elsewhere
-			if (self.renewalRequired) {
-				projectCost *= state.trackedStats.gameYears;
-			}
-			if (projectCost > state.trackedStats.financesAvailable) {
-				this.summonSnackbar(<Alert severity='error'>You cannot afford this project with your current budget!</Alert>);
-				canImplement = false;
-			}
-			console.log('canImplement', canImplement);
-			return canImplement;
-		}
-
-
-        function toggleRenewalRequiredProject(this: App, state: AppState, nextState: NextAppState) {
-            let projectsRequireRenewal: RenewalProject[] = [...this.state.projectsRequireRenewal];
-            let newTrackedStats: TrackedStats = { ...state.trackedStats };
-            let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
-            let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
-
-            const existingRenewalProjectIndex = projectsRequireRenewal.findIndex(project => project.page === self.pageId);
-            let implementedInCurrentYear = false;
-            if (existingRenewalProjectIndex >= 0) {
-                implementedInCurrentYear = projectsRequireRenewal[existingRenewalProjectIndex].yearsImplemented.includes(newTrackedStats.year);
-            } 
-
-            if (implementedInCurrentYear) {
-                // * 22 removes stats AND costs from current year
-				removeRenewalProject(projectsRequireRenewal, existingRenewalProjectIndex, newTrackedStats, yearRangeInitialStats);
-            } else if (!implementedInCurrentYear) {
-				if (!checkCanImplementProject.apply(this, [state])) {
-					return state.currentPage;
-				}
-
-                if (existingRenewalProjectIndex >= 0) {
-                    projectsRequireRenewal[existingRenewalProjectIndex].yearsImplemented.push(newTrackedStats.year);
-                    self.applyStatChanges(newTrackedStats);
-                    // * 22 if we've de-selected renewal implementation AND re-selected to implement in the same year, yearRangeInitial stats are out of sync with trackedStats
-                    yearRangeInitialStats = [...state.yearRangeInitialStats];
-                    const updatedCurrentStatsIndex = yearRangeInitialStats.findIndex(stats => stats.year === newTrackedStats.year);
-                    yearRangeInitialStats.splice(updatedCurrentStatsIndex, 1, newTrackedStats);
-                } else {
-                    projectsRequireRenewal.push({
-                        page: self.pageId,
-                        yearsImplemented: [newTrackedStats.year],
-                        yearStarted: newTrackedStats.year,
-                    });
-                    self.applyStatChanges(newTrackedStats);
-                }
-
-                if (!hasAbsoluteCarbonSavings) {
-                    newTrackedStats.carbonEmissions = calculateEmissions(newTrackedStats);
-                }
-                nextState.selectedProjectsForComparison = removeSelectedForCompare(state);
-
-            }
-
-            newTrackedStats = setCarbonEmissionsAndSavings(newTrackedStats, this.state.defaultTrackedStats);
-            nextState.projectsRequireRenewal = projectsRequireRenewal;
-            nextState.trackedStats = newTrackedStats;
-            nextState.yearRangeInitialStats = yearRangeInitialStats;
-            return state.currentPage;
-        }
-
-		/**
-         * Remove implementation year are whole project
-         */
-		function removeRenewalProject(projectsRequireRenewal: RenewalProject[], removeProjectIndex: number, newTrackedStats: TrackedStats, yearRangeInitialStats: TrackedStats[], isFullRemoval = false) {
-			for (let i = projectsRequireRenewal.length - 1; i >= 0; i--) {
-				const project = projectsRequireRenewal[i];
-				if (project.yearsImplemented.includes(newTrackedStats.year)) {
-					Projects[project.page].unApplyStatChanges(newTrackedStats);
-				}
-			}
-			
-			const removeProject = projectsRequireRenewal[removeProjectIndex];
-			if (removeProject) {
-				if (isFullRemoval || removeProject.yearStarted === newTrackedStats.year) {
-					projectsRequireRenewal.splice(removeProjectIndex, 1);
-				} else {
-						const implementedYear = removeProject.yearsImplemented.findIndex(year => year === newTrackedStats.year);
-						removeProject.yearsImplemented.splice(implementedYear, 1);
-				}
-
-			}
-
-			for (let i = 0; i < projectsRequireRenewal.length; i++) {
-				const project = projectsRequireRenewal[i];
-				if (project.yearsImplemented.includes(newTrackedStats.year)) {
-					Projects[project.page].applyStatChanges(newTrackedStats);
-				}
-			}
-
-			// * 22 update current stat year (necessary because we apply renewal at year recap of previous year) 
-            const currentYearEndIndex = yearRangeInitialStats.findIndex(stats => stats.year === newTrackedStats.year);
-			if (currentYearEndIndex !== 0) {
-				yearRangeInitialStats.splice(currentYearEndIndex, 1, newTrackedStats);
-			}
-		}
-    }
-}
 
 
 /* -======================================================- */
@@ -849,8 +20,17 @@ export class ProjectControl implements ProjectControlParams {
 Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	// Page symbol associated with the project. MUST BE THE SAME AS WHAT APPEARS IN Projects[...]
 	pageId: Pages.wasteHeatRecovery,
+	isCapitalFundsEligible: true,
+	isEnergyEfficiency: true,
 	// project cost, in dollars
-	cost: 210_000,
+	baseCost: 210_000,
+	financedAnnualCost: 81_000,
+	financedTotalCost: 324_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(4),
+		},
+	],
 	// Stats that appear in the CARDS inside the INFO DIALOG. These should mirror ActualAppliers 
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-14_400),
@@ -861,7 +41,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	},
 	// Stats / Surprises that are applied in Year Recap. 
 	statsRecapAppliers: {
-		totalRebates: absolute(5_000),
+		yearRebates: absolute(5_000),
 	},
 	title: 'Waste Heat Recovery',
 	shortTitle: 'Install waste heat recovery to preheat boiler water',
@@ -875,16 +55,10 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	utilityRebateValue: 5000,
-	// Case study to show in the year recap
-	caseStudy: {
-		title: 'Ford Motor Company: Dearborn Campus Uses A Digital Twin Tool For Energy Plant Management',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
-		text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
-	},
+	utilityRebateValue: 5000,	
 	// Bit of text to preview what to expect from the project.
-	energySavingsPreviewButton: {
-		text: '12%',
+	energySavingsPreviewIcon: {
+		text: '9.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />
 	},
@@ -917,15 +91,21 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 //      url: 'https://betterbuildingssolutioncenter.energy.gov/implementation-models/ford-motor-company-dearborn-campus-uses-a-digital-twin-tool-energy-plant',
 //      text: '{Ford Motor Company} used digital twin to improve the life cycle of their campus’s central plant. The new plant is projected to achieve a {50%} reduction in campus office space energy and water use compared to their older system.'
 //  },
-//  energySavingsPreviewButton: {
+//  energySavingsPreviewIcon: {
 //      text: '2.0%',
 //      variant: 'text',
 //      startIcon: <FlameIcon />,
 //  }
 // });
+
+// todo green bonds
 Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 	pageId: Pages.processHeatingUpgrades,
-	cost: 80_000,
+	isCapitalFundsEligible: true,
+	baseCost: 80_000,
+	financedAnnualCost: 20_000,
+	financedTotalCost: 80_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-300_000),
 		naturalGasMMBTU: absolute(-3000),
@@ -935,6 +115,11 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		naturalGasMMBTU: absolute(-3000),
 	},
 	title: 'Paint Booth Upgrades',
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(4),
+		},
+	],
 	shortTitle: 'Explore upgrades for the entire paint process system',
 	choiceInfoText: [
 		'Currently, your facility has an {inefficient} body-on-frame paint process. The paint process is served by a variety of applications including compressed air, pumps, and fans, as well as steam for hot water.',
@@ -948,42 +133,54 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/waupaca-foundry-cupola-waste-heat-recovery-upgrade-drives-deeper-energy-savings',
 		text: 'In 2010, {Nissan’s Vehicle Assembly Plant} in Smyrna, Tennessee is {40%} more energy efficient than its predecessor, using an innovative “3-Wet” paint process that allows for the removal of a costly high temperature over bake step.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '1.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
-// Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
-//  pageId: Pages.hydrogenPoweredForklifts,
-//  cost: 100_000,
-//  statsInfoAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  statsActualAppliers: {
-//      // I don't know what this'll actually affect! It's not natural gas but it's also not the electrical grid
-//  },
-//  title: 'Fuel Switching – Hydrogen Powered Forklifts',
-//  shortTitle: 'Switch to hydrogen powered forklifts',
-//  choiceInfoText: [
-//      'Currently, your facility uses {lead acid} batteries to power your mobile forklifts, which yields {high} maintenance costs and {low} battery life for each forklift.',
-//      'You can replace these batteries with {hydrogen fuel cell} batteries, which will result in {lower} maintenance costs, {longer} battery life, and contribute to your facility’s {reduced} emissions.',
-//  ],
-//  choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
-//  choiceInfoImgAlt: 'Hydrogen powered forklift.',
-//  choiceInfoImgObjectFit: 'contain',
-//  recapDescription: 'Insert flavor text here!',
-//  caseStudy: {
-//      title: 'Spring Hill Pioneers Hydrogen Fuel Cell Technology For GM',
-//      url: 'https://www.wheelermaterialhandling.com/blog/spring-hill-pioneers-hydrogen-fuel-cell-technology-for-gm',
-//      text: 'In 2019, General Motors began piloting a program in which hydrogen is turned into electricity to fuel forklifts, resulting in a {38%} decrease in fleet maintenance costs and a {5-year increase} in average battery life for each forklift.'
-//  },
-//  energySavingsPreviewButton: {
-//      text: '??%',
-//      variant: 'text',
-//      startIcon: <BoltIcon />,
-//  },
-// });
+Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
+	pageId: Pages.hydrogenPoweredForklifts,
+	baseCost: 150_000,
+	isEnergyEfficiency: true,
+	isCapitalFundsEligible: true,
+	financedAnnualCost: 42_500,
+	financedTotalCost: 168_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-280_000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-280_000),
+	},
+	title: 'More efficient batteries for forklifts',
+	shortTitle: 'Switch forklifts to lithium-ion batteries',
+	choiceInfoText: [
+		`Currently, your facility uses lead acid batteries to power your mobile forklifts, which yields high maintenance costs and low battery life for each forklift. 
+		You can replace these batteries with lithium-ion batteries, which will result in higher efficiency batteries and charging, lower maintenance costs, longer battery life, 
+		and you will also be able to shutdown a costly ventilation system. By quantifying the additional benefits of the new system, 
+		you were able to convince management to transfer some maintenance budget over for this project, reducing your required payment.`
+	],
+	choiceInfoImg: 'images/hydrogen-powered-forklift.jpg',
+	choiceInfoImgAlt: 'Hydrogen powered forklift.',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: 'Better Buildings, Better Plants SUMMIT',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/sites/default/files/2023Summit-Industrial_Energy_Efficiency-Slides.pdf',
+		text: 'Better Buildings, Better Plants SUMMIT'
+	},
+	energySavingsPreviewIcon: {
+		text: '1%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
+});
+
 // Projects[Pages.lightingUpgrades] = new ProjectControl({
 //  pageId: Pages.lightingUpgrades,
 //  cost: 12_000,
@@ -994,7 +191,7 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 //      electricityUseKWh: relative(-0.125),
 //  },
 //  statsRecapAppliers: {
-//      totalRebates: absolute(7_500),
+//      yearRebates: absolute(7_500),
 //  },
 //  title: 'Energy Efficiency – Lighting Upgrades',
 //  shortTitle: 'Explore lighting upgrades',
@@ -1010,23 +207,106 @@ Projects[Pages.processHeatingUpgrades] = new ProjectControl({
 //  },
 //  utilityRebateValue: 5000,
 // });
+
+Projects[Pages.blendedFuel] = new ProjectControl({
+	pageId: Pages.blendedFuel,
+	isCapitalFundsEligible: true,
+	baseCost: 500_000,
+	costSavingsCarryover: 'never',
+	isEnergyEfficiency: true,
+	financedAnnualCost: 50_000,
+	financedTotalCost: 500_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(18_000),
+		naturalGasMMBTU: absolute(-18_000),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(18_000),
+		naturalGasMMBTU: absolute(-18_000),
+	},
+	title: 'Blended Fuel for boiler',
+	shortTitle: 'Utilize 30% landfill gas in your large boiler',
+	choiceInfoText: [
+		`As your larger boiler is still well within its expected lifetime, replacement is not yet warranted. 
+		Instead, you have investigated the potential for fuel blending with local landfill gas. 
+		It has been decided that a 30% blend best suits your needs. Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, plus the on-site pipeline and boiler retrofit. `
+	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
+Projects[Pages.landfillGasForOven] = new ProjectControl({
+	pageId: Pages.landfillGasForOven,
+	isCapitalFundsEligible: true,
+	isEnergyEfficiency: true,
+	costSavingsCarryover: 'never',
+	baseCost: 200_000,
+	financedAnnualCost: 20_000,
+	financedTotalCost: 200_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
+	statsInfoAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	statsActualAppliers: {
+		hydrogenMMBTU: absolute(7_500),
+		naturalGasMMBTU: absolute(-7_500),
+	},
+	title: 'Landfill Gas for oven',
+	shortTitle: 'Utilize landfill gas for an oven.',
+	choiceInfoText: [
+		`As part of the boiler project, you have investigated the potential for fuel blending with local landfill gas. 
+		You have decided to test one of your ovens out with landfill gas. 
+		Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, 
+		plus the on-site pipeline and boiler retrofit.`
+	],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
+
+
 Projects[Pages.electricBoiler] = new ProjectControl({
 	pageId: Pages.electricBoiler,
-	cost: 500_000,
+	isCapitalFundsEligible: true,
+	baseCost: 500_000,
+	financedAnnualCost: 50_000,
+	financedTotalCost: 500_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
+		},
+	],
+	costSavingsCarryover: 'never',
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000), // since the flavor text says No. 2 oil... maybe add a new stat later
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(200_000),
+		electricityUseKWh: absolute(3_900_000),
 		naturalGasMMBTU: absolute(-20_000),
 	},
 	title: 'Fossil Fuel to Electric Boiler',
 	shortTitle: 'Replace the old fossil fuel boiler with an electric boiler',
-	choiceInfoText: [
-		'The smaller of your two boilers is {older} and near ready for replacement.  You can replace that boiler with an {electric boiler} providing the same steam pressure, temperature, and rate. ',
-		'As the boiler needs replacing soon, corporate has agreed to pay for half of this project out of capital funds, leaving you with about half the total installed cost.'
-	],
+	choiceInfoText: [`The smaller of your two boilers is older and near ready for replacement.  You can replace that boiler with an electric providing the same steam pressure, 
+	temperature and rate. As the boiler needs replacing soon, corporate has agreed to pay for part of this project out of capital funds, leaving you with about half the total installed cost.`],
 	choiceInfoImg: 'images/electric-boiler.png',
 	choiceInfoImgAlt: 'electric boiler',
 	choiceInfoImgObjectFit: 'contain',
@@ -1035,34 +315,47 @@ Projects[Pages.electricBoiler] = new ProjectControl({
 });
 Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 	pageId: Pages.solarPanelsCarPort,
-	cost: 157_000,
-	hasImplementationYearAppliers: true,
-	relatedProjectSymbols: [Pages.solarPanelsCarPortMaintenance],
+	isCapitalFundsEligible: true,
+	baseCost: 180_000,
+	isSinglePaymentRenewable: true,
+	costSavingsCarryover: 'always',
+	financedAnnualCost: 50_000,
+	financedTotalCost: 200_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: false,
+	isRenewable: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-537_000),
 	},
 	statsActualAppliers: {
 		electricityUseKWh: absolute(-537_000),
 	},
-	statsRecapAppliers: {
-		financesAvailable: absolute(-30_000),
-		moneySpent: absolute(30_000),
-	},
-	recapSurprises: [{
-		title: 'Uh oh - Bad Asphalt!',
-		text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
-		avatar: {
-			icon: <TrafficConeIcon />,
-			backgroundColor: 'rgba(54,31,6,0.6)',
-			color: 'rgb(255 135 33)',
-		}
-	}],
+	//*keeping hidden surprise code in for now; might need in future
+	// statsRecapAppliers: {
+	// 	financesAvailable: absolute(-30_000),
+	// 	hiddenSpending: absolute(30_000),
+	// },
+	// recapSurprises: [{
+	// 	title: 'Uh oh - Bad Asphalt!',
+	// 	text: 'While assessing the land in person, the contractor found that the parking lot\'s {asphalt needs replacement}. This will require an {additional $30,000} for the carport’s installation.',
+	// 	className: 'year-recap-negative-surprise',
+	// 	avatar: {
+	// 		icon: <TrafficConeIcon />,
+	// 		backgroundColor: 'rgba(54,31,6,0.6)',
+	// 		color: 'rgb(255 135 33)',
+	// 	}
+	// }],
 	title: 'Small Carport Solar Installation',
-	shortTitle: 'Install solar panels on new facility carport',
+	shortTitle: 'Install solar panels on new facility carport. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Install solar panels on new facility carport. THIS PROJECT WILL BE RENEWED ANNUALLY.',
 	choiceInfoText: [
-		`You decided to look into installing a small covered carport with a solar electricity generation system. Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use 
-		parking in the carport as an incentive to well-performing or energy-saving employees. You decide to pay for the carport outright and not via a power purchase agreement.
-	    You will receive {CREDITs} to your budget for the energy generated (and not purchased).`
+		`You decided to look into installing a small covered carport with a solar electricity generation system. 
+		Given the sizing of your parking lot and available room, you decide on a {0.25 MW system} and use parking in the carport as an incentive to well-performing or energy-saving employees. 
+		Corporate has agreed that you will receive an annual {CREDIT} for the avoided grid electricity payment added to your budget every year.`
 	],
 	choiceInfoImg: 'images/solar-panels.png',
 	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
@@ -1072,45 +365,28 @@ Projects[Pages.solarPanelsCarPort] = new ProjectControl({
 		url: 'https://www.agt.com/portfolio-type/lockheed-martin-solar-carport/',
 		text: 'In 2017, {Lockheed Martin} installed a 4-acre solar carport and was able to provide {3,595,000} kWh/year, or enough electricity to power almost {500 homes} annually.',
 	},
-	energySavingsPreviewButton: {
-		text: '1.8%',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-	visible: state => {
-		const isCarportCompleted = state.completedProjects.some(project => project.page === Pages.solarPanelsCarPort);
-		return !isCarportCompleted;
-	}
-});
-Projects[Pages.solarPanelsCarPortMaintenance] = new ProjectControl({
-	pageId: Pages.solarPanelsCarPortMaintenance,
-	renewalRequired: true,
-	cost: 10_000,
-	statsInfoAppliers: {
-		electricityUseKWh: absolute(-537_000),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: absolute(-537_000),
-	},
-	title: 'Carport Solar - Maintenance',
-	shortTitle: 'Continue receiving energy from your solar generation. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You have installed and paid for your carport solar but need to perform small maintenance tasks for it. {YOU MUST RENEW THIS PROJECT ANNUALLY} to continue receiving the energy credits.'],
-	choiceInfoImg: 'images/solar-panels.png',
-	choiceInfoImgAlt: 'Solar panels on the roof top of a car parking lot.',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '1.8%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
 });
 
+
 Projects[Pages.solarRooftop] = new ProjectControl({
 	pageId: Pages.solarRooftop,
-	renewalRequired: true,
-	cost: 375_000,
+	isCapitalFundsEligible: false,
+	isRenewable: true,
+	costSavingsCarryover: 'always',
+	isSinglePaymentRenewable: true,
+	baseCost: 3_750_000,
+	financedAnnualCost: 460_000,
+	financedTotalCost: 4_600_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(10),
+		},
+	],
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-5_365_000),
 	},
@@ -1119,7 +395,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	},
 	//   statsRecapAppliers: {
 	//       financesAvailable: absolute(-30_000),
-	//        moneySpent: absolute(30_000),
+	//        implementationSpending: absolute(30_000),
 	//    },
 	//    recapSurprises: [{
 	//        title: 'Uh oh - Bad Asphalt!',
@@ -1130,11 +406,11 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	//           color: 'rgb(255 135 33)',
 	//        }
 	//    }],
-	title: 'Mid-sized solar with storage via PACE loan',
-	shortTitle: 'Use a PACE loan to build a 2MW rooftop solar array, with storage. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
+	title: 'Rooftop mid-sized solar with storage',
+	shortTitle: 'Build a 2MW rooftop solar array, with storage.',
 	choiceInfoText: [
-		'To meet aggressive decarbonization goals, you have looked into installing solar panels on your roof. You have arranged for a {PACE loan} and you will pay off the equipment over 10 years.',
-		'You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.   Your budget will be responsible for paying for this loan over the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}, but a {CREDIT} for the grid electricity payment is added to your budget for the next year.'
+		`You believe you can install a 2MW system with storage for 0.5MW without interfering with your existing roof infrastructure.
+		Corporate has agreed that you will receive an annual {CREDIT} for the avoided grid electricity payment added to your budget every year.`
 	],
 	choiceInfoImg: 'images/solar-field.jpg',
 	choiceInfoImgAlt: 'Solar panels field',
@@ -1145,7 +421,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/External_Financing_Carbon_Projects_Factsheet.pdf',
 		text: '',
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '18%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1155,7 +431,16 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 //Empty Projects Scope 1 yr1-yr5
 Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 	pageId: Pages.airHandingUnitUpgrades,
-	cost: 175_000,
+	isCapitalFundsEligible: true,
+	baseCost: 175_000,
+	financedAnnualCost: 48_000,
+	financedTotalCost: 192_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_165_000),
 		naturalGasMMBTU: absolute(-3600),
@@ -1180,15 +465,24 @@ Projects[Pages.airHandingUnitUpgrades] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/nissan-north-america-air-handling-units-control-upgrade-delivers-massive-energy',
 		text: 'Nissan’s Canton, Mississippi plant is one of four of the company’s manufacturing facilities in the United States. Opened in 2003, the Canton plant is a 4.5 million square foot plant that can produce up to 410,000 vehicles annually.'
 	},
-	energySavingsPreviewButton: {
-		text: '3.0%',
+	energySavingsPreviewIcon: {
+		text: '2.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
 });
 Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	pageId: Pages.advancedEnergyMonitoring,
-	cost: 60_000,
+	isCapitalFundsEligible: true,
+	baseCost: 60_000,
+	financedAnnualCost: 17_000,
+	financedTotalCost: 68_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		// electricityUseKWh: absolute(-0.03),
 		// naturalGasMMBTU: relative(-0.03),
@@ -1209,11 +503,11 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
-		title: 'SAINT-GOBAIN CORPORATION: ADVANCED ENERGY MONITORING WITH WIRELESS SUBMETERING',
+		title: 'SAINT-GOBAIN CORPORATION',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-advanced-energy-monitoring-wireless-submetering',
-		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing carbon emissions and lowering energy intensity.'
+		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing GHG emissions and lowering energy intensity.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '0.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1244,15 +538,25 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 //      url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/pepsico-condensing-economizer-installation',
 //      text: 'As part of the company’s 2025 25% greenhouse gas (GHG) reduction goal, it set out to reduce the energy usage of the Gatorade pasteurization process. Pasteurization is a process in which certain foods, such as milk and fruit juice, are treated with heat to eliminate pathogens and extend shelf life.'
 //  },
-//  energySavingsPreviewButton: {
+//  energySavingsPreviewIcon: {
 //      text: '7.0%',
 //      variant: 'text',
 //      startIcon: <FlameIcon />,
 //  },
 // });
+
 Projects[Pages.boilerControl] = new ProjectControl({
 	pageId: Pages.boilerControl,
-	cost: 100_000,
+	isCapitalFundsEligible: true,
+	baseCost: 100_000,
+	financedAnnualCost: 28_000,
+	financedTotalCost: 112_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-9600),
 	},
@@ -1274,15 +578,17 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/bentley-mills-boiler-control-system-upgrades',
 		text: 'Bentley Mills uses a large quantity of steam throughout their manufacturing process chain. In 2014, Bentley Mills began implementing a project to upgrade the control system for one of its largest natural gas fired boilers (Boiler #1) at its facility in the City of Industry, Los Angeles. Bentley Mills has been operating the facility since 1979 and employs over 300 people. The facility makes commercial modular carpet tile, broadloom and area rugs in its 280,000 square feet of manufacturing space.'
 	},
-	energySavingsPreviewButton: {
-		text: '8.0%',
+	energySavingsPreviewIcon: {
+		text: '6.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
 });
 Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
-	cost: 15_000,
+	isCapitalFundsEligible: true,
+	baseCost: 15_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-1800),
 	},
@@ -1304,15 +610,17 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
-	energySavingsPreviewButton: {
-		text: '1.5%',
+	energySavingsPreviewIcon: {
+		text: '1%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
 });
 Projects[Pages.improvePipeInsulation] = new ProjectControl({
 	pageId: Pages.improvePipeInsulation,
-	cost: 7_000,
+	isCapitalFundsEligible: true,
+	baseCost: 7_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		naturalGasMMBTU: absolute(-900),
 	},
@@ -1334,8 +642,8 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
 		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
 	},
-	energySavingsPreviewButton: {
-		text: '0.75%',
+	energySavingsPreviewIcon: {
+		text: '0.5%',
 		variant: 'text',
 		startIcon: <FlameIcon />,
 	},
@@ -1343,17 +651,36 @@ Projects[Pages.improvePipeInsulation] = new ProjectControl({
 //Empty Projects Scope 2 yr6-yr10
 Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 	pageId: Pages.compressedAirSystemImprovemnt,
-	cost: 210_000,
+	isCapitalFundsEligible: true,
+	baseCost: 210_000,
+	financedAnnualCost: 58_000,
+	financedTotalCost: 232_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-2_250_000),
 	},
 	statsActualAppliers: {
-		electricityUseKWh: absolute(-2_250_000),
+		electricityUseKWh: absolute(-2_000_000),
 	},
 	statsRecapAppliers: {
-		totalRebates: absolute(5_000),
+		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
+	recapSurprises: [{
+		title: 'Uh oh - Replacing the compressors did not save as much electricity as estimated! ',
+		text: 'While replacing old compressors, you only saved 2,000,000 kWh instead of the estimated 2,250,000 kWh',
+		className: 'year-recap-negative-surprise',
+		avatar: {
+			icon: <BoltIcon />,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
+	}],
 	title: 'Replace old compressors',
 	shortTitle: 'Replace an old, inefficient compressor system with new compressors to increase reliability and reduce energy waste.',
 	choiceInfoText: [
@@ -1369,7 +696,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-milford-compressed-air-system-improvement',
 		text: 'As part of its commitment to reducing its energy intensity, Saint-Gobain undertook a large compressed air system retrofit project at its Milford, Massachusetts glass plant. Upon completion, the compressed air system improvement is expected to deliver energy savings of 15% compared to the system it is replacing.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '7.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1399,7 +726,7 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 //      url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/darigold-compressed-air-system-optimization',
 //      text: 'Americas fifth-largest dairy co-op, Darigold has 11 plants in the northwestern United States that produce milk, butter, sour cream, milk powder, and other dairy products. The Sunnyside plant is the company’s largest facility and each day it produces about 530,000 pounds of cheese and 615,000 pounds of powdered dairy products. Compressed air supports production at this plant through control valves, cylinders, positioners, dampers, and pulsing for bag houses. An inefficient distribution system compelled the partner to upgrade its air piping to enable stable system pressure.'
 //  },
-//  energySavingsPreviewButton: {
+//  energySavingsPreviewIcon: {
 //      text: '4.0%',
 //      variant: 'text',
 //      startIcon: <BoltIcon />,
@@ -1407,7 +734,16 @@ Projects[Pages.compressedAirSystemImprovemnt] = new ProjectControl({
 // });
 Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 	pageId: Pages.chilledWaterMonitoringSystem,
-	cost: 40_000,
+	isCapitalFundsEligible: true,
+	baseCost: 40_000,
+	financedAnnualCost: 11_000,
+	financedTotalCost: 44_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-900_000),
 	},
@@ -1429,7 +765,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/nissan-north-america-chilled-water-system-upgrades-and-dashboard',
 		text: 'During the process of pursuing ISO 50001 certification for Nissan’s vehicle assembly plant in Canton, Mississippi, Nissan’s Energy Team identified their chilled water system as a Significant Energy Use (SEU). Based on the facility’s 2014 energy baseline, the chilled water system accounted for 15% of the plant’s total electrical consumption.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '3.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1462,7 +798,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 //      url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/agropur-refrigeration-upgrades',
 //      text: 'Le Sueur Cheese is one of seven Agropur cheese and whey protein drying plants in the United States. In 2010, Le Sueur Cheese joined the Better Buildings, Better Plants program and set a goal to reduce its energy intensity by 25% over a 10-year period.'
 //  },
-//  energySavingsPreviewButton: {
+//  energySavingsPreviewIcon: {
 //      text: '5.0%',
 //      variant: 'text',
 //      startIcon: <BoltIcon />,
@@ -1470,7 +806,9 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 // });
 Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 	pageId: Pages.loweringCompressorPressure,
-	cost: 3_000,
+	isCapitalFundsEligible: true,
+	baseCost: 3_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
@@ -1493,7 +831,7 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/compressed-air',
 		text: 'Compressed air provides a safe and reliable source of pneumatic pressure for a wide range of industrial processes. However, with over 80% of its input energy being lost as heat, air compressors are naturally inefficient. Energy-Efficient process design should opt for alternatives wherever possible and isolate compressed air usage to only processes that mandate it.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '0.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1501,7 +839,16 @@ Projects[Pages.loweringCompressorPressure] = new ProjectControl({
 });
 Projects[Pages.improveLightingSystems] = new ProjectControl({
 	pageId: Pages.improveLightingSystems,
-	cost: 50_000,
+	isCapitalFundsEligible: true,
+	baseCost: 50_000,
+	financedAnnualCost: 14_000,
+	financedTotalCost: 56_000,
+	financingOptions: [
+		{
+			financingType: getEaaSFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -1509,7 +856,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		electricityUseKWh: absolute(-450_000),
 	},
 	statsRecapAppliers: {
-		totalRebates: absolute(10_000),
+		yearRebates: absolute(10_000),
 	},
 	utilityRebateValue: 10000,
 	title: 'Treasure Hunt - Lighting Upgrade',
@@ -1527,7 +874,7 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/lighting',
 		text: 'A good place to start investigating for energy savings is in your plant’s lighting system. In the industrial sector, lighting accounts for less than 5% of the overall energy footprint, but in some sectors, it can be higher.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '1.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1535,7 +882,9 @@ Projects[Pages.improveLightingSystems] = new ProjectControl({
 });
 Projects[Pages.startShutOff] = new ProjectControl({
 	pageId: Pages.startShutOff,
-	cost: 5_000,
+	isCapitalFundsEligible: true,
+	baseCost: 5_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-225_000),
 	},
@@ -1557,7 +906,7 @@ Projects[Pages.startShutOff] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '0.75%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1565,7 +914,9 @@ Projects[Pages.startShutOff] = new ProjectControl({
 });
 Projects[Pages.installVFDs1] = new ProjectControl({
 	pageId: Pages.installVFDs1,
-	cost: 30_000,
+	isCapitalFundsEligible: true,
+	baseCost: 30_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-450_000),
 	},
@@ -1573,7 +924,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		electricityUseKWh: absolute(-450_000),
 	},
 	statsRecapAppliers: {
-		totalRebates: absolute(5_000),
+		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
 	title: 'Install VFDs on small motors',
@@ -1591,7 +942,7 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '1.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1600,7 +951,9 @@ Projects[Pages.installVFDs1] = new ProjectControl({
 });
 Projects[Pages.installVFDs2] = new ProjectControl({
 	pageId: Pages.installVFDs2,
-	cost: 40_000,
+	isCapitalFundsEligible: true,
+	baseCost: 40_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-600_000),
 	},
@@ -1608,7 +961,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		electricityUseKWh: absolute(-600_000),
 	},
 	statsRecapAppliers: {
-		totalRebates: absolute(5_000),
+		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
 	title: 'Install VFDs on mid-sized motors',
@@ -1626,7 +979,7 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '2.0%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1635,7 +988,16 @@ Projects[Pages.installVFDs2] = new ProjectControl({
 });
 Projects[Pages.installVFDs3] = new ProjectControl({
 	pageId: Pages.installVFDs3,
-	cost: 100_000,
+	isCapitalFundsEligible: true,
+	baseCost: 100_000,
+	financedAnnualCost: 25_000,
+	financedTotalCost: 100_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(4),
+		},
+	],
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-1_050_000),
 	},
@@ -1643,7 +1005,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		electricityUseKWh: absolute(-1_050_000),
 	},
 	statsRecapAppliers: {
-		totalRebates: absolute(5_000),
+		yearRebates: absolute(5_000),
 	},
 	utilityRebateValue: 5000,
 	title: 'Install VFDs on large motors',
@@ -1661,7 +1023,7 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/motors',
 		text: 'Electric motors, taken together, make up the single largest end-use of electricity in the United States. In the U.S. manufacturing sector, electric motors used for machine drives such as pumps, conveyors, compressors, fans, mixers, grinders, and other materials-handling or processing equipment account for about 54% of industrial electricity consumption.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '3.5%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1670,7 +1032,9 @@ Projects[Pages.installVFDs3] = new ProjectControl({
 });
 Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 	pageId: Pages.reduceFanSpeeds,
-	cost: 1_000,
+	isCapitalFundsEligible: true,
+	baseCost: 1_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-75_000),
 	},
@@ -1691,7 +1055,7 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '0.25%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1699,7 +1063,9 @@ Projects[Pages.reduceFanSpeeds] = new ProjectControl({
 });
 Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	pageId: Pages.lightingOccupancySensors,
-	cost: 3_000,
+	isCapitalFundsEligible: true,
+	baseCost: 3_000,
+	isEnergyEfficiency: true,
 	statsInfoAppliers: {
 		electricityUseKWh: absolute(-150_000),
 	},
@@ -1721,7 +1087,7 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
 		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
 	},
-	energySavingsPreviewButton: {
+	energySavingsPreviewIcon: {
 		text: '0.50%',
 		variant: 'text',
 		startIcon: <BoltIcon />,
@@ -1730,24 +1096,33 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 
 Projects[Pages.smallVPPA] = new ProjectControl({
 	pageId: Pages.smallVPPA,
-	renewalRequired: true,
-	cost: 75_000,
+	isCapitalFundsEligible: false,
+	isPPA: true,
+	isRenewable: true,
+	baseCost: 75_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-1_200_000)
+		absoluteCarbonSavings: absolute(-900_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-1_200_000)
+		absoluteCarbonSavings: absolute(-900_000)
+	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 10% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
-	energySavingsPreviewButton: {
-		text: '6.5%',
+	energySavingsPreviewIcon: {
+		text: '0.9M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1755,24 +1130,33 @@ Projects[Pages.smallVPPA] = new ProjectControl({
 
 Projects[Pages.midVPPA] = new ProjectControl({
 	pageId: Pages.midVPPA,
-	renewalRequired: true,
-	cost: 150_000,
+	isCapitalFundsEligible: false,
+	isPPA: true,
+	isRenewable: true,
+	baseCost: 150_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-2_400_000)
+		absoluteCarbonSavings: absolute(-1_800_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-2_400_000)
+		absoluteCarbonSavings: absolute(-1_800_000)
+	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 20% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
-	energySavingsPreviewButton: {
-		text: '13%',
+	energySavingsPreviewIcon: {
+		text: '1.8M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1780,24 +1164,33 @@ Projects[Pages.midVPPA] = new ProjectControl({
 
 Projects[Pages.largeVPPA] = new ProjectControl({
 	pageId: Pages.largeVPPA,
-	renewalRequired: true,
-	cost: 225_000,
+	isCapitalFundsEligible: false,
+	isPPA: true,
+	isRenewable: true,
+	baseCost: 225_000,
 	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-3_600_000)
+		absoluteCarbonSavings: absolute(-2_700_000)
 	},
 	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-3_600_000)
+		absoluteCarbonSavings: absolute(-2_700_000)
+	},
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget',
+		loanTerm: 10
 	},
 	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {YOU MUST RENEW THIS PROJECT ANNUALLY}.'],
+	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in wind VPPA to offset 30% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
-	energySavingsPreviewButton: {
-		text: '20%',
+	energySavingsPreviewIcon: {
+		text: '2.7M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
@@ -1806,8 +1199,18 @@ Projects[Pages.largeVPPA] = new ProjectControl({
 
 Projects[Pages.midSolar] = new ProjectControl({
 	pageId: Pages.midSolar,
-	renewalRequired: true,
-	cost: 100_000,
+	isCapitalFundsEligible: false,
+	isRenewable: true,
+	isPPA: true,
+	baseCost: 105_000,
+	financedAnnualCost: 105_000,
+	financedTotalCost: 260_000,
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget',
+		loanTerm: 10
+	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
@@ -1815,142 +1218,179 @@ Projects[Pages.midSolar] = new ProjectControl({
 		absoluteCarbonSavings: absolute(-1_717_000)
 	},
 	title: 'Mid-sized Solar PPPA',
-	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA). You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next 10 years, so {YOU MUST RENEW THIS PROJECT ANNUALLY}. '],
+	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with your local utility to build a 2MW solar array. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
+		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  
+		 You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
+		 You will be in this contract for the next 10 years, so this cost will renew annually automatically.`],
 	choiceInfoImg: 'images/solar-field.jpg',
 	choiceInfoImgAlt: 'Solar panels field',
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
-	energySavingsPreviewButton: {
-		text: '9.3%',
+	energySavingsPreviewIcon: {
+		text: '1.7M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
 });
+
+
 
 Projects[Pages.largeWind] = new ProjectControl({
 	pageId: Pages.largeWind,
-	renewalRequired: true,
-	cost: 269_000,
+	isCapitalFundsEligible: false,
+	isPPA: true,
+	isRenewable: true,
+	baseCost: 268_500,
+	financedAnnualCost: 268_000,
+	financedTotalCost: 660_000,
+	customBudgetType: {
+		name: "Power Purchase Agreement",
+		description: "Pay Annually",
+		id: 'budget',
+		loanTerm: 10
+	},
 	statsInfoAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},
 	statsActualAppliers: {
 		absoluteCarbonSavings: absolute(-4_292_000)
 	},
-	title: 'Large Wind PPPA',
-	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {YOU MUST RENEW THIS PROJECT ANNUALLY}.',
-	choiceInfoText: ['To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as part of a 15-year contract to source a large portion of your electricity use. You will be continuing to pay your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  They think they can install a {5MW system} on the site. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost. You will be in this contract for the next {15 years}, so {YOU MUST RENEW THIS PROJECT ANNUALLY}.  '],
+	title: 'Utility-PPPA Wind Project',
+	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
+		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
+		but not be responsible for the capital investment or maintenance of the system. They are planning to install a {5MW system} on the site. 
+		You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
+		You will be in this contract for the next 15 years, so this cost will renew annually automatically.`],
 	choiceInfoImg: 'images/wind-mills.jpg',
 	choiceInfoImgAlt: 'wind mills in a field',
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: undefined,
-	energySavingsPreviewButton: {
-		text: '23%',
+	energySavingsPreviewIcon: {
+		text: '4.3M kg',
 		variant: 'text',
 		startIcon: <Co2Icon />,
 	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
 });
 
-/**
- * A "class" that can apply or un-apply a numerical modifier with a custom formula.
- */
-export declare interface NumberApplier {
-	applyValue: (previous: number, gameYears?: number) => number;
-	unApplyValue: (previous: number, gameYears?: number) => number;
-	/**
-	 * Returns the original modifier.
-	 */
-	modifier: number;
-	isAbsolute?: boolean;
-
-	/**
-	 * Turns the NumberApplier into a string, optionally multiplying it by -1 first.
-	 */
-	toString: (negative: boolean) => string;
-}
-
-type trackedStats = keyof TrackedStats;
-
-/**
- * Optional NumberApplier for any stat in DashboardTrackedStats
- */
-type TrackedStatsApplier = {
-	[key in trackedStats]?: NumberApplier;
-}
-
-declare interface ProjectControls {
-	[key: symbol]: ProjectControl;
-}
-
-/**
- * Generates an object for applying/unapplying a RELATIVE modifier, such as reducing natural gas usage by 3%.
- * @param modifier 
- * @returns Object for applying/unapplying the specified modifier.
- */
-function relative(modifier: number): NumberApplier {
-	const thisApplier: NumberApplier = {
-		applyValue: function (previous: number) {
-			// y = x * (1 + n);
-			return round(previous * (1 + this.modifier));
+Projects[Pages.communityWindProject] = new ProjectControl({
+	pageId: Pages.communityWindProject,
+	isCapitalFundsEligible: false,
+	isRenewable: true,
+	mustAnnuallyFinance: true,
+	costSavingsCarryover: 'always',
+	baseCost: 537_000,
+	financedAnnualCost: 400_000,
+	financedTotalCost: 4_000_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
 		},
-		unApplyValue: function (previous: number) {
-			// x = y / (1 + n);
-			return round(previous / (1 + this.modifier));
+	],
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-8_200_000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-8_200_000),
+	},
+	title: 'Community Wind Project',
+	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+	shortTitleRawText: 'Invest in community wind project. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+	choiceInfoText: [
+		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
+		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 
+		You have worked out a deal with your corporate management team and they will pay for half of the project from capital funds. 
+		You will paying the bonds back for the next 10 years, so this cost will renew annually automatically. `],
+	choiceInfoImg: 'images/wind-mills.jpg',
+	choiceInfoImgAlt: 'wind mills in a field',
+	choiceInfoImgObjectFit: 'cover',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: undefined,
+	energySavingsPreviewIcon: {
+		text: '23%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
+	visible: (state) => {
+		return state.gameSettings.financingOptions.greenBond && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+	}
+});
+
+
+Projects[Pages.heatPumpForOffice] = new ProjectControl({
+	pageId: Pages.heatPumpForOffice,
+	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'never',
+	baseCost: 500_000,
+	financedAnnualCost: 192_000,
+	financedTotalCost: 768_000,
+	financingOptions: [
+		{
+			financingType: getLoanFinancing(4),
 		},
-		modifier: modifier,
-		toString: function (negative: boolean) {
-			if (negative)
-				return (100 * -this.modifier).toLocaleString('en-US') + '%';
-			else
-				return (100 * this.modifier).toLocaleString('en-US') + '%';
-		}
-	};
+	],
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(351_000),
+		naturalGasMMBTU: absolute(-4_000), // since the flavor text says No. 2 oil... maybe add a new stat later
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(351_000),
+		naturalGasMMBTU: absolute(-4_000),
+	},
+	title: 'Heat Pump for Office Conditioning',
+	shortTitle: 'Heat pump for office conditioning',
+	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into electrifying your building conditioning systems. 
+		Your on-campus offices use about {4,000 MMBty/yr} of natural gas to heat.
+		You think you can get an equivalent output heat pump system that will take care of heating and cooling and will be about {155-ton system}.
+		As your AC system is not new, but also not at the end of it's life, the corporate management team has agreed that they will pay for {25%} of the capital and installation costs.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
 
-	return thisApplier;
-}
-
-// todo projects taking more than 1 year
-
-/**
- * Generates an object for applying/unaplying an ABSOLUTE modifier, such as reducing budget by $50,000.
- * @param modifier 
- * @returns Object for applying/unapplying the specified modifier.
- */
-function absolute(modifier: number): NumberApplier {
-	const thisApplier: NumberApplier = {
-		applyValue: function (previous: number, gameYears?: number) {
-			let modifier = this.modifier;
-			if (gameYears) {
-				modifier = gameYears * (this.modifier);
-			}
-			return round(previous + modifier);
+Projects[Pages.solarThermalHotWater] = new ProjectControl({
+	pageId: Pages.solarThermalHotWater,
+	isCapitalFundsEligible: true,
+	costSavingsCarryover: 'always',
+	baseCost: 550_000,
+	financedAnnualCost: 55_000,
+	financedTotalCost: 550_000,
+	financingOptions: [
+		{
+			financingType: getGreenBondsFinancing(10),
 		},
-		unApplyValue: function (previous: number, gameYears?: number) {
-			let modifier = this.modifier;
-			if (gameYears) {
-				modifier = gameYears * (this.modifier);
-			}
-			return round(previous - modifier);
-		},
-		modifier: modifier,
-		isAbsolute: true,
-		toString: function (negative: boolean) {
-			if (negative)
-				return (-1 * this.modifier).toLocaleString('en-US');
-			else
-				return this.modifier.toLocaleString('en-US');
-		}
-	};
-
-	return thisApplier;
-}
-
-/**
- * Round a number to the nearest hundred-thousandth, to help with floating point precision errors.
- */
-function round(number: number) {
-	return (Math.round(number * 100000)) / 100000;
-}
+	],
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-3_750), // since the flavor text says No. 2 oil... maybe add a new stat later
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-3_750),
+	},
+	title: 'Solar Thermal for Hot Water',
+	shortTitle: 'Solar thermal for hot water',
+	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into a solar thermal field for some hot water needs.
+		As you do not wish to install water storage, you are sized for a field to match your lowest demand, leading to a system that can 
+		deliver {2.5 MMBtu/hr}, about {1,500 hours per year}.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+});
