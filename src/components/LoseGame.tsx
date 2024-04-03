@@ -88,19 +88,19 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                                 <div style={{ marginLeft: '96px' }}>
 
                                 <div className="animate__animated animate__fadeInRight" style={{ animationDelay: '1000ms' }}>
-                                    <span style={{ fontSize: '32px', fontWeight: '800' }}>
-                                       This is you &nbsp; <NorthIcon style={{ fontSize: '32px'}} /> 
+                                    <span style={{ fontSize: '36px', fontWeight: '800' }}>
+                                       This is you &nbsp; <NorthIcon style={{ fontSize: '36px', marginLeft: '2rem'}} /> 
                                     </span>
                                 </div>
                                 <div className="animate__animated animate__fadeInRight" style={{ animationDelay: '3500ms' }}>
                                     You should have visited the&nbsp; 
                                     <br />
-                                    <a style={{ color: '#fff'}} href="https://betterbuildingssolutioncenter.energy.gov">
+                                    <a style={{ color: '#fff', fontSize: '32px'}} href="https://betterbuildingssolutioncenter.energy.gov">
                                         Better Building Solution Center</a>.
                                 </div>
                                 </div>
                             </div>
-                            <div style={{flexGrow: '.1'}}></div>
+                            <div style={{flexGrow: '.05'}}></div>
                         </Box>
                     </SwiperSlide>
                 </Swiper>
