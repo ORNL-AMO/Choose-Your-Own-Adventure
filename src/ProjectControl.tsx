@@ -333,7 +333,6 @@ export class ProjectControl implements ProjectControlParams {
 						if (isProjectImplemented) {
 							return state.currentPage;
 						}
-
 						return toggleRenewableProject.apply(this, [state, nextState, financingOption]);
 					} else {
 						return toggleProjectImplemented.apply(this, [state, nextState, financingOption]);
@@ -553,6 +552,8 @@ export class ProjectControl implements ProjectControlParams {
 			let newTrackedStats: TrackedStats = { ...state.trackedStats };
 			let yearRangeInitialStats: TrackedStats[] = [...state.yearRangeInitialStats];
 			let hasAbsoluteCarbonSavings = self.statsActualAppliers.absoluteCarbonSavings !== undefined;
+			let implementationFinancing: FinancingOption = {...financingOption};
+
 
 			const existingRenewableProjectIndex = implementedRenewableProjects.findIndex(project => project.page === self.pageId);
 			let implementedInCurrentYear = false;
@@ -571,6 +572,12 @@ export class ProjectControl implements ProjectControlParams {
 				if (existingRenewableProjectIndex >= 0) {
 					reImplementRenewable(implementedRenewableProjects, existingRenewableProjectIndex, yearRangeInitialStats, newTrackedStats)
 				} else {
+
+					if (implementationFinancing.financingType.id === 'capital-funding') {
+						let capitalFundingState: CapitalFundingState = this.state.capitalFundingState;
+						setCapitalFundingRoundUsed(capitalFundingState, implementationFinancing, self.pageId);
+						nextState.capitalFundingState = capitalFundingState;
+					}
 
 					let renewableProject: ImplementedProject = 
 					{
