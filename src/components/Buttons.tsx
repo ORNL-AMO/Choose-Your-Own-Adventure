@@ -193,7 +193,7 @@ export function getButtonComponent(props: ButtonGroupProps, button: ButtonGroupB
 				}}
 				key={idx}
 				value={selectedFinancingId}
-				disabled={thisDisabled}
+				//disabled={thisDisabled}
 				onChange={(onChangeEvent) => {
 					// todo need to coordinate what values are being passed in this select 
 					let newFinancingId = onChangeEvent.target.value;

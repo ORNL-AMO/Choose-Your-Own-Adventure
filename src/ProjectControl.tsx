@@ -359,6 +359,11 @@ export class ProjectControl implements ProjectControlParams {
 				id: 'placeholder',
 				description: 'placeholder'
 			}
+			// let implementedFinancedProjects: ImplementedProject[] = [...this.state.implementedFinancedProjects];
+			// let implementedProjectsIds: symbol[] = [...this.state.implementedProjectsIds];
+			// let implementedRenewableProjects: RenewableProject[] = [...this.state.implementedRenewableProjects];
+			// let trackedStats = { ...this.state.trackedStats };
+			//let implementedFinancingType: FinancingType = placeholderType;
 			let selectDropdownOptions = function (state: AppState) {
 				const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 				let financingTypes: FinancingType[] = [];
@@ -395,6 +400,43 @@ export class ProjectControl implements ProjectControlParams {
 			const shouldDisable = (props) => {
 				return !props.availableProjectIds.includes(self.pageId) || (hasFinancingOptions && !isProjectImplemented(props))
 			};
+
+			const implementedFinancingType = (props) => {
+				if (self.isRenewable) {
+					if (props.implementedRenewableProjects != undefined && props.implementedRenewableProjects.length != 0) {
+						props.implementedRenewableProjects.some((project: RenewableProject) => {
+							if (project.page === self.pageId && project.gameYearsImplemented.includes(props.trackedStats.currentGameYear)) {
+								return project.financingOption.financingType.id;
+							} else {
+								return placeholderType.id;
+							}
+
+						});
+					} else {
+						return placeholderType.id;
+					}
+				} else {
+					if (props.implementedProjectsIds != undefined && props.implementedProjectsIds.length != 0) {
+						if (props.implementedProjectsIds.includes(self.pageId)) {
+							if (props.implementedFinancedProjects != undefined && props.implementedFinancedProjects.length != 0) {
+								props.implementedFinancedProjects.forEach(project => {
+									if (project.page == self.pageId) {
+										return project.financingOption.financingType.id;
+									}
+								});
+							}
+						} else {
+							return placeholderType.id;
+						}
+					} else {
+						return placeholderType.id;
+					}
+				}
+
+			};
+
+			
+	
 
 			let selectedFinancingOption: FinancingOption;
 			let dropdownSelect: ButtonGroupButton = {
