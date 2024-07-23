@@ -75,7 +75,7 @@ export function ButtonGroup(props: ButtonGroupProps) {
 	else {
 		// By default, use a Stack element to space the buttons
 		return (
-			<Stack direction='row' justifyContent={props.isProjectGroupChoice? 'flex-end' : 'center'} spacing={2}>
+			<Stack direction='column' justifyContent={props.isProjectGroupChoice? 'flex-end' : 'center'} spacing={2}>
 				{buttons}
 			</Stack>
 		);

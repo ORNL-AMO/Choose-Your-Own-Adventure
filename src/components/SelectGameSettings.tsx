@@ -134,7 +134,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         <DialogContentText id='alert-dialog-slide-description' gutterBottom>
                             You have the option to play through in 1 OR 2-year intervals, which will be referred to as a Budget Period.
                         </DialogContentText>
-                        <InputLabel id='selectGameYearInterval'>Please Select the interval size you would like to play through:</InputLabel>
+                        <DialogContentText id='selectGameYearInterval'>Please Select the interval size you would like to play through:</DialogContentText>
                         <Select
                             labelId='selectGameYearInterval'
                             id='selectGameYearInterval'
@@ -177,8 +177,8 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </FormControl>
                     <Divider variant='middle' />
                     <Box m={2}>
-                        <InputLabel id='selectFinancingStartYear' sx={{overflow: 'visible'}}>
-                            Choose the year in which project financing options should be introduced:</InputLabel>
+                        <DialogContentText id='selectFinancingStartYear'>
+                            Choose the year in which project financing options should be introduced:</DialogContentText>
                         <Select
                             labelId='selectFinancingStartYear'
                             id='selectFinancingStartYear'
@@ -196,7 +196,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year <br></br> budget to next year&apos;s budget?</InputLabel>
+                        <DialogContentText id='selectAllowBudgetCarryover'>Would you like to allow the carryover of the remaining end-of-year budget to next year&apos;s budget?</DialogContentText>
                         <Select
                             labelId='selectAllowBudgetCarryover'
                             id='selectAllowBudgetCarryover'
@@ -210,7 +210,7 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                     </Box>
                     <Divider variant='middle'/>
                     <Box m={2}>
-                        <InputLabel id='selectCostSavingsCarryoverYears'>Would you like to add energy cost savings to next year&apos;s budget?</InputLabel>
+                        <DialogContentText id='selectCostSavingsCarryoverYears'>Would you like to add energy cost savings to next year&apos;s budget?</DialogContentText>
                         <Select
                             labelId='selectCostSavingsCarryoverYears'
                             id='selectCostSavingsCarryoverYears'
