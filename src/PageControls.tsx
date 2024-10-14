@@ -18,8 +18,10 @@ import { newAppPageDialogControl } from './components/Dialogs/InfoDialog';
 import Projects from './Projects';
 import { newYearRecapControl } from './components/YearRecap';
 import { newEndGameReportPageControl } from './components/EndGameReport/EndGameReportPage';
+import { newSubmitScoreFormPageControl } from './components/EndGameReport/SubmitScoreForm';
 import { newWinGameControl } from './components/WinGame';
 import { newEndGameDialogControl } from './components/Dialogs/EndGameDialog';
+import { newScoreBoardPageControl } from './components/EndGameReport/ScoreBoard';
 declare interface PageControls {
     [key: symbol]: PageControl;
 }
@@ -198,6 +200,8 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
 PageControls[Pages.endGameDialog] = newEndGameDialogControl();
 PageControls[Pages.yearRecap] = newYearRecapControl(Pages.selectScope);
 PageControls[Pages.endGameReport] = newEndGameReportPageControl();
+PageControls[Pages.submitScoreForm] = newSubmitScoreFormPageControl();
+PageControls[Pages.scoreBoard] = newScoreBoardPageControl();
 
 
 // todo: investigate whether making this a callback improves page load time (by not resolving all the react components at the start)

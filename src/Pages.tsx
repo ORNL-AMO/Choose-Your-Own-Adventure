@@ -17,6 +17,8 @@ const Pages = {
 	loseGame: Symbol('lose-game'),
 	endGameDialog: Symbol('end-game-dialog'),
 	endGameReport: Symbol('end-game-report'),
+	submitScoreForm: Symbol('submit-score-form'),
+	scoreBoard: Symbol('score-board'),
 	// below: scope 1 projects
 	wasteHeatRecovery: Symbol('waste-heat-recovery'),
 	wasteHeatRecoveryRebate: Symbol('waste-heat-recovery-rebate'),
