@@ -5,7 +5,7 @@ import { FinancingOption, isProjectFullyFunded } from '../../Financing';
 import { ControlCallbacks, Emphasis, PageControl } from '../controls';
 import { Box, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemIcon, ListItemText, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
 import { ParentSize } from '@visx/responsive';
-import { ProjectControl } from '../../ProjectControl';
+import { CompletedProject, ProjectControl } from '../../ProjectControl';
 import { ImplementedFinancingData } from '../YearRecap';
 import Projects from '../../Projects';
 import { DialogFinancingOptionCard } from '../Dialogs/ProjectDialog';
@@ -15,47 +15,20 @@ import DownloadPDF from './DownloadPDF';
 import InfoIcon from '@mui/icons-material/Info';
 import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
+import { StyledTableCell } from '../theme';
 
-interface Data {
+interface ScoreData {
     name: string;
-    carbonSavingsPercent: string;
-    gameTotalSpending: string;
-    costPerCarbonSavings: string;
-    projectedFinancedSpending: string;
+    scoreData: EndGameResults;
 }
-
-function createData(
-    name: string,
-    carbonSavingsPercent: string,
-    gameTotalSpending: string,
-    costPerCarbonSavings: string,
-    projectedFinancedSpending: string
-): Data {
-    return { name, carbonSavingsPercent, gameTotalSpending, costPerCarbonSavings, projectedFinancedSpending };
-}
-
-const rows = [
-    createData('A', '55.00', '4,796,000', '0.42', '3,948,000'),
-    createData('B', '55.01', '4,795,000', '0.42', '3,948,000'),
-    createData('C', '55.02', '4,794,000', '0.42', '3,948,000'),
-    createData('D', '55.03', '4,793,000', '0.42', '3,948,000'),
-    createData('E', '55.04', '4,792,000', '0.42', '3,948,000'),
-    createData('F', '55.05', '4,791,000', '0.42', '3,948,000'),
-    createData('G', '55.06', '4,790,000', '0.42', '3,948,000'),
-]
 
 interface HeadCell {
-    id: keyof Data;
+    id: keyof ScoreData["scoreData"];
     label: string;
     numeric: boolean;
 }
 
 const headCells: readonly HeadCell[] = [
-    {
-        id: 'name',
-        numeric: false,
-        label: 'Name',
-    },
     {
         id: 'carbonSavingsPercent',
         numeric: false,
@@ -104,28 +77,26 @@ function getComparator<Key extends keyof any>(
 
 
 interface EnhancedTableProps {
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
+    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof ScoreData["scoreData"]) => void;
     order: Order;
     orderBy: string;
 }
-
-
-
 
 function EnhancedTableHead(props: EnhancedTableProps) {
     const { order, orderBy, onRequestSort } =
         props;
     const createSortHandler =
-        (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+        (property: keyof ScoreData["scoreData"]) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
 
     return (
         <TableHead>
             <TableRow>
-                <TableCell>Rank</TableCell>
+                <StyledTableCell>Rank</StyledTableCell>
+                <StyledTableCell>Name</StyledTableCell>
                 {headCells.map((headCell) => (
-                    <TableCell
+                    <StyledTableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
                         sortDirection={orderBy === headCell.id ? order : false}
@@ -142,7 +113,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                                 </Box>
                             ) : null}
                         </TableSortLabel>
-                    </TableCell>
+                    </StyledTableCell>
                 ))}
             </TableRow>
         </TableHead>
@@ -152,26 +123,18 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 export default function ScoreBoard(props: FormProps) {
     const [orderRows, setOrder] = React.useState<Order>('asc');
-    const [orderRowsBy, setOrderBy] = React.useState<keyof Data>('carbonSavingsPercent');
+    const [orderRowsBy, setOrderBy] = React.useState<keyof ScoreData["scoreData"]>('carbonSavingsPercent');
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
-        property: keyof Data,
+        property: keyof ScoreData["scoreData"],
     ) => {
         const isAsc = orderRowsBy === property && orderRows === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
-    const visibleRows = React.useMemo(
-        () =>
-            [...rows]
-                .sort(getComparator(orderRows, orderRowsBy)),
-        [orderRows, orderRowsBy],
-    );
-
-
-    const [data, setData] = useState({});
+    const [data, setData] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -179,19 +142,28 @@ export default function ScoreBoard(props: FormProps) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/data');
-            setData(response.data);            
-            console.error('worked');
+            const response = await axios.get('https://weather.ornl.gov/leaderboard');
+            setData(response.data);
+            console.log('worked');
+            console.log(response.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
+    const visibleRows = React.useMemo(
+        () =>
+            [...data]
+                .sort(getComparator(orderRows, orderRowsBy)),
+        [orderRows, orderRowsBy],
+    );
+
 
     return (
         <>
             <Typography variant='h2'>
                 Leaderboard
             </Typography>
+
 
             <TableContainer component={Paper}>
                 <Table aria-label='simple table'>
@@ -203,24 +175,22 @@ export default function ScoreBoard(props: FormProps) {
                     <TableBody>
                         {visibleRows.map((row, index) => (
                             <TableRow
-                                key={row.name}
+                                key={index}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell align="left">{index + 1}</TableCell>
-                                <TableCell component="th" scope="row">
-                                    {row.name}
-                                </TableCell>
-                                <TableCell align="left">{row.carbonSavingsPercent}</TableCell>
-                                <TableCell align="left">{row.gameTotalSpending}</TableCell>
-                                <TableCell align="left">{row.costPerCarbonSavings}</TableCell>
-                                <TableCell align="left">{row.projectedFinancedSpending}</TableCell>
+                                <TableCell component="th" scope="row">{row.name}</TableCell>
+                                <TableCell align="left">{row.scoreData.carbonSavingsPercent}</TableCell>
+                                <TableCell align="left">{row.scoreData.gameTotalSpending}</TableCell>
+                                <TableCell align="left">{row.scoreData.costPerCarbonSavings}</TableCell>
+                                <TableCell align="left">{row.scoreData.projectedFinancedSpending}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
 
             </TableContainer>
-            {data[0].name}
+
 
         </>
     );

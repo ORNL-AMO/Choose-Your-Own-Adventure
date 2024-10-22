@@ -38,7 +38,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const buttons: ButtonGroupButton[] = [
 	{
-		text: 'View Scoreboard',
+		text: 'View Leaderboard',
 		variant: 'text',
 		size: 'large',		
 		onClick: function () {
@@ -48,7 +48,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const sendData = async (data) => {
         try {
-            const response = await fetch('http://localhost:3001/saveData',{
+            const response = await fetch('https://weather.ornl.gov/leaderboard',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,15 +132,6 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
                     useMUIStack={false}
                 />
             </div>
-            {/* <Button
-                size='small'
-                variant='contained'
-                onClick={function () {
-                    return Pages.scoreBoard;
-                }}
-                style={{ margin: '10px', marginLeft: '2rem' }}>
-                    View Scoreboard
-            </Button> */}
         </>
     );
 
