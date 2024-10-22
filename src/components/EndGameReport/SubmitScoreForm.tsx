@@ -25,6 +25,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
     }
 
     const [name, setName] = useState('');
+    // todo 329 - you don't need state - it's never changed by this component
     const [scoreData, setData] = useState(props.endGameResults);
 
     const data = { name: name, scoreData: scoreData };
@@ -48,7 +49,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const sendData = async (data) => {
         try {
-            const response = await fetch('https://weather.ornl.gov/leaderboard',{
+            const response = await fetch('http://127.0.0.1:3000/leaderboard', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,12 +57,13 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
                 body: JSON.stringify(data),
             });
             const result = await response.text();
-            console.log(result);
+            console.log('leaderboard result', result);
         } catch (error) {
             console.log('error: ', error);
         }
     };
 
+    console.log('Render SubmitScoreFor', props)
     return (
         <>
             <Box m={2}>

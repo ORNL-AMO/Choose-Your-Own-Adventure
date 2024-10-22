@@ -1,29 +1,28 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { EndGameResults, TrackedStats } from '../../trackedStats';
 import { GameSettings } from '../SelectGameSettings';
-import { FinancingOption, isProjectFullyFunded } from '../../Financing';
 import { ControlCallbacks, Emphasis, PageControl } from '../controls';
-import { Box, Card, CardContent, CardHeader, Grid, Link, List, ListItem, ListItemIcon, ListItemText, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
-import { ParentSize } from '@visx/responsive';
-import { CompletedProject, ProjectControl } from '../../ProjectControl';
-import { ImplementedFinancingData } from '../YearRecap';
-import Projects from '../../Projects';
-import { DialogFinancingOptionCard } from '../Dialogs/ProjectDialog';
-import { parseSpecialText } from '../../functions-and-types';
-import EnergyUseLineChart from '../EnergyUseLineChart';
-import DownloadPDF from './DownloadPDF';
-import InfoIcon from '@mui/icons-material/Info';
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
 import { StyledTableCell } from '../theme';
 
-interface ScoreData {
+// interface ScoreData {
+//     name: string;
+//     scoreData: EndGameResults;
+// }
+
+interface LeaderboardDbEntry {
     name: string;
-    scoreData: EndGameResults;
+    scoreData: EndGameResults
+}
+
+interface LeaderboardDataRow extends EndGameResults {
+    name: string;
 }
 
 interface HeadCell {
-    id: keyof ScoreData["scoreData"];
+    id: keyof EndGameResults;
     label: string;
     numeric: boolean;
 }
@@ -70,14 +69,18 @@ function getComparator<Key extends keyof any>(
     a: { [key in Key]: number | string },
     b: { [key in Key]: number | string },
 ) => number {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
+    console.log('getComparator order, orderby', order, orderBy);
+    if (order === 'desc') {
+       return (a, b) => descendingComparator(a, b, orderBy);
+    } else {
+       return (a, b) => -descendingComparator(a, b, orderBy);
+    }
 }
 
 
 interface EnhancedTableProps {
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof ScoreData["scoreData"]) => void;
+    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof EndGameResults) => void;
+    // onRequestSort: (event: React.MouseEvent<unknown>, property: keyof ScoreData["scoreData"]) => void;
     order: Order;
     orderBy: string;
 }
@@ -86,10 +89,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     const { order, orderBy, onRequestSort } =
         props;
     const createSortHandler =
-        (property: keyof ScoreData["scoreData"]) => (event: React.MouseEvent<unknown>) => {
-            onRequestSort(event, property);
-        };
-
+    (property: keyof EndGameResults) => (event: React.MouseEvent<unknown>) => {
+        onRequestSort(event, property);
+    };
     return (
         <TableHead>
             <TableRow>
@@ -104,7 +106,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         <TableSortLabel
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id)}
+                            onClick={createSortHandler(headCell.id)} 
                         >
                             {headCell.label}
                             {orderBy === headCell.id ? (
@@ -123,18 +125,18 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 export default function ScoreBoard(props: FormProps) {
     const [orderRows, setOrder] = React.useState<Order>('asc');
-    const [orderRowsBy, setOrderBy] = React.useState<keyof ScoreData["scoreData"]>('carbonSavingsPercent');
+    const [orderRowsBy, setOrderBy] = React.useState<keyof EndGameResults>('carbonSavingsPercent');
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
-        property: keyof ScoreData["scoreData"],
+        property: keyof EndGameResults,
     ) => {
         const isAsc = orderRowsBy === property && orderRows === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
-    const [data, setData] = useState([]);
+    const [leaderboardData, setLeaderboardData] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -142,21 +144,29 @@ export default function ScoreBoard(props: FormProps) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('https://weather.ornl.gov/leaderboard');
-            setData(response.data);
-            console.log('worked');
-            console.log(response.data);
+            const response = await axios.get('http://127.0.0.1:3000/leaderboard');
+            const leaderBoardRowData: LeaderboardDataRow[] = createLeaderboardRows(response.data) 
+            setLeaderboardData(leaderBoardRowData);
+            console.log('leaderboard data result', leaderBoardRowData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
-    const visibleRows = React.useMemo(
-        () =>
-            [...data]
-                .sort(getComparator(orderRows, orderRowsBy)),
-        [orderRows, orderRowsBy],
-    );
 
+    const createLeaderboardRows = (leaderboard: LeaderboardDbEntry[]): LeaderboardDataRow[] => {
+        return leaderboard.map((entry: LeaderboardDbEntry) => {
+            return {
+                ...entry.scoreData,
+                name: entry.name,
+            }
+        })
+    }
+
+    // todo 329 using memoized leaderboardData (does not exist). Needed to add leaderboardData as a dependency
+    const visibleRows = React.useMemo(
+        () => {
+            return [...leaderboardData].sort(getComparator(orderRows, orderRowsBy))
+        }, [orderRows, orderRowsBy, leaderboardData]);
 
     return (
         <>
@@ -173,19 +183,22 @@ export default function ScoreBoard(props: FormProps) {
                         onRequestSort={handleRequestSort}
                     />
                     <TableBody>
-                        {visibleRows.map((row, index) => (
-                            <TableRow
+                        {/* // todo 329 this row data format WAS incorrect for what the sorting expects */}
+                        {visibleRows.map((row: LeaderboardDataRow, index) => {
+                            return (
+                                <TableRow
                                 key={index}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
+                                >
                                 <TableCell align="left">{index + 1}</TableCell>
                                 <TableCell component="th" scope="row">{row.name}</TableCell>
-                                <TableCell align="left">{row.scoreData.carbonSavingsPercent}</TableCell>
-                                <TableCell align="left">{row.scoreData.gameTotalSpending}</TableCell>
-                                <TableCell align="left">{row.scoreData.costPerCarbonSavings}</TableCell>
-                                <TableCell align="left">{row.scoreData.projectedFinancedSpending}</TableCell>
+                                <TableCell align="left">{row.carbonSavingsPercent}</TableCell>
+                                <TableCell align="left">{row.gameTotalSpending}</TableCell>
+                                <TableCell align="left">{row.costPerCarbonSavings}</TableCell>
+                                <TableCell align="left">{row.projectedFinancedSpending}</TableCell>
                             </TableRow>
-                        ))}
+                            )}
+                        )}
                     </TableBody>
                 </Table>
 
