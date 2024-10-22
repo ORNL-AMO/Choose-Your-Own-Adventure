@@ -7,11 +7,6 @@ import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
 import { StyledTableCell } from '../theme';
 
-// interface ScoreData {
-//     name: string;
-//     scoreData: EndGameResults;
-// }
-
 interface LeaderboardDbEntry {
     name: string;
     scoreData: EndGameResults
@@ -80,7 +75,6 @@ function getComparator<Key extends keyof any>(
 
 interface EnhancedTableProps {
     onRequestSort: (event: React.MouseEvent<unknown>, property: keyof EndGameResults) => void;
-    // onRequestSort: (event: React.MouseEvent<unknown>, property: keyof ScoreData["scoreData"]) => void;
     order: Order;
     orderBy: string;
 }
@@ -140,11 +134,11 @@ export default function ScoreBoard(props: FormProps) {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, []);   
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:3000/leaderboard');
+            const response = await axios.get('https://weather.ornl.gov/leaderboard');
             const leaderBoardRowData: LeaderboardDataRow[] = createLeaderboardRows(response.data) 
             setLeaderboardData(leaderBoardRowData);
             console.log('leaderboard data result', leaderBoardRowData);
@@ -162,7 +156,6 @@ export default function ScoreBoard(props: FormProps) {
         })
     }
 
-    // todo 329 using memoized leaderboardData (does not exist). Needed to add leaderboardData as a dependency
     const visibleRows = React.useMemo(
         () => {
             return [...leaderboardData].sort(getComparator(orderRows, orderRowsBy))
@@ -183,7 +176,6 @@ export default function ScoreBoard(props: FormProps) {
                         onRequestSort={handleRequestSort}
                     />
                     <TableBody>
-                        {/* // todo 329 this row data format WAS incorrect for what the sorting expects */}
                         {visibleRows.map((row: LeaderboardDataRow, index) => {
                             return (
                                 <TableRow

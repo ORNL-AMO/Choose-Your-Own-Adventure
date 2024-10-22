@@ -33,8 +33,8 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
     const handleSubmit = (event) => {
         sendData(data);
         event.preventDefault();
-        alert(`The name that you entered was: ${name} \n
-             ${scoreData.carbonSavingsPercent}, ${scoreData.gameTotalSpending}, ${scoreData.costPerCarbonSavings}, ${scoreData.projectedFinancedSpending}`);
+        // alert(`The name that you entered was: ${name} \n
+        //      ${scoreData.carbonSavingsPercent}, ${scoreData.gameTotalSpending}, ${scoreData.costPerCarbonSavings}, ${scoreData.projectedFinancedSpending}`);
     }
 
     const buttons: ButtonGroupButton[] = [
@@ -49,7 +49,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const sendData = async (data) => {
         try {
-            const response = await fetch('http://127.0.0.1:3000/leaderboard', {
+            const response = await fetch('https://weather.ornl.gov/leaderboard', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
