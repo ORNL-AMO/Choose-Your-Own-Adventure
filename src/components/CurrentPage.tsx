@@ -14,6 +14,8 @@ import { CapitalFundingState } from '../Financing';
 import EndGameReportPage from './EndGameReport/EndGameReportPage';
 import EndGameDialog from './Dialogs/EndGameDialog';
 import EndGameReport from './EndGameReport/EndGameReportPage';
+import SubmitScoreForm from './EndGameReport/SubmitScoreForm';
+import ScoreBoard from './EndGameReport/ScoreBoard';
 
 
 interface CurrentPageProps extends ControlCallbacks, PageControlProps {
@@ -106,6 +108,23 @@ export class CurrentPage extends PureComponentIgnoreFuncs<CurrentPageProps> {
 						yearRangeInitialStats={this.props.yearRangeInitialStats}
 					/>
 				);
+			case SubmitScoreForm:
+			return (
+				<SubmitScoreForm
+					{...controlCallbacks}
+					{...this.props.gameSettings}
+					endGameResults={this.props.endGameResults}
+					yearRangeInitialStats={this.props.yearRangeInitialStats}
+				/>
+			);
+			case ScoreBoard:
+			return (
+				<ScoreBoard
+					{...controlCallbacks}
+					{...this.props.gameSettings}
+					endGameResults={this.props.endGameResults}
+					yearRangeInitialStats={this.props.yearRangeInitialStats} />
+			);
 			default:
 				return <></>;
 		}
