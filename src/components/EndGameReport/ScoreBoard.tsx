@@ -134,7 +134,7 @@ export default function ScoreBoard(props: FormProps) {
 
     useEffect(() => {
         fetchData();
-    }, []);   
+    }, []);
 
     const fetchData = async () => {
         try {
