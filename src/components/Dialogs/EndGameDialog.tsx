@@ -26,6 +26,14 @@ export default function EndGameDialog(props: EndGameDialogProps) {
 			location.href = String(location.href);
 			return state.currentPage; 
 		}
+	},
+	{
+		text: 'Submit Score',
+		variant: 'text',
+		size: 'large',		
+		onClick: function () {
+			return Pages.submitScoreForm;
+		}
 	}];
 
 	return (
