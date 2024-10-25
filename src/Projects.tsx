@@ -55,7 +55,7 @@ Projects[Pages.wasteHeatRecovery] = new ProjectControl({
 	choiceInfoImgAlt: '', // What is this diagram from the PPT?
 	choiceInfoImgObjectFit: 'contain',
 	// List of surprise dialogs to show to the user when the hit select THE FIRST TIME.
-	utilityRebateValue: 5000,	
+	utilityRebateValue: 5000,
 	// Bit of text to preview what to expect from the project.
 	energySavingsPreviewIcon: {
 		text: '9.5%',
@@ -1393,4 +1393,185 @@ Projects[Pages.solarThermalHotWater] = new ProjectControl({
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
 	// add case study
+});
+
+
+Projects[Pages.thProgramableHVAC] = new ProjectControl({
+	pageId: Pages.thProgramableHVAC,
+	isCapitalFundsEligible: true,
+	baseCost: 5_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-150000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-150000),
+	},
+	title: 'Treasure Hunt 2 - Programable HVAC',
+	shortTitle: 'Thermostat Optimization for HVAC system',
+	choiceInfoText: [`Inside Description: Your plant held a {second energy treasure hunt} and found that some of the HVAC units were running constantly, 
+		and employees complained about temperature fluctuation. Upon investigation it was revealed that a significant thermostat overlap causing simultaneous 
+		heating and cooling with no night setback programming. A simple adjustment of temperature setpoints and night setback resulted in significant energy 
+		savings without compromising operational efficiency or occupant comfort.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+	caseStudy: {
+		title: 'STEAM',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
+		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
+	},
+	energySavingsPreviewIcon: {
+		text: '0.5%',
+		variant: 'text',
+		startIcon: <BoltIcon/>,
+	},	
+	visible: state => state.yearRangeInitialStats.some(stats => stats.currentGameYear === 3)
+});
+
+Projects[Pages.thAirCurtainDoors] = new ProjectControl({
+	pageId: Pages.thAirCurtainDoors,
+	isCapitalFundsEligible: true,
+	baseCost: 18_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-1800),
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-1800),
+	},
+	title: 'Treasure Hunt 2- Air curtain doors',
+	shortTitle: 'Install air curtains to reduce heat loss in dock area to improve worker comfort and increased the loading dock productivity',
+	choiceInfoText: [`Your plant held a {second energy treasure hunt} and found that frequent forklift traffic through your loading dock doors led 
+		to substantial heat escape during winter months, with indoor temperatures dropping significantly near the dock area. After installing 
+		industrial-grade air curtains above each 12-foot dock door, the facility reduced your winter heating costs. 
+		The air curtains create an invisible barrier of high-velocity air that effectively separates the indoor and outdoor environments while 
+		allowing unimpeded forklift access. The project helped reduce natural gas consumption and improved worker comfort and increased the loading dock productivity.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+	caseStudy: {
+		title: 'HNI:  NEW AIR CURTAIN REDUCES NATURAL GAS CONSUMPTION',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/sites/default/files/Plants_Project_HNI.pdf',
+		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
+	},
+	energySavingsPreviewIcon: {
+		text: '1%',
+		variant: 'text',
+		startIcon: <FlameIcon />,
+	},
+	visible: state => state.yearRangeInitialStats.some(stats => stats.currentGameYear === 3)
+});
+
+Projects[Pages.turnOffOneRTO] = new ProjectControl({
+	pageId: Pages.turnOffOneRTO,
+	isCapitalFundsEligible: true,
+	baseCost: 15_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-9000),
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-9000),
+	},
+	title: 'Turn off one RTO',
+	shortTitle: 'Implement smart controls to turn off RTO unit during non-production hours. ',
+	choiceInfoText: [`Your facility can achieve significant energy savings by implementing smart 
+		controls and operational protocols for  your Regenerative Thermal Oxidizers (RTO) system in paint coating area. 
+		Prior to optimization, the RTO operated continuously 24/7 despite paint lines running only 16 hours per day. 
+		Through an energy audit, you discovered the RTO was manually overridden by accident and unnecessarily running during 
+		non-production hours and break periods, effectively burning natural gas to oxidize clean air. 
+		Controls were installed during the paint booth upgrade and, they were turn on reduced RTO runtime. 
+		The system now automatically enters standby mode during breaks and shutdowns while maintaining minimal temperature to enable quick restarts.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+	caseStudy: {
+		title: 'PROCESS HEATING – Technology Focus Area',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/process-heating',
+		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
+	},
+	energySavingsPreviewIcon: {
+		text: '6%',
+		variant: 'text',
+		startIcon: <FlameIcon />,
+	},
+	visible: state => state.completedProjects.some(project => project.page === Pages.processHeatingUpgrades)
+});
+
+
+Projects[Pages.thReduceCombustionAirFlow] = new ProjectControl({
+	pageId: Pages.thReduceCombustionAirFlow,
+	isCapitalFundsEligible: true,
+	baseCost: 5_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-3750),
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-3750),
+	},
+	title: 'Treasure Hunt 2 - Reduce combustion air flow in oven',
+	shortTitle: 'Adjust fuel to air ratio to reduce waste and maintenance requirements for furnace.',
+	choiceInfoText: [`Your plant held a {second energy treasure} hunt and found that your facility can significantly 
+		reduce your natural gas consumption by optimizing the fuel-to-air ratio in the process heating equipment. 
+		Initial testing revealed the three industrial furnaces were operating with excess air levels of 45-55%, 
+		well above the recommended 10-15% for optimal combustion efficiency. 
+		You hired someone to fine-tuned the combustion process to maintain a consistent 12% excess air ratio. 
+		This optimization eliminated fuel-rich and fuel-lean conditions that were causing energy waste and unstable flame patterns. 
+		Beyond the energy savings, the optimized combustion ratio also reduced furnace maintenance requirements and improved 
+		product quality by providing more consistent heating patterns.`],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+	caseStudy: {
+		title: 'PROCESS HEATING – Technology Focus Area',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/process-heating',
+		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
+	},
+	visible: state => state.yearRangeInitialStats.some(stats => stats.currentGameYear === 3)
+});
+
+Projects[Pages.thRunDriersOnly] = new ProjectControl({
+	pageId: Pages.thRunDriersOnly,
+	isCapitalFundsEligible: true,
+	baseCost: 5_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		electricityUseKWh: absolute(-260000),
+	},
+	statsActualAppliers: {
+		electricityUseKWh: absolute(-260000),
+	},
+	title: 'Treasure Hunt 2 - Run driers only when compressors are on',
+	shortTitle: 'Turn off compressor dryers when compressor is not in use',
+	choiceInfoText: [`Your plant held a {second energy treasure hunt} and found a simple yet effective energy-saving measure: 
+		synchronizing your compressed air dryer operation with compressor runtime. Previously, the refrigerated air dryer operated continuously, 
+		consuming power 24/7, despite your production schedule running only two shifts Monday through Friday. 
+		By properly calibrating the control system, you eliminated unnecessary dryer operation during non-production hours and weekends. 
+		The dryer now automatically shuts down 30 minutes after the compressors stop and restarts 15 minutes before compression begins, 
+		ensuring proper air quality when needed. `],
+	choiceInfoImg: 'images/electric-boiler.png',
+	choiceInfoImgAlt: 'electric boiler',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	// add case study
+	caseStudy: {
+		title: 'COMPRESSED AIR - Technology Focus Area',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/compressed-air',
+		text: 'Compressed air provides a safe and reliable source of pneumatic pressure for a wide range of industrial processes. However, with over 80% of its input energy being lost as heat, air compressors are naturally inefficient. Energy-Efficient process design should opt for alternatives wherever possible and isolate compressed air usage to only processes that mandate it.'
+	},
+	energySavingsPreviewIcon: {
+		text: '~1%',
+		variant: 'text',
+		startIcon: <BoltIcon />,
+	},
 });

@@ -60,6 +60,11 @@ const Pages = {
 	installVFDs3: Symbol('install-VFDs-3'),
 	reduceFanSpeeds: Symbol('reduce-fan-speeds'),
 	lightingOccupancySensors: Symbol('lighting-occupancy-sensors'),
+	thProgramableHVAC: Symbol('th-programable-HVAC'),
+	thAirCurtainDoors: Symbol('th-air-curtain-doors'),
+	turnOffOneRTO: Symbol('turn-off-one-RTO'),
+	thReduceCombustionAirFlow: Symbol('th-reduce-combustion-air-flow'),
+	thRunDriersOnly: Symbol('th-run-driers-only'),
 };
 
 /**
