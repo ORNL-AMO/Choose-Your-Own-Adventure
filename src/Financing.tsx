@@ -197,7 +197,8 @@ export function getRemainingProjectCosts(project: ImplementedProject, mutableSta
  */
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
-	if (!capitalFundingState.roundA.isEarned) {
+    // ToDo first if statement not being read in thrid render
+	if (!capitalFundingState.roundA.isEarned || !capitalFundingState.roundA.isExpired) { 
         let roundAMilestonePercent = 5;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
