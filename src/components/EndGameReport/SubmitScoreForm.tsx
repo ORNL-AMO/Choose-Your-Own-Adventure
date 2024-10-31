@@ -33,8 +33,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
     const handleSubmit = (event) => {
         sendData(data);
         event.preventDefault();
-        // alert(`The name that you entered was: ${name} \n
-        //      ${scoreData.carbonSavingsPercent}, ${scoreData.gameTotalSpending}, ${scoreData.costPerCarbonSavings}, ${scoreData.projectedFinancedSpending}`);
+        alert(`${name}, your score has been successfully submitted!`);
     }
 
     const buttons: ButtonGroupButton[] = [
