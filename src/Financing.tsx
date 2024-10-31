@@ -137,7 +137,8 @@ export function setCapitalFundingExpired(capitalFundingState: CapitalFundingStat
 
 
 export function getRoundIsExpired(round: FundingRound, stats: TrackedStats) {
-    return round.isEarned && round.eligibleYear <= stats.currentGameYear && round.usedOnProjectId === undefined;
+    const isExpired = round.isEarned && round.eligibleYear <= stats.currentGameYear && round.usedOnProjectId === undefined;
+    return isExpired;
 }
 
 
@@ -197,23 +198,23 @@ export function getRemainingProjectCosts(project: ImplementedProject, mutableSta
  */
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
-	if (!capitalFundingState.roundA.isEarned || !capitalFundingState.roundA.isExpired) { 
+    let isNotUsedRoundA = capitalFundingState.roundA.usedOnProjectId === undefined;
+    let isNotUsedRoundB = capitalFundingState.roundB.usedOnProjectId === undefined;
+	if (!capitalFundingState.roundA.isEarned || (capitalFundingState.roundA.isEarned && (isNotUsedRoundA && !capitalFundingState.roundA.isExpired))) { 
         let roundAMilestonePercent = 5;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
             capitalFundingState.roundA.isEarned = true;
             capitalFundingState.roundA.eligibleYear = stats.currentGameYear + 1;
             capitalFundingState.roundA.isExpired = false;
-            console.log('Capital Funding - earned round A, for year:', stats.currentGameYear + 1)
         }
-	} else if (!capitalFundingState.roundB.isEarned) {
+	} else if (!capitalFundingState.roundB.isEarned || (capitalFundingState.roundB.isEarned && (isNotUsedRoundB && !capitalFundingState.roundB.isExpired))) {
         let roundBMilestonePercent = 30;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
 		if (savingsMilestone) {
             capitalFundingState.roundB.isEarned = true;
             capitalFundingState.roundB.eligibleYear = stats.currentGameYear + 1;
             capitalFundingState.roundB.isExpired = false;
-            console.log('Capital Funding - earned round B, for year:', stats.currentGameYear + 1);
         }
 	}
 	return savingsMilestone;
