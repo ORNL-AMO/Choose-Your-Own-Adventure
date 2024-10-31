@@ -1574,4 +1574,5 @@ Projects[Pages.thRunDriersOnly] = new ProjectControl({
 		variant: 'text',
 		startIcon: <BoltIcon />,
 	},
+	visible: state => state.yearRangeInitialStats.some(stats => stats.currentGameYear === 3)
 });
