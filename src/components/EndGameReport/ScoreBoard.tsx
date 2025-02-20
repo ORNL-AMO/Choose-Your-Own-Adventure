@@ -7,6 +7,8 @@ import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
 import { StyledTableCell } from '../theme';
 
+const UTILITY_SERVER_URL = process.env.REACT_APP_UTILITY_SERVER_URL;
+
 interface LeaderboardDbEntry {
     name: string;
     scoreData: EndGameResults
@@ -138,7 +140,8 @@ export default function ScoreBoard(props: FormProps) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('https://weather.ornl.gov/leaderboard');
+            const url = `${UTILITY_SERVER_URL}/leaderboard`;
+            const response = await axios.get(url);
             const leaderBoardRowData: LeaderboardDataRow[] = createLeaderboardRows(response.data) 
             setLeaderboardData(leaderBoardRowData);
             console.log('leaderboard data result', leaderBoardRowData);
