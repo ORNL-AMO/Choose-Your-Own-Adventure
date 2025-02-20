@@ -17,6 +17,7 @@ import { ButtonGroup, ButtonGroupButton } from '../Buttons';
 import Pages from '../../Pages';
 import axios from 'axios';
 
+const UTILITY_SERVER_URL = process.env.REACT_APP_UTILITY_SERVER_URL;
 export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const formFormatting = {
@@ -48,7 +49,8 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
 
     const sendData = async (data) => {
         try {
-            const response = await fetch('https://weather.ornl.gov/leaderboard', {
+            const url = `${UTILITY_SERVER_URL}/leaderboard`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
