@@ -18,7 +18,7 @@ export function StartPage(props: StartPageProps) {
 				CHOOSE YOUR OWN SOLUTION!
 			</Typography>
 			<Typography variant='h4' component='div' gutterBottom>
-				Can you decarbonize this industrial facility?
+				Can you help this facility achoeve its goals?
 			</Typography>
 			<br/>
 			<ButtonGroup 
