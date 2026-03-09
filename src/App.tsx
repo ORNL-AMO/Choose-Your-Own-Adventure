@@ -596,7 +596,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			yearlyCostSavings: yearlyCostSavings,
 		};
 
-		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.5;
+		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.25;
 		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1;
 		
 		if (isGameWon) {

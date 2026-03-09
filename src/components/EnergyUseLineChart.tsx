@@ -18,15 +18,20 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 	let energyTypeYearValues = {
 		electricity: [],
 		naturalGas: [],
-		landfillGases: [],
+		// landfillGases: [],
 	}
 	yearlyStats.forEach(statYear => {
+		// TODO: This chart previously displayed GHG emissions (kg CO2e) to support the "GHG Reduction" chart title.
+		// GHG reduction displays are being replaced with operationEnergyUsePercent per the new stat naming convention.
+		// The chart title and y-axis have been updated accordingly; the data below still uses GHG emissions values
+		// and should be updated to show energy use in MMBTU (electricityUseKWh * 0.003412 + naturalGasMMBTU) if
+		// the intent is to align with the operationEnergyUsePercent metric.
 		let electricityEmissions = statYear.electricityUseKWh * getElectricityEmissionsFactor(statYear.currentGameYear, statYear.gameYearInterval, statYear.gameYearDisplayOffset);
 		let natGasEmissions = statYear.naturalGasMMBTU * statYear.naturalGasEmissionsPerMMBTU;
-		let landfillGasEmissions = statYear.hydrogenMMBTU * statYear.hydrogenEmissionsPerMMBTU;
+		// let landfillGasEmissions = statYear.hydrogenMMBTU * statYear.hydrogenEmissionsPerMMBTU;
 		energyTypeYearValues.electricity.push(electricityEmissions);
 		energyTypeYearValues.naturalGas.push(natGasEmissions);
-		energyTypeYearValues.landfillGases.push(landfillGasEmissions);
+		// energyTypeYearValues.landfillGases.push(landfillGasEmissions);
 	});
 
     data.push({
@@ -53,24 +58,26 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
         },
         type: 'scatter'
     },
-    {
-        x: xYears,
-        y: energyTypeYearValues.landfillGases,
-        mode: 'lines+markers',
-        name: 'Landfill Gases',
-        line: {
-            shape: 'linear',
-            color:  '#f06807',
-            width: 2
-        },
-        type: 'scatter'
-    },
+                        {/* 8213 */}
+
+    // {
+    //     x: xYears,
+    //     y: energyTypeYearValues.landfillGases,
+    //     mode: 'lines+markers',
+    //     name: 'Landfill Gases',
+    //     line: {
+    //         shape: 'linear',
+    //         color:  '#f06807',
+    //         width: 2
+    //     },
+    //     type: 'scatter'
+    // },
     )
 
 	const layout = {
 		width: props.parentElement.width,
 		title: {
-			text: `${xYears.length * props.yearRangeInitialStats[0].gameYearInterval} Year GHG Reduction`,
+			text: `${xYears.length * props.yearRangeInitialStats[0].gameYearInterval} Year Energy Use`,
 			font: {
 				family: 'Roboto',
 				size: 24
@@ -91,7 +98,7 @@ export default function EnergyUseLineChart(props: EnergyUseLineChartProps) {
 			tickmode: 'array',
 		},
 		yaxis: {
-			title: 'GHG Emissions (kg CO<sub>2</sub>e)',
+			title: 'Energy Use (MMBtu)',
 			showline: false,
 			automargin: true,
 			standoff: 25,

@@ -28,18 +28,19 @@ const headCells: readonly HeadCell[] = [
     {
         id: 'carbonSavingsPercent',
         numeric: false,
-        label: 'CO2e Emissions Reduction %',
+        label: 'Energy Cost Savings %',
     },
     {
         id: 'gameTotalSpending',
         numeric: false,
         label: 'Budget Spent',
     },
-    {
-        id: 'costPerCarbonSavings',
-        numeric: false,
-        label: 'Cost per kg reduced',
-    },
+// 8213
+    // {
+    //     id: 'costPerCarbonSavings',
+    //     numeric: false,
+    //     label: 'Cost per kg reduced',
+    // },
     {
         id: 'projectedFinancedSpending',
         numeric: false,
@@ -106,7 +107,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                         >
                             {headCell.label}
                             {orderBy === headCell.id ? (
-                                <Box component="span" sx={visuallyHidden}>
+                                <Box component='span' sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                                 </Box>
                             ) : null}
@@ -185,12 +186,13 @@ export default function ScoreBoard(props: FormProps) {
                                 key={index}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
-                                <TableCell align="left">{index + 1}</TableCell>
-                                <TableCell component="th" scope="row">{row.name}</TableCell>
-                                <TableCell align="left">{row.carbonSavingsPercent}</TableCell>
-                                <TableCell align="left">{row.gameTotalSpending}</TableCell>
-                                <TableCell align="left">{row.costPerCarbonSavings}</TableCell>
-                                <TableCell align="left">{row.projectedFinancedSpending}</TableCell>
+                                <TableCell align='left'>{index + 1}</TableCell>
+                                <TableCell component='th' scope='row'>{row.name}</TableCell>
+                                <TableCell align='left'>{row.carbonSavingsPercent}</TableCell>
+                                <TableCell align='left'>{row.gameTotalSpending}</TableCell>
+                        {/* 8213 */}
+                                {/* <TableCell align='left'>{row.costPerCarbonSavings}</TableCell> */}
+                                <TableCell align='left'>{row.projectedFinancedSpending}</TableCell>
                             </TableRow>
                             )}
                         )}
