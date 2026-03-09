@@ -18,6 +18,7 @@ import { newAppPageDialogControl } from './components/Dialogs/InfoDialog';
 import Projects from './Projects';
 import { newYearRecapControl } from './components/YearRecap';
 import { newEndGameReportPageControl } from './components/EndGameReport/EndGameReportPage';
+import { EnergyTabCategories } from './domain/content';
 import { newSubmitScoreFormPageControl } from './components/EndGameReport/SubmitScoreForm';
 import { newWinGameControl } from './components/WinGame';
 import { newEndGameDialogControl } from './components/Dialogs/EndGameDialog';
@@ -45,7 +46,7 @@ PageControls[Pages.start] = newStartPageControl({
 
 PageControls[Pages.introduction] = newAppPageDialogControl({
     text: (state) => `For the past couple of decades, the automotive industry has been under pressure from regulators,public interest groups, stakeholders, customers, investors, and financial institutions to pursue a more competitive model of growth.\nAs a corporate manager at {${state.companyName}}, your job is to make sure your facility meets its new corporate-wide goals:`,
-    cardText: '{50%}  GHG reduction over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
+    cardText: '{25%}  energy savings over the next {10 years} with \n an {annual budget of $75,000} \n {OR} a {biennial budget of $150,000} \n You have the option to play through in {1 OR 2-year intervals}',
     title: 'Introduction',
     img: 'images/manufacturing.png',
     imgAlt: 'A robotic arm working on a car.',
@@ -76,13 +77,13 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
             title: '',
             choices: [
                 {
-                    title: 'Scope 1',
-                    text: 'Tackle Scope 1 emissions – fossil fuel consumption',
+                    title: EnergyTabCategories.GROUP_A.title,
+                    text: EnergyTabCategories.GROUP_A.choiceText,
                     buttons: [
                         infoButtonWithPopup(
                             infoPopupWithIcons(
-                                'Scope 1: Direct Emissions',
-                                'Company emissions that are owned or controlled by the organization directly.',
+                                EnergyTabCategories.GROUP_A.title,
+                                EnergyTabCategories.GROUP_A.infoBody,
                                 [LocalShippingIcon, FactoryIcon, LocationCityIcon],
                             )
                         ),
@@ -95,13 +96,13 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
             title: '',
             choices: [
                 {
-                    title: 'Scope 2',
-                    text: 'Tackle Scope 2 emissions – purchased electricity',
+                    title: EnergyTabCategories.GROUP_B.title,
+                    text: EnergyTabCategories.GROUP_B.choiceText,
                     buttons: [
                         infoButtonWithPopup(
                             infoPopupWithIcons(
-                                'Scope 2: Indirect Emissions',
-                                'Company emissions that are caused indirectly when the energy it purchases and uses is produced.',
+                                EnergyTabCategories.GROUP_B.title,
+                                EnergyTabCategories.GROUP_B.infoBody,
                                 [FlashOnIcon, ElectricalServicesIcon]
                             )
                         ),
@@ -118,7 +119,7 @@ PageControls[Pages.selectScope] = newGroupedChoicesControl({
 });
 
 PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
-    title: (state) => `These are the possible {Scope 1} projects {${state.companyName}} can do this budget period.`,
+    title: (state) => EnergyTabCategories.GROUP_A.projectsPageTitle(state.companyName),
     isProjectGroupChoice: true,
     groups: [
         {
@@ -139,11 +140,11 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
             ]
         }, 
         {
-            title: 'Electrification & Fuel Switching',
+            title: 'Energy Source Switching',
             choices: [
                 Projects[Pages.electricBoiler].getProjectChoiceControl(),  
-                Projects[Pages.blendedFuel].getProjectChoiceControl(),                
-                Projects[Pages.landfillGasForOven].getProjectChoiceControl(),
+                // Projects[Pages.blendedFuel].getProjectChoiceControl(),                
+                // Projects[Pages.landfillGasForOven].getProjectChoiceControl(),
                 Projects[Pages.heatPumpForOffice].getProjectChoiceControl(),
                 Projects[Pages.solarThermalHotWater].getProjectChoiceControl()
             ]
@@ -152,7 +153,7 @@ PageControls[Pages.scope1Projects] = newGroupedChoicesControl({
     hideDashboard: false,
 }, Pages.selectScope);
 PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
-    title: (state) => `These are the possible {Scope 2} projects {${state.companyName}} can do this budget period.`,
+    title: (state) => EnergyTabCategories.GROUP_B.projectsPageTitle(state.companyName),
     isProjectGroupChoice: true,
     groups: [
         {
@@ -179,24 +180,25 @@ PageControls[Pages.scope2Projects] = newGroupedChoicesControl({
             ]
         },
          {
-            title: 'Bundled RECs (Renewable Energy Credits)',
+            title: 'Electricity Self Generation',
             choices: [
                 Projects[Pages.solarPanelsCarPort].getProjectChoiceControl(),
-                Projects[Pages.midSolar].getProjectChoiceControl(),
+                // Projects[Pages.midSolar].getProjectChoiceControl(),
                 Projects[Pages.solarRooftop].getProjectChoiceControl(),
-                Projects[Pages.largeWind].getProjectChoiceControl(),
-                Projects[Pages.communityWindProject].getProjectChoiceControl(),
+                // Projects[Pages.largeWind].getProjectChoiceControl(),
+                // Projects[Pages.communityWindProject].getProjectChoiceControl(),
                 // Projects[Pages.solarFieldOnSite].getProjectChoiceControl(),
             ]
         }, 
-        {
-            title: 'Un-bundled RECs',
-            choices: [
-                Projects[Pages.smallVPPA].getProjectChoiceControl(),
-                Projects[Pages.midVPPA].getProjectChoiceControl(),
-                Projects[Pages.largeVPPA].getProjectChoiceControl(),
-            ]
-        }
+        // 8213
+        // {
+        //     title: 'Un-bundled RECs',
+        //     choices: [
+        //         Projects[Pages.smallVPPA].getProjectChoiceControl(),
+        //         Projects[Pages.midVPPA].getProjectChoiceControl(),
+        //         Projects[Pages.largeVPPA].getProjectChoiceControl(),
+        //     ]
+        // }
     ],
     hideDashboard: false,
 }, Pages.selectScope);

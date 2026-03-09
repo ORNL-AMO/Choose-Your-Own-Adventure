@@ -55,9 +55,19 @@ export interface TrackedStats {
 	 */
 	financesAvailable: number;
 	/**
-	 * 
+	 *
 	 */
 	carbonSavingsPercent: number;
+	/**
+	 * Percent reduction in total operational energy cost relative to baseline:
+	 * (baseline_$cost - current_$cost) / baseline_$cost
+	 */
+	operationEnergyCostPercent: number;
+	/**
+	 * Percent reduction in total operational energy use relative to baseline:
+	 * (baseline_MMBTU - current_MMBTU) / baseline_MMBTU
+	 */
+	operationEnergyUsePercent: number;
 	/**
 	 * 
 	 */
@@ -154,6 +164,8 @@ export const initialTrackedStats: TrackedStats = {
 	hydrogenCostPerMMBTU: 5,
 	hydrogenEmissionsPerMMBTU: 0.268,
 	carbonSavingsPercent: 0,
+	operationEnergyCostPercent: 0,
+	operationEnergyUsePercent: 0,
 	financesAvailable: 150_000,
 	yearBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
@@ -203,7 +215,31 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
 	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
+
+	let baselineEnergyCost = getTotalEnergyCost(defaultTrackedStats);
+	let currentEnergyCost = getTotalEnergyCost(newStats);
+
+	newStats.operationEnergyCostPercent = (baselineEnergyCost - currentEnergyCost) / baselineEnergyCost;
+
+	let baselineEnergyUse = getTotalEnergyUse(defaultTrackedStats);
+	let currentEnergyUse = getTotalEnergyUse(newStats);
+
+	newStats.operationEnergyUsePercent = (baselineEnergyUse - currentEnergyUse) / baselineEnergyUse;
+
 	return newStats;
+}
+
+const getTotalEnergyCost = (stats: TrackedStats): number => {
+	return (stats.electricityUseKWh * stats.electricityCostPerKWh)
+		+ (stats.naturalGasMMBTU * stats.naturalGasCostPerMMBTU)
+		+ (stats.hydrogenMMBTU * stats.hydrogenCostPerMMBTU);
+}
+
+const getTotalEnergyUse = (stats: TrackedStats): number => {
+	// Convert kWh to MMBTU (1 kWh = 0.003412 MMBTU)
+	return (stats.electricityUseKWh * 0.003412)
+		+ stats.naturalGasMMBTU
+		+ stats.hydrogenMMBTU;
 }
 
 /**
@@ -266,14 +302,27 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		textFontSize: 0.85,
 		maxValue: 2_000_000,
 	},
-	hydrogenMMBTU: {
-		label: 'Landfill Gas use (MMBTU)',
-		color: theme.palette.primary.light,
-		textFontSize: 0.85,
-		maxValue: 2_000,
+// 8213
+	// hydrogenMMBTU: {
+	// 	label: 'Landfill Gas use (MMBTU)',
+	// 	color: theme.palette.primary.light,
+	// 	textFontSize: 0.85,
+	// 	maxValue: 2_000,
+	// },
+	operationEnergyCostPercent: {
+		label: 'Energy Cost Reduction',
+		color: theme.palette.primary.dark,
+		textFontSize: 1,
+		maxValue: 1,
 	},
 	carbonSavings: {
 		label: 'GHG Reduction',
+		color: '#000000',
+		textFontSize: 1,
+		maxValue: 1,
+	},
+	operationEnergyUse: {
+		label: 'Energy Use Reduction',
 		color: '#000000',
 		textFontSize: 1,
 		maxValue: 1,

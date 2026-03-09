@@ -92,7 +92,9 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 		});
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(recapResults.yearCostSavings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(recapResults.yearCostSavings.electricity);
-		const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
+		// 8213
+		// const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
+		const operationEnergyUsePercentFormatted: string = (mutableStats.operationEnergyUsePercent * 100).toFixed(2);
 		const unspentBudgetFormatted: string = noDecimalsFormatter.format(recapResults.unspentBudget);
 		const yearEndTotalSpendingFormatted: string = noDecimalsFormatter.format(recapResults.yearEndTotalSpending);
 		// formatting new value? or existing
@@ -162,8 +164,8 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 								<ListItemText
 									primary={
 										<Typography variant='h5'>
-											Your company has reduced CO<sub>2</sub>e Emissions by{' '}
-											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+											Your company has reduced energy costs by{' '}
+											<Emphasis>{operationEnergyUsePercentFormatted}%</Emphasis>{' '}
 										</Typography>
 									}
 								/>
@@ -253,7 +255,9 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 									/>
 								</ListItem>
 							}
-							<ListItem>
+                        {/* 8213 */}
+
+							{/* <ListItem>
 								<ListItemIcon>
 									<InfoIcon />
 								</ListItemIcon>
@@ -264,7 +268,7 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 										</Typography>
 									}
 								/>
-							</ListItem>
+							</ListItem> */}
 						</List>
 					</Box>
 
@@ -296,12 +300,13 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 						<ParentSize>
 							{(parent) => (
 								<>
-									<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
+                        {/* 8213 */}
+									<YearRecapCharts barGraphData={barGraphData.operationEnergyUsePercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Energy Use Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
 									<YearRecapCharts barGraphData={barGraphData.totalSpending} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} backgroundFill={'#f5f5f5'} />
-									<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
+									{/* <YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} /> */}
 									<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
 									<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'} />
-									<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (K MMBtu)'} unitLable={'K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'hydrogen'} backgroundFill={'#f5f5f5'} />
+									{/* <YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (K MMBtu)'} unitLable={'K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'hydrogen'} backgroundFill={'#f5f5f5'} /> */}
 								</>
 							)}
 						</ParentSize>
@@ -781,32 +786,31 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 		defaultTrackedStats: TrackedStats,
 	) {
 
-		let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+		let prevYearOperationEnergyUsePercent = mutableStats.operationEnergyUsePercent;
 		mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
-		console.log('EOY carbon emissions', mutableStats.carbonEmissions);
-		let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+		let newOperationEnergyUsePercent = mutableStats.operationEnergyUsePercent;
 
 		gaugeCharts.push(
 			<Grid item sx={{ padding: '1rem' }}
 				key={'carbonSavings' + getIdString()}>
 				<GaugeChart
 					width={260}
-					value1={prevYearCarbonSavingsPercent}
+					value1={prevYearOperationEnergyUsePercent}
 					color1='#888888'
-					value2={newCarbonSavingsPercent}
+					value2={newOperationEnergyUsePercent}
 					color2='#000000'
 					text={
 						withSign(
-							(newCarbonSavingsPercent - prevYearCarbonSavingsPercent) * 100,
+							(newOperationEnergyUsePercent - prevYearOperationEnergyUsePercent) * 100,
 							1
 						) + '%'
 					}
 					backgroundColor={'#888888'}
-					label='GHG Reduction'
+					label='Energy Use Reduction'
 					ticks={[
 						{
-							label: toPercent(newCarbonSavingsPercent),
-							value: newCarbonSavingsPercent,
+							label: toPercent(newOperationEnergyUsePercent),
+							value: newOperationEnergyUsePercent,
 						},
 						{
 							label: '50%',
@@ -820,7 +824,7 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 	getBarGraphData(props: YearRecapProps, mutableStats: TrackedStats): BarGraphData {
 		let barGraphData: BarGraphData = {
-			carbonSavingsPercent: [],
+			operationEnergyUsePercent: [],
 			costPerCarbon: [],
 			naturalGas: [],
 			hydrogen: [],
@@ -829,18 +833,18 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 		};
 
 		props.yearRangeInitialStats.forEach(year => {
-			barGraphData.carbonSavingsPercent.push(year.carbonSavingsPercent * 100);
+			barGraphData.operationEnergyUsePercent.push(year.operationEnergyUsePercent * 100);
 		});
-		barGraphData.carbonSavingsPercent.push(mutableStats.carbonSavingsPercent * 100);
+		barGraphData.operationEnergyUsePercent.push(mutableStats.operationEnergyUsePercent * 100);
 
-		let predictionCarbon: number;
+		let predictionEnergyUse: number;
 		if (props.totalGameYears === 10) {
-			predictionCarbon = 5;
+			predictionEnergyUse = 5;
 		} else {
-			predictionCarbon = 10;
+			predictionEnergyUse = 10;
 		}
 		for (let i = props.currentGameYear; i < props.totalGameYears; i++) {
-			barGraphData.carbonSavingsPercent.push((predictionCarbon * (i + 1)));
+			barGraphData.operationEnergyUsePercent.push((predictionEnergyUse * (i + 1)));
 		}
 
 		props.yearRangeInitialStats.forEach(year => {
@@ -1210,7 +1214,7 @@ export interface YearRecapResults {
 }
 
 export interface BarGraphData {
-	carbonSavingsPercent: number[],
+	operationEnergyUsePercent: number[],
 	costPerCarbon: number[]
 	naturalGas: number[],
 	electricity: number[],

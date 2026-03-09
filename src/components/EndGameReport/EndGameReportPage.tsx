@@ -54,7 +54,9 @@ export default function EndGameReport(props: ReportProps) {
 			<Box m={2}>
 					<Box sx={{ display: 'flex', justifyContent: 'center' }}>
 						<List dense={true}>
-							<ListItem >
+                        {/* 8213 */}
+
+							{/* <ListItem >
 								<ListItemIcon>
 									<InfoIcon />
 								</ListItemIcon>
@@ -66,7 +68,7 @@ export default function EndGameReport(props: ReportProps) {
 										</Typography>
 									}
 								/>
-							</ListItem>
+							</ListItem> */}
 							<ListItem>
 								<ListItemIcon>
 									<InfoIcon />
@@ -79,7 +81,9 @@ export default function EndGameReport(props: ReportProps) {
 									}
 								/>
 							</ListItem>
-							<ListItem>
+                        {/* 8213 */}
+
+							{/* <ListItem>
 								<ListItemIcon>
 									<InfoIcon />
 								</ListItemIcon>
@@ -90,7 +94,7 @@ export default function EndGameReport(props: ReportProps) {
 										</Typography>
 									}
 								/>
-							</ListItem>
+							</ListItem> */}
 							{props.endGameResults.projectedFinancedSpending &&
 								<ListItem >
 									<ListItemIcon>

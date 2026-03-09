@@ -13,15 +13,15 @@ import {
 	TableRow,
 	Typography,
 } from '@mui/material';
-import { leftArrow, PureComponentIgnoreFuncs, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
-import React, { Fragment, useRef } from 'react';
+import { leftArrow, rightArrow, clampRatio, shortenNumber } from '../functions-and-types';
+import React, { useRef } from 'react';
 import GaugeChart from './GaugeChart';
 import { StyledTableCell, StyledTableRow, theme } from './theme';
 import type { ControlCallbacks } from './controls';
 import BasicPopover from './BasicPopover';
 import HorizontalBarWithTooltip from './HorizontalBar';
 import type { TrackedStats } from '../trackedStats';
-import { getElectricityEmissionsFactor, statsGaugeProperties } from '../trackedStats';
+import { statsGaugeProperties } from '../trackedStats';
 import { Table } from '@mui/material';
 import { GameSettings } from './SelectGameSettings';
 import { useEffect, useState } from "react";
@@ -63,31 +63,40 @@ export function Dashboard(props: DashboardProps) {
 	}, [isVisible]);
 
 	const CHART_SIZE = 250;
+                        {/* 8213 */}
 
-	const singleDecimalFormatter = Intl.NumberFormat('en-US', {
-		minimumFractionDigits: 1,
-		maximumFractionDigits: 1,
-	});
+	// const singleDecimalFormatter = Intl.NumberFormat('en-US', {
+	// 	minimumFractionDigits: 1,
+	// 	maximumFractionDigits: 1,
+	// });
 	const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
 	});
-	const threeDecimalFormatter = Intl.NumberFormat('en-US', {
-		minimumFractionDigits: 1,
-		maximumFractionDigits: 3,
-	});
+                        {/* 8213 */}
 
-	const carbonSavingsPercent = props.carbonSavingsPercent * 100;
-	const carbonSavingsFractionValue = clampRatio(props.carbonSavingsPercent, 1);
-	const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
+	// const threeDecimalFormatter = Intl.NumberFormat('en-US', {
+	// 	minimumFractionDigits: 1,
+	// 	maximumFractionDigits: 3,
+	// });
+	// 8213
+	// const carbonSavingsPercent = props.carbonSavingsPercent * 100;
+	// const carbonSavingsFractionValue = clampRatio(props.carbonSavingsPercent, 1);
+	// const carbonSavingsFormatted = `${carbonSavingsPercent.toFixed(1)}%`;
 
-	const naturalGasEmissionRateFormatted: string = threeDecimalFormatter.format(props.naturalGasEmissionsPerMMBTU);
-	const electricityEmissionRateFormatted: string = threeDecimalFormatter.format(getElectricityEmissionsFactor(props.currentGameYear, props.gameYearInterval, props.gameYearDisplayOffset));
-	const hydrogenEmissionRateFormatted: string = threeDecimalFormatter.format(props.hydrogenEmissionsPerMMBTU);
+	const operationEnergyUseFractionValue = clampRatio(props.operationEnergyUsePercent, 1);
+	const operationEnergyUseFormatted = `${(props.operationEnergyUsePercent * 100).toFixed(1)}%`;
 
-	const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(props.naturalGasEmissionsPerMMBTU * props.naturalGasMMBTU / 1000);
-	const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(getElectricityEmissionsFactor(props.currentGameYear, props.gameYearInterval, props.gameYearDisplayOffset) * props.electricityUseKWh / 1000);
-	const emissionsFromHydrogenFormatted: string = singleDecimalFormatter.format(props.hydrogenEmissionsPerMMBTU * props.hydrogenMMBTU / 1000);
+	const operationEnergyCostFractionValue = clampRatio(props.operationEnergyCostPercent, 1);
+	const operationEnergyCostFormatted = `${(props.operationEnergyCostPercent * 100).toFixed(1)}%`;
+                        {/* 8213 */}
+
+	// const naturalGasEmissionRateFormatted: string = threeDecimalFormatter.format(props.naturalGasEmissionsPerMMBTU);
+	// const electricityEmissionRateFormatted: string = threeDecimalFormatter.format(getElectricityEmissionsFactor(props.currentGameYear, props.gameYearInterval, props.gameYearDisplayOffset));
+	// const hydrogenEmissionRateFormatted: string = threeDecimalFormatter.format(props.hydrogenEmissionsPerMMBTU);
+	// const emissionsFromNaturalGasFormatted: string = singleDecimalFormatter.format(props.naturalGasEmissionsPerMMBTU * props.naturalGasMMBTU / 1000);
+	// const emissionsFromElectricityFormatted: string = singleDecimalFormatter.format(getElectricityEmissionsFactor(props.currentGameYear, props.gameYearInterval, props.gameYearDisplayOffset) * props.electricityUseKWh / 1000);
+	// const emissionsFromHydrogenFormatted: string = singleDecimalFormatter.format(props.hydrogenEmissionsPerMMBTU * props.hydrogenMMBTU / 1000);
 
 	const electricityCost = noDecimalsFormatter.format(props.electricityCostPerKWh * props.electricityUseKWh);
 	const naturalGasCost = noDecimalsFormatter.format(props.naturalGasCostPerMMBTU * props.naturalGasMMBTU);
@@ -196,10 +205,39 @@ export function Dashboard(props: DashboardProps) {
 						{/* <Typography variant="h3">Dashboard</Typography> */}
 						<GaugeChart
 							width={CHART_SIZE}
+							value1={operationEnergyCostFractionValue}
+							text={operationEnergyCostFormatted}
+							label='Energy Cost Reduction'
+							textFontSize={1}
+							color1={theme.palette.primary.dark}
+							ticks={[{
+								value: .5,
+								label: '50%',
+							}, {
+								value: 1,
+								label: '100%',
+							}]}
+						/>
+                        {/* 8213 */}
+
+					{/* <GaugeChart
+							width={CHART_SIZE}
 							value1={carbonSavingsFractionValue}
 							text={carbonSavingsFormatted}
 							label='GHG Reduction'
 							textFontSize={0.85}
+							color1={theme.palette.primary.dark}
+							ticks={[{
+								value: .5,
+								label: '50%'
+							}]}
+						/> */}
+						<GaugeChart
+							width={CHART_SIZE}
+							value1={operationEnergyUseFractionValue}
+							text={operationEnergyUseFormatted}
+							label='Energy Use Reduction'
+							textFontSize={1}
 							color1={theme.palette.primary.dark}
 							ticks={[{
 								value: .5,
@@ -239,7 +277,9 @@ export function Dashboard(props: DashboardProps) {
 								label: shortenNumber(statsGaugeProperties.electricityUseKWh.maxValue)
 							}]}
 						/>
-						<GaugeChart
+                        {/* 8213 */}
+
+						{/* <GaugeChart
 							width={CHART_SIZE}
 							value1={clampRatio(
 								props.hydrogenMMBTU,
@@ -256,7 +296,7 @@ export function Dashboard(props: DashboardProps) {
 								value: 1,
 								label: shortenNumber(statsGaugeProperties.hydrogenMMBTU.maxValue),
 							}]}
-						/>
+						/> */}
 
 						<div ref={horizontalBarRef} style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center'}}>
 							<HorizontalBarWithTooltip
@@ -281,11 +321,15 @@ export function Dashboard(props: DashboardProps) {
 								<StyledTableCell align='center'> </StyledTableCell>
 								<StyledTableCell align='center'>Natural Gas</StyledTableCell>
 								<StyledTableCell align='center'>Electricity</StyledTableCell>
-								<StyledTableCell align='center'>Landfill Gas</StyledTableCell>
+                        {/* 8213 */}
+
+								{/* <StyledTableCell align='center'>Landfill Gas</StyledTableCell> */}
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							<StyledTableRow
+                        {/* 8213 */}
+
+							{/* <StyledTableRow
 								key={'naturalGas'}
 								sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 							>
@@ -293,8 +337,8 @@ export function Dashboard(props: DashboardProps) {
 								<StyledTableCell align='center'>{naturalGasEmissionRateFormatted} kg/MMBTU</StyledTableCell>
 								<StyledTableCell align='center'>{electricityEmissionRateFormatted} kg/kWh</StyledTableCell>
 								<StyledTableCell align='center'>{hydrogenEmissionRateFormatted} kg/MMBTU</StyledTableCell>
-							</StyledTableRow>
-							<StyledTableRow
+							</StyledTableRow> */}
+							{/* <StyledTableRow
 								key={'electricity'}
 								sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 							>
@@ -302,7 +346,7 @@ export function Dashboard(props: DashboardProps) {
 								<StyledTableCell align='center'>{emissionsFromNaturalGasFormatted} metric tons</StyledTableCell>
 								<StyledTableCell align='center'>{emissionsFromElectricityFormatted} metric tons</StyledTableCell>
 								<StyledTableCell align='center'>{emissionsFromHydrogenFormatted} metric tons</StyledTableCell>
-							</StyledTableRow>
+							</StyledTableRow> */}
 							<StyledTableRow
 								key={'hydrogen'}
 								sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -310,7 +354,7 @@ export function Dashboard(props: DashboardProps) {
 								<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Utility Cost per unit'}</StyledTableCell>
 								<StyledTableCell align='center'>${props.naturalGasCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
 								<StyledTableCell align='center'>${props.electricityCostPerKWh.toFixed(2)}/kWh</StyledTableCell>
-								<StyledTableCell align='center'>${props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell>
+								{/* <StyledTableCell align='center'>${props.hydrogenCostPerMMBTU.toFixed(2)}/MMBTU</StyledTableCell> */}
 							</StyledTableRow>
 							<StyledTableRow
 								key={'financedTotalCosts'}
@@ -319,7 +363,7 @@ export function Dashboard(props: DashboardProps) {
 								<StyledTableCell id='dashboardText' align='center' component='th' scope='row'>{'Total Cost'}</StyledTableCell>
 								<StyledTableCell align='center'>${naturalGasCost}</StyledTableCell>
 								<StyledTableCell align='center'>${electricityCost}</StyledTableCell>
-								<StyledTableCell align='center'>${hydrogenCost}</StyledTableCell>
+								{/* <StyledTableCell align='center'>${hydrogenCost}</StyledTableCell> */}
 							</StyledTableRow>
 						</TableBody>
 					</Table>

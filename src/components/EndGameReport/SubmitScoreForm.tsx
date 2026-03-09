@@ -82,7 +82,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
                             </ListItemIcon>
                             <ListItemText
                                 primary={<Typography variant='h5'>
-                                    Your company has reduced CO<sub>2</sub>e Emissions by{' '}
+                                    Your company has reduced energy costs by{' '}
                                     <Emphasis>{props.endGameResults.carbonSavingsPercent}%</Emphasis>{' '}
                                 </Typography>} />
                         </ListItem>
@@ -95,7 +95,8 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
                                     You have spent{' '}<Emphasis>${props.endGameResults.gameTotalSpending}</Emphasis>{' '} throughout the game
                                 </Typography>} />
                         </ListItem>
-                        <ListItem>
+                        {/* 8213 */}
+                        {/* <ListItem>
                             <ListItemIcon>
                                 <InfoIcon />
                             </ListItemIcon>
@@ -103,7 +104,7 @@ export default function SubmitScoreForm(props: SubmitScoreFormPageProps) {
                                 primary={<Typography variant={'h5'}>
                                     Your cost per kg reduced was{' '}<Emphasis>${props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e</Emphasis>{' '}
                                 </Typography>} />
-                        </ListItem>
+                        </ListItem> */}
                         {props.endGameResults.projectedFinancedSpending &&
                             <ListItem>
                                 <ListItemIcon>
