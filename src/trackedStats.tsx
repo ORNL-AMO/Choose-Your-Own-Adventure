@@ -1,5 +1,6 @@
 import { CompletedProject } from './ProjectControl';
 import { theme } from './components/theme';
+import { energyUnitCosts } from './domain/costs';
 
 /**
  * Stats that are tracked throughout gameplay. 
@@ -156,10 +157,10 @@ const ElectricityEmissionsFactors: { [key: number]: number } = {
  */
 export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 4_000, 
-	naturalGasCostPerMMBTU: 5,
+	naturalGasCostPerMMBTU: energyUnitCosts.naturalGas[0],
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	electricityUseKWh: 4_000_000, 
-	electricityCostPerKWh: 0.10,
+	electricityCostPerKWh: energyUnitCosts.electricity[0],
 	hydrogenMMBTU: 2_000,
 	hydrogenCostPerMMBTU: 5,
 	hydrogenEmissionsPerMMBTU: 0.268,
@@ -196,6 +197,19 @@ export function getElectricityEmissionsFactor(currentGameYear: number, gameYearI
 	let emissionsFactor = ElectricityEmissionsFactors[year];
 	return emissionsFactor;
 }
+
+export function getEnergyUnitCostByYear(energyType: 'naturalGas' | 'electricity', currentGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
+	let isEndOfGame = gameYearInterval > 1? gameYearDisplayOffset >= 10 : currentGameYear > 10; 
+	let year = currentGameYear;
+	if (isEndOfGame) {
+		year = 10;
+	} else if (gameYearInterval > 1) {
+		year = gameYearDisplayOffset + 1;
+	}	
+	let cost = energyUnitCosts[energyType][year];
+	return cost;
+}
+
 
 export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;

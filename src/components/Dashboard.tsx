@@ -89,8 +89,7 @@ export function Dashboard(props: DashboardProps) {
 
 	const operationEnergyCostFractionValue = clampRatio(props.operationEnergyCostPercent, 1);
 	const operationEnergyCostFormatted = `${(props.operationEnergyCostPercent * 100).toFixed(1)}%`;
-                        {/* 8213 */}
-
+    {/* 8213 */}
 	// const naturalGasEmissionRateFormatted: string = threeDecimalFormatter.format(props.naturalGasEmissionsPerMMBTU);
 	// const electricityEmissionRateFormatted: string = threeDecimalFormatter.format(getElectricityEmissionsFactor(props.currentGameYear, props.gameYearInterval, props.gameYearDisplayOffset));
 	// const hydrogenEmissionRateFormatted: string = threeDecimalFormatter.format(props.hydrogenEmissionsPerMMBTU);
@@ -100,11 +99,11 @@ export function Dashboard(props: DashboardProps) {
 
 	const electricityCost = noDecimalsFormatter.format(props.electricityCostPerKWh * props.electricityUseKWh);
 	const naturalGasCost = noDecimalsFormatter.format(props.naturalGasCostPerMMBTU * props.naturalGasMMBTU);
-	const hydrogenCost = noDecimalsFormatter.format(props.hydrogenCostPerMMBTU * props.hydrogenMMBTU);
+	// const hydrogenCost = noDecimalsFormatter.format(props.hydrogenCostPerMMBTU * props.hydrogenMMBTU);
 
 	const naturalGasFormatted: string = noDecimalsFormatter.format(props.naturalGasMMBTU);
 	const electricityUseFormatted: string = noDecimalsFormatter.format(props.electricityUseKWh);
-	const hydrogenFormatted: string = noDecimalsFormatter.format(props.hydrogenMMBTU);
+	// const hydrogenFormatted: string = noDecimalsFormatter.format(props.hydrogenMMBTU);
 
 	const financesFormatted = Number(props.financesAvailable.toFixed(0));
 
