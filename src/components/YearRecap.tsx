@@ -60,22 +60,19 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 	handleScroll = () => {
 		let positionY: number = document.documentElement.scrollTop;
-		if ( positionY > 134 ) {
-			this.setState({showFloatingBar: true});
-		} else if ( positionY < 134 ) {
-			this.setState({showFloatingBar: false});
+		if (positionY > 134 && !this.state.showFloatingBar) {
+			this.setState({ showFloatingBar: true });
+		} else if (positionY < 134 && this.state.showFloatingBar) {
+			this.setState({ showFloatingBar: false });
 		}
-	  };
+	};
 	
 
 	componentDidMount() {
-		// Add scroll event listener when component mounts
 		window.addEventListener('scroll', this.handleScroll);
 	}
 
-
 	componentWillUnmount() {
-		// Remove scroll event listener when component unmounts
 		window.removeEventListener('scroll', this.handleScroll);
 	}
 
@@ -727,13 +724,15 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 			let thisGaugeProps = statsGaugeProperties[key];
 			if (thisGaugeProps) {
+				const label = shortenNumber(newValue);
+				const value = clampRatio(newValue, thisGaugeProps.maxValue);
 				gaugeCharts.push(
 					<Grid item sx={{ padding: '1rem' }} key={getIdString()}>
 						<GaugeChart
 							key={key}
 							width={260}
 							backgroundColor={'#88888820'}
-							value1={clampRatio(newValue, thisGaugeProps.maxValue)}
+							value1={value}
 							color1={'#bbbbbba0'}
 							value2={clampRatio(oldValue, thisGaugeProps.maxValue)}
 							color2={thisGaugeProps.color}
@@ -744,8 +743,8 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 							label={thisGaugeProps.label}
 							ticks={[
 								{
-									label: shortenNumber(newValue),
-									value: clampRatio(newValue, thisGaugeProps.maxValue),
+									label: label,
+									value: value,
 								},
 							]}
 						/>

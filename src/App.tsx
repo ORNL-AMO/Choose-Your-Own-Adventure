@@ -11,7 +11,7 @@ import '@fontsource/lato/700.css';
 import '@fontsource/lato/900.css';
 
 import type { ControlCallbacks } from './components/controls';
-import { calculateEmissions, setCostPerCarbonSavings } from './trackedStats';
+import { calculateEmissions, getEnergyUnitCostByYear, setCostPerCarbonSavings } from './trackedStats';
 import type { EndGameResults, TrackedStats, YearCostSavings } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { getYearCostSavings } from './trackedStats';
@@ -363,23 +363,6 @@ export class App extends React.PureComponent<unknown, AppState> {
 		this.ignoreScrollHeightOnDialogClose(prevState)
 	}
 	
-	// componentDidMount(): void {
-	// 	window.addEventListener('scroll', this.handleScroll);
-	// }
-
-	// componentWillUnmount() {
-	// 	window.removeEventListener('scroll', this.handleScroll);
-	// }
-	
-	handleScroll(event) {
-		let scrollTop = event.srcElement.body.scrollTop,
-			itemTranslate = Math.min(0, scrollTop/3 - 60);
-	
-		// this.setState({
-		//   transform: itemTranslate
-		// });
-	}
-	
 
 	ignoreScrollHeightOnDialogClose(prevState: AppState) {
 		let infoDialogClosed: boolean = (prevState.infoDialog.isOpen && !this.state.infoDialog.isOpen);
@@ -685,6 +668,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 		newYearTrackedStats.hiddenSpending = 0;
 		newYearTrackedStats.currentGameYear = currentYearStats.currentGameYear + 1;
 		newYearTrackedStats.gameYearDisplayOffset = currentYearStats.gameYearDisplayOffset + 2;
+		newYearTrackedStats.naturalGasCostPerMMBTU = getEnergyUnitCostByYear('naturalGas', currentYearStats.currentGameYear, currentYearStats.gameYearInterval, currentYearStats.gameYearDisplayOffset)
+		newYearTrackedStats.electricityCostPerKWh = getEnergyUnitCostByYear('electricity', currentYearStats.currentGameYear, currentYearStats.gameYearInterval, currentYearStats.gameYearDisplayOffset)
 	}
 
 	applyBudgetCarryover(newBudget: number, currentYearStats: TrackedStats) {
