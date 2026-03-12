@@ -161,7 +161,7 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 								<ListItemText
 									primary={
 										<Typography variant='h5'>
-											Your company has reduced energy costs by{' '}
+											Your company has reduced energy use by{' '}
 											<Emphasis>{operationEnergyUsePercentFormatted}%</Emphasis>{' '}
 										</Typography>
 									}
