@@ -512,7 +512,7 @@ export class ProjectControl implements ProjectControlParams {
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
 			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 			let projectImplementationLimit = gameSettings.useGodMode? 1000 : 4;
-			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 2;
+			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 1;
 
 			let limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			if (state.gameSettings.totalGameYears === 5) {

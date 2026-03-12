@@ -70,6 +70,10 @@ export interface TrackedStats {
 	 */
 	operationEnergyUsePercent: number;
 	/**
+ * Total operational energy use in MMBTU, converted from electricity, natural gas, and landfill gas use
+ */
+	operationEnergyUse: number;
+	/**
 	 * 
 	 */
 	carbonEmissions: number;
@@ -126,6 +130,9 @@ export interface EndGameResults {
 	carbonSavingsPerTonne: string,
 	projectedFinancedSpending: string,
 	gameCurrentAndProjectedSpending: string,
+	operationEnergyUsePercent: string,
+	operationEnergyCostPercent: string,
+	operationEnergyUse: string,
 	costPerCarbonSavings: string,
 	completedProjects: CompletedProject[];
 	endYearStats: TrackedStats;
@@ -167,6 +174,7 @@ export const initialTrackedStats: TrackedStats = {
 	carbonSavingsPercent: 0,
 	operationEnergyCostPercent: 0,
 	operationEnergyUsePercent: 0,
+	operationEnergyUse: 0,
 	financesAvailable: 150_000,
 	yearBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
@@ -237,6 +245,8 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 
 	let baselineEnergyUse = getTotalEnergyUse(defaultTrackedStats);
 	let currentEnergyUse = getTotalEnergyUse(newStats);
+
+	newStats.operationEnergyUse = currentEnergyUse;
 
 	newStats.operationEnergyUsePercent = (baselineEnergyUse - currentEnergyUse) / baselineEnergyUse;
 
