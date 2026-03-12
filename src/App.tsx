@@ -34,6 +34,7 @@ import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
 import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getProjectedFinancedSpending, isProjectFullyFunded, resetCapitalFundingState } from './Financing';
 import { getIsGameWon } from './domain/rules';
+import { EnergyTabCategories } from './domain/content';
 
 
 export type AppState = {
@@ -402,9 +403,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 				return this.state.implementedProjectsIds.includes(page) || renewableProjectSymbols.includes(page);
 			});
 			if (!hasSelectedScope1Projects) {
-				warningDialogProps.text = 'You haven\'t selected any Scope 1 projects for this budget period. Do you want to go {BACK} and look at some of the possible Scope 1 projects?';
+				warningDialogProps.text = `You haven't selected any ${EnergyTabCategories.GROUP_A.title} projects for this budget period. Do you want to go {BACK} and look at some of the possible ${EnergyTabCategories.GROUP_A.title} projects?`;
 			} else if (!hasSelectedScope2Projects) {
-				warningDialogProps.text = 'You haven\'t selected any Scope 2 projects for this budget period. Do you want to go {BACK} and look at some of the possible Scope 2 projects?';
+				warningDialogProps.text = `You haven't selected any ${EnergyTabCategories.GROUP_B.title} projects for this budget period. Do you want to go {BACK} and look at some of the possible ${EnergyTabCategories.GROUP_B.title} projects?`;
 			}
 			hasScopesWarning = !hasSelectedScope1Projects || !hasSelectedScope2Projects;
 		}
