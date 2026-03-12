@@ -59,8 +59,8 @@ export default class WinGame extends React.Component<WinGameProps> {
                                 <div
                                     key={'slide1b'}
                                     className='slide-stat-div child-stat-div'>
-                                    <span>Your company has met the energy savings goal, reducing energy costs by</span>
-                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}% `}
+                                    <span>Your company has met the energy savings goal, reducing energy use by</span>
+                                    <UnderlineSpan text={`${this.props.endGameResults.operationEnergyUsePercent}%`}
                                         animationClass='animate-underline-emphasis'></UnderlineSpan>
 
                                 </div>
@@ -109,7 +109,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                             <UnderlineSpan text={`$${this.props.endGameResults.gameCurrentAndProjectedSpending}`}
                                                 animationClass='animate-underline-emphasis'></UnderlineSpan>
                                             and you will have reduced your energy use by
-                                            <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPerTonne} tonne/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            <UnderlineSpan text={`${this.props.endGameResults.operationEnergyUse} MMBtu/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
                                     </div>,
                                     <div
@@ -129,17 +129,22 @@ export default class WinGame extends React.Component<WinGameProps> {
                             statDivs={
                                 [
                                     <div
-                                        key={'slide4c'}
+                                        key={'slide4a'}
                                         className='slide-stat-div'>
-                                        Overall, you reduced your energy costs by {this.props.endGameResults.carbonSavingsPercent}%
+                                        Overall, you reduced your energy costs by {this.props.endGameResults.operationEnergyCostPercent}%
                                     </div>,
                                     <div
                                         key={'slide4b'}
                                         className='slide-stat-div child-stat-div'>
+                                        energy use by: {this.props.endGameResults.operationEnergyUsePercent}%
+                                    </div>,
+                                    <div
+                                        key={'slide4c'}
+                                        className='slide-stat-div child-stat-div'>
                                         Cost per percent of energy savings: ${this.props.endGameResults.costPerCarbonSavings}
                                     </div>,
                                     <div
-                                        key={'slide4'}
+                                        key={'slide4d'}
                                         className='slide-stat-div child-stat-div'
                                         style={{ fontSize: '64px', marginTop: '3rem' }}>
                                         <span>Thank you!</span>

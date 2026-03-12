@@ -20,12 +20,11 @@ import { Dashboard } from './components/Dashboard';
 import Pages, { PageError } from './Pages';
 import { PageControls } from './PageControls';
 import { Scope1Projects, Scope2Projects } from './ProjectControl';
-import type { CostSavings, ImplementedProject, ProjectControl, RenewableProject} from './ProjectControl';
+import type { CostSavings, ImplementedProject, RenewableProject} from './ProjectControl';
 import type { CompletedProject, SelectedProject} from './ProjectControl';
-import { resolveToValue, cloneAndModify, rightArrow } from './functions-and-types';
+import { resolveToValue, cloneAndModify } from './functions-and-types';
 import { theme } from './components/theme';
-import { closeDialogButton } from './components/Buttons';
-import { ImplementedFinancingData, YearRecap, getHasActiveHiddenCost } from './components/YearRecap';
+import { YearRecap } from './components/YearRecap';
 import ScopeTabs from './components/ScopeTabs';
 import { CurrentPage } from './components/CurrentPage';
 import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialogProps, getDefaultWarningDialogProps, getEmptyInfoDialogState } from './components/Dialogs/InfoDialog';
@@ -33,9 +32,8 @@ import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
 import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
-import { CapitalFundingState, FinancingOption, findFinancingOptionFromProject, getCanUseCapitalFunding, getProjectedFinancedSpending, isProjectFullyFunded, resetCapitalFundingState, setCapitalFundingMilestone } from './Financing';
-import WinGame from './components/WinGame';
-import LoseGame from './components/LoseGame';
+import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getProjectedFinancedSpending, isProjectFullyFunded, resetCapitalFundingState } from './Financing';
+import { getIsGameWon } from './domain/rules';
 
 
 export type AppState = {
@@ -579,7 +577,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			yearlyCostSavings: yearlyCostSavings,
 		};
 
-		const isGameWon = newYearTrackedStats.carbonSavingsPercent >= 0.25;
+		const isGameWon = getIsGameWon(newYearTrackedStats);
 		const isEndOfGame = newYearTrackedStats.currentGameYear === this.state.gameSettings.totalGameYears + 1;
 		
 		if (isGameWon) {
@@ -632,6 +630,10 @@ export class App extends React.PureComponent<unknown, AppState> {
 		const carbonSavingsPercentFormatted: string = (endYearStats.carbonSavingsPercent * 100).toFixed(2);
 		const gameTotalNetCostFormatted: string = noDecimalsFormatter.format(endYearStats.gameTotalSpending);
 
+		const operationEnergyUsePercentFormatted: string = (endYearStats.operationEnergyUsePercent * 100).toFixed(2);
+		const operationEnergyCostPercentFormatted: string = (endYearStats.operationEnergyCostPercent * 100).toFixed(2);
+		const operationEnergyUseFormatted: string = noDecimalsFormatter.format(endYearStats.operationEnergyUse);
+
         const carbonSavingsPerTonne = endYearStats.carbonSavingsPerKg / 1000;
 		const carbonSavingsPerTonneFormatted: string = noDecimalsFormatter.format(carbonSavingsPerTonne);
 
@@ -646,6 +648,9 @@ export class App extends React.PureComponent<unknown, AppState> {
 		let endGameResults: EndGameResults = {
 			carbonSavingsPercent: carbonSavingsPercentFormatted,
 			carbonSavingsPerTonne: carbonSavingsPerTonneFormatted,
+			operationEnergyUsePercent: operationEnergyUsePercentFormatted,
+			operationEnergyCostPercent: operationEnergyCostPercentFormatted,
+			operationEnergyUse: operationEnergyUseFormatted,
 			gameTotalSpending: gameTotalNetCostFormatted,
 			projectedFinancedSpending: projectedFinancedSpendingFormatted,
 			gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpendingFormatted,

@@ -33,7 +33,7 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                                     key={'slide1'}
                                     className='slide-stat-div'
                                     style={{ fontSize: '48px', textTransform: 'uppercase' }}>
-                                    <span>Your company achieved {`${this.props.endGameResults.carbonSavingsPercent}%`} energy savings in 10 years</span>
+                                    <span>Your company achieved {`${this.props.endGameResults.operationEnergyUsePercent}%`} energy savings in 10 years</span>
                                 </div>,
                                 <div
                                     key={'slide1b'}
