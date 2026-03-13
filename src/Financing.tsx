@@ -201,8 +201,9 @@ export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingSt
     let isNotUsedRoundA = capitalFundingState.roundA.usedOnProjectId === undefined;
     let isNotUsedRoundB = capitalFundingState.roundB.usedOnProjectId === undefined;
 	if (!capitalFundingState.roundA.isEarned || (capitalFundingState.roundA.isEarned && (isNotUsedRoundA && !capitalFundingState.roundA.isExpired))) { 
-        let roundAMilestonePercent = 2.5;
-		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
+        // 8213
+        // let roundAMilestonePercent = 2.5;
+		// savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
             capitalFundingState.roundA.isEarned = true;
             capitalFundingState.roundA.eligibleYear = stats.currentGameYear + 1;
