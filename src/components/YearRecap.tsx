@@ -53,6 +53,7 @@ import { GameSettings } from './SelectGameSettings';
 import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
+import { GAME_WINNING_ENERGY_USE_PERCENT } from '../domain/rules';
 
 export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar }> {
 	
@@ -831,19 +832,23 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 			totalSpending: [],
 		};
 
-		props.yearRangeInitialStats.forEach(year => {
-			barGraphData.operationEnergyUsePercent.push(year.operationEnergyUsePercent * 100);
-		});
-		barGraphData.operationEnergyUsePercent.push(mutableStats.operationEnergyUsePercent * 100);
+		const gameWinningPercent = GAME_WINNING_ENERGY_USE_PERCENT * 100;
+		const step = gameWinningPercent / props.totalGameYears;
+		const currentYear = props.currentGameYear;
+		
+		barGraphData.operationEnergyUsePercent = [];
+		for (let i = 0; i <= props.totalGameYears; i++) {
+			let yearlyStats = props.yearRangeInitialStats[i];
+			if (i === currentYear) {
+				yearlyStats = mutableStats;
+			}
 
-		let predictionEnergyUse: number;
-		if (props.totalGameYears === 10) {
-			predictionEnergyUse = 5;
-		} else {
-			predictionEnergyUse = 10;
-		}
-		for (let i = props.currentGameYear; i < props.totalGameYears; i++) {
-			barGraphData.operationEnergyUsePercent.push((predictionEnergyUse * (i + 1)));
+			if (yearlyStats) {
+				barGraphData.operationEnergyUsePercent.push(yearlyStats.operationEnergyUsePercent * 100);
+			} else {
+				const milestone = step * i;
+				barGraphData.operationEnergyUsePercent.push(milestone);
+			}
 		}
 
 		props.yearRangeInitialStats.forEach(year => {

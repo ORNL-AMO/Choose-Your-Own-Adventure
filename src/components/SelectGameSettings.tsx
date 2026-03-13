@@ -305,16 +305,16 @@ export interface UserSettings {
 export type CostSavingsCarryoverId = 'never' | 'oneYear' | 'always';
 
 const YearlyBudget: { [key: number]: number } = {
-	1: 75_000,
-	2: 75_000,
-	3: 75_000,
-	4: 75_000,
-	5: 75_000,
-	6: 112_500,
-	7: 112_500,
-	8: 112_500,
-	9: 112_500,
-	10: 112_500
+	1: 50_000,
+	2: 50_000,
+	3: 50_000,
+	4: 50_000,
+	5: 50_000,
+	6: 75_500,
+	7: 75_500,
+	8: 75_500,
+	9: 75_500,
+	10: 75_500
 };
 
 /**
@@ -326,6 +326,17 @@ export interface GameFinancingOptions {
 	eaas: boolean,
 	loan: boolean,
 	greenBond: boolean
+}
+
+export const getStartingBudget = (userSettings: UserSettings): number => {
+    if (userSettings.useGodMode) {
+        if (userSettings.devBudget !== undefined) {
+            return userSettings.devBudget;
+        } else {
+            return 10_000_000;
+        }
+    }
+    return userSettings.gameYearInterval * YearlyBudget[1];
 }
 
 export function getYearlyBudget(proceedGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
