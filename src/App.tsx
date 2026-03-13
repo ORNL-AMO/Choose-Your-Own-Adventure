@@ -31,7 +31,7 @@ import { InfoDialog, InfoDialogControlProps, InfoDialogStateProps, fillInfoDialo
 import { CompareDialog } from './components/Dialogs/CompareDialog';
 import { ProjectDialog, ProjectDialogControlProps, ProjectDialogStateProps, fillProjectDialogProps, getEmptyProjectDialog } from './components/Dialogs/ProjectDialog';
 import Projects from './Projects';
-import { GameSettings, UserSettings, getYearlyBudget } from './components/SelectGameSettings';
+import { GameSettings, UserSettings, getStartingBudget, getYearlyBudget } from './components/SelectGameSettings';
 import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getProjectedFinancedSpending, isProjectFullyFunded, resetCapitalFundingState } from './Financing';
 import { getIsGameWon } from './domain/rules';
 import { EnergyTabCategories } from './domain/content';
@@ -170,7 +170,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			gameSettings: {
 				totalGameYears: 10,
 				gameYearInterval: 2,
-				budget: 150_000,
+				budget: 0,
 				devBudget: 10000000,
 				naturalGasUse: 4_000,
 				electricityUse: 4_000_000,
@@ -771,27 +771,19 @@ export class App extends React.PureComponent<unknown, AppState> {
 
 	handleGameSettingsOnProceed(userSettings: UserSettings){
 		let updatingInitialTrackedStats: TrackedStats = {...initialTrackedStats};
-		let budget = 75_000;
 		let naturalGas = 150_000;
 		let hydrogen = 0;
 		let electricity = 30_000_000;
 		let totalGameYears = 10;
+		let budget = getStartingBudget(userSettings);
 
 		if(userSettings.gameYearInterval == 2) {
-			budget = 150_000;
 			naturalGas = 300_000;
 			electricity = 60_000_000;
 			hydrogen = 0;
 			totalGameYears = 5;
 		}
 
-		if (userSettings.useGodMode) {
-			if (userSettings.devBudget !== undefined) {
-				budget = userSettings.devBudget;
-			} else {
-				budget = 10_000_000;
-			}
-		}
 		updatingInitialTrackedStats.yearBudget = budget;
 		updatingInitialTrackedStats.financesAvailable = budget;
 		updatingInitialTrackedStats.naturalGasMMBTU = naturalGas;
