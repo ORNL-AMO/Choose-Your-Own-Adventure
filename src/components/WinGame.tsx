@@ -141,7 +141,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     <div
                                         key={'slide4c'}
                                         className='slide-stat-div child-stat-div'>
-                                        Cost per percent of energy savings: ${this.props.endGameResults.costPerCarbonSavings}
+                                        Cost per percent of MMBtu saved: ${this.props.endGameResults.costPerMMBtuSavings}/MMBtu
                                     </div>,
                                     <div
                                         key={'slide4d'}

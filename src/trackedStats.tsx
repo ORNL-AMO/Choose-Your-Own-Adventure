@@ -90,6 +90,9 @@ export interface TrackedStats {
 	 */
 	costPerCarbonSavings: number;
 	/**
+	 * Cost per MMBTU savings
+	 */
+	/**
 	 * Year Costs applied IN-YEAR from project implementation. Does NOT include hidden costs or rebates
 	 */
 	implementationSpending: number;
@@ -132,6 +135,7 @@ export interface EndGameResults {
 	gameCurrentAndProjectedSpending: string,
 	operationEnergyUsePercent: string,
 	operationEnergyCostPercent: string,
+	costPerMMBtuSavings: string,
 	operationEnergyUse: string,
 	costPerCarbonSavings: string,
 	completedProjects: CompletedProject[];
@@ -248,7 +252,12 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 
 	newStats.operationEnergyUse = currentEnergyUse;
 
-	newStats.operationEnergyUsePercent = (baselineEnergyUse - currentEnergyUse) / baselineEnergyUse;
+	
+	const savingsInMMBTU = baselineEnergyUse - currentEnergyUse;
+	console.log('baselineEnergyUse', baselineEnergyUse);
+	console.log('currentEnergyUse', currentEnergyUse);
+	console.log('savingsInMMBTU', savingsInMMBTU);
+	newStats.operationEnergyUsePercent = savingsInMMBTU / baselineEnergyUse;
 
 	return newStats;
 }
@@ -260,10 +269,14 @@ const getTotalEnergyCost = (stats: TrackedStats): number => {
 }
 
 const getTotalEnergyUse = (stats: TrackedStats): number => {
-	// Convert kWh to MMBTU (1 kWh = 0.003412 MMBTU)
-	return (stats.electricityUseKWh * 0.003412)
-		+ stats.naturalGasMMBTU
-		+ stats.hydrogenMMBTU;
+	// Convert all energy values to MMBTU and sum
+	// 1 kWh = 0.003412 MMBTU
+	const electricityKWh = (typeof stats.electricityUseKWh === 'number' && !isNaN(stats.electricityUseKWh)) ? stats.electricityUseKWh : 0;
+	const naturalGasMMBTU = (typeof stats.naturalGasMMBTU === 'number' && !isNaN(stats.naturalGasMMBTU)) ? stats.naturalGasMMBTU : 0;
+	const hydrogenMMBTU = (typeof stats.hydrogenMMBTU === 'number' && !isNaN(stats.hydrogenMMBTU)) ? stats.hydrogenMMBTU : 0;
+
+	const electricityMMBTU = electricityKWh * 0.003412;
+	return electricityMMBTU + naturalGasMMBTU + hydrogenMMBTU;
 }
 
 /**
@@ -275,6 +288,17 @@ export function setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentA
 		costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
 	}
 	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
+export function getCostPerMMBtuSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number, defaultTrackedStats: TrackedStats) {
+	let costPerMMBtuSavings = 0;
+	let baselineEnergyUse = getTotalEnergyUse(defaultTrackedStats);
+	let currentEnergyUse = getTotalEnergyUse(mutableStats);
+	if (gameCurrentAndProjectedSpending > 0 && currentEnergyUse > 0) {
+		costPerMMBtuSavings = gameCurrentAndProjectedSpending / (baselineEnergyUse - currentEnergyUse);
+	}
+	
+	return costPerMMBtuSavings;
 }
 
 export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {

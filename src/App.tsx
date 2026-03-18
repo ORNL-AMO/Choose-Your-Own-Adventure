@@ -11,7 +11,7 @@ import '@fontsource/lato/700.css';
 import '@fontsource/lato/900.css';
 
 import type { ControlCallbacks } from './components/controls';
-import { calculateEmissions, getEnergyUnitCostByYear, setCostPerCarbonSavings } from './trackedStats';
+import { calculateEmissions, getCostPerMMBtuSavings, getEnergyUnitCostByYear } from './trackedStats';
 import type { EndGameResults, TrackedStats, YearCostSavings } from './trackedStats';
 import { updateStatsGaugeMaxValues } from './trackedStats';
 import { getYearCostSavings } from './trackedStats';
@@ -622,7 +622,8 @@ export class App extends React.PureComponent<unknown, AppState> {
 				endYearStats);
 		let gameCurrentAndProjectedSpending = endYearStats.gameTotalSpending + projectedFinancedSpending;
 		setCarbonEmissionsAndSavings(endYearStats, this.state.defaultTrackedStats);
-		setCostPerCarbonSavings(endYearStats, gameCurrentAndProjectedSpending);
+		// setCostPerCarbonSavings(endYearStats, gameCurrentAndProjectedSpending);
+		const costPerMMBtuSavings = getCostPerMMBtuSavings(endYearStats, gameCurrentAndProjectedSpending, this.state.defaultTrackedStats);
 
 		const noDecimalsFormatter = Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
@@ -644,8 +645,20 @@ export class App extends React.PureComponent<unknown, AppState> {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 2,
 		}).format(endYearStats.costPerCarbonSavings) : '0';
+		
+		const costPerMMBtuSavingsFormatted: string = costPerMMBtuSavings !== undefined ? Intl.NumberFormat('en-US', {
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 2,
+		}).format(costPerMMBtuSavings) : '0';
 
 		// todo add NAN / undefined defensives
+		console.log('End Game Results:');
+		console.log('endYearStats.operationEnergyCostPercent', endYearStats.operationEnergyCostPercent);
+		if (isNaN(Number(operationEnergyCostPercentFormatted)) || operationEnergyCostPercentFormatted === 'NaN') {
+			console.error('operationEnergyCostPercentFormatted is NaN. Check calculations for operation energy cost percent.', endYearStats.operationEnergyCostPercent);
+		}
+
+
 		let endGameResults: EndGameResults = {
 			carbonSavingsPercent: carbonSavingsPercentFormatted,
 			carbonSavingsPerTonne: carbonSavingsPerTonneFormatted,
@@ -656,6 +669,7 @@ export class App extends React.PureComponent<unknown, AppState> {
 			projectedFinancedSpending: projectedFinancedSpendingFormatted,
 			gameCurrentAndProjectedSpending: gameCurrentAndProjectedSpendingFormatted,
 			costPerCarbonSavings: costPerCarbonSavingsFormatted,
+			costPerMMBtuSavings: costPerMMBtuSavingsFormatted,
 			completedProjects: allCompletedProjects,
 			endYearStats: endYearStats,
 			isWinningGame: isWinningGame
