@@ -116,8 +116,8 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         key={'slide3b'}
                                         className='slide-stat-div child-stat-div'>
                                         <span>
-                                            Your cost per percent of energy savings is
-                                            <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            Cost per energy saved: 
+                                            <UnderlineSpan text={`$${this.props.endGameResults.costPerMMBtuSavings}/MMBtu`} animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
                                     </div>
                                 ]
@@ -141,7 +141,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                     <div
                                         key={'slide4c'}
                                         className='slide-stat-div child-stat-div'>
-                                        Cost per percent of MMBtu saved: ${this.props.endGameResults.costPerMMBtuSavings}/MMBtu
+                                        Cost per energy saved: ${this.props.endGameResults.costPerMMBtuSavings}/MMBtu
                                     </div>,
                                     <div
                                         key={'slide4d'}
