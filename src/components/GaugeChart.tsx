@@ -122,14 +122,16 @@ export default function GaugeChart({
 	// we need to make sure the smaller value appears behind the larger value, so figure out the order programmatically
 	let arc1, arc2, smallerArc, largerArc;
 	
-	arc1 = <AnimatedArc
-		startAngle={-Math.PI / 2}
-		endAngle={(datum) => (datum * Math.PI) - Math.PI / 2}
-		innerRadius={radius - donutThickness}
-		outerRadius={radius}
-		fill={color1 || 'blue'}
-		data={value1}
-	/>;
+	if (value1 >= 0) {
+		arc1 = <AnimatedArc
+			startAngle={-Math.PI / 2}
+			endAngle={(datum) => (datum * Math.PI) - Math.PI / 2}
+			innerRadius={radius - donutThickness}
+			outerRadius={radius}
+			fill={color1 || 'blue'}
+			data={value1}
+		/>;
+	}
 	
 	if (typeof value2 !== 'undefined') {
 		arc2 = <AnimatedArc

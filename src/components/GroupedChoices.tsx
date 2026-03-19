@@ -8,6 +8,7 @@ import type { ControlCallbacks, PageControl } from './controls';
 import { Stack } from '@mui/system';
 import type { SelectedProject } from '../ProjectControl';
 import { FinancingOption } from '../Financing';
+import { EnergyTabCategories } from '../domain/content';
 
 /**
  * Generic control for picking between multiple choices across multiple groups.
@@ -94,8 +95,8 @@ export class GroupedChoices extends React.Component <GroupedChoicesProps> {
 			</Grid>);
 		});
 		
-		const isProjectPage1 = props.resolveToValue(props.title).includes('Scope 1');
-		const isProjectPage2 = props.resolveToValue(props.title).includes('Scope 2');
+		const isProjectPage1 = props.resolveToValue(props.title).includes(EnergyTabCategories.GROUP_A.title);
+		const isProjectPage2 = props.resolveToValue(props.title).includes(EnergyTabCategories.GROUP_B.title);
 		
 		return (
 			<Box m={2}>

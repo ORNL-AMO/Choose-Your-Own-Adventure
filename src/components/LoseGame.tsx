@@ -10,6 +10,7 @@ import { PageControl } from './controls';
 import NorthIcon from '@mui/icons-material/North';
 import { EndGameResults } from '../trackedStats';
 import { Box } from '@mui/material';
+import SlideContent, { UnderlineSpan } from './SlideContent';
 
 
 export default class LoseGame extends React.Component<LoseGameProps> {
@@ -26,7 +27,36 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                     centeredSlides={true}
                 >
                     <SwiperSlide id='fade-to-white' className='lose-game-bg' style={{position: 'relative'}}>
-                        <div style={{
+                         <SlideContent
+                            statDivs={
+                                [<div
+                                    key={'slide1'}
+                                    className='slide-stat-div'
+                                    style={{ fontSize: '48px', textTransform: 'uppercase' }}>
+                                    <span>Your company achieved {`${this.props.endGameResults.operationEnergyUsePercent}%`} energy savings in 10 years</span>
+                                </div>,
+                                <div
+                                    key={'slide1b'}
+                                    className='slide-stat-div child-stat-div'>
+                                    <span>You were unable to meet your goal of 25% energy savings</span>
+                    
+
+                                </div>,
+                                <div
+                                    key={'slide1c'}
+                                    className='slide-stat-div child-stat-div'>
+                                    <span>Visit the&nbsp;
+                                        <a style={{ color: '#fff', fontSize: '32px' }} href="https://betterbuildingssolutioncenter.energy.gov">
+                                            Better Building Solution Center</a>.
+                                    </span>
+                                </div>,
+                                ]
+                            }
+                        />
+                        
+                        {/* 8213 */}
+
+                        {/* <div style={{
                             marginTop: '100px',
                             color: '#444',
                             display: 'flex',
@@ -42,29 +72,36 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                             marginRight: 'auto',
                         }}>
 
-                            <Box
-                                className='lose-game-text animate__animated animate__fadeIn animate__slower'
-                                sx={{ 
-                                    animationDelay: {xs: `${String(statOneDelay - initialDelay)}ms`, md: `${statOneDelay}ms`}
+                                <Box
+                                    className='lose-game-text animate__animated animate__fadeIn animate__slower'
+                                    sx={{
+                                        animationDelay: { xs: `${String(statOneDelay - initialDelay)}ms`, md: `${statOneDelay}ms` }
                                     }}>
-                                <span>Your company has reduced CO2e emissions by {`${this.props.endGameResults.carbonSavingsPercent}%`} in 10 years</span>
-                            </Box>
+                                    <span>Your company achieved {`${this.props.endGameResults.carbonSavingsPercent}%`} energy savings in 10 years</span>
+                                </Box>
 
-                            <Box
-                                className='lose-game-text animate__animated animate__fadeIn animate__slower'
-                                sx={{ 
-                                    animationDelay: {xs: `${String(statTwoDelay - initialDelay)}ms`, md: `${statTwoDelay}ms`}
+                                <Box
+                                    className='lose-game-text animate__animated animate__fadeIn animate__slower'
+                                    sx={{
+                                        animationDelay: { xs: `${String(statTwoDelay - initialDelay)}ms`, md: `${statTwoDelay}ms` }
                                     }}>
-                                <span>You were unable to meet your goal of decarbonizing by 50%</span>
-                            </Box>
+                                    <span>You were unable to meet your goal of 25% energy savings</span>
+                                </Box>
 
-                            <Box
-                                className='lose-game-text animate__animated animate__fadeIn animate__slower'
-                                sx={{ 
-                                    animationDelay: {xs: `${String(statThreeDelay - initialDelay)}ms`, md: `${statThreeDelay}ms`}
+                                <Box className="animate__animated animate__fadeInRight" style={{ animationDelay: '3500ms' }}>
+                                    Visit the&nbsp;
+                                    <br />
+                                    <a style={{ color: '#fff', fontSize: '32px' }} href="https://betterbuildingssolutioncenter.energy.gov">
+                                        Better Building Solution Center</a>.
+                                </Box>
+
+                                <Box
+                                    className='lose-game-text animate__animated animate__fadeIn animate__slower'
+                                    sx={{
+                                        animationDelay: { xs: `${String(statThreeDelay - initialDelay)}ms`, md: `${statThreeDelay}ms` }
                                     }}>
-                                <span>Try again?</span>
-                            </Box>
+                                    <span>Try again?</span>
+                                </Box>
                             <div
                                 style={{
                                     display: 'flex',
@@ -74,9 +111,9 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                                 }}
                             ></div>
                             </div>
-                        </div>
+                        </div> */}
 
-                        <Box sx={{
+                        {/* <Box sx={{
                             color: '#444',
                             display: {xs: 'none', md: 'flex'},
                             flexDirection: 'column',
@@ -101,7 +138,7 @@ export default class LoseGame extends React.Component<LoseGameProps> {
                                 </div>
                             </div>
                             <div style={{flexGrow: '.05'}}></div>
-                        </Box>
+                        </Box> */}
                     </SwiperSlide>
                 </Swiper>
             </div>

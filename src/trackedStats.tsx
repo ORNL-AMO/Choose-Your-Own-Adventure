@@ -1,5 +1,6 @@
 import { CompletedProject } from './ProjectControl';
 import { theme } from './components/theme';
+import { energyUnitCosts } from './domain/costs';
 
 /**
  * Stats that are tracked throughout gameplay. 
@@ -55,9 +56,23 @@ export interface TrackedStats {
 	 */
 	financesAvailable: number;
 	/**
-	 * 
+	 *
 	 */
 	carbonSavingsPercent: number;
+	/**
+	 * Percent reduction in total operational energy cost relative to baseline:
+	 * (baseline_$cost - current_$cost) / baseline_$cost
+	 */
+	operationEnergyCostPercent: number;
+	/**
+	 * Percent reduction in total operational energy use relative to baseline:
+	 * (baseline_MMBTU - current_MMBTU) / baseline_MMBTU
+	 */
+	operationEnergyUsePercent: number;
+	/**
+ * Total operational energy use in MMBTU, converted from electricity, natural gas, and landfill gas use
+ */
+	operationEnergyUse: number;
 	/**
 	 * 
 	 */
@@ -74,6 +89,9 @@ export interface TrackedStats {
 	 * Cost per carbon kg savings
 	 */
 	costPerCarbonSavings: number;
+	/**
+	 * Cost per MMBTU savings
+	 */
 	/**
 	 * Year Costs applied IN-YEAR from project implementation. Does NOT include hidden costs or rebates
 	 */
@@ -115,6 +133,10 @@ export interface EndGameResults {
 	carbonSavingsPerTonne: string,
 	projectedFinancedSpending: string,
 	gameCurrentAndProjectedSpending: string,
+	operationEnergyUsePercent: string,
+	operationEnergyCostPercent: string,
+	costPerMMBtuSavings: string,
+	operationEnergyUse: string,
 	costPerCarbonSavings: string,
 	completedProjects: CompletedProject[];
 	endYearStats: TrackedStats;
@@ -146,14 +168,17 @@ const ElectricityEmissionsFactors: { [key: number]: number } = {
  */
 export const initialTrackedStats: TrackedStats = {
 	naturalGasMMBTU: 4_000, 
-	naturalGasCostPerMMBTU: 5,
+	naturalGasCostPerMMBTU: energyUnitCosts.naturalGas[0],
 	naturalGasEmissionsPerMMBTU: 53.06, // NG is 53.06 kgCO2/MMBTU
 	electricityUseKWh: 4_000_000, 
-	electricityCostPerKWh: 0.10,
+	electricityCostPerKWh: energyUnitCosts.electricity[0],
 	hydrogenMMBTU: 2_000,
 	hydrogenCostPerMMBTU: 5,
 	hydrogenEmissionsPerMMBTU: 0.268,
 	carbonSavingsPercent: 0,
+	operationEnergyCostPercent: 0,
+	operationEnergyUsePercent: 0,
+	operationEnergyUse: 0,
 	financesAvailable: 150_000,
 	yearBudget: 150_000,
 	carbonEmissions: -1, // auto calculated in the next line
@@ -185,6 +210,19 @@ export function getElectricityEmissionsFactor(currentGameYear: number, gameYearI
 	return emissionsFactor;
 }
 
+export function getEnergyUnitCostByYear(energyType: 'naturalGas' | 'electricity', currentGameYear: number, gameYearInterval: number, gameYearDisplayOffset: number): number {
+	let isEndOfGame = gameYearInterval > 1? gameYearDisplayOffset >= 10 : currentGameYear > 10; 
+	let year = currentGameYear;
+	if (isEndOfGame) {
+		year = 10;
+	} else if (gameYearInterval > 1) {
+		year = gameYearDisplayOffset + 1;
+	}	
+	let cost = energyUnitCosts[energyType][year];
+	return cost;
+}
+
+
 export function calculateEmissions(stats: TrackedStats): number {
 	let ngEmissions = stats.naturalGasMMBTU * stats.naturalGasEmissionsPerMMBTU;
 	let elecEmissions = stats.electricityUseKWh * getElectricityEmissionsFactor(stats.currentGameYear, stats.gameYearInterval, stats.gameYearDisplayOffset);
@@ -203,7 +241,42 @@ export function setCarbonEmissionsAndSavings(newStats: TrackedStats, defaultTrac
 	let carbonSavingsPercent = (defaultTrackedStats.carbonEmissions - newEmissions) / (defaultTrackedStats.carbonEmissions);
 	newStats.carbonSavingsPerKg = carbonSavingsPercent * defaultTrackedStats.carbonEmissions;
 	newStats.carbonSavingsPercent = carbonSavingsPercent;
+
+	let baselineEnergyCost = getTotalEnergyCost(defaultTrackedStats);
+	let currentEnergyCost = getTotalEnergyCost(newStats);
+
+	newStats.operationEnergyCostPercent = (baselineEnergyCost - currentEnergyCost) / baselineEnergyCost;
+
+	let baselineEnergyUse = getTotalEnergyUse(defaultTrackedStats);
+	let currentEnergyUse = getTotalEnergyUse(newStats);
+
+	newStats.operationEnergyUse = currentEnergyUse;
+
+	
+	const savingsInMMBTU = baselineEnergyUse - currentEnergyUse;
+	console.log('baselineEnergyUse', baselineEnergyUse);
+	console.log('currentEnergyUse', currentEnergyUse);
+	console.log('savingsInMMBTU', savingsInMMBTU);
+	newStats.operationEnergyUsePercent = savingsInMMBTU / baselineEnergyUse;
+
 	return newStats;
+}
+
+const getTotalEnergyCost = (stats: TrackedStats): number => {
+	return (stats.electricityUseKWh * stats.electricityCostPerKWh)
+		+ (stats.naturalGasMMBTU * stats.naturalGasCostPerMMBTU)
+		+ (stats.hydrogenMMBTU * stats.hydrogenCostPerMMBTU);
+}
+
+const getTotalEnergyUse = (stats: TrackedStats): number => {
+	// Convert all energy values to MMBTU and sum
+	// 1 kWh = 0.003412 MMBTU
+	const electricityKWh = (typeof stats.electricityUseKWh === 'number' && !isNaN(stats.electricityUseKWh)) ? stats.electricityUseKWh : 0;
+	const naturalGasMMBTU = (typeof stats.naturalGasMMBTU === 'number' && !isNaN(stats.naturalGasMMBTU)) ? stats.naturalGasMMBTU : 0;
+	const hydrogenMMBTU = (typeof stats.hydrogenMMBTU === 'number' && !isNaN(stats.hydrogenMMBTU)) ? stats.hydrogenMMBTU : 0;
+
+	const electricityMMBTU = electricityKWh * 0.003412;
+	return electricityMMBTU + naturalGasMMBTU + hydrogenMMBTU;
 }
 
 /**
@@ -215,6 +288,17 @@ export function setCostPerCarbonSavings(mutableStats: TrackedStats, gameCurrentA
 		costPerCarbonSavings = gameCurrentAndProjectedSpending / mutableStats.carbonSavingsPerKg;
 	}
 	mutableStats.costPerCarbonSavings = costPerCarbonSavings;
+}
+
+export function getCostPerMMBtuSavings(mutableStats: TrackedStats, gameCurrentAndProjectedSpending: number, defaultTrackedStats: TrackedStats) {
+	let costPerMMBtuSavings = 0;
+	let baselineEnergyUse = getTotalEnergyUse(defaultTrackedStats);
+	let currentEnergyUse = getTotalEnergyUse(mutableStats);
+	if (gameCurrentAndProjectedSpending > 0 && currentEnergyUse > 0) {
+		costPerMMBtuSavings = gameCurrentAndProjectedSpending / (baselineEnergyUse - currentEnergyUse);
+	}
+	
+	return costPerMMBtuSavings;
 }
 
 export function getYearCostSavings(oldStats: TrackedStats, newStats: TrackedStats): YearCostSavings {
@@ -266,14 +350,27 @@ export const statsGaugeProperties: Dict<StatsGaugeProperties> = {
 		textFontSize: 0.85,
 		maxValue: 2_000_000,
 	},
-	hydrogenMMBTU: {
-		label: 'Landfill Gas use (MMBTU)',
-		color: theme.palette.primary.light,
-		textFontSize: 0.85,
-		maxValue: 2_000,
+// 8213
+	// hydrogenMMBTU: {
+	// 	label: 'Landfill Gas use (MMBTU)',
+	// 	color: theme.palette.primary.light,
+	// 	textFontSize: 0.85,
+	// 	maxValue: 2_000,
+	// },
+	operationEnergyCostPercent: {
+		label: 'Energy Cost Reduction',
+		color: theme.palette.primary.dark,
+		textFontSize: 1,
+		maxValue: 1,
 	},
 	carbonSavings: {
 		label: 'GHG Reduction',
+		color: '#000000',
+		textFontSize: 1,
+		maxValue: 1,
+	},
+	operationEnergyUse: {
+		label: 'Energy Use Reduction',
 		color: '#000000',
 		textFontSize: 1,
 		maxValue: 1,

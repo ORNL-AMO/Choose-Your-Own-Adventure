@@ -199,24 +199,26 @@ export function getRemainingProjectCosts(project: ImplementedProject, mutableSta
 export function setCapitalFundingMilestone(capitalFundingState: CapitalFundingState, stats: TrackedStats) {
 	let savingsMilestone: number;
     let isNotUsedRoundA = capitalFundingState.roundA.usedOnProjectId === undefined;
-    let isNotUsedRoundB = capitalFundingState.roundB.usedOnProjectId === undefined;
+    // let isNotUsedRoundB = capitalFundingState.roundB.usedOnProjectId === undefined;
 	if (!capitalFundingState.roundA.isEarned || (capitalFundingState.roundA.isEarned && (isNotUsedRoundA && !capitalFundingState.roundA.isExpired))) { 
-        let roundAMilestonePercent = 5;
+        let roundAMilestonePercent = 12;
 		savingsMilestone = checkHasSavingsMilestone(stats, roundAMilestonePercent);
         if (savingsMilestone) {
             capitalFundingState.roundA.isEarned = true;
             capitalFundingState.roundA.eligibleYear = stats.currentGameYear + 1;
             capitalFundingState.roundA.isExpired = false;
         }
-	} else if (!capitalFundingState.roundB.isEarned || (capitalFundingState.roundB.isEarned && (isNotUsedRoundB && !capitalFundingState.roundB.isExpired))) {
-        let roundBMilestonePercent = 30;
-		savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
-		if (savingsMilestone) {
-            capitalFundingState.roundB.isEarned = true;
-            capitalFundingState.roundB.eligibleYear = stats.currentGameYear + 1;
-            capitalFundingState.roundB.isExpired = false;
-        }
-	}
+	} 
+    // 8213
+    // else if (!capitalFundingState.roundB.isEarned || (capitalFundingState.roundB.isEarned && (isNotUsedRoundB && !capitalFundingState.roundB.isExpired))) {
+    //     let roundBMilestonePercent = 15;
+	// 	savingsMilestone = checkHasSavingsMilestone(stats, roundBMilestonePercent);
+	// 	if (savingsMilestone) {
+    //         capitalFundingState.roundB.isEarned = true;
+    //         capitalFundingState.roundB.eligibleYear = stats.currentGameYear + 1;
+    //         capitalFundingState.roundB.isExpired = false;
+    //     }
+	// }
 	return savingsMilestone;
 }
 
@@ -266,8 +268,8 @@ export function checkHasSavingsMilestone(stats: TrackedStats, carbonSavingsPerce
 export function getCapitalFundingSurprise(milestoneSavingsPercent: number): RecapSurprise {
     return {
 		title: "Capital Funding Reward Earned",
-        subHeader: `Greenhouse gas emissions have been reduced by ${milestoneSavingsPercent}%`,
-		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing emissions. This reward allows you to implement one qualifying project without pulling from your budget.',
+        subHeader: `You have achieved ${milestoneSavingsPercent}% energy savings`,
+		text: 'You\'ve received a {Capital Funding Reward} for making great choices toward reducing energy costs. This reward allows you to implement one qualifying project without pulling from your budget.',
 		className: 'year-recap-positive-surprise',
 		avatar: {
 			icon: <AttachMoneyIcon />,

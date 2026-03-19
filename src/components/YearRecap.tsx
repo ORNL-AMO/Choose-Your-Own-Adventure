@@ -53,6 +53,7 @@ import { GameSettings } from './SelectGameSettings';
 import { CapitalFundingState, FinancingOption, getCanUseCapitalFunding, getCapitalFundingSurprise, getIsAnnuallyFinanced, getProjectedFinancedSpending, isProjectFullyFunded, setCapitalFundingExpired, setCapitalFundingMilestone } from '../Financing';
 import { findFinancingOptionFromProject } from '../Financing';
 import { DialogFinancingOptionCard } from './Dialogs/ProjectDialog';
+import { GAME_WINNING_ENERGY_USE_PERCENT } from '../domain/rules';
 
 export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar }> {
 	
@@ -60,22 +61,19 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 	handleScroll = () => {
 		let positionY: number = document.documentElement.scrollTop;
-		if ( positionY > 134 ) {
-			this.setState({showFloatingBar: true});
-		} else if ( positionY < 134 ) {
-			this.setState({showFloatingBar: false});
+		if (positionY > 134 && !this.state.showFloatingBar) {
+			this.setState({ showFloatingBar: true });
+		} else if (positionY < 134 && this.state.showFloatingBar) {
+			this.setState({ showFloatingBar: false });
 		}
-	  };
+	};
 	
 
 	componentDidMount() {
-		// Add scroll event listener when component mounts
 		window.addEventListener('scroll', this.handleScroll);
 	}
 
-
 	componentWillUnmount() {
-		// Remove scroll event listener when component unmounts
 		window.removeEventListener('scroll', this.handleScroll);
 	}
 
@@ -92,7 +90,9 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 		});
 		const naturalGasSavingsFormatted: string = noDecimalsFormatter.format(recapResults.yearCostSavings.naturalGas);
 		const electricitySavingsFormatted: string = noDecimalsFormatter.format(recapResults.yearCostSavings.electricity);
-		const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
+		// 8213
+		// const carbonSavingsPercentFormatted: string = (mutableStats.carbonSavingsPercent * 100).toFixed(2);
+		const operationEnergyUsePercentFormatted: string = (mutableStats.operationEnergyUsePercent * 100).toFixed(2);
 		const unspentBudgetFormatted: string = noDecimalsFormatter.format(recapResults.unspentBudget);
 		const yearEndTotalSpendingFormatted: string = noDecimalsFormatter.format(recapResults.yearEndTotalSpending);
 		// formatting new value? or existing
@@ -162,8 +162,8 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 								<ListItemText
 									primary={
 										<Typography variant='h5'>
-											Your company has reduced CO<sub>2</sub>e Emissions by{' '}
-											<Emphasis>{carbonSavingsPercentFormatted}%</Emphasis>{' '}
+											Your company has reduced energy use by{' '}
+											<Emphasis>{operationEnergyUsePercentFormatted}%</Emphasis>{' '}
 										</Typography>
 									}
 								/>
@@ -253,7 +253,9 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 									/>
 								</ListItem>
 							}
-							<ListItem>
+                        {/* 8213 */}
+
+							{/* <ListItem>
 								<ListItemIcon>
 									<InfoIcon />
 								</ListItemIcon>
@@ -264,7 +266,7 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 										</Typography>
 									}
 								/>
-							</ListItem>
+							</ListItem> */}
 						</List>
 					</Box>
 
@@ -296,12 +298,13 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 						<ParentSize>
 							{(parent) => (
 								<>
-									<YearRecapCharts barGraphData={barGraphData.carbonSavingsPercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'GHG Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
+                        {/* 8213 */}
+									<YearRecapCharts barGraphData={barGraphData.operationEnergyUsePercent} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Energy Use Reduction (%)'} unitLable={'%'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'carbon'} backgroundFill={'#eaeffb'} />
 									<YearRecapCharts barGraphData={barGraphData.totalSpending} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Total Money Spent (10K $)'} unitLable={'10K $'} currentYear={this.props.currentGameYear} domainYaxis={300} id={'money'} backgroundFill={'#f5f5f5'} />
-									<YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} />
+									{/* <YearRecapCharts barGraphData={barGraphData.costPerCarbon} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Cost per kg ($/kg)'} unitLable={'$/kg'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'cost'} backgroundFill={'#eaeffb'} /> */}
 									<YearRecapCharts barGraphData={barGraphData.naturalGas} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Natural Gas Use (10K MMBtu)'} unitLable={'10K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'naturalGas'} backgroundFill={'#f5f5f5'} />
 									<YearRecapCharts barGraphData={barGraphData.electricity} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Electricity Use (M kWh)'} unitLable={'M kWh'} currentYear={this.props.currentGameYear} domainYaxis={100} id={'electricity'} backgroundFill={'#eaeffb'} />
-									<YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (K MMBtu)'} unitLable={'K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'hydrogen'} backgroundFill={'#f5f5f5'} />
+									{/* <YearRecapCharts barGraphData={barGraphData.hydrogen} width={parent.width} height={400} totalGameYears={this.props.totalGameYears} graphTitle={'Landfill Gas Use (K MMBtu)'} unitLable={'K MMBtu'} currentYear={this.props.currentGameYear} domainYaxis={1} id={'hydrogen'} backgroundFill={'#f5f5f5'} /> */}
 								</>
 							)}
 						</ParentSize>
@@ -722,13 +725,15 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 			let thisGaugeProps = statsGaugeProperties[key];
 			if (thisGaugeProps) {
+				const label = shortenNumber(newValue);
+				const value = clampRatio(newValue, thisGaugeProps.maxValue);
 				gaugeCharts.push(
 					<Grid item sx={{ padding: '1rem' }} key={getIdString()}>
 						<GaugeChart
 							key={key}
 							width={260}
 							backgroundColor={'#88888820'}
-							value1={clampRatio(newValue, thisGaugeProps.maxValue)}
+							value1={value}
 							color1={'#bbbbbba0'}
 							value2={clampRatio(oldValue, thisGaugeProps.maxValue)}
 							color2={thisGaugeProps.color}
@@ -739,8 +744,8 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 							label={thisGaugeProps.label}
 							ticks={[
 								{
-									label: shortenNumber(newValue),
-									value: clampRatio(newValue, thisGaugeProps.maxValue),
+									label: label,
+									value: value,
 								},
 							]}
 						/>
@@ -781,32 +786,31 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 		defaultTrackedStats: TrackedStats,
 	) {
 
-		let prevYearCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+		let prevYearOperationEnergyUsePercent = mutableStats.operationEnergyUsePercent;
 		mutableStats = setCarbonEmissionsAndSavings(mutableStats, defaultTrackedStats);
-		console.log('EOY carbon emissions', mutableStats.carbonEmissions);
-		let newCarbonSavingsPercent = mutableStats.carbonSavingsPercent;
+		let newOperationEnergyUsePercent = mutableStats.operationEnergyUsePercent;
 
 		gaugeCharts.push(
 			<Grid item sx={{ padding: '1rem' }}
 				key={'carbonSavings' + getIdString()}>
 				<GaugeChart
 					width={260}
-					value1={prevYearCarbonSavingsPercent}
+					value1={prevYearOperationEnergyUsePercent}
 					color1='#888888'
-					value2={newCarbonSavingsPercent}
+					value2={newOperationEnergyUsePercent}
 					color2='#000000'
 					text={
 						withSign(
-							(newCarbonSavingsPercent - prevYearCarbonSavingsPercent) * 100,
+							(newOperationEnergyUsePercent - prevYearOperationEnergyUsePercent) * 100,
 							1
 						) + '%'
 					}
 					backgroundColor={'#888888'}
-					label='GHG Reduction'
+					label='Energy Use Reduction'
 					ticks={[
 						{
-							label: toPercent(newCarbonSavingsPercent),
-							value: newCarbonSavingsPercent,
+							label: toPercent(newOperationEnergyUsePercent),
+							value: newOperationEnergyUsePercent,
 						},
 						{
 							label: '50%',
@@ -820,7 +824,7 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 
 	getBarGraphData(props: YearRecapProps, mutableStats: TrackedStats): BarGraphData {
 		let barGraphData: BarGraphData = {
-			carbonSavingsPercent: [],
+			operationEnergyUsePercent: [],
 			costPerCarbon: [],
 			naturalGas: [],
 			hydrogen: [],
@@ -828,19 +832,23 @@ export class YearRecap extends React.Component<YearRecapProps, { showFloatingBar
 			totalSpending: [],
 		};
 
-		props.yearRangeInitialStats.forEach(year => {
-			barGraphData.carbonSavingsPercent.push(year.carbonSavingsPercent * 100);
-		});
-		barGraphData.carbonSavingsPercent.push(mutableStats.carbonSavingsPercent * 100);
+		const gameWinningPercent = GAME_WINNING_ENERGY_USE_PERCENT * 100;
+		const step = gameWinningPercent / props.totalGameYears;
+		const currentYear = props.currentGameYear;
+		
+		barGraphData.operationEnergyUsePercent = [];
+		for (let i = 0; i <= props.totalGameYears; i++) {
+			let yearlyStats = props.yearRangeInitialStats[i];
+			if (i === currentYear) {
+				yearlyStats = mutableStats;
+			}
 
-		let predictionCarbon: number;
-		if (props.totalGameYears === 10) {
-			predictionCarbon = 5;
-		} else {
-			predictionCarbon = 10;
-		}
-		for (let i = props.currentGameYear; i < props.totalGameYears; i++) {
-			barGraphData.carbonSavingsPercent.push((predictionCarbon * (i + 1)));
+			if (yearlyStats) {
+				barGraphData.operationEnergyUsePercent.push(yearlyStats.operationEnergyUsePercent * 100);
+			} else {
+				const milestone = step * i;
+				barGraphData.operationEnergyUsePercent.push(milestone);
+			}
 		}
 
 		props.yearRangeInitialStats.forEach(year => {
@@ -1210,7 +1218,7 @@ export interface YearRecapResults {
 }
 
 export interface BarGraphData {
-	carbonSavingsPercent: number[],
+	operationEnergyUsePercent: number[],
 	costPerCarbon: number[]
 	naturalGas: number[],
 	electricity: number[],

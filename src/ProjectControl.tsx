@@ -169,18 +169,25 @@ export class ProjectControl implements ProjectControlParams {
 			});
 		}
 		if (this.statsInfoAppliers.hydrogenMMBTU) {
-			projectDialogStatCards.push({
-				text: `Landfill Gas reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
-				textColor: '#fff',
-				backgroundColor: 'rgb(20, 48, 109, 0.60)',
-			});
+			// projectDialogStatCards.push({
+			// 	text: `Landfill Gas reduction: {${this.statsInfoAppliers.hydrogenMMBTU.toString(true)} MMBtu ${perYearAddOn}}`,
+			// 	textColor: '#fff',
+			// 	backgroundColor: 'rgb(20, 48, 109, 0.60)',
+			// });
 		}
-		if (this.statsInfoAppliers.absoluteCarbonSavings) {
+		// 8213
+		// if (this.statsInfoAppliers.absoluteCarbonSavings) {
+		// 	projectDialogStatCards.push({
+		// 		text: `Energy Use Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
+		// 		textColor: '#fff',
+		// 		backgroundColor: 'rgb(20, 48, 109, 0.60)',
+		// 	});
+		// }
+		if (this.statsInfoAppliers.operationEnergyUsePercent) {
 			projectDialogStatCards.push({
-				text: `GHG Reduction: {${this.statsInfoAppliers.absoluteCarbonSavings.toString(true)} kg CO<sub>2</sub>e ${perYearAddOn}}`,
+				text: `Energy Use Reduction: {${this.statsInfoAppliers.operationEnergyUsePercent.toString(true)} ${perYearAddOn}}`,
 				textColor: '#fff',
 				backgroundColor: 'rgb(20, 48, 109, 0.60)',
-
 			});
 		}
 
@@ -505,7 +512,7 @@ export class ProjectControl implements ProjectControlParams {
 		function checkCanImplementProject(this: App, state: AppState, financingId: FinancingId): boolean {
 			const gameSettings: GameSettings = JSON.parse(localStorage.getItem('gameSettings'));
 			let projectImplementationLimit = gameSettings.useGodMode? 1000 : 4;
-			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 2;
+			let financedImplementationLimit = gameSettings.useGodMode? 1000 : 1;
 
 			let limitMsg = `Due to manpower limitations, you cannot select more than ${projectImplementationLimit} projects per budget period`;
 			if (state.gameSettings.totalGameYears === 5) {
@@ -819,9 +826,14 @@ export class ProjectControl implements ProjectControlParams {
  */
 
 export const Scope1Projects = [
-	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, Pages.improvePipeInsulation, Pages.boilerControl,
+	Pages.advancedEnergyMonitoring, Pages.steamTrapsMaintenance, 
+	Pages.steamTrapsMonitoring,
+	Pages.improvePipeInsulation, Pages.boilerControl,
 	Pages.airHandingUnitUpgrades, Pages.processHeatingUpgrades, Pages.wasteHeatRecovery,
-	Pages.electricBoiler, Pages.blendedFuel, Pages.landfillGasForOven, Pages.heatPumpForOffice, Pages.solarThermalHotWater
+	Pages.electricBoiler, Pages.blendedFuel, 
+	// 8213
+	// Pages.landfillGasForOven, 
+	Pages.heatPumpForOffice, Pages.solarThermalHotWater
 	//Pages.digitalTwinAnalysis, 
 	
 	//Pages.condensingEconomizerInstallation, 

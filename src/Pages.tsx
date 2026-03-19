@@ -47,6 +47,7 @@ const Pages = {
 	condensingEconomizerInstallation: Symbol('condensing-economizer-installation'),
 	boilerControl: Symbol('boiler-control'),
 	steamTrapsMaintenance: Symbol('steam-traps-maintenance'),
+	steamTrapsMonitoring: Symbol('steam-traps-monitoring'),
 	improvePipeInsulation: Symbol('improve-pipe-insulation'), 
 	compressedAirSystemImprovemnt: Symbol('compressed-air-system-improvemnt'),
 	compressedAirSystemOptimization: Symbol('compressed-air-system-optimization'),

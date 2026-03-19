@@ -208,78 +208,78 @@ Projects[Pages.hydrogenPoweredForklifts] = new ProjectControl({
 //  utilityRebateValue: 5000,
 // });
 
-Projects[Pages.blendedFuel] = new ProjectControl({
-	pageId: Pages.blendedFuel,
-	isCapitalFundsEligible: true,
-	baseCost: 500_000,
-	costSavingsCarryover: 'never',
-	isEnergyEfficiency: true,
-	financedAnnualCost: 50_000,
-	financedTotalCost: 500_000,
-	financingOptions: [
-		{
-			financingType: getGreenBondsFinancing(10),
-		},
-	],
-	statsInfoAppliers: {
-		hydrogenMMBTU: absolute(18_000),
-		naturalGasMMBTU: absolute(-18_000),
-	},
-	statsActualAppliers: {
-		hydrogenMMBTU: absolute(18_000),
-		naturalGasMMBTU: absolute(-18_000),
-	},
-	title: 'Blended Fuel for boiler',
-	shortTitle: 'Utilize 30% landfill gas in your large boiler',
-	choiceInfoText: [
-		`As your larger boiler is still well within its expected lifetime, replacement is not yet warranted. 
-		Instead, you have investigated the potential for fuel blending with local landfill gas. 
-		It has been decided that a 30% blend best suits your needs. Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
-		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, plus the on-site pipeline and boiler retrofit. `
-	],
-	choiceInfoImg: 'images/electric-boiler.png',
-	choiceInfoImgAlt: 'electric boiler',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	// add case study
-});
+// Projects[Pages.blendedFuel] = new ProjectControl({
+// 	pageId: Pages.blendedFuel,
+// 	isCapitalFundsEligible: true,
+// 	baseCost: 500_000,
+// 	costSavingsCarryover: 'never',
+// 	isEnergyEfficiency: true,
+// 	financedAnnualCost: 50_000,
+// 	financedTotalCost: 500_000,
+// 	financingOptions: [
+// 		{
+// 			financingType: getGreenBondsFinancing(10),
+// 		},
+// 	],
+// 	statsInfoAppliers: {
+// 		hydrogenMMBTU: absolute(18_000),
+// 		naturalGasMMBTU: absolute(-18_000),
+// 	},
+// 	statsActualAppliers: {
+// 		hydrogenMMBTU: absolute(18_000),
+// 		naturalGasMMBTU: absolute(-18_000),
+// 	},
+// 	title: 'Blended Fuel for boiler',
+// 	shortTitle: 'Utilize 30% landfill gas in your large boiler',
+// 	choiceInfoText: [
+// 		`As your larger boiler is still well within its expected lifetime, replacement is not yet warranted. 
+// 		Instead, you have investigated the potential for fuel blending with local landfill gas. 
+// 		It has been decided that a 30% blend best suits your needs. Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+// 		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, plus the on-site pipeline and boiler retrofit. `
+// 	],
+// 	choiceInfoImg: 'images/electric-boiler.png',
+// 	choiceInfoImgAlt: 'electric boiler',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	// add case study
+// });
 
-Projects[Pages.landfillGasForOven] = new ProjectControl({
-	pageId: Pages.landfillGasForOven,
-	isCapitalFundsEligible: true,
-	isEnergyEfficiency: true,
-	costSavingsCarryover: 'never',
-	baseCost: 200_000,
-	financedAnnualCost: 20_000,
-	financedTotalCost: 200_000,
-	financingOptions: [
-		{
-			financingType: getGreenBondsFinancing(10),
-		},
-	],
-	statsInfoAppliers: {
-		hydrogenMMBTU: absolute(7_500),
-		naturalGasMMBTU: absolute(-7_500),
-	},
-	statsActualAppliers: {
-		hydrogenMMBTU: absolute(7_500),
-		naturalGasMMBTU: absolute(-7_500),
-	},
-	title: 'Landfill Gas for oven',
-	shortTitle: 'Utilize landfill gas for an oven.',
-	choiceInfoText: [
-		`As part of the boiler project, you have investigated the potential for fuel blending with local landfill gas. 
-		You have decided to test one of your ovens out with landfill gas. 
-		Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
-		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, 
-		plus the on-site pipeline and boiler retrofit.`
-	],
-	choiceInfoImg: 'images/electric-boiler.png',
-	choiceInfoImgAlt: 'electric boiler',
-	choiceInfoImgObjectFit: 'contain',
-	recapDescription: 'Insert flavor text here!',
-	// add case study
-});
+// Projects[Pages.landfillGasForOven] = new ProjectControl({
+// 	pageId: Pages.landfillGasForOven,
+// 	isCapitalFundsEligible: true,
+// 	isEnergyEfficiency: true,
+// 	costSavingsCarryover: 'never',
+// 	baseCost: 200_000,
+// 	financedAnnualCost: 20_000,
+// 	financedTotalCost: 200_000,
+// 	financingOptions: [
+// 		{
+// 			financingType: getGreenBondsFinancing(10),
+// 		},
+// 	],
+// 	statsInfoAppliers: {
+// 		hydrogenMMBTU: absolute(7_500),
+// 		naturalGasMMBTU: absolute(-7_500),
+// 	},
+// 	statsActualAppliers: {
+// 		hydrogenMMBTU: absolute(7_500),
+// 		naturalGasMMBTU: absolute(-7_500),
+// 	},
+// 	title: 'Landfill Gas for oven',
+// 	shortTitle: 'Utilize landfill gas for an oven.',
+// 	choiceInfoText: [
+// 		`As part of the boiler project, you have investigated the potential for fuel blending with local landfill gas. 
+// 		You have decided to test one of your ovens out with landfill gas. 
+// 		Your nearby landfill is beginning to explore this and is looking for buyers before investing. 
+// 		While the cost of gas will be about half that of natural gas, you will be taking on some of the costs of the procurement development, 
+// 		plus the on-site pipeline and boiler retrofit.`
+// 	],
+// 	choiceInfoImg: 'images/electric-boiler.png',
+// 	choiceInfoImgAlt: 'electric boiler',
+// 	choiceInfoImgObjectFit: 'contain',
+// 	recapDescription: 'Insert flavor text here!',
+// 	// add case study
+// });
 
 
 Projects[Pages.electricBoiler] = new ProjectControl({
@@ -417,7 +417,7 @@ Projects[Pages.solarRooftop] = new ProjectControl({
 	choiceInfoImgObjectFit: 'cover',
 	recapDescription: 'Insert flavor text here!',
 	caseStudy: {
-		title: 'Financing Carbon Projects Factsheet',
+		title: 'Financing Energy Projects Factsheet',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/External_Financing_Carbon_Projects_Factsheet.pdf',
 		text: '',
 	},
@@ -505,7 +505,7 @@ Projects[Pages.advancedEnergyMonitoring] = new ProjectControl({
 	caseStudy: {
 		title: 'SAINT-GOBAIN CORPORATION',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/saint-gobain-corporation-advanced-energy-monitoring-wireless-submetering',
-		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its sustainability goals; namely reducing GHG emissions and lowering energy intensity.'
+		text: 'Saint-Gobain North America’s current goal in energy monitoring is to gain more granular data on energy usage within its manufacturing sites to accelerate the achievement of its organizational goals.'
 	},
 	energySavingsPreviewIcon: {
 		text: '0.0%',
@@ -584,6 +584,7 @@ Projects[Pages.boilerControl] = new ProjectControl({
 		startIcon: <FlameIcon />,
 	},
 });
+
 Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	pageId: Pages.steamTrapsMaintenance,
 	isCapitalFundsEligible: true,
@@ -593,8 +594,18 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 		naturalGasMMBTU: absolute(-1800),
 	},
 	statsActualAppliers: {
-		naturalGasMMBTU: absolute(-1800),
+		naturalGasMMBTU: absolute(-900),
 	},
+	recapSurprises: [{
+		title: 'Uh oh - Steam traps not fixed as fast as anticipated ',
+		text: 'Your maintenance team cannot repair as fast as hoped, you only saved 900 MMBTU instead of the estimated 1800 MMBTU',
+		className: 'year-recap-negative-surprise',
+		avatar: {
+			icon: <BoltIcon />,
+			backgroundColor: 'rgba(54,31,6,0.6)',
+			color: 'rgb(255 135 33)',
+		}
+	}],
 	title: 'Treasure Hunt - Steam Trap Maintenance',
 	shortTitle: 'Repair faulty steam traps and implement a steam trap program.',
 	choiceInfoText: [
@@ -605,6 +616,8 @@ Projects[Pages.steamTrapsMaintenance] = new ProjectControl({
 	choiceInfoImgAlt: 'steam trap',
 	choiceInfoImgObjectFit: 'contain',
 	recapDescription: 'Insert flavor text here!',
+	
+
 	caseStudy: {
 		title: 'STEAM',
 		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
@@ -782,7 +795,7 @@ Projects[Pages.chilledWaterMonitoringSystem] = new ProjectControl({
 //      electricityUseKWh: relative(-0.05),
 //  },
 //  title: 'Refrigeration Upgrade',
-//  shortTitle: 'Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system which help in reducing load on the comrpessor and increasing overall system effieicny.',
+//  shortTitle: 'Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system which help in reducing load on the compressor and increasing overall system efficiency.',
 //  choiceInfoText: [
 //      'The plant commissioned a study in June of 2017 to identify areas to improve energy efficiency. Previously, suction pressure was being run at 20.4 PSI to build the ice in the ice bank to optimal levels. In order to increase the efficiency of the system, it was decided to increase the ammonia suction pressure to 35.6 PSI, which is the pressure going into the compression step of the refrigeration cycle. Increasing ammonia suction pressure reduces system lift, which is the difference between suction and discharge pressures within the system. A reduction in lift accomplishes the following:',
 //      'Reduces the overall work required by the compressors',
@@ -1094,241 +1107,237 @@ Projects[Pages.lightingOccupancySensors] = new ProjectControl({
 	},
 });
 
-Projects[Pages.smallVPPA] = new ProjectControl({
-	pageId: Pages.smallVPPA,
-	isCapitalFundsEligible: false,
-	isPPA: true,
-	isRenewable: true,
-	baseCost: 75_000,
-	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-900_000)
-	},
-	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-900_000)
-	},
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget',
-		loanTerm: 10
-	},
-	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Invest in wind VPPA to offset 10% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
-	choiceInfoImg: 'images/wind-mills.jpg',
-	choiceInfoImgAlt: 'wind mills in a field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '0.9M kg',
-		variant: 'text',
-		startIcon: <Co2Icon />,
-	},
-});
+// PPA'S commented out for 8213
+// Projects[Pages.smallVPPA] = new ProjectControl({
+// 	pageId: Pages.smallVPPA,
+// 	isCapitalFundsEligible: false,
+// 	isPPA: true,
+// 	isRenewable: true,
+// 	baseCost: 75_000,
+// 	statsInfoAppliers: {
+// 		absoluteCarbonSavings: absolute(-900_000)
+// 	},
+// 	statsActualAppliers: {
+// 		absoluteCarbonSavings: absolute(-900_000)
+// 	},
+// 	customBudgetType: {
+// 		name: "Power Purchase Agreement",
+// 		description: "Pay Annually",
+// 		id: 'budget',
+// 		loanTerm: 10
+// 	},
+// 	title: 'Invest in wind VPPA',
+// 	shortTitle: 'Invest in wind VPPA to offset {10%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Invest in wind VPPA to offset 10% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {10%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
+// 	choiceInfoImg: 'images/wind-mills.jpg',
+// 	choiceInfoImgAlt: 'wind mills in a field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '0.9M kg',
+// 		variant: 'text',
+// 		startIcon: <Co2Icon />,
+// 	},
+// });
+// Projects[Pages.midVPPA] = new ProjectControl({
+// 	pageId: Pages.midVPPA,
+// 	isCapitalFundsEligible: false,
+// 	isPPA: true,
+// 	isRenewable: true,
+// 	baseCost: 150_000,
+// 	statsInfoAppliers: {
+// 		absoluteCarbonSavings: absolute(-1_800_000)
+// 	},
+// 	statsActualAppliers: {
+// 		absoluteCarbonSavings: absolute(-1_800_000)
+// 	},
+// 	customBudgetType: {
+// 		name: "Power Purchase Agreement",
+// 		description: "Pay Annually",
+// 		id: 'budget',
+// 		loanTerm: 10
+// 	},
+// 	title: 'Invest in wind VPPA',
+// 	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Invest in wind VPPA to offset 20% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
+// 	choiceInfoImg: 'images/wind-mills.jpg',
+// 	choiceInfoImgAlt: 'wind mills in a field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '1.8M kg',
+// 		variant: 'text',
+// 		startIcon: <Co2Icon />,
+// 	},
+// });
+// Projects[Pages.largeVPPA] = new ProjectControl({
+// 	pageId: Pages.largeVPPA,
+// 	isCapitalFundsEligible: false,
+// 	isPPA: true,
+// 	isRenewable: true,
+// 	baseCost: 225_000,
+// 	statsInfoAppliers: {
+// 		absoluteCarbonSavings: absolute(-2_700_000)
+// 	},
+// 	statsActualAppliers: {
+// 		absoluteCarbonSavings: absolute(-2_700_000)
+// 	},
+// 	customBudgetType: {
+// 		name: "Power Purchase Agreement",
+// 		description: "Pay Annually",
+// 		id: 'budget',
+// 		loanTerm: 10
+// 	},
+// 	title: 'Invest in wind VPPA',
+// 	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Invest in wind VPPA to offset 30% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
+// 	choiceInfoImg: 'images/wind-mills.jpg',
+// 	choiceInfoImgAlt: 'wind mills in a field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '2.7M kg',
+// 		variant: 'text',
+// 		startIcon: <Co2Icon />,
+// 	},
+// });
 
-Projects[Pages.midVPPA] = new ProjectControl({
-	pageId: Pages.midVPPA,
-	isCapitalFundsEligible: false,
-	isPPA: true,
-	isRenewable: true,
-	baseCost: 150_000,
-	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-1_800_000)
-	},
-	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-1_800_000)
-	},
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget',
-		loanTerm: 10
-	},
-	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {20%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Invest in wind VPPA to offset 20% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {20%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
-	choiceInfoImg: 'images/wind-mills.jpg',
-	choiceInfoImgAlt: 'wind mills in a field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '1.8M kg',
-		variant: 'text',
-		startIcon: <Co2Icon />,
-	},
-});
-
-Projects[Pages.largeVPPA] = new ProjectControl({
-	pageId: Pages.largeVPPA,
-	isCapitalFundsEligible: false,
-	isPPA: true,
-	isRenewable: true,
-	baseCost: 225_000,
-	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-2_700_000)
-	},
-	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-2_700_000)
-	},
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget',
-		loanTerm: 10
-	},
-	title: 'Invest in wind VPPA',
-	shortTitle: 'Invest in wind VPPA to offset {30%} of your electricity emissions. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Invest in wind VPPA to offset 30% of your electricity emissions. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: ['You decided to look into entering a virtual power purchase agreement for a wind farm a few states away. You can pay $0.05/kWh to offset your electricity emissions, this project costs offsetting {30%} of your electricity emissions.  Working with upper management, you work out a deal where {half of the project costs} come from your budget and the other half from a corporate budget. {THIS PROJECT WILL BE RENEWED ANNUALLY}.'],
-	choiceInfoImg: 'images/wind-mills.jpg',
-	choiceInfoImgAlt: 'wind mills in a field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '2.7M kg',
-		variant: 'text',
-		startIcon: <Co2Icon />,
-	},
-});
-
-
-Projects[Pages.midSolar] = new ProjectControl({
-	pageId: Pages.midSolar,
-	isCapitalFundsEligible: false,
-	isRenewable: true,
-	isPPA: true,
-	baseCost: 105_000,
-	financedAnnualCost: 105_000,
-	financedTotalCost: 260_000,
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget',
-		loanTerm: 10
-	},
-	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-1_717_000)
-	},
-	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-1_717_000)
-	},
-	title: 'Mid-sized Solar PPPA',
-	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Enter a PPPA with your local utility to build a 2MW solar array. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: [
-		`To meet aggressive decarbonization goals, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
-		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.  
-		 You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
-		 You will be in this contract for the next 10 years, so this cost will renew annually automatically.`],
-	choiceInfoImg: 'images/solar-field.jpg',
-	choiceInfoImgAlt: 'Solar panels field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '1.7M kg',
-		variant: 'text',
-		startIcon: <Co2Icon />,
-	},
-	visible: (state) => {
-		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
-	}
-});
+// Projects[Pages.midSolar] = new ProjectControl({
+// 	pageId: Pages.midSolar,
+// 	isCapitalFundsEligible: false,
+// 	isRenewable: true,
+// 	isPPA: true,
+// 	baseCost: 105_000,
+// 	financedAnnualCost: 105_000,
+// 	financedTotalCost: 260_000,
+// 	customBudgetType: {
+// 		name: "Power Purchase Agreement",
+// 		description: "Pay Annually",
+// 		id: 'budget',
+// 		loanTerm: 10
+// 	},
+// 	statsInfoAppliers: {
+// 		absoluteCarbonSavings: absolute(-1_717_000) 
+// 	},
+// 	statsActualAppliers: {
+// 		absoluteCarbonSavings: absolute(-1_717_000)
+// 	},
+// 	title: 'Mid-sized Solar PPPA',
+// 	shortTitle: 'Enter a PPPA with your local utility to build a 2MW solar array. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Enter a PPPA with your local utility to build a 2MW solar array. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: [
+// 		`To reduce energy costs and on-site electricity consumption, you have looked into leasing some neighboring land to your utility for solar panels and receiving the electricity as a physical power purchase agreement (PPPA).
+// 		 You will continue paying your utility provider for electricity, at a higher rate than previously, but not be responsible for the capital investment or maintenance of the system.
+// 		 You believe you can install a 2MW system. You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget.
+// 		 You will be in this contract for the next 10 years, so this cost will renew annually automatically.`],
+// 	choiceInfoImg: 'images/solar-field.jpg',
+// 	choiceInfoImgAlt: 'Solar panels field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '1.7M kg',
+// 		variant: 'text',
+// 		startIcon: <Co2Icon />,
+// 	},
+// 	visible: (state) => {
+// 		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+// 	}
+// });
 
 
+// Projects[Pages.largeWind] = new ProjectControl({
+// 	pageId: Pages.largeWind,
+// 	isCapitalFundsEligible: false,
+// 	isPPA: true,
+// 	isRenewable: true,
+// 	baseCost: 268_500,
+// 	financedAnnualCost: 268_000,
+// 	financedTotalCost: 660_000,
+// 	customBudgetType: {
+// 		name: "Power Purchase Agreement",
+// 		description: "Pay Annually",
+// 		id: 'budget',
+// 		loanTerm: 10
+// 	},
+// 	statsInfoAppliers: {
+// 		absoluteCarbonSavings: absolute(-4_292_000)
+// 	},
+// 	statsActualAppliers: {
+// 		absoluteCarbonSavings: absolute(-4_292_000)
+// 	},
+// 	title: 'Utility-PPPA Wind Project',
+// 	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: [
+// 		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
+// 		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
+// 		but not be responsible for the capital investment or maintenance of the system. They are planning to install a {5MW system} on the site. 
+// 		You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
+// 		You will be in this contract for the next 15 years, so this cost will renew annually automatically.`],
+// 	choiceInfoImg: 'images/wind-mills.jpg',
+// 	choiceInfoImgAlt: 'wind mills in a field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '4.3M kg',
+// 		variant: 'text',
+// 		startIcon: <Co2Icon />,
+// 	},
+// 	visible: (state) => {
+// 		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+// 	}
+// });
 
-Projects[Pages.largeWind] = new ProjectControl({
-	pageId: Pages.largeWind,
-	isCapitalFundsEligible: false,
-	isPPA: true,
-	isRenewable: true,
-	baseCost: 268_500,
-	financedAnnualCost: 268_000,
-	financedTotalCost: 660_000,
-	customBudgetType: {
-		name: "Power Purchase Agreement",
-		description: "Pay Annually",
-		id: 'budget',
-		loanTerm: 10
-	},
-	statsInfoAppliers: {
-		absoluteCarbonSavings: absolute(-4_292_000)
-	},
-	statsActualAppliers: {
-		absoluteCarbonSavings: absolute(-4_292_000)
-	},
-	title: 'Utility-PPPA Wind Project',
-	shortTitle: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Enter a PPPA with a local wind farm to help them expand into a neighboring field. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: [
-		`To meet aggressive decarbonization goals, you have looked into selling an empty field next to your facility to a local wind farm company and receiving the electricity as 
-		part of a 15-year contract to source a large portion of your electricity use. You will continue paying your utility provider for electricity, at a higher rate than previously, 
-		but not be responsible for the capital investment or maintenance of the system. They are planning to install a {5MW system} on the site. 
-		You have worked out a deal with your corporate management team and they will pay for half the difference in additional electricity cost from the utility budget. 
-		You will be in this contract for the next 15 years, so this cost will renew annually automatically.`],
-	choiceInfoImg: 'images/wind-mills.jpg',
-	choiceInfoImgAlt: 'wind mills in a field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '4.3M kg',
-		variant: 'text',
-		startIcon: <Co2Icon />,
-	},
-	visible: (state) => {
-		return state.gameSettings.financingOptions.eaas && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
-	}
-});
-
-Projects[Pages.communityWindProject] = new ProjectControl({
-	pageId: Pages.communityWindProject,
-	isCapitalFundsEligible: false,
-	isRenewable: true,
-	mustAnnuallyFinance: true,
-	costSavingsCarryover: 'always',
-	baseCost: 537_000,
-	financedAnnualCost: 400_000,
-	financedTotalCost: 4_000_000,
-	financingOptions: [
-		{
-			financingType: getGreenBondsFinancing(10),
-		},
-	],
-	statsInfoAppliers: {
-		electricityUseKWh: absolute(-8_200_000),
-	},
-	statsActualAppliers: {
-		electricityUseKWh: absolute(-8_200_000),
-	},
-	title: 'Community Wind Project',
-	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
-	shortTitleRawText: 'Invest in community wind project. THIS PROJECT WILL BE RENEWED ANNUALLY.',
-	choiceInfoText: [
-		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
-		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 
-		You have worked out a deal with your corporate management team and they will pay for half of the project from capital funds. 
-		You will paying the bonds back for the next 10 years, so this cost will renew annually automatically. `],
-	choiceInfoImg: 'images/wind-mills.jpg',
-	choiceInfoImgAlt: 'wind mills in a field',
-	choiceInfoImgObjectFit: 'cover',
-	recapDescription: 'Insert flavor text here!',
-	caseStudy: undefined,
-	energySavingsPreviewIcon: {
-		text: '23%',
-		variant: 'text',
-		startIcon: <BoltIcon />,
-	},
-	visible: (state) => {
-		return state.gameSettings.financingOptions.greenBond && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
-	}
-});
-
+// Projects[Pages.communityWindProject] = new ProjectControl({
+// 	pageId: Pages.communityWindProject,
+// 	isCapitalFundsEligible: false,
+// 	isRenewable: true,
+// 	mustAnnuallyFinance: true,
+// 	costSavingsCarryover: 'always',
+// 	baseCost: 537_000,
+// 	financedAnnualCost: 400_000,
+// 	financedTotalCost: 4_000_000,
+// 	financingOptions: [
+// 		{
+// 			financingType: getGreenBondsFinancing(10),
+// 		},
+// 	],
+// 	statsInfoAppliers: {
+// 		electricityUseKWh: absolute(-8_200_000),
+// 	},
+// 	statsActualAppliers: {
+// 		electricityUseKWh: absolute(-8_200_000),
+// 	},
+// 	title: 'Community Wind Project',
+// 	shortTitle: 'Invest in community wind project. {THIS PROJECT WILL BE RENEWED ANNUALLY}.',
+// 	shortTitleRawText: 'Invest in community wind project. THIS PROJECT WILL BE RENEWED ANNUALLY.',
+// 	choiceInfoText: [
+// 		`To meet aggressive decarbonization goals, you have looked into working with a local wind farm company and investing in a portion of the generation. 
+// 		You can use Green Bonds to pay for project and you will then own a portion of the generation. The utility is planning to install a {10MW system} on the site, and you will invest in 4MW. 
+// 		You have worked out a deal with your corporate management team and they will pay for half of the project from capital funds. 
+// 		You will paying the bonds back for the next 10 years, so this cost will renew annually automatically. `],
+// 	choiceInfoImg: 'images/wind-mills.jpg',
+// 	choiceInfoImgAlt: 'wind mills in a field',
+// 	choiceInfoImgObjectFit: 'cover',
+// 	recapDescription: 'Insert flavor text here!',
+// 	caseStudy: undefined,
+// 	energySavingsPreviewIcon: {
+// 		text: '23%',
+// 		variant: 'text',
+// 		startIcon: <BoltIcon />,
+// 	},
+// 	visible: (state) => {
+// 		return state.gameSettings.financingOptions.greenBond && getHasFinancingStarted(state.trackedStats.currentGameYear, state.gameSettings.financingStartYear, state.gameSettings.gameYearInterval);
+// 	}
+// });
 
 Projects[Pages.heatPumpForOffice] = new ProjectControl({
 	pageId: Pages.heatPumpForOffice,
@@ -1353,7 +1362,7 @@ Projects[Pages.heatPumpForOffice] = new ProjectControl({
 	},
 	title: 'Heat Pump for Office Conditioning',
 	shortTitle: 'Heat pump for office conditioning',
-	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into electrifying your building conditioning systems. 
+	choiceInfoText: [`To reduce your dependence on natural gas, you have decided to look into electrifying your building conditioning systems. 
 		Your on-campus offices use about {4,000 MMBty/yr} of natural gas to heat.
 		You think you can get an equivalent output heat pump system that will take care of heating and cooling and will be about {155-ton system}.
 		As your AC system is not new, but also not at the end of it's life, the corporate management team has agreed that they will pay for {25%} of the capital and installation costs.`],
@@ -1385,7 +1394,7 @@ Projects[Pages.solarThermalHotWater] = new ProjectControl({
 	},
 	title: 'Solar Thermal for Hot Water',
 	shortTitle: 'Solar thermal for hot water',
-	choiceInfoText: [`As a focus on your Scope 1 emissions, you have decided to look into a solar thermal field for some hot water needs.
+	choiceInfoText: [`To reduce your dependence on natural gas, you have decided to look into a solar thermal field for some hot water needs.
 		As you do not wish to install water storage, you are sized for a field to match your lowest demand, leading to a system that can 
 		deliver {2.5 MMBtu/hr}, about {1,500 hours per year}.`],
 	choiceInfoImg: 'images/electric-boiler.png',
@@ -1394,7 +1403,6 @@ Projects[Pages.solarThermalHotWater] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	// add case study
 });
-
 
 Projects[Pages.thProgramableHVAC] = new ProjectControl({
 	pageId: Pages.thProgramableHVAC,
@@ -1419,9 +1427,10 @@ Projects[Pages.thProgramableHVAC] = new ProjectControl({
 	recapDescription: 'Insert flavor text here!',
 	// add case study
 	caseStudy: {
-		title: 'STEAM',
-		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/steam',
-		text: 'Due to the wide array of industrial uses and performance advantages of using steam, steam is an indispensable means of delivering energy in the manufacturing sector. As a result, steam accounts for a significant amount of industrial energy consumption. In 2006, U.S. manufacturers used about 4,762 trillion Btu of steam energy, representing approximately 40% of the total energy used in industrial process applications for product output.'
+		title: 'ENERGY TREASURE HUNTS',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/better-plants/energy-treasure-hunts',
+		text: 'One of the best tools at an energy manager\'s disposal is what\'s known as an Energy Treasure Hunt; an onsite three-day event that engages cross-functional teams of employees in the process of identifying operational and maintenance (O&M) energy efficiency improvements.'
+
 	},
 	energySavingsPreviewIcon: {
 		text: '0.5%',
@@ -1575,4 +1584,41 @@ Projects[Pages.thRunDriersOnly] = new ProjectControl({
 		startIcon: <BoltIcon />,
 	},
 	visible: state => state.yearRangeInitialStats.some(stats => stats.currentGameYear === 3)
+});
+
+
+Projects[Pages.steamTrapsMonitoring] = new ProjectControl({
+	pageId: Pages.steamTrapsMonitoring,
+	isCapitalFundsEligible: true,
+	baseCost: 10_000,
+	isEnergyEfficiency: true,
+	statsInfoAppliers: {
+		naturalGasMMBTU: absolute(-1800),
+	},
+	statsActualAppliers: {
+		naturalGasMMBTU: absolute(-1800),
+	},
+	title: 'Steam Trap Monitoring',
+	shortTitle: 'Utilize battery-less steam trap sensors to detect faulty traps without maintenance needing to search',
+	choiceInfoText: [
+		'After implementing the steam trap maintenance program, faulty traps continue to be found, but time to repair is {long}. Additionally, checking each trap monthly lead to a backlog for other maintenance issues. ',
+		'A battery-less, cloud-based subscription service was found to monitor traps remotely, eliminating the need to check traps manually. This will free up maintenance for other issues, reduce time spent failed, and reduce time spent in high-risk environments, improving site safety. You also find more steam leaks than previously identified and now have time to fix them.',
+		'Due to the improvement in maintenance operations, the subscription service will be handled under maintenance\'s monthly budget, but your team will handle the initial installation costs and contract negotiation.'
+	],
+	choiceInfoImg: 'images/steam-traps.jpg',
+	choiceInfoImgAlt: 'steam trap',
+	choiceInfoImgObjectFit: 'contain',
+	recapDescription: 'Insert flavor text here!',
+	caseStudy: {
+		title: '3M: Battery-less cloud monitoring for steam traps',
+		url: 'https://betterbuildingssolutioncenter.energy.gov/showcase-projects/3m-battery-less-cloud-monitoring-steam-traps-trialed-one-3ms-largest',
+		text: 'After installing a real-time steam trap cloud monitoring system, the 3M site now monitors the steam traps safely and can attend to failures in a timely manner.'
+	},
+	energySavingsPreviewIcon: {
+		text: '1%',
+		variant: 'text',
+		startIcon: <FlameIcon />,
+	},
+	visible: state => state.completedProjects.some(project => project.page === Pages.steamTrapsMaintenance)
+
 });

@@ -170,7 +170,7 @@ $landfill-gasses:  #f06807;
 	&::before {
 		position: fixed;
 		z-index: -1;
-		background: url('images/lose-image-opt-sm.jpg');
+		background: url('images/home-background.jpg');
 		filter: none;
 		background-size: cover;
 		background-position: bottom;
@@ -199,19 +199,19 @@ $landfill-gasses:  #f06807;
 }
 
 .swiper-slide.swiper-slide-active.slide1-image {
-	@include slide-psuedo-image('images/turbine2-opt.jpg')
+	@include slide-psuedo-image('images/home-background.jpg')
 }
 
 .swiper-slide.swiper-slide-active.slide2-image {
-	@include slide-psuedo-image('images/solar-array2-opt.jpg')
+	@include slide-psuedo-image('images/home-background.jpg')
 }
 
 .swiper-slide.swiper-slide-active.slide3-image {
-	@include slide-psuedo-image('images/electricity.jpg')	
+	@include slide-psuedo-image('images/home-background.jpg')
 }
 
 .swiper-slide.swiper-slide-active.slide4-image {
-	@include slide-psuedo-image('images/field-opt.jpg')	
+	@include slide-psuedo-image('images/home-background.jpg')
 }
 
 .lose-game-text {

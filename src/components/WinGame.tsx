@@ -10,6 +10,7 @@ import 'animate.css';
 import { PageControl } from './controls';
 import React, { Fragment, ReactNode } from 'react';
 import { EndGameResults } from '../trackedStats';
+import SlideContent, { UnderlineSpan } from './SlideContent';
 
 
 export default class WinGame extends React.Component<WinGameProps> {
@@ -58,8 +59,8 @@ export default class WinGame extends React.Component<WinGameProps> {
                                 <div
                                     key={'slide1b'}
                                     className='slide-stat-div child-stat-div'>
-                                    <span>Your company has met the decarbonization goal, reducing CO<sub>2</sub>e emissions by</span>
-                                    <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPercent}% `}
+                                    <span>Your company has met the energy savings goal, reducing energy use by</span>
+                                    <UnderlineSpan text={`${this.props.endGameResults.operationEnergyUsePercent}%`}
                                         animationClass='animate-underline-emphasis'></UnderlineSpan>
 
                                 </div>
@@ -77,7 +78,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         <span>In the game, you spent
                                             <UnderlineSpan text={`$${this.props.endGameResults.gameTotalSpending}`}
                                                 animationClass='animate-underline-emphasis'></UnderlineSpan>
-                                            on GHG reduction measures
+                                            on energy savings projects
                                         </span>
 
                                     </div>,
@@ -86,7 +87,7 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         className='slide-stat-div child-stat-div'>
                                         {this.props.endGameResults.projectedFinancedSpending ?
                                             <span>In the years after the game, you will spend <UnderlineSpan text={`$${this.props.endGameResults.projectedFinancedSpending}`}
-                                                animationClass='animate-underline-emphasis'></UnderlineSpan> on financed and power purchase agreement projects
+                                                animationClass='animate-underline-emphasis'></UnderlineSpan> on financed projects
                                             </span>
                                             :
                                             <></>
@@ -104,19 +105,19 @@ export default class WinGame extends React.Component<WinGameProps> {
                                         key={'slide3'}
                                         className='slide-stat-div'>
                                         <span>
-                                            Your total spend on GHG reduction projects will be
+                                            Your total spend on energy savings projects will be
                                             <UnderlineSpan text={`$${this.props.endGameResults.gameCurrentAndProjectedSpending}`}
                                                 animationClass='animate-underline-emphasis'></UnderlineSpan>
-                                            and you will have reduced your GHG emissions by
-                                            <UnderlineSpan text={`${this.props.endGameResults.carbonSavingsPerTonne} tonne/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            and you will have reduced your energy use by
+                                            <UnderlineSpan text={`${this.props.endGameResults.operationEnergyUse} MMBtu/yr`} animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
                                     </div>,
                                     <div
                                         key={'slide3b'}
                                         className='slide-stat-div child-stat-div'>
                                         <span>
-                                            Your cost of carbon reduction is
-                                            <UnderlineSpan text={`$${this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e`} animationClass='animate-underline-emphasis'></UnderlineSpan>
+                                            Cost per energy saved: 
+                                            <UnderlineSpan text={`$${this.props.endGameResults.costPerMMBtuSavings}/MMBtu`} animationClass='animate-underline-emphasis'></UnderlineSpan>
                                         </span>
                                     </div>
                                 ]
@@ -128,17 +129,22 @@ export default class WinGame extends React.Component<WinGameProps> {
                             statDivs={
                                 [
                                     <div
-                                        key={'slide4c'}
+                                        key={'slide4a'}
                                         className='slide-stat-div'>
-                                        Overall, you reduced your GHG emissions by {this.props.endGameResults.carbonSavingsPercent}%
+                                        Overall, you reduced your energy costs by {this.props.endGameResults.operationEnergyCostPercent}%
                                     </div>,
                                     <div
                                         key={'slide4b'}
                                         className='slide-stat-div child-stat-div'>
-                                        This cost ${this.props.endGameResults.costPerCarbonSavings}/kg CO<sub>2</sub>e
+                                        energy use by: {this.props.endGameResults.operationEnergyUsePercent}%
                                     </div>,
                                     <div
-                                        key={'slide4'}
+                                        key={'slide4c'}
+                                        className='slide-stat-div child-stat-div'>
+                                        Cost per energy saved: ${this.props.endGameResults.costPerMMBtuSavings}/MMBtu
+                                    </div>,
+                                    <div
+                                        key={'slide4d'}
                                         className='slide-stat-div child-stat-div'
                                         style={{ fontSize: '64px', marginTop: '3rem' }}>
                                         <span>Thank you!</span>
@@ -171,37 +177,4 @@ export function newWinGameControl(): PageControl {
         controlProps: {},
         hideDashboard: true,
     };
-}
-
-export interface UnderlineProps { text: string, animationClass: string }
-
-function UnderlineSpan(props: UnderlineProps) {
-    const swiperSlide = useSwiperSlide();
-    const animationCSS = swiperSlide.isActive ? `${props.animationClass} animate-color` : '';
-    const underlinedText = { __html: props.text };
-    return (
-        <Fragment>
-            <span className={animationCSS} dangerouslySetInnerHTML={underlinedText}></span>
-        </Fragment>
-    )
-}
-
-
-export interface SlideProps { statDivs: ReactNode[] }
-
-function SlideContent(props: SlideProps) {
-    const swiperSlide = useSwiperSlide();
-    const animationCSS = swiperSlide.isActive ? `animate__animated animate__fadeIn animate__slow` : '';
-
-    return (
-        <div className="slide-overlay">
-            <div className='slide-flex-space'></div>
-            <div className={`slide-overlay-rect ${animationCSS}`}>
-                {props.statDivs.map(div => {
-                    return (div)
-                })}
-            </div>
-            <div className='slide-flex-space'></div>
-        </div>
-    )
 }

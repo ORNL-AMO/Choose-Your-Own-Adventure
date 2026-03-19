@@ -62,17 +62,13 @@ export default function BasicTabs(props: ScopeTabsControlProps) {
                     centered 
                     variant='fullWidth'
                 >
-                    <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Scope 1' {...a11yProps(0)} />
-                    <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Scope 2' {...a11yProps(1)} />
+                    <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Fuels' {...a11yProps(0)} />
+                    <Tab sx={{ fontSize: '28px', border: 1, borderColor: '#1D428A' }} label='Electricity' {...a11yProps(1)} />
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                Scope 1: Direct Emissions <br></br>
-                Company emissions that are owned or controlled by the organization directly.
             </TabPanel>
             <TabPanel value={value} index={1}>
-                Scope 2: Indirect Emissions <br></br>
-                Company emissions that are caused indirectly when the energy it purchases and uses is produced.
             </TabPanel>
         </Box>
     );
