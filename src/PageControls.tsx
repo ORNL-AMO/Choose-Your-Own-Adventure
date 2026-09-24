@@ -51,8 +51,15 @@ PageControls[Pages.introduction] = newAppPageDialogControl({
     img: 'images/manufacturing.png',
     imgAlt: 'A robotic arm working on a car.',
     buttons: [
-        // todo 142 don't need a back button to go back to a splash page
-        backButton(Pages.start),
+        { ...backButton(Pages.start), align: 'left' },
+        {
+            text: 'View Leaderboard',
+            variant: 'text',
+            align: 'left',
+            onClick: function () {
+                return Pages.scoreBoard;
+            },
+        },
         continueButton(function (state, nextState) {
             return Pages.selectGameSettings;
         }),

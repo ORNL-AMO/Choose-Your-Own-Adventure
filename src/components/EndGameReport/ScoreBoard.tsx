@@ -67,7 +67,6 @@ function getComparator<Key extends keyof any>(
     a: { [key in Key]: number | string },
     b: { [key in Key]: number | string },
 ) => number {
-    console.log('getComparator order, orderby', order, orderBy);
     if (order === 'desc') {
        return (a, b) => descendingComparator(a, b, orderBy);
     } else {
@@ -166,13 +165,12 @@ export default function ScoreBoard(props: FormProps) {
         }, [orderRows, orderRowsBy, leaderboardData]);
 
     return (
-        <>
-            <Typography variant='h2'>
+        <Paper sx={{ padding: 3 }}>
+            <Typography variant='h4' sx={{ paddingBottom: 2 }}>
                 Leaderboard
             </Typography>
 
-
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table aria-label='simple table'>
                     <EnhancedTableHead
                         order={orderRows}
@@ -201,8 +199,7 @@ export default function ScoreBoard(props: FormProps) {
 
             </TableContainer>
 
-
-        </>
+        </Paper>
     );
 
 }

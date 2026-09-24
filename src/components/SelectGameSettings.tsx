@@ -224,12 +224,19 @@ export function SelectGameSettings(props: SelectGameSettingsProps) {
                         </Select>
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button
-                        size='small'
-                        onClick={() => props.doPageCallback(Pages.introduction)} >
-                        Back
-                    </Button>
+                <DialogActions sx={{ justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                            size='small'
+                            onClick={() => props.doPageCallback(Pages.introduction)} >
+                            Back
+                        </Button>
+                        <Button
+                            size='small'
+                            onClick={() => props.doPageCallback(Pages.scoreBoard)} >
+                            View Leaderboard
+                        </Button>
+                    </Box>
                     <Button
                         size='small'
                         disabled={invalidFinancingOptionsError}
