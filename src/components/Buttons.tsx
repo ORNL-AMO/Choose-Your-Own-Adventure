@@ -47,6 +47,10 @@ export declare interface ButtonGroupButton {
 	shouldDisplay?: Resolvable<boolean>
 	href?: string;
 	target?: React.HTMLAttributeAnchorTarget;
+	/**
+	 * Side to render this button on when useMUIStack is false. Defaults to 'right'.
+	 */
+	align?: 'left' | 'right';
 }
 
 export declare interface ButtonGroupProps extends ControlCallbacks {
@@ -70,8 +74,24 @@ export function ButtonGroup(props: ButtonGroupProps) {
 	
 	if (!props.buttons) return <></>;
 	const buttons = props.buttons.map((button, idx) => getButtonComponent(props, button, idx));
-	if (props.useMUIStack === false) 
-		return <>{buttons}</>;
+	if (props.useMUIStack === false) {
+		const leftButtons = props.buttons.filter((button) => button.align === 'left');
+		// No left-aligned buttons, keep the original layout (buttons flow with the parent's justification)
+		if (leftButtons.length === 0) 
+			return <>{buttons}</>;
+
+		const rightButtons = props.buttons.filter((button) => button.align !== 'left');
+		return (
+			<Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ width: '100%' }}>
+				<Stack direction='row' spacing={1}>
+					{leftButtons.map((button, idx) => getButtonComponent(props, button, idx))}
+				</Stack>
+				<Stack direction='row' spacing={1}>
+					{rightButtons.map((button, idx) => getButtonComponent(props, button, idx))}
+				</Stack>
+			</Stack>
+		);
+	}
 	else {
 		// By default, use a Stack element to space the buttons
 		return (

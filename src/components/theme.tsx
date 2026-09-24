@@ -50,6 +50,13 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 		backgroundColor: theme.palette.primary.light,
 		color: theme.palette.common.white,
 		fontSize: 14,
+		// MUI's TableSortLabel forces text.primary color when active/hovered, overriding the header's white text
+		'& .MuiTableSortLabel-root.Mui-active, & .MuiTableSortLabel-root:hover': {
+			color: 'inherit',
+		},
+		'& .MuiTableSortLabel-icon': {
+			color: 'inherit !important',
+		},
 	},
 	[`&.${tableCellClasses.body}`]: {
 		fontSize: 14,
